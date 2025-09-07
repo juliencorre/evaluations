@@ -4,7 +4,7 @@
       <!-- Offline icon -->
       <div class="text-center">
         <div class="mx-auto h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center">
-          <CloudSlashIcon class="h-10 w-10 text-gray-400" />
+          <WifiIcon class="h-10 w-10 text-gray-400" />
         </div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Vous êtes hors ligne
@@ -97,7 +97,7 @@
 
 <script setup>
 import { 
-  CloudSlashIcon, 
+  WifiIcon, 
   CheckCircleIcon, 
   ExclamationTriangleIcon, 
   InformationCircleIcon 

@@ -6,7 +6,6 @@ import type { User, Session } from '@supabase/supabase-js'
  * Handles login, register, logout, and session management
  */
 export const useAuth = () => {
-  const supabase = useSupabase()
   const user = ref<User | null>(null)
   const session = ref<Session | null>(null)
   const loading = ref(true)
@@ -19,6 +18,12 @@ export const useAuth = () => {
    * @returns Promise with registration result
    */
   const register = async (email: string, password: string, userData: any = {}) => {
+    if (!process.client) {
+      return { data: null, error: 'Client-side only' }
+    }
+
+    const supabase = useSupabase()
+    
     try {
       loading.value = true
       
@@ -48,6 +53,12 @@ export const useAuth = () => {
    * @returns Promise with login result
    */
   const login = async (email: string, password: string) => {
+    if (!process.client) {
+      return { data: null, error: 'Client-side only' }
+    }
+
+    const supabase = useSupabase()
+    
     try {
       loading.value = true
       
@@ -72,6 +83,12 @@ export const useAuth = () => {
    * @returns Promise with logout result
    */
   const logout = async () => {
+    if (!process.client) {
+      return { error: 'Client-side only' }
+    }
+
+    const supabase = useSupabase()
+    
     try {
       loading.value = true
       const { error } = await supabase.auth.signOut()
@@ -100,6 +117,12 @@ export const useAuth = () => {
    * @returns Promise with reset result
    */
   const resetPassword = async (email: string) => {
+    if (!process.client) {
+      return { error: 'Client-side only' }
+    }
+
+    const supabase = useSupabase()
+    
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`
@@ -120,6 +143,12 @@ export const useAuth = () => {
    * @returns Promise with update result
    */
   const updatePassword = async (password: string) => {
+    if (!process.client) {
+      return { error: 'Client-side only' }
+    }
+
+    const supabase = useSupabase()
+    
     try {
       const { error } = await supabase.auth.updateUser({
         password
@@ -138,6 +167,13 @@ export const useAuth = () => {
    * Initialize auth state and listen for changes
    */
   const initAuth = async () => {
+    if (!process.client) {
+      loading.value = false
+      return
+    }
+
+    const supabase = useSupabase()
+    
     try {
       // Get initial session
       const { data: { session: initialSession } } = await supabase.auth.getSession()
@@ -173,6 +209,16 @@ export const useAuth = () => {
   // Computed properties
   const isLoggedIn = computed(() => !!user.value)
   const userProfile = computed(() => user.value?.user_metadata || {})
+
+  // Initialize auth only on client side
+  if (process.client) {
+    onMounted(async () => {
+      await initAuth()
+    })
+  } else {
+    // Set loading to false on server side
+    loading.value = false
+  }
 
   return {
     // State

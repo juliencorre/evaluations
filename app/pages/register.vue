@@ -7,35 +7,16 @@
           Créer un compte
         </h2>
         <p class="mt-2 text-sm text-gray-600">
-          Rejoignez notre plateforme sécurisée d'évaluation
+          Rejoignez notre plateforme sécurisée
         </p>
       </div>
 
       <!-- Registration Form -->
-      <form @submit="onSubmit" class="space-y-6">
-        <!-- Full Name -->
-        <div>
-          <label for="fullName" class="block text-sm font-medium text-gray-700">
-            Nom complet *
-          </label>
-          <input
-            id="fullName"
-            v-model="fullName"
-            type="text"
-            required
-            class="form-input"
-            :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.fullName }"
-            placeholder="Votre nom complet"
-          />
-          <div v-if="errors.fullName" class="form-error">
-            {{ errors.fullName }}
-          </div>
-        </div>
-
+      <form @submit.prevent="onSubmit" class="space-y-6">
         <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">
-            Adresse email *
+            Adresse email
           </label>
           <input
             id="email"
@@ -43,166 +24,52 @@
             type="email"
             required
             class="form-input"
-            :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.email }"
             placeholder="votre@email.com"
           />
-          <div v-if="errors.email" class="form-error">
-            {{ errors.email }}
-          </div>
         </div>
 
         <!-- Password -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
-            Mot de passe *
-          </label>
-          <div class="relative">
-            <input
-              id="password"
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              required
-              class="form-input pr-10"
-              :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.password }"
-              placeholder="Mot de passe sécurisé"
-            />
-            <button
-              type="button"
-              @click="showPassword = !showPassword"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
-            >
-              <EyeIcon v-if="!showPassword" class="h-5 w-5 text-gray-400" />
-              <EyeSlashIcon v-else class="h-5 w-5 text-gray-400" />
-            </button>
-          </div>
-          <div v-if="errors.password" class="form-error">
-            {{ errors.password }}
-          </div>
-          <!-- Password strength indicator -->
-          <div class="mt-2">
-            <div class="flex items-center space-x-1">
-              <div class="flex-1 bg-gray-200 rounded-full h-2">
-                <div 
-                  class="h-2 rounded-full transition-all duration-300"
-                  :class="passwordStrengthColor"
-                  :style="{ width: `${passwordStrengthWidth}%` }"
-                ></div>
-              </div>
-              <span class="text-xs text-gray-500">{{ passwordStrengthText }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
-            Confirmer le mot de passe *
+            Mot de passe
           </label>
           <input
-            id="confirmPassword"
-            v-model="confirmPassword"
+            id="password"
+            v-model="password"
             type="password"
             required
             class="form-input"
-            :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.confirmPassword }"
-            placeholder="Confirmer votre mot de passe"
+            placeholder="Votre mot de passe"
           />
-          <div v-if="errors.confirmPassword" class="form-error">
-            {{ errors.confirmPassword }}
-          </div>
-        </div>
-
-        <!-- Terms and Privacy -->
-        <div class="flex items-center">
-          <input
-            id="terms"
-            v-model="acceptTerms"
-            type="checkbox"
-            required
-            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label for="terms" class="ml-2 block text-sm text-gray-900">
-            J'accepte les 
-            <NuxtLink to="/terms" class="text-indigo-600 hover:text-indigo-500">
-              conditions d'utilisation
-            </NuxtLink>
-            et la 
-            <NuxtLink to="/privacy" class="text-indigo-600 hover:text-indigo-500">
-              politique de confidentialité
-            </NuxtLink>
-            *
-          </label>
-        </div>
-        <div v-if="errors.acceptTerms" class="form-error">
-          {{ errors.acceptTerms }}
-        </div>
-
-        <!-- Marketing consent (GDPR) -->
-        <div class="flex items-center">
-          <input
-            id="marketing"
-            v-model="marketingConsent"
-            type="checkbox"
-            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label for="marketing" class="ml-2 block text-sm text-gray-900">
-            Je souhaite recevoir des informations sur les nouveautés et offres spéciales (optionnel)
-          </label>
-        </div>
-
-        <!-- Error message -->
-        <div v-if="submitError" class="bg-red-50 border border-red-200 rounded-md p-4">
-          <div class="flex">
-            <ExclamationCircleIcon class="h-5 w-5 text-red-400" />
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
-                Erreur lors de l'inscription
-              </h3>
-              <div class="mt-2 text-sm text-red-700">
-                {{ submitError }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Success message -->
-        <div v-if="successMessage" class="bg-green-50 border border-green-200 rounded-md p-4">
-          <div class="flex">
-            <CheckCircleIcon class="h-5 w-5 text-green-400" />
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-green-800">
-                Inscription réussie
-              </h3>
-              <div class="mt-2 text-sm text-green-700">
-                {{ successMessage }}
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Submit button -->
         <div>
           <button
             type="submit"
-            :disabled="isSubmitting || !meta.valid"
+            :disabled="isSubmitting"
             class="btn-primary w-full"
           >
-            <span v-if="isSubmitting" class="flex items-center justify-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Création en cours...
-            </span>
-            <span v-else>Créer mon compte</span>
+            <span v-if="isSubmitting">Création en cours...</span>
+            <span v-else>Créer un compte</span>
           </button>
         </div>
       </form>
 
+      <!-- Error message -->
+      <div v-if="errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success message -->
+      <div v-if="successMessage" class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+        {{ successMessage }}
+      </div>
+
       <!-- Login link -->
       <div class="text-center">
         <p class="text-sm text-gray-600">
-          Vous avez déjà un compte?
+          Déjà un compte?
           <NuxtLink to="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
             Se connecter
           </NuxtLink>
@@ -213,136 +80,53 @@
 </template>
 
 <script setup>
-import { useForm } from 'vee-validate'
-import * as yup from 'yup'
-import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
-
 // Set page title
 useHead({
   title: 'Inscription - Evaluations'
 })
 
-// Form validation schema
-const schema = yup.object({
-  fullName: yup.string()
-    .required('Le nom complet est obligatoire')
-    .min(2, 'Le nom doit contenir au moins 2 caractères'),
-  email: yup.string()
-    .required('L\'adresse email est obligatoire')
-    .email('L\'adresse email n\'est pas valide'),
-  password: yup.string()
-    .required('Le mot de passe est obligatoire')
-    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-      'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial'),
-  confirmPassword: yup.string()
-    .required('La confirmation du mot de passe est obligatoire')
-    .oneOf([yup.ref('password')], 'Les mots de passe ne correspondent pas'),
-  acceptTerms: yup.boolean()
-    .required('Vous devez accepter les conditions d\'utilisation')
-    .isTrue('Vous devez accepter les conditions d\'utilisation')
-})
-
-// Use vee-validate
-const { values, errors, meta, handleSubmit } = useForm({
-  validationSchema: schema
-})
+// Auth composable
+const { register, isLoggedIn } = useAuth()
 
 // Form fields
-const fullName = ref('')
 const email = ref('')
 const password = ref('')
-const confirmPassword = ref('')
-const acceptTerms = ref(false)
-const marketingConsent = ref(false)
 
 // UI state
-const showPassword = ref(false)
 const isSubmitting = ref(false)
-const submitError = ref('')
+const errorMessage = ref('')
 const successMessage = ref('')
 
-// Auth composable
-const { register } = useAuth()
-
-// Password strength computation
-const passwordStrength = computed(() => {
-  if (!password.value) return 0
-  
-  let score = 0
-  const pwd = password.value
-  
-  // Length
-  if (pwd.length >= 8) score++
-  if (pwd.length >= 12) score++
-  
-  // Character types
-  if (/[a-z]/.test(pwd)) score++
-  if (/[A-Z]/.test(pwd)) score++
-  if (/\d/.test(pwd)) score++
-  if (/[@$!%*?&]/.test(pwd)) score++
-  
-  return score
-})
-
-const passwordStrengthWidth = computed(() => {
-  return (passwordStrength.value / 6) * 100
-})
-
-const passwordStrengthColor = computed(() => {
-  const strength = passwordStrength.value
-  if (strength <= 2) return 'bg-red-500'
-  if (strength <= 4) return 'bg-yellow-500'
-  return 'bg-green-500'
-})
-
-const passwordStrengthText = computed(() => {
-  const strength = passwordStrength.value
-  if (strength <= 2) return 'Faible'
-  if (strength <= 4) return 'Moyen'
-  return 'Fort'
-})
-
-// Form submission
-const onSubmit = handleSubmit(async (values) => {
-  isSubmitting.value = true
-  submitError.value = ''
-  successMessage.value = ''
-  
-  try {
-    const { data, error } = await register(
-      values.email,
-      values.password,
-      {
-        full_name: values.fullName,
-        marketing_consent: marketingConsent.value
-      }
-    )
-    
-    if (error) {
-      throw new Error(error)
-    }
-    
-    successMessage.value = 'Votre compte a été créé avec succès! Veuillez vérifier votre email pour confirmer votre compte.'
-    
-    // Redirect to login after 3 seconds
-    setTimeout(() => {
-      navigateTo('/login')
-    }, 3000)
-    
-  } catch (error) {
-    console.error('Registration error:', error)
-    submitError.value = error.message || 'Une erreur est survenue lors de l\'inscription'
-  } finally {
-    isSubmitting.value = false
-  }
-})
-
 // Redirect if already logged in
-const { isLoggedIn } = useAuth()
 watchEffect(() => {
   if (isLoggedIn.value) {
     navigateTo('/')
   }
 })
+
+// Form submission
+const onSubmit = async () => {
+  if (isSubmitting.value) return
+  
+  isSubmitting.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+  
+  try {
+    const { data, error } = await register(email.value, password.value)
+    
+    if (error) {
+      errorMessage.value = error
+    } else {
+      successMessage.value = 'Compte créé avec succès ! Vérifiez votre email.'
+      // Clear form
+      email.value = ''
+      password.value = ''
+    }
+  } catch (error) {
+    errorMessage.value = 'Une erreur est survenue'
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>

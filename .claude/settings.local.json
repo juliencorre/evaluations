@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(copy publicpwa-64x64.png publicpwa-192x192.png)",
+      "Bash(copy publicpwa-64x64.png publicpwa-512x512.png)",
+      "WebFetch(domain:nuxt.com)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

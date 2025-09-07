@@ -2,7 +2,7 @@
   <div class="flex items-center space-x-4">
     <template v-if="isLoggedIn">
       <span class="text-sm text-gray-700">
-        Bienvenue, {{ userProfile.full_name || user?.email }}
+        Bienvenue, {{ userProfile?.full_name || user?.email }}
       </span>
       <button 
         @click="handleLogout"

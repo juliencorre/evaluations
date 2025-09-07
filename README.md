@@ -11,6 +11,12 @@ Une application moderne de gestion d'évaluations avec authentification sécuris
 - **Design responsive** et accessible
 - **Tests automatisés** avec couverture de code
 - **Configuration sécurisée** via variables d'environnement
+- **🔥 PWA (Progressive Web App) complète**
+  - Installation sur mobile et desktop
+  - Fonctionnement hors ligne
+  - Notifications push
+  - Synchronisation en arrière-plan
+  - Cache intelligent des ressources
 
 ## 📋 Prérequis
 
@@ -115,20 +121,33 @@ npm run test -- --watch
 ```
 ├── app/
 │   ├── assets/css/          # Styles CSS et TailwindCSS
+│   ├── components/          # Composants Vue réutilisables
+│   │   └── PwaInstallPrompt.vue  # Composant d'installation PWA
 │   ├── layouts/             # Layouts de l'application
 │   ├── middleware/          # Middlewares de route
 │   ├── pages/               # Pages de l'application
 │   │   ├── index.vue        # Page d'accueil
 │   │   ├── login.vue        # Page de connexion
 │   │   ├── register.vue     # Page d'inscription
+│   │   ├── offline.vue      # Page hors ligne (PWA)
 │   │   ├── privacy.vue      # Politique de confidentialité
 │   │   └── terms.vue        # Conditions d'utilisation
 │   └── app.vue              # Composant racine
 ├── composables/             # Composables Vue
 │   ├── useAuth.ts          # Gestion de l'authentification
-│   └── useSupabase.ts      # Client Supabase
+│   ├── useSupabase.ts      # Client Supabase
+│   ├── usePushNotifications.ts  # Notifications push PWA
+│   └── useBackgroundSync.ts     # Synchronisation hors ligne PWA
+├── public/                 # Assets statiques et PWA
+│   ├── pwa-64x64.png       # Icône PWA 64x64
+│   ├── pwa-192x192.png     # Icône PWA 192x192
+│   ├── pwa-512x512.png     # Icône PWA 512x512
+│   ├── icon.svg            # Icône vectorielle
+│   └── create-icons.html   # Générateur d'icônes PWA
+├── templates/              # Templates email
+│   └── email-confirmation.html  # Template confirmation email
 ├── test/                   # Tests automatisés
-├── nuxt.config.ts         # Configuration Nuxt
+├── nuxt.config.ts         # Configuration Nuxt + PWA
 ├── vitest.config.ts       # Configuration des tests
 └── README.md              # Documentation
 ```
@@ -218,6 +237,184 @@ const schema = yup.object({
 const { handleSubmit, errors } = useForm({ validationSchema: schema })
 </script>
 ```
+
+## 📱 PWA (Progressive Web App)
+
+Cette application est une PWA complète avec toutes les fonctionnalités modernes:
+
+### 🎯 Fonctionnalités PWA
+
+- **Installation native**: Installable sur mobile, tablette et desktop
+- **Hors ligne**: Fonctionne sans connexion internet
+- **Notifications push**: Alertes en temps réel
+- **Synchronisation**: Sync automatique des données
+- **Cache intelligent**: Performances optimales
+- **Mise à jour automatique**: Updates transparentes
+
+### 🔧 Configuration PWA
+
+Le module `@vite-pwa/nuxt` est configuré dans `nuxt.config.ts`:
+
+```typescript
+pwa: {
+  registerType: 'autoUpdate',
+  workbox: {
+    navigateFallback: '/',
+    globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'supabase-cache',
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 300
+          }
+        }
+      }
+    ]
+  },
+  manifest: {
+    name: 'Evaluations - Plateforme Sécurisée',
+    short_name: 'Evaluations',
+    description: 'Plateforme moderne de gestion d\'évaluations',
+    theme_color: '#4f46e5',
+    background_color: '#f9fafb',
+    display: 'standalone',
+    orientation: 'portrait'
+  }
+}
+```
+
+### 📋 Composables PWA
+
+#### usePushNotifications()
+Gestion complète des notifications push:
+
+```typescript
+const { 
+  isSupported,        // Support navigateur
+  isSubscribed,       // État souscription
+  permission,         // Permission notifications
+  subscribe,          // S'abonner aux notifications
+  unsubscribe,        // Se désabonner
+  showNotification    // Afficher notification locale
+} = usePushNotifications()
+
+// Exemple d'utilisation
+const handleSubscribe = async () => {
+  const subscription = await subscribe(vapidPublicKey)
+  if (subscription) {
+    console.log('Subscribed!', subscription)
+  }
+}
+```
+
+#### useBackgroundSync()
+Synchronisation en arrière-plan pour mode hors ligne:
+
+```typescript
+const {
+  isSupported,        // Support navigateur
+  isOnline,          // État connexion
+  syncQueue,         // File d'attente sync
+  isSyncing,         // Synchronisation en cours
+  queueFormSubmission,    // Mettre form en queue
+  queueAuthOperation,     // Mettre auth en queue
+  syncPendingItems       // Synchroniser tout
+} = useBackgroundSync()
+
+// Exemple: sauvegarder un formulaire hors ligne
+const submitForm = async (formData) => {
+  if (isOnline.value) {
+    return await $fetch('/api/forms', { 
+      method: 'POST', 
+      body: formData 
+    })
+  } else {
+    // Sauvegarder pour sync ultérieure
+    queueFormSubmission('evaluation', formData)
+    return { queued: true }
+  }
+}
+```
+
+### 🎨 Composant d'installation PWA
+
+Le composant `<PwaInstallPrompt>` gère l'invitation à installer:
+
+```vue
+<template>
+  <PwaInstallPrompt 
+    @installed="onPwaInstalled"
+    @dismissed="onPwaDismissed"
+  />
+</template>
+```
+
+### 📴 Page hors ligne
+
+La page `/offline` est automatiquement affichée quand l'utilisateur est déconnecté:
+
+- Interface utilisateur complète
+- Informations sur les fonctionnalités disponibles
+- Bouton de reconnexion
+- Statut de connexion en temps réel
+
+### 🔔 Test des notifications
+
+```typescript
+// Dans n'importe quel composant
+const { showNotification } = usePushNotifications()
+
+const testNotification = async () => {
+  await showNotification({
+    title: 'Test notification',
+    body: 'Votre PWA fonctionne parfaitement!',
+    icon: '/pwa-192x192.png',
+    badge: '/pwa-64x64.png'
+  })
+}
+```
+
+### 📊 Icônes et assets
+
+Les icônes PWA sont dans `/public/`:
+- `pwa-64x64.png` - Petite icône
+- `pwa-192x192.png` - Icône standard
+- `pwa-512x512.png` - Grande icône (maskable)
+- `icon.svg` - Version vectorielle
+- `create-icons.html` - Générateur d'icônes
+
+### 🚀 Build et déploiement PWA
+
+```bash
+# Build avec génération PWA automatique
+npm run build
+
+# Les fichiers générés incluent:
+# - sw.js (Service Worker)
+# - workbox-*.js (Cache strategies)
+# - manifest.webmanifest (Web App Manifest)
+```
+
+### 🔍 Debug PWA
+
+1. **Chrome DevTools > Application**:
+   - Service Workers
+   - Manifest
+   - Storage (Cache, IndexedDB)
+
+2. **Tests lighthouse**:
+   ```bash
+   npx lighthouse http://localhost:3000 --view
+   ```
+
+3. **PWA Checker**:
+   - Ouvrir Chrome DevTools
+   - Application > Manifest
+   - Vérifier "Installability"
 
 ## 🌐 Déploiement
 

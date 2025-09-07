@@ -21,8 +21,8 @@
           <input
             id="fullName"
             v-model="fullName"
+            v-bind="fullNameAttrs"
             type="text"
-            required
             class="form-input"
             :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.fullName }"
             placeholder="Votre nom complet"
@@ -40,8 +40,8 @@
           <input
             id="email"
             v-model="email"
+            v-bind="emailAttrs"
             type="email"
-            required
             class="form-input"
             :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.email }"
             placeholder="votre@email.com"
@@ -60,8 +60,8 @@
             <input
               id="password"
               v-model="password"
+              v-bind="passwordAttrs"
               :type="showPassword ? 'text' : 'password'"
-              required
               class="form-input pr-10"
               :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.password }"
               placeholder="Mot de passe sécurisé"
@@ -69,7 +69,8 @@
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
             >
               <EyeIcon v-if="!showPassword" class="h-5 w-5 text-gray-400" />
               <EyeSlashIcon v-else class="h-5 w-5 text-gray-400" />
@@ -93,32 +94,13 @@
           </div>
         </div>
 
-        <!-- Confirm Password -->
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
-            Confirmer le mot de passe *
-          </label>
-          <input
-            id="confirmPassword"
-            v-model="confirmPassword"
-            type="password"
-            required
-            class="form-input"
-            :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.confirmPassword }"
-            placeholder="Confirmer votre mot de passe"
-          />
-          <div v-if="errors.confirmPassword" class="form-error">
-            {{ errors.confirmPassword }}
-          </div>
-        </div>
-
         <!-- Terms and Privacy -->
         <div class="flex items-center">
           <input
             id="terms"
             v-model="acceptTerms"
+            v-bind="acceptTermsAttrs"
             type="checkbox"
-            required
             class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
           />
           <label for="terms" class="ml-2 block text-sm text-gray-900">
@@ -135,19 +117,6 @@
         </div>
         <div v-if="errors.acceptTerms" class="form-error">
           {{ errors.acceptTerms }}
-        </div>
-
-        <!-- Marketing consent (GDPR) -->
-        <div class="flex items-center">
-          <input
-            id="marketing"
-            v-model="marketingConsent"
-            type="checkbox"
-            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label for="marketing" class="ml-2 block text-sm text-gray-900">
-            Je souhaite recevoir des informations sur les nouveautés et offres spéciales (optionnel)
-          </label>
         </div>
 
         <!-- Error message -->
@@ -216,6 +185,8 @@
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { useAuth } from '../../composables/useAuth'
+import { getAuthErrorMessage, SUCCESS_MESSAGES, FORM_ERRORS } from '../../utils/errorMessages'
 
 // Set page title
 useHead({
@@ -235,26 +206,21 @@ const schema = yup.object({
     .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
       'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial'),
-  confirmPassword: yup.string()
-    .required('La confirmation du mot de passe est obligatoire')
-    .oneOf([yup.ref('password')], 'Les mots de passe ne correspondent pas'),
   acceptTerms: yup.boolean()
     .required('Vous devez accepter les conditions d\'utilisation')
     .isTrue('Vous devez accepter les conditions d\'utilisation')
 })
 
-// Use vee-validate
-const { values, errors, meta, handleSubmit } = useForm({
+// Use vee-validate with defineField
+const { errors, meta, handleSubmit, defineField } = useForm({
   validationSchema: schema
 })
 
-// Form fields
-const fullName = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
-const acceptTerms = ref(false)
-const marketingConsent = ref(false)
+// Form fields with vee-validate binding
+const [fullName, fullNameAttrs] = defineField('fullName')
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
+const [acceptTerms, acceptTermsAttrs] = defineField('acceptTerms')
 
 // UI state
 const showPassword = ref(false)
@@ -314,8 +280,7 @@ const onSubmit = handleSubmit(async (values) => {
       values.email,
       values.password,
       {
-        full_name: values.fullName,
-        marketing_consent: marketingConsent.value
+        full_name: values.fullName
       }
     )
     
@@ -323,7 +288,7 @@ const onSubmit = handleSubmit(async (values) => {
       throw new Error(error)
     }
     
-    successMessage.value = 'Votre compte a été créé avec succès! Veuillez vérifier votre email pour confirmer votre compte.'
+    successMessage.value = SUCCESS_MESSAGES.REGISTRATION_SUCCESS
     
     // Redirect to login after 3 seconds
     setTimeout(() => {
@@ -332,7 +297,7 @@ const onSubmit = handleSubmit(async (values) => {
     
   } catch (error) {
     console.error('Registration error:', error)
-    submitError.value = error.message || 'Une erreur est survenue lors de l\'inscription'
+    submitError.value = getAuthErrorMessage(error)
   } finally {
     isSubmitting.value = false
   }

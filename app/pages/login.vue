@@ -21,8 +21,8 @@
           <input
             id="email"
             v-model="email"
+            v-bind="emailAttrs"
             type="email"
-            required
             class="form-input"
             :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.email }"
             placeholder="votre@email.com"
@@ -41,8 +41,8 @@
             <input
               id="password"
               v-model="password"
+              v-bind="passwordAttrs"
               :type="showPassword ? 'text' : 'password'"
-              required
               class="form-input pr-10"
               :class="{ 'border-red-300 focus:border-red-500 focus:ring-red-500': errors.password }"
               placeholder="Votre mot de passe"
@@ -50,7 +50,8 @@
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
             >
               <EyeIcon v-if="!showPassword" class="h-5 w-5 text-gray-400" />
               <EyeSlashIcon v-else class="h-5 w-5 text-gray-400" />
@@ -207,6 +208,8 @@
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { useAuth } from '../../composables/useAuth'
+import { getAuthErrorMessage, SUCCESS_MESSAGES } from '../../utils/errorMessages'
 
 // Set page title
 useHead({
@@ -223,14 +226,14 @@ const schema = yup.object({
     .min(6, 'Le mot de passe doit contenir au moins 6 caractères')
 })
 
-// Use vee-validate
-const { errors, meta, handleSubmit } = useForm({
+// Use vee-validate with defineField
+const { errors, meta, handleSubmit, defineField } = useForm({
   validationSchema: schema
 })
 
-// Form fields
-const email = ref('')
-const password = ref('')
+// Form fields with vee-validate binding
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
 const rememberMe = ref(false)
 
 // UI state
@@ -262,7 +265,7 @@ const onSubmit = handleSubmit(async (values) => {
       throw new Error(error)
     }
     
-    successMessage.value = 'Connexion réussie! Redirection en cours...'
+    successMessage.value = SUCCESS_MESSAGES.LOGIN_SUCCESS
     
     // Redirect to dashboard or home after successful login
     setTimeout(() => {
@@ -272,18 +275,7 @@ const onSubmit = handleSubmit(async (values) => {
   } catch (error) {
     console.error('Login error:', error)
     
-    // Provide user-friendly error messages
-    let errorMessage = 'Une erreur est survenue lors de la connexion'
-    
-    if (error.message.includes('Invalid login credentials')) {
-      errorMessage = 'Email ou mot de passe incorrect'
-    } else if (error.message.includes('Email not confirmed')) {
-      errorMessage = 'Veuillez confirmer votre email avant de vous connecter'
-    } else if (error.message.includes('Too many requests')) {
-      errorMessage = 'Trop de tentatives de connexion. Veuillez patienter quelques minutes.'
-    }
-    
-    submitError.value = errorMessage
+    submitError.value = getAuthErrorMessage(error)
   } finally {
     isSubmitting.value = false
   }

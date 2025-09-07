@@ -5,11 +5,26 @@ Une application moderne de gestion d'évaluations avec authentification sécuris
 ## 🚀 Fonctionnalités
 
 - **Authentification sécurisée** avec Supabase
+  - Inscription avec validation d'email
+  - Connexion avec récupération de mot de passe
+  - Protection par middleware des routes privées
+  - Templates d'emails modernes et responsive
 - **Interface moderne** avec TailwindCSS et Headless UI
+  - Design cohérent avec gradient violet/bleu
+  - Composants accessibles avec ARIA
+  - Navigation responsive et intuitive
 - **Validation de formulaires** robuste avec vee-validate
+  - Schémas de validation avec Yup
+  - Messages d'erreur en français
+  - Indicateur de force des mots de passe
+  - Rate limiting côté client
 - **Conformité RGPD** avec politique de confidentialité complète
-- **Design responsive** et accessible
+- **Sécurité renforcée**
+  - Headers de sécurité (CSP, HSTS, etc.)
+  - Validation des variables d'environnement
+  - Gestion centralisée des erreurs
 - **Tests automatisés** avec couverture de code
+<<<<<<< HEAD
 - **Configuration sécurisée** via variables d'environnement
 - **🔥 PWA (Progressive Web App) complète**
   - Installation sur mobile et desktop
@@ -17,6 +32,9 @@ Une application moderne de gestion d'évaluations avec authentification sécuris
   - Notifications push
   - Synchronisation en arrière-plan
   - Cache intelligent des ressources
+=======
+- **Configuration TypeScript stricte**
+>>>>>>> 174e92452d77bb0c41c8e93a8f6872ba22ada883
 
 ## 📋 Prérequis
 
@@ -46,11 +64,12 @@ cp .env.example .env
 
 Remplissez les variables Supabase dans le fichier `.env`:
 ```env
-# Obtenez ces valeurs depuis votre dashboard Supabase
+# Configuration Supabase - Obtenez ces valeurs depuis votre dashboard Supabase
 SUPABASE_URL=https://your-project-id.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_KEY=your-service-key
+SUPABASE_KEY=your-anon-key
 ```
+
+> **Note**: Utilisez uniquement `SUPABASE_URL` et `SUPABASE_KEY` (clé anonyme). La clé de service n'est pas nécessaire pour l'authentification client.
 
 4. **Configuration de la base de données Supabase**
 
@@ -122,9 +141,12 @@ npm run test -- --watch
 ├── app/
 │   ├── assets/css/          # Styles CSS et TailwindCSS
 │   ├── components/          # Composants Vue réutilisables
+<<<<<<< HEAD
 │   │   └── PwaInstallPrompt.vue  # Composant d'installation PWA
+=======
+>>>>>>> 174e92452d77bb0c41c8e93a8f6872ba22ada883
 │   ├── layouts/             # Layouts de l'application
-│   ├── middleware/          # Middlewares de route
+│   ├── middleware/          # Middlewares de route (auth.ts)
 │   ├── pages/               # Pages de l'application
 │   │   ├── index.vue        # Page d'accueil
 │   │   ├── login.vue        # Page de connexion
@@ -134,6 +156,7 @@ npm run test -- --watch
 │   │   └── terms.vue        # Conditions d'utilisation
 │   └── app.vue              # Composant racine
 ├── composables/             # Composables Vue
+<<<<<<< HEAD
 │   ├── useAuth.ts          # Gestion de l'authentification
 │   ├── useSupabase.ts      # Client Supabase
 │   ├── usePushNotifications.ts  # Notifications push PWA
@@ -148,7 +171,19 @@ npm run test -- --watch
 │   └── email-confirmation.html  # Template confirmation email
 ├── test/                   # Tests automatisés
 ├── nuxt.config.ts         # Configuration Nuxt + PWA
+=======
+│   ├── useAuth.ts          # Gestion de l'authentification (singleton)
+│   ├── useSupabase.ts      # Client Supabase (singleton)
+│   └── useRateLimit.ts     # Rate limiting côté client
+├── templates/              # Templates d'emails
+│   └── email-confirmation.html # Template de confirmation d'inscription
+├── utils/                  # Utilitaires
+│   └── errorMessages.ts    # Messages d'erreur centralisés
+├── test/                   # Tests automatisés
+├── nuxt.config.ts         # Configuration Nuxt avec sécurité
+>>>>>>> 174e92452d77bb0c41c8e93a8f6872ba22ada883
 ├── vitest.config.ts       # Configuration des tests
+├── CLAUDE.md              # Guide pour les développeurs IA
 └── README.md              # Documentation
 ```
 
@@ -168,13 +203,12 @@ npm run test -- --watch
 
 ### Variables d'environnement
 ```env
-# Variables publiques (exposées côté client)
+# Configuration Supabase (obligatoire)
 SUPABASE_URL=              # URL de votre projet Supabase
-SUPABASE_ANON_KEY=         # Clé publique Supabase
-
-# Variables privées (serveur uniquement)
-SUPABASE_SERVICE_KEY=      # Clé de service Supabase (admin)
+SUPABASE_KEY=              # Clé anonyme Supabase (publique)
 ```
+
+> **Sécurité**: Les variables sont validées au démarrage. L'application ne démarrera pas si elles sont manquantes.
 
 ## 📱 Pages disponibles
 
@@ -189,21 +223,26 @@ SUPABASE_SERVICE_KEY=      # Clé de service Supabase (admin)
 ### useAuth() - Composable d'authentification
 ```typescript
 const { 
-  user,           // Utilisateur connecté
-  isLoggedIn,     // État de connexion
-  loading,        // État de chargement
+  user,           // Utilisateur connecté (readonly)
+  isLoggedIn,     // État de connexion (computed)
+  loading,        // État de chargement (readonly)
+  userProfile,    // Métadonnées utilisateur (computed)
   register,       // Fonction d'inscription
   login,          // Fonction de connexion
   logout,         // Fonction de déconnexion
   resetPassword,  // Réinitialisation mot de passe
+  updatePassword, // Mise à jour du mot de passe
   initAuth        // Initialisation de l'auth
 } = useAuth()
 ```
+
+> **Pattern Singleton**: `useAuth()` utilise un état global partagé pour éviter les instances multiples.
 
 ### useSupabase() - Client Supabase
 ```typescript
 const supabase = useSupabase()
 // Client Supabase configuré et prêt à l'emploi
+// Pattern singleton avec validation des variables d'environnement
 ```
 
 ## 🛡️ Middleware de protection
@@ -229,15 +268,29 @@ Les formulaires utilisent vee-validate avec yup pour une validation robuste:
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 
+// Schéma de validation
 const schema = yup.object({
   email: yup.string().required().email(),
   password: yup.string().required().min(8)
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/, 
+      'Mot de passe complexe requis')
 })
 
-const { handleSubmit, errors } = useForm({ validationSchema: schema })
+// Liaison des champs avec defineField
+const { handleSubmit, errors, defineField } = useForm({ validationSchema: schema })
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
 </script>
+
+<template>
+  <form @submit="handleSubmit(onSubmit)">
+    <input v-model="email" v-bind="emailAttrs" type="email" />
+    <input v-model="password" v-bind="passwordAttrs" type="password" />
+  </form>
+</template>
 ```
 
+<<<<<<< HEAD
 ## 📱 PWA (Progressive Web App)
 
 Cette application est une PWA complète avec toutes les fonctionnalités modernes:
@@ -415,6 +468,21 @@ npm run build
    - Ouvrir Chrome DevTools
    - Application > Manifest
    - Vérifier "Installability"
+=======
+## 📧 Templates d'emails
+
+Le projet inclut un template d'email moderne pour la confirmation d'inscription :
+
+- **Localisation** : `templates/email-confirmation.html`
+- **Design** : Moderne avec gradient cohérent avec l'interface
+- **Responsive** : Optimisé pour tous les clients email
+- **Accessibilité** : ARIA labels et contrastes respectés
+
+Pour configurer dans Supabase :
+1. Copiez le contenu de `templates/email-confirmation.html`
+2. Dashboard Supabase → Authentication → Email Templates → Confirm signup
+3. Remplacez le template par défaut
+>>>>>>> 174e92452d77bb0c41c8e93a8f6872ba22ada883
 
 ## 🌐 Déploiement
 

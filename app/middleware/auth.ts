@@ -3,6 +3,8 @@
  * Redirects unauthenticated users to the login page
  * Can be applied to pages that require authentication
  */
+import { useAuth } from '../../composables/useAuth'
+
 export default defineNuxtRouteMiddleware((to) => {
   const { isLoggedIn, loading } = useAuth()
 

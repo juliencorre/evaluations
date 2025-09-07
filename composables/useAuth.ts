@@ -1,14 +1,23 @@
 import type { User, Session } from '@supabase/supabase-js'
+import { useSupabase } from './useSupabase'
+
+// Global auth state (singleton)
+const globalAuthState = {
+  user: ref<User | null>(null),
+  session: ref<Session | null>(null),
+  loading: ref(true),
+  initialized: false
+}
 
 /**
  * Authentication composable
  * Provides authentication state management and methods
- * Handles login, register, logout, and session management
+ * Uses singleton pattern to avoid multiple initializations
  */
 export const useAuth = () => {
-  const user = ref<User | null>(null)
-  const session = ref<Session | null>(null)
-  const loading = ref(true)
+  const user = globalAuthState.user
+  const session = globalAuthState.session
+  const loading = globalAuthState.loading
 
   /**
    * Register a new user with email and password
@@ -164,10 +173,10 @@ export const useAuth = () => {
   }
 
   /**
-   * Initialize auth state and listen for changes
+   * Initialize auth state and listen for changes (singleton)
    */
   const initAuth = async () => {
-    if (!process.client) {
+    if (!process.client || globalAuthState.initialized) {
       loading.value = false
       return
     }
@@ -183,7 +192,7 @@ export const useAuth = () => {
         user.value = initialSession.user
       }
 
-      // Listen for auth changes
+      // Listen for auth changes (only once)
       supabase.auth.onAuthStateChange((event, newSession) => {
         console.log('Auth state changed:', event)
         
@@ -199,6 +208,8 @@ export const useAuth = () => {
           console.log('Password recovery initiated')
         }
       })
+      
+      globalAuthState.initialized = true
     } catch (error) {
       console.error('Auth initialization error:', error)
     } finally {
@@ -210,12 +221,12 @@ export const useAuth = () => {
   const isLoggedIn = computed(() => !!user.value)
   const userProfile = computed(() => user.value?.user_metadata || {})
 
-  // Initialize auth only on client side
-  if (process.client) {
+  // Initialize auth only on client side (once)
+  if (process.client && !globalAuthState.initialized) {
     onMounted(async () => {
       await initAuth()
     })
-  } else {
+  } else if (!process.client) {
     // Set loading to false on server side
     loading.value = false
   }

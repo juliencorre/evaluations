@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(npx nuxt:*)",
+      "Bash(taskkill:*)",
+      "Bash(wmic process where processid=22696 delete:*)",
+      "Bash(wmic process where processid=8924 delete:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

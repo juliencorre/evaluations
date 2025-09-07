@@ -108,6 +108,7 @@ const emit = defineEmits(['installed', 'dismissed'])
 
 // Check if app is already installed
 const isAppInstalled = () => {
+  if (typeof window === 'undefined') return false
   return window.matchMedia('(display-mode: standalone)').matches ||
          window.navigator.standalone === true ||
          document.referrer.includes('android-app://') ||
@@ -130,7 +131,9 @@ const installPwa = async () => {
     if (choiceResult.outcome === 'accepted') {
       console.log('PWA installation accepted')
       emit('installed')
-      localStorage.setItem('pwa-installed', 'true')
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pwa-installed', 'true')
+      }
     } else {
       console.log('PWA installation dismissed')
       emit('dismissed')
@@ -150,18 +153,23 @@ const installPwa = async () => {
 // Dismiss prompt
 const dismissPrompt = () => {
   showPrompt.value = false
-  localStorage.setItem('pwa-dismissed', 'true')
-  
-  // Set timeout to show again later (optional)
-  setTimeout(() => {
-    localStorage.removeItem('pwa-dismissed')
-  }, 7 * 24 * 60 * 60 * 1000) // 7 days
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('pwa-dismissed', 'true')
+    
+    // Set timeout to show again later (optional)
+    setTimeout(() => {
+      localStorage.removeItem('pwa-dismissed')
+    }, 7 * 24 * 60 * 60 * 1000) // 7 days
+  }
   
   emit('dismissed')
 }
 
 // Listen for beforeinstallprompt event
 onMounted(() => {
+  // Only run on client side
+  if (typeof window === 'undefined') return
+  
   // Check if already installed or dismissed
   if (isAppInstalled()) {
     return
@@ -179,7 +187,7 @@ onMounted(() => {
     
     // Show our custom prompt after a delay
     setTimeout(() => {
-      if (props.autoShow && !localStorage.getItem('pwa-dismissed')) {
+      if (props.autoShow && typeof window !== 'undefined' && !localStorage.getItem('pwa-dismissed')) {
         showPrompt.value = true
       }
     }, 3000) // Show after 3 seconds
@@ -189,7 +197,9 @@ onMounted(() => {
   const handleAppInstalled = () => {
     console.log('PWA was installed')
     showPrompt.value = false
-    localStorage.setItem('pwa-installed', 'true')
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pwa-installed', 'true')
+    }
     emit('installed')
   }
   

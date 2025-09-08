@@ -169,63 +169,101 @@
         </div>
       </div>
 
-      <!-- Schools Grid -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="school in filteredSchools"
-          :key="school.school_id"
-          class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow"
-        >
-          <div class="p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <BuildingOfficeIcon class="w-8 h-8 text-indigo-600 mr-3" />
-                <div>
-                  <h3 class="text-lg font-medium text-gray-900 truncate">{{ school.name }}</h3>
-                  <p class="text-sm text-gray-500">{{ getSchoolFullAddress(school) }}</p>
+      <!-- Schools List -->
+      <div v-else class="bg-white shadow overflow-hidden rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Établissement
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                UAI
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Ville
+              </th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Classes
+              </th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Élèves
+              </th>
+              <th scope="col" class="relative px-6 py-3">
+                <span class="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr 
+              v-for="school in filteredSchools" 
+              :key="school.school_id"
+              class="hover:bg-gray-50 transition-colors"
+            >
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <BuildingOfficeIcon class="w-5 h-5 text-gray-400 mr-3" />
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ school.name }}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="flex space-x-1">
-                <button
-                  @click="viewSchool(school)"
-                  class="text-indigo-600 hover:text-indigo-900"
-                  title="Voir les détails"
-                >
-                  <EyeIcon class="w-5 h-5" />
-                </button>
-                <button
-                  @click="editSchool(school)"
-                  class="text-gray-600 hover:text-gray-900"
-                  title="Modifier"
-                >
-                  <PencilIcon class="w-5 h-5" />
-                </button>
-                <button
-                  @click="confirmDelete(school)"
-                  class="text-red-600 hover:text-red-900"
-                  title="Supprimer"
-                >
-                  <TrashIcon class="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div class="mt-4 grid grid-cols-2 gap-4">
-              <div class="text-center p-3 bg-gray-50 rounded-md">
-                <div class="text-lg font-semibold text-gray-900">{{ getSchoolClassCount(school) }}</div>
-                <div class="text-sm text-gray-500">Classes</div>
-              </div>
-              <div class="text-center p-3 bg-gray-50 rounded-md">
-                <div class="text-lg font-semibold text-gray-900">{{ getSchoolStudentCount(school) }}</div>
-                <div class="text-sm text-gray-500">Élèves</div>
-              </div>
-            </div>
-
-            <div v-if="school.uai" class="mt-4 pt-4 border-t border-gray-200">
-              <div class="flex items-center text-sm text-gray-600">
-                <BuildingOfficeIcon class="w-4 h-4 mr-2" />
-                UAI: {{ school.uai }}
-              </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-600 font-mono">
+                  {{ school.uai || '-' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-600">
+                  {{ school.city || '-' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {{ getSchoolClassCount(school) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {{ getSchoolStudentCount(school) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end space-x-2">
+                  <button
+                    @click="viewSchool(school)"
+                    class="text-indigo-600 hover:text-indigo-900"
+                    title="Voir les détails"
+                  >
+                    <EyeIcon class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="editSchool(school)"
+                    class="text-gray-600 hover:text-gray-900"
+                    title="Modifier"
+                  >
+                    <PencilIcon class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="confirmDelete(school)"
+                    class="text-red-600 hover:text-red-900"
+                    title="Supprimer"
+                  >
+                    <TrashIcon class="w-4 h-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Pagination if needed -->
+        <div v-if="filteredSchools.length > 20" class="bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Affichage de <span class="font-medium">{{ filteredSchools.length }}</span> établissement(s)
             </div>
           </div>
         </div>

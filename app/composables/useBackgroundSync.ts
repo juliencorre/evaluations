@@ -26,7 +26,7 @@ export const useBackgroundSync = () => {
 
   // Initialize online/offline detection
   const initOnlineDetection = () => {
-    if (process.client) {
+    if (import.meta.client) {
       isOnline.value = navigator.onLine
       
       window.addEventListener('online', () => {
@@ -44,7 +44,7 @@ export const useBackgroundSync = () => {
 
   // Load sync queue from localStorage
   const loadSyncQueue = () => {
-    if (process.client) {
+    if (import.meta.client) {
       try {
         const stored = localStorage.getItem('background-sync-queue')
         if (stored) {
@@ -58,7 +58,7 @@ export const useBackgroundSync = () => {
 
   // Save sync queue to localStorage
   const saveSyncQueue = () => {
-    if (process.client) {
+    if (import.meta.client) {
       try {
         localStorage.setItem('background-sync-queue', JSON.stringify(syncQueue.value))
       } catch (error) {
@@ -274,7 +274,7 @@ export const useBackgroundSync = () => {
 
   // Show notification for failed sync
   const showSyncFailedNotification = (item: SyncQueueItem) => {
-    if (process.client && 'Notification' in window && Notification.permission === 'granted') {
+    if (import.meta.client && 'Notification' in window && Notification.permission === 'granted') {
       new Notification('Synchronisation échouée', {
         body: `Impossible de synchroniser ${item.type}: ${item.action}`,
         icon: '/pwa-192x192.png',
@@ -299,7 +299,7 @@ export const useBackgroundSync = () => {
   }
 
   // Initialize
-  if (process.client) {
+  if (import.meta.client) {
     checkSupport()
     initOnlineDetection()
     loadSyncQueue()

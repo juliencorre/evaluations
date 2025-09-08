@@ -106,20 +106,29 @@ export const useSchools = () => {
     error.value = null
 
     try {
+      // Use upsert to handle potential UAI duplicates during imports
       const { data, error: createError } = await supabase
         .from('school')
-        .insert({
+        .upsert({
           name: schoolData.name.trim(),
           uai: schoolData.uai?.trim() || null,
           city: schoolData.city?.trim() || null
+        }, {
+          onConflict: 'uai',
+          ignoreDuplicates: false
         })
         .select()
         .single()
 
       if (createError) throw createError
 
-      // Add to local state
-      schools.value.push(data)
+      // Add to local state if not already present
+      const existingIndex = schools.value.findIndex(s => s.school_id === data.school_id)
+      if (existingIndex >= 0) {
+        schools.value[existingIndex] = data
+      } else {
+        schools.value.push(data)
+      }
 
       return data
     } catch (err: any) {

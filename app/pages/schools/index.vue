@@ -8,7 +8,23 @@
           Gérez les établissements scolaires de votre organisation
         </p>
       </div>
-      <div class="mt-4 sm:mt-0">
+      <div class="mt-4 sm:mt-0 sm:flex sm:space-x-3">
+        <button
+          @click="showSyncModal = true"
+          type="button"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <ArrowPathIcon class="w-4 h-4 mr-2" />
+          Synchroniser
+        </button>
+        <button
+          @click="showImportModal = true"
+          type="button"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <CloudArrowDownIcon class="w-4 h-4 mr-2" />
+          Importer
+        </button>
         <button
           @click="showCreateModal = true"
           type="button"
@@ -224,6 +240,19 @@
       @save="handleSave"
     />
 
+    <!-- Sync Modal -->
+    <SchoolSyncModal
+      :show="showSyncModal"
+      @close="closeSyncModal"
+      @sync-complete="handleSyncComplete"
+    />
+
+    <!-- Import Modal -->
+    <SchoolImportModal
+      :show="showImportModal"
+      @close="closeImportModal"
+    />
+
     <!-- Delete Confirmation Modal -->
     <ConfirmDeleteModal
       :show="showDeleteModal"
@@ -239,6 +268,8 @@
 import { 
   PlusIcon, 
   MagnifyingGlassIcon, 
+  CloudArrowDownIcon,
+  ArrowPathIcon,
   BuildingOfficeIcon,
   MapPinIcon,
   AcademicCapIcon,
@@ -288,6 +319,8 @@ const selectedCity = ref('')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
+const showImportModal = ref(false)
+const showSyncModal = ref(false)
 const selectedSchoolForEdit = ref(null)
 const selectedSchoolForDelete = ref(null)
 
@@ -329,6 +362,25 @@ const closeModals = () => {
   showCreateModal.value = false
   showEditModal.value = false
   selectedSchoolForEdit.value = null
+}
+
+const closeImportModal = () => {
+  showImportModal.value = false
+  // Refresh schools list after import
+  fetchSchools()
+}
+
+const closeSyncModal = () => {
+  showSyncModal.value = false
+}
+
+const handleSyncComplete = () => {
+  // Refresh schools list after sync
+  fetchSchools()
+  // Optionally close the modal
+  setTimeout(() => {
+    showSyncModal.value = false
+  }, 2000)
 }
 
 const handleSave = async (schoolData) => {

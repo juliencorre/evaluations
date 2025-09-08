@@ -47,6 +47,25 @@ export const useAuth = () => {
 
       if (error) throw error
 
+      // After successful registration, ensure teacher record is created
+      if (data.user) {
+        try {
+          // Use RPC function which has SECURITY DEFINER permissions
+          const { error: teacherError } = await supabase
+            .rpc('ensure_teacher', {
+              p_first: userData.first_name || 'Enseignant',
+              p_last: userData.last_name || 'Utilisateur'
+            })
+            
+          if (teacherError) {
+            console.warn('Failed to create teacher record via RPC:', teacherError)
+          }
+        } catch (teacherError) {
+          console.warn('Failed to create teacher record:', teacherError)
+          // Don't fail the registration for this
+        }
+      }
+
       return { data, error: null }
     } catch (error: any) {
       console.error('Registration error:', error)
@@ -78,6 +97,25 @@ export const useAuth = () => {
       })
 
       if (error) throw error
+
+      // After successful login, ensure teacher record exists
+      if (data.user) {
+        try {
+          // Use RPC function which has SECURITY DEFINER permissions
+          const { error: teacherError } = await supabase
+            .rpc('ensure_teacher', {
+              p_first: data.user.user_metadata?.first_name || 'Enseignant',
+              p_last: data.user.user_metadata?.last_name || 'Utilisateur'
+            })
+            
+          if (teacherError) {
+            console.warn('Failed to ensure teacher record via RPC:', teacherError)
+          }
+        } catch (teacherError) {
+          console.warn('Failed to ensure teacher record:', teacherError)
+          // Don't fail the login for this
+        }
+      }
 
       return { data, error: null }
     } catch (error: any) {

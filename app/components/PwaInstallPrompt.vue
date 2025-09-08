@@ -96,7 +96,7 @@ const isInstalling = ref(false)
 const deferredPrompt = ref(null)
 
 // Props
-defineProps({
+const props = defineProps({
   autoShow: {
     type: Boolean,
     default: true
@@ -165,53 +165,50 @@ const dismissPrompt = () => {
   emit('dismissed')
 }
 
-// Listen for beforeinstallprompt event
-onMounted(() => {
-  // Only run on client side
-  if (!process.client) return
-  
-  // Check if already installed or dismissed
-  if (isAppInstalled()) {
-    return
-  }
-  
-  // Listen for install prompt
-  const handleBeforeInstallPrompt = (e) => {
-    console.log('PWA install prompt available')
-    
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault()
-    
-    // Store the event for later use
-    deferredPrompt.value = e
-    
-    // Show our custom prompt after a delay
-    setTimeout(() => {
-      if (props.autoShow && process.client && !localStorage.getItem('pwa-dismissed')) {
-        showPrompt.value = true
-      }
-    }, 3000) // Show after 3 seconds
-  }
-  
-  // Listen for app installed event
-  const handleAppInstalled = () => {
-    console.log('PWA was installed')
-    showPrompt.value = false
-    if (process.client) {
-      localStorage.setItem('pwa-installed', 'true')
+// Client-side only initialization
+if (process.client) {
+  onMounted(() => {
+    // Check if already installed or dismissed
+    if (isAppInstalled()) {
+      return
     }
-    emit('installed')
-  }
-  
-  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-  window.addEventListener('appinstalled', handleAppInstalled)
-  
-  // Cleanup
-  onUnmounted(() => {
-    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.removeEventListener('appinstalled', handleAppInstalled)
+    
+    // Listen for install prompt
+    const handleBeforeInstallPrompt = (e) => {
+      console.log('PWA install prompt available')
+      
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault()
+      
+      // Store the event for later use
+      deferredPrompt.value = e
+      
+      // Show our custom prompt after a delay
+      setTimeout(() => {
+        if (props.autoShow && !localStorage.getItem('pwa-dismissed')) {
+          showPrompt.value = true
+        }
+      }, 3000) // Show after 3 seconds
+    }
+    
+    // Listen for app installed event
+    const handleAppInstalled = () => {
+      console.log('PWA was installed')
+      showPrompt.value = false
+      localStorage.setItem('pwa-installed', 'true')
+      emit('installed')
+    }
+    
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
+    
+    // Cleanup
+    onUnmounted(() => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    })
   })
-})
+}
 
 // Expose methods for parent components
 defineExpose({

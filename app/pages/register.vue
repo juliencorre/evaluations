@@ -13,6 +13,36 @@
 
       <!-- Registration Form -->
       <form @submit.prevent="onSubmit" class="space-y-6">
+        <!-- First Name -->
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-gray-700">
+            Prénom
+          </label>
+          <input
+            id="firstName"
+            v-model="firstName"
+            type="text"
+            required
+            class="form-input"
+            placeholder="Votre prénom"
+          />
+        </div>
+
+        <!-- Last Name -->
+        <div>
+          <label for="lastName" class="block text-sm font-medium text-gray-700">
+            Nom
+          </label>
+          <input
+            id="lastName"
+            v-model="lastName"
+            type="text"
+            required
+            class="form-input"
+            placeholder="Votre nom"
+          />
+        </div>
+
         <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">
@@ -89,6 +119,8 @@ useHead({
 const { register, isLoggedIn } = useAuth()
 
 // Form fields
+const firstName = ref('')
+const lastName = ref('')
 const email = ref('')
 const password = ref('')
 
@@ -113,13 +145,18 @@ const onSubmit = async () => {
   successMessage.value = ''
   
   try {
-    const { data, error } = await register(email.value, password.value)
+    const { data, error } = await register(email.value, password.value, {
+      first_name: firstName.value,
+      last_name: lastName.value
+    })
     
     if (error) {
       errorMessage.value = error
     } else {
       successMessage.value = 'Compte créé avec succès ! Vérifiez votre email.'
       // Clear form
+      firstName.value = ''
+      lastName.value = ''
       email.value = ''
       password.value = ''
     }

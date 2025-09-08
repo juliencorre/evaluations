@@ -108,7 +108,7 @@ const emit = defineEmits(['installed', 'dismissed'])
 
 // Check if app is already installed
 const isAppInstalled = () => {
-  if (!process.client) return false
+  if (!import.meta.client) return false
   return window.matchMedia('(display-mode: standalone)').matches ||
          window.navigator.standalone === true ||
          document.referrer.includes('android-app://') ||
@@ -131,7 +131,7 @@ const installPwa = async () => {
     if (choiceResult.outcome === 'accepted') {
       console.log('PWA installation accepted')
       emit('installed')
-      if (process.client) {
+      if (import.meta.client) {
         localStorage.setItem('pwa-installed', 'true')
       }
     } else {
@@ -153,7 +153,7 @@ const installPwa = async () => {
 // Dismiss prompt
 const dismissPrompt = () => {
   showPrompt.value = false
-  if (process.client) {
+  if (import.meta.client) {
     localStorage.setItem('pwa-dismissed', 'true')
     
     // Set timeout to show again later (optional)
@@ -165,10 +165,13 @@ const dismissPrompt = () => {
   emit('dismissed')
 }
 
-// Listen for beforeinstallprompt event
-onMounted(() => {
+// Event handlers (named functions to avoid Nuxt 4.1.1 transform issues)
+let handleBeforeInstallPrompt = null
+let handleAppInstalled = null
+
+const initPwaListeners = () => {
   // Only run on client side
-  if (!process.client) return
+  if (!import.meta.client) return
   
   // Check if already installed or dismissed
   if (isAppInstalled()) {
@@ -176,7 +179,7 @@ onMounted(() => {
   }
   
   // Listen for install prompt
-  const handleBeforeInstallPrompt = (e) => {
+  handleBeforeInstallPrompt = (e) => {
     console.log('PWA install prompt available')
     
     // Prevent Chrome 67 and earlier from automatically showing the prompt
@@ -187,31 +190,40 @@ onMounted(() => {
     
     // Show our custom prompt after a delay
     setTimeout(() => {
-      if (props.autoShow && process.client && !localStorage.getItem('pwa-dismissed')) {
+      if (props.autoShow && import.meta.client && !localStorage.getItem('pwa-dismissed')) {
         showPrompt.value = true
       }
     }, 3000) // Show after 3 seconds
   }
   
   // Listen for app installed event
-  const handleAppInstalled = () => {
+  handleAppInstalled = () => {
     console.log('PWA was installed')
     showPrompt.value = false
-    if (process.client) {
+    if (import.meta.client) {
       localStorage.setItem('pwa-installed', 'true')
     }
     emit('installed')
   }
   
-  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-  window.addEventListener('appinstalled', handleAppInstalled)
-  
-  // Cleanup
-  onUnmounted(() => {
+  if (import.meta.client) {
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
+  }
+}
+
+const cleanupPwaListeners = () => {
+  if (import.meta.client && handleBeforeInstallPrompt && handleAppInstalled) {
     window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.removeEventListener('appinstalled', handleAppInstalled)
-  })
-})
+  }
+}
+
+// Initialize listeners
+onMounted(initPwaListeners)
+
+// Cleanup listeners
+onUnmounted(cleanupPwaListeners)
 
 // Expose methods for parent components
 defineExpose({

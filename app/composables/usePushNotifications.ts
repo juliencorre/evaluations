@@ -230,7 +230,7 @@ export const usePushNotifications = () => {
   )
 
   // Initialize on mount
-  if (process.client) {
+  if (import.meta.client) {
     checkSupport()
     
     // Check existing subscription

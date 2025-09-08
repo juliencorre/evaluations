@@ -134,8 +134,9 @@ export const useAuth = () => {
     const supabase = useSupabase()
     
     try {
+      const redirectUrl = import.meta.client ? `${window.location.origin}/reset-password` : '/reset-password'
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: redirectUrl
       })
 
       if (error) throw error
@@ -218,19 +219,22 @@ export const useAuth = () => {
     }
   }
 
-  // Computed properties
-  const isLoggedIn = computed(() => !!user.value)
-  const userProfile = computed(() => user.value?.user_metadata || {})
+  // Auth initialization function (named to avoid transform issues)
+  const handleAuthInit = async () => {
+    await initAuth()
+  }
 
   // Initialize auth only on client side (once)
   if (process.client && !globalAuthState.initialized) {
-    onMounted(async () => {
-      await initAuth()
-    })
+    onMounted(handleAuthInit)
   } else if (!process.client) {
     // Set loading to false on server side
     loading.value = false
   }
+
+  // Computed properties
+  const isLoggedIn = computed(() => !!user.value)
+  const userProfile = computed(() => user.value?.user_metadata || {})
 
   return {
     // State

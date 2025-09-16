@@ -24,18 +24,26 @@
       <div class="competencies-tree">
         <!-- Domain Level -->
         <div 
-          v-for="domain in framework.domains" 
+          v-for="(domain, domainIndex) in frameworkWithDragDrop.domains" 
           :key="domain.id"
-          class="tree-node domain-node"
+          :class="['tree-node', 'domain-node', { 'ghost-element': domain.isGhost, 'dragging-element': domain.isDragging }]"
+          :draggable="!domain.isGhost && !domain.isDragging"
+          @dragstart="!domain.isGhost && handleDragStart($event, domain, 'domain', domainIndex)"
+          @dragend="handleDragEnd"
+          @dragover="handleDragOver"
+          @dragenter="handleDragEnter($event, domain, 'domain', domainIndex)"
+          @drop="handleDrop($event, domain, 'domain', domainIndex)"
         >
-          <div class="node-content" @click="toggleDomain(domain.id)">
-            <span class="node-icon">
+          <div class="node-content" @click="!domain.isGhost && toggleDomain(domain.id)">
+            <span class="node-icon" v-if="!domain.isGhost">
               <span class="material-symbols-outlined">
                 {{ expandedDomains.has(domain.id) ? 'expand_more' : 'chevron_right' }}
               </span>
             </span>
-            <span class="node-label domain-label">{{ domain.name }}</span>
-            <div class="node-actions">
+            <span class="node-label domain-label" :class="{ 'ghost-text': domain.isGhost }">
+              {{ domain.isGhost ? 'Zone de dépôt' : domain.name }}
+            </span>
+            <div class="node-actions" v-if="!domain.isGhost">
               <button @click.stop="openAddFieldModal(domain)" class="action-btn" title="Ajouter un champ">
                 <span class="material-symbols-outlined">add</span>
               </button>
@@ -51,18 +59,26 @@
           <!-- Field Level -->
           <div v-if="expandedDomains.has(domain.id)" class="tree-children">
             <div 
-              v-for="field in domain.fields" 
+              v-for="(field, fieldIndex) in domain.fields" 
               :key="field.id"
-              class="tree-node field-node"
+              :class="['tree-node', 'field-node', { 'ghost-element': field.isGhost, 'dragging-element': field.isDragging }]"
+              :draggable="!field.isGhost && !field.isDragging"
+              @dragstart="!field.isGhost && handleDragStart($event, field, 'field', fieldIndex, { domain }); $event.stopPropagation()"
+              @dragend="handleDragEnd"
+              @dragover="handleDragOver"
+              @dragenter="handleDragEnter($event, field, 'field', fieldIndex, { domain }); $event.stopPropagation()"
+              @drop="handleDrop($event, field, 'field', fieldIndex, { domain })"
             >
-              <div class="node-content" @click="toggleField(field.id)">
-                <span class="node-icon">
+              <div class="node-content" @click="!field.isGhost && toggleField(field.id)">
+                <span class="node-icon" v-if="!field.isGhost">
                   <span class="material-symbols-outlined">
                     {{ expandedFields.has(field.id) ? 'expand_more' : 'chevron_right' }}
                   </span>
                 </span>
-                <span class="node-label field-label">{{ field.name }}</span>
-                <div class="node-actions">
+                <span class="node-label field-label" :class="{ 'ghost-text': field.isGhost }">
+                  {{ field.isGhost ? 'Zone de dépôt' : field.name }}
+                </span>
+                <div class="node-actions" v-if="!field.isGhost">
                   <button @click.stop="openAddCompetencyModal(field, domain)" class="action-btn" title="Ajouter une compétence">
                     <span class="material-symbols-outlined">add</span>
                   </button>
@@ -78,18 +94,26 @@
               <!-- Competency Level -->
               <div v-if="expandedFields.has(field.id)" class="tree-children">
                 <div 
-                  v-for="competency in field.competencies" 
+                  v-for="(competency, competencyIndex) in field.competencies" 
                   :key="competency.id"
-                  class="tree-node competency-node"
+                  :class="['tree-node', 'competency-node', { 'ghost-element': competency.isGhost, 'dragging-element': competency.isDragging }]"
+                  :draggable="!competency.isGhost && !competency.isDragging"
+                  @dragstart="!competency.isGhost && handleDragStart($event, competency, 'competency', competencyIndex, { domain, field }); $event.stopPropagation()"
+                  @dragend="handleDragEnd"
+                  @dragover="handleDragOver"
+                  @dragenter="handleDragEnter($event, competency, 'competency', competencyIndex, { domain, field }); $event.stopPropagation()"
+                  @drop="handleDrop($event, competency, 'competency', competencyIndex, { domain, field })"
                 >
-                  <div class="node-content" @click="toggleCompetency(competency.id)">
-                    <span class="node-icon">
+                  <div class="node-content" @click="!competency.isGhost && toggleCompetency(competency.id)">
+                    <span class="node-icon" v-if="!competency.isGhost">
                       <span class="material-symbols-outlined">
                         {{ expandedCompetencies.has(competency.id) ? 'expand_more' : 'chevron_right' }}
                       </span>
                     </span>
-                    <span class="node-label competency-label">{{ competency.name }}</span>
-                    <div class="node-actions">
+                    <span class="node-label competency-label" :class="{ 'ghost-text': competency.isGhost }">
+                      {{ competency.isGhost ? 'Zone de dépôt' : competency.name }}
+                    </span>
+                    <div class="node-actions" v-if="!competency.isGhost">
                       <button @click.stop="openAddSpecificCompetencyModal(competency, field, domain)" class="action-btn" title="Ajouter une sous-compétence">
                         <span class="material-symbols-outlined">add</span>
                       </button>
@@ -105,16 +129,24 @@
                   <!-- Specific Competency Level -->
                   <div v-if="expandedCompetencies.has(competency.id)" class="tree-children">
                     <div 
-                      v-for="specificCompetency in competency.specificCompetencies" 
+                      v-for="(specificCompetency, specificIndex) in competency.specificCompetencies" 
                       :key="specificCompetency.id"
-                      class="tree-node specific-competency-node"
+                      :class="['tree-node', 'specific-competency-node', { 'ghost-element': specificCompetency.isGhost, 'dragging-element': specificCompetency.isDragging }]"
+                      :draggable="!specificCompetency.isGhost && !specificCompetency.isDragging"
+                      @dragstart="!specificCompetency.isGhost && handleDragStart($event, specificCompetency, 'specificCompetency', specificIndex, { domain, field, competency }); $event.stopPropagation()"
+                      @dragend="handleDragEnd"
+                      @dragover="handleDragOver"
+                      @dragenter="handleDragEnter($event, specificCompetency, 'specificCompetency', specificIndex, { domain, field, competency }); $event.stopPropagation()"
+                      @drop="handleDrop($event, specificCompetency, 'specificCompetency', specificIndex, { domain, field, competency })"
                     >
                       <div class="node-content">
-                        <span class="node-icon">
+                        <span class="node-icon" v-if="!specificCompetency.isGhost">
                           <span class="material-symbols-outlined">fiber_manual_record</span>
                         </span>
-                        <span class="node-label specific-competency-label">{{ specificCompetency.name }}</span>
-                        <div class="node-actions">
+                        <span class="node-label specific-competency-label" :class="{ 'ghost-text': specificCompetency.isGhost }">
+                          {{ specificCompetency.isGhost ? 'Zone de dépôt' : specificCompetency.name }}
+                        </span>
+                        <div class="node-actions" v-if="!specificCompetency.isGhost">
                           <button @click.stop="openEditSpecificCompetencyModal(specificCompetency, competency, field, domain)" class="action-btn" title="Modifier la sous-compétence">
                             <span class="material-symbols-outlined">edit</span>
                           </button>
@@ -240,7 +272,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
 
 // Interface pour les compétences
@@ -266,6 +298,16 @@ const expandedDomains = ref(new Set<string>())
 const expandedFields = ref(new Set<string>())
 const expandedCompetencies = ref(new Set<string>())
 
+// États pour le drag & drop
+const draggedItem = ref<any>(null)
+const draggedType = ref<string>('')
+const draggedIndex = ref<number>(-1)
+const draggedContext = ref<any>(null)
+const isDragging = ref(false)
+const ghostElement = ref<any>(null)
+const ghostPosition = ref<number>(-1)
+const ghostContext = ref<any>(null)
+
 // Utilisation du store global pour le framework de compétences
 const { 
   framework,
@@ -280,8 +322,118 @@ const {
   deleteDomain,
   deleteField,
   deleteCompetency,
-  deleteSpecificCompetency
+  deleteSpecificCompetency,
+  reorderDomains,
+  reorderFields,
+  reorderCompetencies,
+  reorderSpecificCompetencies
 } = useCompetencyFrameworkStore()
+
+// Framework avec drag & drop visuel
+const frameworkWithDragDrop = computed(() => {
+  if (!isDragging.value || ghostPosition.value < 0) return framework.value
+
+  // Créer une copie profonde du framework
+  const result = JSON.parse(JSON.stringify(framework.value))
+
+  // Ajouter seulement l'élément fantôme sans supprimer l'élément dragué
+  if (draggedType.value === 'domain') {
+    // Marquer le domaine dragué comme étant en cours de drag
+    if (result.domains[draggedIndex.value]) {
+      result.domains[draggedIndex.value].isDragging = true
+    }
+    
+    // Ajouter l'élément fantôme si une position est définie
+    if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value) {
+      const ghost = {
+        id: 'ghost-domain',
+        name: '',
+        description: '',
+        fields: [],
+        isGhost: true
+      }
+      // Ajuster la position si on insère après l'élément dragué
+      const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+      result.domains.splice(insertPos, 0, ghost)
+    }
+  } else if (draggedType.value === 'field') {
+    // Trouver et modifier le bon domaine
+    const domain = result.domains.find((d: any) => d.id === draggedContext.value?.domain?.id)
+    if (domain) {
+      // Marquer le champ dragué comme étant en cours de drag
+      if (domain.fields[draggedIndex.value]) {
+        domain.fields[draggedIndex.value].isDragging = true
+      }
+      
+      if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value && 
+          ghostContext.value?.domain?.id === draggedContext.value?.domain?.id) {
+        const ghost = {
+          id: 'ghost-field',
+          name: '',
+          description: '',
+          competencies: [],
+          isGhost: true
+        }
+        const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+        domain.fields.splice(insertPos, 0, ghost)
+      }
+    }
+  } else if (draggedType.value === 'competency') {
+    // Trouver et modifier le bon champ
+    const domain = result.domains.find((d: any) => d.id === draggedContext.value?.domain?.id)
+    if (domain) {
+      const field = domain.fields.find((f: any) => f.id === draggedContext.value?.field?.id)
+      if (field) {
+        // Marquer la compétence draguée comme étant en cours de drag
+        if (field.competencies[draggedIndex.value]) {
+          field.competencies[draggedIndex.value].isDragging = true
+        }
+        
+        if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value &&
+            ghostContext.value?.field?.id === draggedContext.value?.field?.id) {
+          const ghost = {
+            id: 'ghost-competency',
+            name: '',
+            description: '',
+            specificCompetencies: [],
+            isGhost: true
+          }
+          const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+          field.competencies.splice(insertPos, 0, ghost)
+        }
+      }
+    }
+  } else if (draggedType.value === 'specificCompetency') {
+    // Trouver et modifier la bonne compétence
+    const domain = result.domains.find((d: any) => d.id === draggedContext.value?.domain?.id)
+    if (domain) {
+      const field = domain.fields.find((f: any) => f.id === draggedContext.value?.field?.id)
+      if (field) {
+        const competency = field.competencies.find((c: any) => c.id === draggedContext.value?.competency?.id)
+        if (competency) {
+          // Marquer la sous-compétence draguée comme étant en cours de drag
+          if (competency.specificCompetencies[draggedIndex.value]) {
+            competency.specificCompetencies[draggedIndex.value].isDragging = true
+          }
+          
+          if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value &&
+              ghostContext.value?.competency?.id === draggedContext.value?.competency?.id) {
+            const ghost = {
+              id: 'ghost-specific',
+              name: '',
+              description: '',
+              isGhost: true
+            }
+            const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+            competency.specificCompetencies.splice(insertPos, 0, ghost)
+          }
+        }
+      }
+    }
+  }
+
+  return result
+})
 
 // Framework filtré par la recherche - temporairement désactivé
 /*
@@ -356,6 +508,116 @@ const toggleCompetency = (competencyId: string) => {
     expandedCompetencies.value.delete(competencyId)
   } else {
     expandedCompetencies.value.add(competencyId)
+  }
+}
+
+// Fonctions de drag & drop
+const handleDragStart = (event: DragEvent, item: any, type: string, index: number, context?: any) => {
+  if (!event.dataTransfer) return
+  
+  event.stopPropagation()
+  
+  draggedItem.value = item
+  draggedType.value = type
+  draggedIndex.value = index
+  draggedContext.value = context
+  isDragging.value = true
+  
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData('text/plain', item.id)
+}
+
+const handleDragEnd = (_event: DragEvent) => {
+  isDragging.value = false
+  
+  // Réinitialiser les états
+  draggedItem.value = null
+  draggedType.value = ''
+  draggedIndex.value = -1
+  draggedContext.value = null
+  ghostElement.value = null
+  ghostPosition.value = -1
+  ghostContext.value = null
+}
+
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+}
+
+const handleDragEnter = (event: DragEvent, targetItem: any, targetType: string, targetIndex: number, targetContext?: any) => {
+  event.preventDefault()
+  event.stopPropagation()
+  
+  // Ne pas traiter les éléments fantômes ou en cours de drag
+  if (targetItem.isGhost || targetItem.isDragging) return
+  
+  // Vérifier que le type de glissé correspond au type de la cible
+  if (draggedType.value !== targetType) return
+  
+  // Vérifier que c'est le même contexte parent
+  if (targetType === 'field' && (!targetContext?.domain || !draggedContext.value?.domain || 
+      targetContext.domain.id !== draggedContext.value.domain.id)) return
+  if (targetType === 'competency' && (!targetContext?.field || !draggedContext.value?.field || 
+      targetContext.field.id !== draggedContext.value.field.id)) return
+  if (targetType === 'specificCompetency' && (!targetContext?.competency || !draggedContext.value?.competency || 
+      targetContext.competency.id !== draggedContext.value.competency.id)) return
+  
+  // Définir la position du fantôme
+  ghostPosition.value = targetIndex
+  ghostContext.value = targetContext
+  
+  // Créer l'élément fantôme basé sur l'élément dragué
+  ghostElement.value = {
+    ...draggedItem.value,
+    isGhost: true
+  }
+}
+
+const handleDrop = (event: DragEvent, targetItem: any, targetType: string, targetIndex: number, _targetContext?: any) => {
+  event.preventDefault()
+  event.stopPropagation()
+  
+  // Vérifier que le type de glissé correspond au type de la cible
+  if (draggedType.value !== targetType) return
+  
+  // Éviter de se déposer sur soi-même
+  if (draggedItem.value?.id === targetItem?.id) return
+  
+  const fromIndex = draggedIndex.value
+  let toIndex = ghostPosition.value >= 0 ? ghostPosition.value : targetIndex
+  
+  // Ajuster l'index si on déplace vers le bas dans la même liste
+  if (ghostPosition.value > draggedIndex.value) {
+    toIndex = ghostPosition.value - 1
+  }
+  
+  try {
+    switch (draggedType.value) {
+      case 'domain':
+        reorderDomains(fromIndex, toIndex)
+        break
+      case 'field':
+        if (draggedContext.value?.domain?.id === ghostContext.value?.domain?.id) {
+          reorderFields(draggedContext.value.domain.id, fromIndex, toIndex)
+        }
+        break
+      case 'competency':
+        if (draggedContext.value?.field?.id === ghostContext.value?.field?.id) {
+          reorderCompetencies(draggedContext.value.field.id, fromIndex, toIndex)
+        }
+        break
+      case 'specificCompetency':
+        if (draggedContext.value?.competency?.id === ghostContext.value?.competency?.id) {
+          reorderSpecificCompetencies(draggedContext.value.competency.id, fromIndex, toIndex)
+        }
+        break
+    }
+  } catch (error) {
+    console.error('Erreur lors de la réorganisation:', error)
   }
 }
 
@@ -1506,5 +1768,38 @@ const closeModal = () => {
   .fab-label {
     font-size: 12px;
   }
+}
+
+/* Styles pour les éléments fantômes */
+.ghost-element {
+  background: rgba(37, 99, 235, 0.1) !important;
+  border: 2px dashed rgba(37, 99, 235, 0.3) !important;
+  border-radius: 4px;
+  margin: 2px 0;
+}
+
+.ghost-text {
+  color: rgba(37, 99, 235, 0.7);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.ghost-element .node-content {
+  padding: 8px 16px;
+  pointer-events: none;
+}
+
+.ghost-element .node-icon {
+  opacity: 0.5;
+}
+
+/* Styles pour les éléments en cours de drag */
+.dragging-element {
+  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dragging-element * {
+  pointer-events: none;
 }
 </style>

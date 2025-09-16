@@ -256,6 +256,52 @@ export const useCompetencyFrameworkStore = () => {
     return null
   }
   
+  // Fonctions de réorganisation
+  const reorderDomains = (fromIndex: number, toIndex: number) => {
+    const domains = [...competencyFramework.value.domains]
+    const [movedItem] = domains.splice(fromIndex, 1)
+    domains.splice(toIndex, 0, movedItem)
+    competencyFramework.value.domains = domains
+  }
+
+  const reorderFields = (domainId: string, fromIndex: number, toIndex: number) => {
+    const domain = competencyFramework.value.domains.find(d => d.id === domainId)
+    if (domain) {
+      const fields = [...domain.fields]
+      const [movedItem] = fields.splice(fromIndex, 1)
+      fields.splice(toIndex, 0, movedItem)
+      domain.fields = fields
+    }
+  }
+
+  const reorderCompetencies = (fieldId: string, fromIndex: number, toIndex: number) => {
+    for (const domain of competencyFramework.value.domains) {
+      const field = domain.fields.find(f => f.id === fieldId)
+      if (field) {
+        const competencies = [...field.competencies]
+        const [movedItem] = competencies.splice(fromIndex, 1)
+        competencies.splice(toIndex, 0, movedItem)
+        field.competencies = competencies
+        break
+      }
+    }
+  }
+
+  const reorderSpecificCompetencies = (competencyId: string, fromIndex: number, toIndex: number) => {
+    for (const domain of competencyFramework.value.domains) {
+      for (const field of domain.fields) {
+        const competency = field.competencies.find(c => c.id === competencyId)
+        if (competency) {
+          const specificCompetencies = [...competency.specificCompetencies]
+          const [movedItem] = specificCompetencies.splice(fromIndex, 1)
+          specificCompetencies.splice(toIndex, 0, movedItem)
+          competency.specificCompetencies = specificCompetencies
+          return
+        }
+      }
+    }
+  }
+
   // Fonction pour réinitialiser le framework
   const resetFramework = () => {
     competencyFramework.value = JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK))
@@ -284,6 +330,12 @@ export const useCompetencyFrameworkStore = () => {
     addSpecificCompetency,
     updateSpecificCompetency,
     deleteSpecificCompetency,
+    
+    // Actions de réorganisation
+    reorderDomains,
+    reorderFields,
+    reorderCompetencies,
+    reorderSpecificCompetencies,
     
     // Reset
     resetFramework

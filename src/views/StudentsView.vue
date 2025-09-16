@@ -457,7 +457,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-scrim, rgba(0, 0, 0, 0.32));
+  background: rgba(0, 0, 0, 0.32);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -473,9 +473,9 @@ const closeModal = () => {
 
 /* Basic Dialog - 280dp minimum width, 560dp maximum */
 .dialog-container {
-  background: var(--md-sys-color-surface-container-high, #f3edf7);
+  background: #FFFFFF;
   border-radius: 28px;
-  box-shadow: 
+  box-shadow:
     0px 3px 1px -2px rgba(0, 0, 0, 0.2),
     0px 2px 2px 0px rgba(0, 0, 0, 0.14),
     0px 1px 5px 0px rgba(0, 0, 0, 0.12);
@@ -514,21 +514,21 @@ const closeModal = () => {
 .dialog-icon {
   width: 24px;
   height: 24px;
-  color: var(--md-sys-color-secondary, #625b71);
+  color: #625b71;
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .alert-icon {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .dialog-headline {
-  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-headline-small-size, 24px);
-  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
-  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
-  color: var(--md-sys-color-on-surface, #1c1b1f);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #1c1b1f;
   margin: 0;
   flex: 1;
 }
@@ -539,11 +539,11 @@ const closeModal = () => {
 }
 
 .dialog-supporting-text {
-  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-medium-size, 14px);
-  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
-  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #49454f;
   margin: 0 0 16px 0;
 }
 
@@ -552,7 +552,7 @@ const closeModal = () => {
 }
 
 .warning-text {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 /* Dialog Form */
@@ -571,21 +571,21 @@ const closeModal = () => {
 }
 
 .text-field-label {
-  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  font-weight: var(--md-sys-typescale-body-small-weight, 400);
-  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #49454f;
   margin-bottom: 8px;
   transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .text-field-input {
-  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-large-size, 16px);
-  font-weight: var(--md-sys-typescale-body-large-weight, 400);
-  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
-  color: var(--md-sys-color-on-surface, #1c1b1f);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #1c1b1f;
   background: transparent;
   border: none;
   outline: none;
@@ -595,13 +595,13 @@ const closeModal = () => {
 }
 
 .text-field-input::placeholder {
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  color: #49454f;
   opacity: 0.6;
 }
 
 .text-field-underline {
   height: 1px;
-  background: var(--md-sys-color-outline, #79747e);
+  background: #79747e;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
 }
@@ -613,7 +613,7 @@ const closeModal = () => {
   left: 50%;
   right: 50%;
   height: 2px;
-  background: var(--md-sys-color-primary, #6750a4);
+  background: #6750a4;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -624,7 +624,7 @@ const closeModal = () => {
 
 .text-field-input:focus ~ .text-field-label,
 .text-field:focus-within .text-field-label {
-  color: var(--md-sys-color-primary, #6750a4);
+  color: #6750a4;
 }
 
 /* Dialog Actions */
@@ -638,11 +638,11 @@ const closeModal = () => {
 
 /* Material 3 Buttons */
 .text-button {
-  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-label-large-size, 14px);
-  font-weight: var(--md-sys-typescale-label-large-weight, 500);
-  line-height: var(--md-sys-typescale-label-large-line-height, 20px);
-  color: var(--md-sys-color-primary, #6750a4);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6750a4;
   background: transparent;
   border: none;
   border-radius: 20px;
@@ -661,7 +661,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-primary, #6750a4);
+  background: #6750a4;
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -679,12 +679,12 @@ const closeModal = () => {
 }
 
 .filled-button {
-  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-label-large-size, 14px);
-  font-weight: var(--md-sys-typescale-label-large-weight, 500);
-  line-height: var(--md-sys-typescale-label-large-line-height, 20px);
-  color: var(--md-sys-color-on-primary, #ffffff);
-  background: var(--md-sys-color-primary, #6750a4);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #ffffff;
+  background: #6750a4;
   border: none;
   border-radius: 20px;
   padding: 10px 24px;
@@ -703,7 +703,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-on-primary, #ffffff);
+  background: #ffffff;
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -721,12 +721,12 @@ const closeModal = () => {
 }
 
 .filled-button.destructive {
-  background: var(--md-sys-color-error, #ba1a1a);
-  color: var(--md-sys-color-on-error, #ffffff);
+  background: #ba1a1a;
+  color: #ffffff;
 }
 
 .filled-button.destructive::before {
-  background: var(--md-sys-color-on-error, #ffffff);
+  background: #ffffff;
 }
 
 /* Ensure FAB container doesn't interfere with positioning */

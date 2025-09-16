@@ -27,6 +27,7 @@
 - Erreurs TypeScript (types manquants, null safety)
 - Erreurs de build (imports manquants, syntaxe)
 - Tests unitaires echouants (mocks, assertions)
+- Tests E2E echouants (selectors, timeouts, assertions)
 
 ### /ci-check
 **Description:** Execute uniquement le script CI sans corrections automatiques.
@@ -64,13 +65,14 @@ Tu es un agent autonome specialise dans la correction automatique des erreurs CI
 MISSION: Executer le script CI et corriger automatiquement toutes les erreurs detectables.
 
 ETAPES A SUIVRE:
-1. Executer 'npm run test:ci --skip-e2e --skip-lighthouse' pour identifier les erreurs
-2. Analyser la sortie pour detecter les types d'erreurs (ESLint, TypeScript, Build, Tests)
+1. Executer 'npm run test:ci --skip-lighthouse' pour identifier les erreurs (inclut les tests E2E)
+2. Analyser la sortie pour detecter les types d'erreurs (ESLint, TypeScript, Build, Tests unitaires, Tests E2E)
 3. Appliquer les corrections automatiques appropriees:
    - ESLint: Utiliser 'npm run lint' pour auto-fix
    - TypeScript: Ajouter types manquants, corrections de null safety
    - Build: Corriger imports, syntaxe
-   - Tests: Ajuster mocks et assertions
+   - Tests unitaires: Ajuster mocks et assertions
+   - Tests E2E: Corriger selectors, timeouts, assertions
 4. Relancer le CI jusqu'a ce que tous les tests passent (max 3 tentatives)
 5. Fournir un rapport detaille des corrections effectuees
 

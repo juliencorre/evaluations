@@ -27,8 +27,8 @@ Lance un agent autonome qui exécute le script CI complet et corrige automatique
 
 Cette commande lance un agent autonome Claude Code qui :
 
-1. 🔄 Exécute `npm run test:ci` pour détecter les erreurs
-2. 🔍 Analyse les erreurs ESLint, TypeScript, tests unitaires et build
+1. 🔄 Exécute `npm run test:ci` pour détecter les erreurs (inclut les tests E2E)
+2. 🔍 Analyse les erreurs ESLint, TypeScript, tests unitaires, tests E2E et build
 3. 🛠️ Corrige automatiquement les erreurs détectables
 4. ♻️ Relance le CI jusqu'à ce que tous les tests passent
 5. ✅ Affiche un rapport de toutes les corrections effectuées
@@ -39,6 +39,7 @@ Cette commande lance un agent autonome Claude Code qui :
 - ❌ Erreurs TypeScript (types manquants, null safety)
 - ❌ Erreurs de build (imports manquants, syntaxe)
 - ❌ Tests unitaires échouants (mocks, assertions)
+- ❌ Tests E2E échouants (selectors, timeouts, assertions)
 
 ## Implémentation
 
@@ -50,13 +51,14 @@ Tu es un agent autonome spécialisé dans la correction automatique des erreurs 
 MISSION: Exécuter le script CI et corriger automatiquement toutes les erreurs détectables.
 
 ÉTAPES À SUIVRE:
-1. Exécuter 'npm run test:ci --skip-e2e --skip-lighthouse' pour identifier les erreurs
-2. Analyser la sortie pour détecter les types d'erreurs (ESLint, TypeScript, Build, Tests)
+1. Exécuter 'npm run test:ci --skip-lighthouse' pour identifier les erreurs (inclut les tests E2E)
+2. Analyser la sortie pour détecter les types d'erreurs (ESLint, TypeScript, Build, Tests unitaires, Tests E2E)
 3. Appliquer les corrections automatiques appropriées:
    - ESLint: Utiliser 'npm run lint' pour auto-fix
    - TypeScript: Ajouter types manquants, corrections de null safety
    - Build: Corriger imports, syntaxe
-   - Tests: Ajuster mocks et assertions
+   - Tests unitaires: Ajuster mocks et assertions
+   - Tests E2E: Corriger selectors, timeouts, assertions
 4. Relancer le CI jusqu'à ce que tous les tests passent (max 3 tentatives)
 5. Fournir un rapport détaillé des corrections effectuées
 

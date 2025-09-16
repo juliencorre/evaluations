@@ -42,7 +42,7 @@ test.describe('PWA Offline Functionality', () => {
     await expect(page.locator('main[role="main"]')).toBeVisible()
 
     // Verify the visually hidden h1 is present
-    await expect(page.locator('h1.visually-hidden')).toHaveText('App Name Home Page')
+    await expect(page.locator('h1.visually-hidden')).toHaveText('Tableau d\'évaluation des compétences')
 
     // Verify no network errors in console
     const consoleErrors: string[] = []

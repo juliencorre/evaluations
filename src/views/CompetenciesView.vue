@@ -497,7 +497,7 @@ const draggedType = ref<string>('')
 const draggedIndex = ref<number>(-1)
 const draggedContext = ref<DragContext | null>(null)
 const isDragging = ref(false)
-const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | null>(null)
+const ghostElement = ref<any>(null)
 const ghostPosition = ref<number>(-1)
 const ghostContext = ref<DragContext | null>(null)
 
@@ -739,7 +739,7 @@ const handleDragStart = (
   draggedItem.value = item
   draggedType.value = type
   draggedIndex.value = index
-  draggedContext.value = context
+  draggedContext.value = context || null
   isDragging.value = true
 
   dragEvent.dataTransfer.effectAllowed = 'move'
@@ -815,7 +815,7 @@ const handleDragEnter = (
 
   // Définir la position du fantôme
   ghostPosition.value = targetIndex
-  ghostContext.value = targetContext
+  ghostContext.value = targetContext || null
 
   // Créer l'élément fantôme basé sur l'élément dragué
   ghostElement.value = {
@@ -857,17 +857,17 @@ const handleDrop = (
         reorderDomains(fromIndex, toIndex)
         break
       case 'field':
-        if (draggedContext.value?.domain?.id === ghostContext.value?.domain?.id) {
+        if (draggedContext.value?.domain?.id === ghostContext.value?.domain?.id && draggedContext.value?.domain) {
           reorderFields(draggedContext.value.domain.id, fromIndex, toIndex)
         }
         break
       case 'competency':
-        if (draggedContext.value?.field?.id === ghostContext.value?.field?.id) {
+        if (draggedContext.value?.field?.id === ghostContext.value?.field?.id && draggedContext.value?.field) {
           reorderCompetencies(draggedContext.value.field.id, fromIndex, toIndex)
         }
         break
       case 'specificCompetency':
-        if (draggedContext.value?.competency?.id === ghostContext.value?.competency?.id) {
+        if (draggedContext.value?.competency?.id === ghostContext.value?.competency?.id && draggedContext.value?.competency) {
           reorderSpecificCompetencies(draggedContext.value.competency.id, fromIndex, toIndex)
         }
         break
@@ -1112,9 +1112,9 @@ const getDeleteModalTitle = () => {
   if (!competencyToDelete.value) return ''
 
   // Déterminer le type d'élément à supprimer en fonction de ses propriétés
-  if (competencyToDelete.value.fields) return 'Supprimer le domaine'
-  if (competencyToDelete.value.competencies) return 'Supprimer le champ'
-  if (competencyToDelete.value.specificCompetencies) return 'Supprimer la compétence'
+  if ('fields' in competencyToDelete.value) return 'Supprimer le domaine'
+  if ('competencies' in competencyToDelete.value) return 'Supprimer le champ'
+  if ('specificCompetencies' in competencyToDelete.value) return 'Supprimer la compétence'
   return 'Supprimer la sous-compétence'
 }
 
@@ -1122,11 +1122,11 @@ const getDeleteModalText = () => {
   if (!competencyToDelete.value) return ''
   const name = competencyToDelete.value.name
 
-  if (competencyToDelete.value.fields)
+  if ('fields' in competencyToDelete.value)
     return `Êtes-vous sûr de vouloir supprimer le domaine "${name}" ?`
-  if (competencyToDelete.value.competencies)
+  if ('competencies' in competencyToDelete.value)
     return `Êtes-vous sûr de vouloir supprimer le champ "${name}" ?`
-  if (competencyToDelete.value.specificCompetencies)
+  if ('specificCompetencies' in competencyToDelete.value)
     return `Êtes-vous sûr de vouloir supprimer la compétence "${name}" ?`
   return `Êtes-vous sûr de vouloir supprimer la sous-compétence "${name}" ?`
 }
@@ -1134,13 +1134,13 @@ const getDeleteModalText = () => {
 const getDeleteWarningText = () => {
   if (!competencyToDelete.value) return ''
 
-  if (competencyToDelete.value.fields) {
+  if ('fields' in competencyToDelete.value) {
     return 'Cette action supprimera définitivement ce domaine et tous ses champs, compétences et évaluations associées.'
   }
-  if (competencyToDelete.value.competencies) {
+  if ('competencies' in competencyToDelete.value) {
     return 'Cette action supprimera définitivement ce champ et toutes ses compétences et évaluations associées.'
   }
-  if (competencyToDelete.value.specificCompetencies) {
+  if ('specificCompetencies' in competencyToDelete.value) {
     return 'Cette action supprimera définitivement cette compétence et toutes ses sous-compétences et évaluations associées.'
   }
   return 'Cette action supprimera définitivement cette sous-compétence et toutes les évaluations associées.'
@@ -1155,7 +1155,7 @@ const saveCompetency = () => {
   try {
     if (type === 'domain') {
       if (isEdit) {
-        updateDomain(currentContext.value.domain.id, {
+        updateDomain(currentContext.value.domain!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
@@ -1167,36 +1167,36 @@ const saveCompetency = () => {
       }
     } else if (type === 'field') {
       if (isEdit) {
-        updateField(currentContext.value.field.id, {
+        updateField(currentContext.value.field!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addField(currentContext.value.domain.id, {
+        addField(currentContext.value.domain!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       }
     } else if (type === 'competency') {
       if (isEdit) {
-        updateCompetency(currentContext.value.competency.id, {
+        updateCompetency(currentContext.value.competency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addCompetency(currentContext.value.field.id, {
+        addCompetency(currentContext.value.field!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       }
     } else if (type === 'specificCompetency') {
       if (isEdit) {
-        updateSpecificCompetency(currentContext.value.specificCompetency.id, {
+        updateSpecificCompetency(currentContext.value.specificCompetency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addSpecificCompetency(currentContext.value.competency.id, {
+        addSpecificCompetency(currentContext.value.competency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
@@ -1218,15 +1218,15 @@ const confirmDelete = () => {
     const itemToDelete = competencyToDelete.value
 
     // Identifier le type d'élément et le supprimer via le store
-    if (itemToDelete.fields) {
+    if ('fields' in itemToDelete) {
       // Supprimer un domaine
       deleteDomain(itemToDelete.id)
       console.log('Domaine supprimé via store:', itemToDelete.name)
-    } else if (itemToDelete.competencies) {
+    } else if ('competencies' in itemToDelete) {
       // Supprimer un champ
       deleteField(itemToDelete.id)
       console.log('Champ supprimé via store:', itemToDelete.name)
-    } else if (itemToDelete.specificCompetencies) {
+    } else if ('specificCompetencies' in itemToDelete) {
       // Supprimer une compétence
       deleteCompetency(itemToDelete.id)
       console.log('Compétence supprimée via store:', itemToDelete.name)

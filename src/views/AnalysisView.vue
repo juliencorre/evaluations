@@ -346,6 +346,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// Type definitions
+interface EvaluationScore {
+  score: number
+}
+
+interface MetricData {
+  name: string
+  evaluations: EvaluationScore[]
+}
+
+interface StudentData {
+  [studentId: string]: {
+    [metricType: string]: MetricData[]
+  }
+}
+
 // Active view state
 const activeView = ref('dashboard')
 
@@ -411,7 +427,7 @@ const evaluationPeriods = ref([
 ])
 
 // Mock student data with multiple evaluations
-const studentData = ref({
+const studentData = ref<StudentData>({
   student1: {
     domains: [
       {

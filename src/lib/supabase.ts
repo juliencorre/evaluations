@@ -24,6 +24,7 @@ const createMockSupabase = () => {
       eq: () => chainable,
       or: () => chainable,
       single: () => mockSingleResult,
+      upsert: () => chainable,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       then: (resolve: (value: any) => void) => resolve(mockArrayResult),
       ...mockArrayResult
@@ -32,13 +33,20 @@ const createMockSupabase = () => {
     return chainable
   }
 
+  const createTableMock = () => ({
+    select: () => createChainableMock(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    insert: (_data: any) => createChainableMock(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    update: (_data: any) => createChainableMock(),
+    delete: () => createChainableMock(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    upsert: (_data: any, _options?: any) => createChainableMock()
+  })
+
   return {
-    from: () => ({
-      select: () => createChainableMock(),
-      insert: () => createChainableMock(),
-      update: () => createChainableMock(),
-      delete: () => createChainableMock()
-    }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    from: (_table: any) => createTableMock(),
     channel: () => ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       on: (..._args: any[]) => ({

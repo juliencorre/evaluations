@@ -1,11 +1,14 @@
 import { ref, computed } from 'vue'
 import type { Evaluation, EvaluationResult, EvaluationLevel } from '@/types/evaluation'
 import { evaluationResultsService } from '@/services/evaluationResultsService'
+import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
+import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 
 // Store réactif global pour les résultats d'évaluation
 const currentEvaluation = ref<Evaluation | null>(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+const useSupabase = ref(true) // Flag pour activer/désactiver Supabase
 
 /**
  * Store pour la gestion des résultats d'évaluation
@@ -42,13 +45,46 @@ export const useEvaluationResultsStore = () => {
     error.value = null
 
     try {
-      const evaluation = evaluationResultsService.getOrCreateEvaluation(evaluationData)
+      let evaluation: Evaluation
+      let processedEvaluationData = { ...evaluationData }
+
+      // Si on utilise Supabase et que le frameworkId n'est pas un UUID valide, récupérer le vrai ID
+      if (useSupabase.value && evaluationData.frameworkId === 'framework-fr-primary') {
+        console.log('🔄 [EvaluationResultsStore] Récupération de l\'ID réel du framework depuis Supabase')
+        const frameworkStore = useCompetencyFrameworkStore()
+        const realFrameworkId = frameworkStore.framework.value.id
+
+        if (realFrameworkId && realFrameworkId !== 'temp') {
+          processedEvaluationData.frameworkId = realFrameworkId
+          console.log('✅ [EvaluationResultsStore] Framework ID mis à jour:', realFrameworkId)
+        }
+      }
+
+      if (useSupabase.value) {
+        try {
+          // Essayer Supabase en premier
+          evaluation = await supabaseEvaluationResultsService.getOrCreateEvaluation(processedEvaluationData)
+          console.log('✅ [EvaluationResultsStore] Évaluation initialisée avec Supabase')
+        } catch (supabaseError) {
+          console.error('❌ [EvaluationResultsStore] Erreur Supabase, basculement localStorage:', supabaseError)
+          useSupabase.value = false
+          evaluation = evaluationResultsService.getOrCreateEvaluation(evaluationData)
+          console.log('✅ [EvaluationResultsStore] Évaluation initialisée avec localStorage (fallback)')
+        }
+      } else {
+        // Utiliser directement localStorage
+        evaluation = evaluationResultsService.getOrCreateEvaluation(evaluationData)
+        console.log('✅ [EvaluationResultsStore] Évaluation initialisée avec localStorage')
+      }
+
       currentEvaluation.value = evaluation
 
       console.log('✅ [EvaluationResultsStore] Évaluation initialisée:', {
         id: evaluation.id,
         name: evaluation.name,
-        resultCount: evaluation.results.length
+        resultCount: evaluation.results.length,
+        source: useSupabase.value ? 'Supabase' : 'localStorage',
+        frameworkId: evaluation.frameworkId
       })
     } catch (err) {
       console.error('❌ [EvaluationResultsStore] Erreur lors de l\'initialisation:', err)
@@ -74,17 +110,56 @@ export const useEvaluationResultsStore = () => {
       studentId,
       competencyId,
       level,
-      comment
+      comment,
+      source: useSupabase.value ? 'Supabase' : 'localStorage'
     })
 
     try {
-      const result = evaluationResultsService.saveResult(
-        currentEvaluation.value.id,
-        studentId,
-        competencyId,
-        level,
-        comment
-      )
+      let result: EvaluationResult
+
+      if (useSupabase.value) {
+        try {
+          // Essayer Supabase en premier
+          result = await supabaseEvaluationResultsService.saveResult(
+            currentEvaluation.value.id,
+            studentId,
+            competencyId,
+            level,
+            comment
+          )
+          console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec Supabase')
+
+          // Sauvegarder aussi en local comme backup
+          evaluationResultsService.saveResult(
+            currentEvaluation.value.id,
+            studentId,
+            competencyId,
+            level,
+            comment
+          )
+        } catch (supabaseError) {
+          console.error('❌ [EvaluationResultsStore] Erreur Supabase, basculement localStorage:', supabaseError)
+          useSupabase.value = false
+          result = evaluationResultsService.saveResult(
+            currentEvaluation.value.id,
+            studentId,
+            competencyId,
+            level,
+            comment
+          )
+          console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec localStorage (fallback)')
+        }
+      } else {
+        // Utiliser directement localStorage
+        result = evaluationResultsService.saveResult(
+          currentEvaluation.value.id,
+          studentId,
+          competencyId,
+          level,
+          comment
+        )
+        console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec localStorage')
+      }
 
       // Mettre à jour le store local
       const existingIndex = currentEvaluation.value.results.findIndex(
@@ -287,6 +362,7 @@ export const useEvaluationResultsStore = () => {
     evaluationStats,
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
+    useSupabase: computed(() => useSupabase.value),
 
     // Actions
     initializeEvaluation,

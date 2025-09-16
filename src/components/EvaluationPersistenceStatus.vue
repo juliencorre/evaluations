@@ -6,6 +6,9 @@
         <span class="status-badge" :class="statusClass">
           {{ statusText }}
         </span>
+        <span class="source-badge" :class="sourceClass">
+          {{ sourceText }}
+        </span>
         <button
           v-if="evaluationStore.error.value"
           class="clear-error-btn"
@@ -106,6 +109,14 @@ const statusText = computed(() => {
   return 'Aucune donnée'
 })
 
+const sourceClass = computed(() => {
+  return evaluationStore.useSupabase.value ? 'supabase' : 'local'
+})
+
+const sourceText = computed(() => {
+  return evaluationStore.useSupabase.value ? 'Supabase' : 'Local'
+})
+
 // Actions
 const refreshData = async () => {
   await evaluationStore.refreshEvaluation()
@@ -195,6 +206,25 @@ const formatBytes = (bytes: number): string => {
 .status-badge.idle {
   background: #e2e3e5;
   color: #6c757d;
+}
+
+.source-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.source-badge.supabase {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.source-badge.local {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
 }
 
 .clear-error-btn {

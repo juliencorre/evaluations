@@ -177,6 +177,70 @@ export type Database = {
           updated_at?: string
         }
       }
+      evaluations: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          framework_id: string
+          class_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          framework_id: string
+          class_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          framework_id?: string
+          class_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      evaluation_results: {
+        Row: {
+          id: string
+          evaluation_id: string
+          student_id: string
+          specific_competency_id: string
+          level: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+          comment: string | null
+          evaluated_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          evaluation_id: string
+          student_id: string
+          specific_competency_id: string
+          level: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+          comment?: string | null
+          evaluated_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          evaluation_id?: string
+          student_id?: string
+          specific_competency_id?: string
+          level?: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+          comment?: string | null
+          evaluated_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

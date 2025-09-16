@@ -36,7 +36,8 @@
       "mcp__supabase__generate_typescript_types",
       "mcp__supabase__execute_sql",
       "Bash(npm run test:*)",
-      "Bash(npx vue-tsc:*)"
+      "Bash(npx vue-tsc:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

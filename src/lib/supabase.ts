@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '../types/supabase'
 
 // Vérifier si nous sommes dans un environnement de test
@@ -49,9 +49,9 @@ const createMockSupabase = () => {
 }
 
 // Créer le client approprié selon l'environnement
-function createSupabaseClient() {
+function createSupabaseClient(): SupabaseClient<Database> {
   if (isTestEnvironment || isVitest) {
-    return createMockSupabase()
+    return createMockSupabase() as unknown as SupabaseClient<Database>
   } else {
     // En mode production/développement, utiliser le vrai client Supabase
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''

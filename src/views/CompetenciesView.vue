@@ -418,7 +418,7 @@
 
 /* eslint-disable no-undef */
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
 
 // Interfaces pour les éléments du framework de compétences
@@ -502,32 +502,63 @@ const ghostPosition = ref<number>(-1)
 const ghostContext = ref<DragContext | null>(null)
 
 // Utilisation du store global pour le framework de compétences
-const {
-  framework,
-  updateDomain,
-  updateField,
-  updateCompetency,
-  updateSpecificCompetency,
-  addDomain,
-  addField,
-  addCompetency,
-  addSpecificCompetency,
-  deleteDomain,
-  deleteField,
-  deleteCompetency,
-  deleteSpecificCompetency,
-  reorderDomains,
-  reorderFields,
-  reorderCompetencies,
-  reorderSpecificCompetencies
-} = useCompetencyFrameworkStore()
+const competenciesStore = useCompetencyFrameworkStore()
+
+// Debug: surveiller les changements du framework
+console.log('🎬 [Vue] Initialisation CompetenciesView')
+console.log('📊 [Vue] Framework initial:', {
+  domains: competenciesStore.framework.value.domains.length,
+  isLoading: competenciesStore.isCompetenciesLoading.value
+})
+
+// Forcer le rechargement des données Supabase à chaque visite de la page
+onMounted(async () => {
+  console.log('🚪 [Vue] Page des compétences ouverte, rechargement Supabase...')
+  await competenciesStore.refreshFromSupabase()
+})
+
+// Watcher pour détecter les changements du framework
+watch(
+  () => competenciesStore.framework.value,
+  (newFramework, oldFramework) => {
+    console.log('🔄 [Vue] Framework modifié:', {
+      oldDomains: oldFramework?.domains.length || 0,
+      newDomains: newFramework?.domains.length || 0,
+      newFrameworkName: newFramework?.name
+    })
+    console.log('🌳 [Vue] Nouveaux domaines:', newFramework.domains.map(d => ({ id: d.id, name: d.name, fields: d.fields.length })))
+  },
+  { deep: true, immediate: true }
+)
 
 // Framework avec drag & drop visuel
 const frameworkWithDragDrop = computed(() => {
-  if (!isDragging.value || ghostPosition.value < 0) return framework.value
+  const currentFramework = competenciesStore.framework.value
+  console.log('🖼️ [Vue] Computed frameworkWithDragDrop appelé:', {
+    isDragging: isDragging.value,
+    ghostPosition: ghostPosition.value,
+    domains: currentFramework.domains.length,
+    frameworkName: currentFramework.name
+  })
+
+  if (!isDragging.value || ghostPosition.value < 0) {
+    console.log('↩️ [Vue] Retour du framework standard (pas de drag):', currentFramework.domains.map(d => ({ name: d.name, fields: d.fields.length })))
+    console.log('🔍 [Vue] expandedDomains dans computed:', Array.from(expandedDomains.value))
+    console.log('🔬 [Vue] Framework complet retourné:', {
+      id: currentFramework.id,
+      name: currentFramework.name,
+      domains: currentFramework.domains.map(d => ({
+        id: d.id,
+        name: d.name,
+        fieldsLength: d.fields.length,
+        firstField: d.fields[0]?.name || 'aucun'
+      }))
+    })
+    return currentFramework
+  }
 
   // Créer une copie profonde du framework
-  const result = JSON.parse(JSON.stringify(framework.value))
+  const result = JSON.parse(JSON.stringify(competenciesStore.framework.value))
 
   // Ajouter seulement l'élément fantôme sans supprimer l'élément dragué
   if (draggedType.value === 'domain') {
@@ -610,7 +641,7 @@ const frameworkWithDragDrop = computed(() => {
     const domain = result.domains.find((d: DomainItem) => d.id === draggedContext.value?.domain?.id)
     if (domain) {
       const field = domain.fields.find((f: FieldItem) => f.id === draggedContext.value?.field?.id)
-      if (field) {
+      if (field && draggedContext.value?.competency?.id) {
         const competency = field.competencies.find(
           (c: CompetencyItemDetailed) => c.id === draggedContext.value?.competency?.id
         )
@@ -718,6 +749,7 @@ const toggleCompetency = (competencyId: string) => {
     expandedCompetencies.value.add(competencyId)
   }
 }
+
 
 // Fonctions de drag & drop
  
@@ -854,21 +886,21 @@ const handleDrop = (
   try {
     switch (draggedType.value) {
       case 'domain':
-        reorderDomains(fromIndex, toIndex)
+        competenciesStore.reorderDomains(fromIndex, toIndex)
         break
       case 'field':
         if (draggedContext.value?.domain?.id === ghostContext.value?.domain?.id && draggedContext.value?.domain) {
-          reorderFields(draggedContext.value.domain.id, fromIndex, toIndex)
+          competenciesStore.reorderFields(draggedContext.value.domain.id, fromIndex, toIndex)
         }
         break
       case 'competency':
         if (draggedContext.value?.field?.id === ghostContext.value?.field?.id && draggedContext.value?.field) {
-          reorderCompetencies(draggedContext.value.field.id, fromIndex, toIndex)
+          competenciesStore.reorderCompetencies(draggedContext.value.field.id, fromIndex, toIndex)
         }
         break
       case 'specificCompetency':
         if (draggedContext.value?.competency?.id === ghostContext.value?.competency?.id && draggedContext.value?.competency) {
-          reorderSpecificCompetencies(draggedContext.value.competency.id, fromIndex, toIndex)
+          competenciesStore.reorderSpecificCompetencies(draggedContext.value.competency.id, fromIndex, toIndex)
         }
         break
     }
@@ -1146,99 +1178,125 @@ const getDeleteWarningText = () => {
   return 'Cette action supprimera définitivement cette sous-compétence et toutes les évaluations associées.'
 }
 
-const saveCompetency = () => {
-  if (!currentContext.value || !currentCompetency.value.name.trim()) return
+const saveCompetency = async () => {
+  if (!currentContext.value || !currentCompetency.value.name.trim()) {
+    console.log('⚠️ [Vue] Sauvegarde annulée - données manquantes')
+    return
+  }
 
   const { type } = currentContext.value
   const isEdit = showEditModal.value
 
+  console.log('💾 [Vue] Début sauvegarde:', {
+    type,
+    isEdit,
+    name: currentCompetency.value.name,
+    description: currentCompetency.value.description
+  })
+
   try {
     if (type === 'domain') {
       if (isEdit) {
-        updateDomain(currentContext.value.domain!.id, {
+        await competenciesStore.updateDomain(currentContext.value.domain!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addDomain({
+        await competenciesStore.addDomain({
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       }
     } else if (type === 'field') {
       if (isEdit) {
-        updateField(currentContext.value.field!.id, {
+        await competenciesStore.updateField(currentContext.value.field!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addField(currentContext.value.domain!.id, {
+        await competenciesStore.addField(currentContext.value.domain!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       }
     } else if (type === 'competency') {
       if (isEdit) {
-        updateCompetency(currentContext.value.competency!.id, {
+        await competenciesStore.updateCompetency(currentContext.value.competency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addCompetency(currentContext.value.field!.id, {
+        await competenciesStore.addCompetency(currentContext.value.field!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       }
     } else if (type === 'specificCompetency') {
       if (isEdit) {
-        updateSpecificCompetency(currentContext.value.specificCompetency!.id, {
+        await competenciesStore.updateSpecificCompetency(currentContext.value.specificCompetency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       } else {
-        addSpecificCompetency(currentContext.value.competency!.id, {
+        await competenciesStore.addSpecificCompetency(currentContext.value.competency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description
         })
       }
     }
 
-    console.log('Modification sauvegardée via store:', type, isEdit ? 'modifié' : 'ajouté')
+    console.log('✅ [Vue] Modification sauvegardée via store:', type, isEdit ? 'modifié' : 'ajouté')
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error)
+    console.error('💥 [Vue] Erreur lors de la sauvegarde:', error)
   }
 
+  console.log('🔒 [Vue] Fermeture du modal de sauvegarde')
   closeModal()
 }
 
-const confirmDelete = () => {
-  if (!competencyToDelete.value) return
+const confirmDelete = async () => {
+  if (!competencyToDelete.value) {
+    console.log('⚠️ [Vue] Suppression annulée - aucun élément sélectionné')
+    return
+  }
+
+  const itemToDelete = competencyToDelete.value
+  console.log('🗑️ [Vue] Début suppression:', {
+    id: itemToDelete.id,
+    name: itemToDelete.name,
+    type: 'fields' in itemToDelete ? 'domaine' :
+          'competencies' in itemToDelete ? 'champ' :
+          'specificCompetencies' in itemToDelete ? 'compétence' : 'sous-compétence'
+  })
 
   try {
-    const itemToDelete = competencyToDelete.value
-
     // Identifier le type d'élément et le supprimer via le store
     if ('fields' in itemToDelete) {
       // Supprimer un domaine
-      deleteDomain(itemToDelete.id)
-      console.log('Domaine supprimé via store:', itemToDelete.name)
+      console.log('🗂️ [Vue] Suppression domaine via store...')
+      await competenciesStore.deleteDomain(itemToDelete.id)
+      console.log('✅ [Vue] Domaine supprimé via store:', itemToDelete.name)
     } else if ('competencies' in itemToDelete) {
       // Supprimer un champ
-      deleteField(itemToDelete.id)
-      console.log('Champ supprimé via store:', itemToDelete.name)
+      console.log('📂 [Vue] Suppression champ via store...')
+      await competenciesStore.deleteField(itemToDelete.id)
+      console.log('✅ [Vue] Champ supprimé via store:', itemToDelete.name)
     } else if ('specificCompetencies' in itemToDelete) {
       // Supprimer une compétence
-      deleteCompetency(itemToDelete.id)
-      console.log('Compétence supprimée via store:', itemToDelete.name)
+      console.log('📄 [Vue] Suppression compétence via store...')
+      await competenciesStore.deleteCompetency(itemToDelete.id)
+      console.log('✅ [Vue] Compétence supprimée via store:', itemToDelete.name)
     } else {
       // Supprimer une sous-compétence
-      deleteSpecificCompetency(itemToDelete.id)
-      console.log('Sous-compétence supprimée via store:', itemToDelete.name)
+      console.log('📋 [Vue] Suppression sous-compétence via store...')
+      await competenciesStore.deleteSpecificCompetency(itemToDelete.id)
+      console.log('✅ [Vue] Sous-compétence supprimée via store:', itemToDelete.name)
     }
   } catch (error) {
-    console.error('Erreur lors de la suppression:', error)
+    console.error('💥 [Vue] Erreur lors de la suppression:', error)
   }
 
+  console.log('🔒 [Vue] Fermeture du modal de suppression')
   closeModal()
 }
 

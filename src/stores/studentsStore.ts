@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import type { Student, CompetencyFramework } from '@/types/evaluation'
-import { STUDENTS, COMPETENCY_FRAMEWORK } from '@/data/staticData'
+import { STUDENTS } from '@/data/staticData'
 import { supabaseStudentsService } from '@/services/supabaseStudentsService'
 
 // Store réactif global pour les élèves
@@ -224,10 +224,43 @@ export const useStudentsStore = () => {
   }
 }
 
-// Store réactif global pour le framework de compétences
-const competencyFramework = ref<CompetencyFramework>(
-  JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK))
-)
+// Store réactif global pour le framework de compétences - vide au départ
+const competencyFramework = ref<CompetencyFramework>({
+  id: '',
+  name: 'Chargement...',
+  version: '',
+  domains: []
+})
+
+const isCompetenciesLoading = ref(false)
+const competenciesError = ref<string | null>(null)
+
+// Import du service Supabase
+import { supabaseCompetenciesService } from '@/services/supabaseCompetenciesService'
+
+// Charger depuis Supabase au démarrage
+const loadFromSupabase = async () => {
+  try {
+    isCompetenciesLoading.value = true
+    const framework = await supabaseCompetenciesService.getOrCreateDefaultFramework()
+    const domains = await supabaseCompetenciesService.getAllDomains()
+
+    competencyFramework.value = {
+      id: framework.id,
+      name: framework.name,
+      version: framework.version,
+      domains
+    }
+  } catch (err) {
+    console.error('Erreur chargement Supabase:', err)
+    competenciesError.value = 'Impossible de charger depuis Supabase'
+  } finally {
+    isCompetenciesLoading.value = false
+  }
+}
+
+// Charger au démarrage
+loadFromSupabase()
 
 // Actions pour manipuler le framework de compétences
 export const useCompetencyFrameworkStore = () => {
@@ -465,14 +498,16 @@ export const useCompetencyFrameworkStore = () => {
     }
   }
 
-  // Fonction pour réinitialiser le framework
+  // Fonction pour vider le framework
   const resetFramework = () => {
-    competencyFramework.value = JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK))
+    competencyFramework.value = { id: '', name: '', version: '', domains: [] }
   }
 
   return {
-    // Getter
+    // Getters
     framework,
+    isCompetenciesLoading: computed(() => isCompetenciesLoading.value),
+    competenciesError: computed(() => competenciesError.value),
 
     // Actions domaines
     addDomain,
@@ -500,7 +535,8 @@ export const useCompetencyFrameworkStore = () => {
     reorderCompetencies,
     reorderSpecificCompetencies,
 
-    // Reset
-    resetFramework
+    // Reset et refresh
+    resetFramework,
+    refreshFromSupabase: loadFromSupabase
   }
 }

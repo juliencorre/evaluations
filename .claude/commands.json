@@ -1,0 +1,34 @@
+{
+  "commands": [
+    {
+      "name": "ci-fix",
+      "description": "Lance un agent autonome pour corriger automatiquement les erreurs CI",
+      "file": "./commands/ci-fix.js",
+      "usage": "/ci-fix [--skip-e2e] [--skip-lighthouse] [--max-attempts=3]",
+      "examples": [
+        "/ci-fix",
+        "/ci-fix --skip-e2e",
+        "/ci-fix --skip-lighthouse",
+        "/ci-fix --skip-e2e --skip-lighthouse --max-attempts=5"
+      ]
+    },
+    {
+      "name": "ci-check",
+      "description": "Vérifie le statut CI sans corrections automatiques",
+      "action": "task",
+      "prompt": "Exécuter 'npm run test:ci' et reporter le statut complet avec analyse détaillée des erreurs s'il y en a."
+    },
+    {
+      "name": "lint-fix",
+      "description": "Corrige uniquement les erreurs ESLint",
+      "action": "task",
+      "prompt": "Exécuter 'npm run lint' pour corriger automatiquement toutes les erreurs de linting ESLint détectées."
+    },
+    {
+      "name": "type-fix",
+      "description": "Corrige uniquement les erreurs TypeScript",
+      "action": "task",
+      "prompt": "Exécuter 'npx vue-tsc --noEmit' pour identifier les erreurs TypeScript, puis les corriger en ajoutant les types appropriés et les corrections de null safety."
+    }
+  ]
+}

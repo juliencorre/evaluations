@@ -10,7 +10,14 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(del nul)",
-      "Bash(npm.cmd run lint)"
+      "Bash(npm.cmd run lint)",
+      "Bash(npm run test:ci:*)",
+      "Bash(cat:*)",
+      "Bash(timeout 60 npm run test:ci)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npm run lint)",
+      "Bash(node:*)",
+      "mcp__supabase__list_tables"
     ],
     "deny": [],
     "ask": []

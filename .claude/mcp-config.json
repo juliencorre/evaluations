@@ -1,0 +1,44 @@
+{
+  "name": "ci-automation",
+  "version": "1.0.0",
+  "description": "Agent autonome pour la correction automatique des erreurs CI/CD",
+  "commands": {
+    "ci-fix": {
+      "description": "Lance un agent autonome qui exécute le script CI et corrige automatiquement toutes les erreurs détectées",
+      "parameters": {
+        "skip-e2e": {
+          "type": "boolean",
+          "description": "Ignore les tests E2E pour plus de rapidité",
+          "default": false
+        },
+        "skip-lighthouse": {
+          "type": "boolean",
+          "description": "Ignore les tests Lighthouse",
+          "default": false
+        },
+        "max-attempts": {
+          "type": "number",
+          "description": "Nombre maximum de tentatives de correction",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "handler": "./commands/ci-fix.js"
+    }
+  },
+  "tools": [
+    {
+      "name": "run-ci",
+      "description": "Exécute le script CI avec options"
+    },
+    {
+      "name": "fix-eslint",
+      "description": "Corrige automatiquement les erreurs ESLint"
+    },
+    {
+      "name": "analyze-typescript",
+      "description": "Analyse et corrige les erreurs TypeScript"
+    }
+  ]
+}

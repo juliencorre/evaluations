@@ -120,10 +120,11 @@ This runs all CI/CD steps in sequence:
 1. ✅ Check prerequisites
 2. 📦 Install dependencies (`npm ci`)
 3. 🔍 Run ESLint
-4. 🧪 Run unit tests
-5. 🏗️ Build production bundle
-6. 🎭 Run E2E tests with Playwright
-7. 💡 Run Lighthouse CI with quality thresholds
+4. 🔷 Run TypeScript type check
+5. 🧪 Run unit tests
+6. 🏗️ Build production bundle
+7. 🎭 Run E2E tests with Playwright
+8. 💡 Run Lighthouse CI with quality thresholds
 
 ### Quick Test (Development)
 
@@ -132,6 +133,24 @@ npm run test:ci:fast
 ```
 
 Skips E2E and Lighthouse tests for faster feedback during development.
+
+### Advanced Options
+
+You can skip specific steps during development:
+
+```bash
+# Skip TypeScript type checking (not recommended)
+npm run test:ci -- --skip-typecheck
+
+# Skip E2E tests (faster during development)
+npm run test:ci -- --skip-e2e
+
+# Skip Lighthouse CI (faster during development)
+npm run test:ci -- --skip-lighthouse
+
+# Combine multiple skip options
+npm run test:ci -- --skip-e2e --skip-lighthouse
+```
 
 ### Benefits
 

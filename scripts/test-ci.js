@@ -143,6 +143,19 @@ class CITester {
     }
   }
 
+  async runTypeCheck() {
+    this.step('Running TypeScript type check')
+
+    try {
+      await this.runCommand('npx', ['vue-tsc', '--noEmit'])
+      this.success('Type check passed')
+      return true
+    } catch (error) {
+      this.error(`Type check failed:\n${error.stdout || error.stderr || error.error}`)
+      return false
+    }
+  }
+
   async runUnitTests() {
     this.step('Running unit tests')
 
@@ -224,14 +237,24 @@ class CITester {
 
     const skipE2E = process.argv.includes('--skip-e2e')
     const skipLighthouse = process.argv.includes('--skip-lighthouse')
+    const skipTypeCheck = process.argv.includes('--skip-typecheck')
 
     const steps = [
       { name: 'Prerequisites', fn: () => this.checkPrerequisites() },
       { name: 'Install Dependencies', fn: () => this.installDependencies() },
-      { name: 'Linting', fn: () => this.runLinting() },
+      { name: 'Linting', fn: () => this.runLinting() }
+    ]
+
+    if (!skipTypeCheck) {
+      steps.push({ name: 'TypeScript Check', fn: () => this.runTypeCheck() })
+    } else {
+      this.info('Skipping TypeScript check (--skip-typecheck flag)')
+    }
+
+    steps.push(
       { name: 'Unit Tests', fn: () => this.runUnitTests() },
       { name: 'Build', fn: () => this.buildProject() }
-    ]
+    )
 
     if (!skipE2E) {
       steps.push({ name: 'E2E Tests', fn: () => this.runE2ETests() })

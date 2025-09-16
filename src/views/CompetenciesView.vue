@@ -497,7 +497,7 @@ const draggedType = ref<string>('')
 const draggedIndex = ref<number>(-1)
 const draggedContext = ref<DragContext | null>(null)
 const isDragging = ref(false)
-const ghostElement = ref<any>(null)
+const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | { isGhost: true } | null>(null)
 const ghostPosition = ref<number>(-1)
 const ghostContext = ref<DragContext | null>(null)
 

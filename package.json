@@ -16,7 +16,11 @@
     "format:check": "npx prettier --check .",
     "lighthouse": "npx lhci autorun",
     "test:ci": "node scripts/test-ci.js",
-    "test:ci:fast": "node scripts/test-ci.js --skip-e2e --skip-lighthouse"
+    "test:ci:fast": "node scripts/test-ci.js --skip-e2e --skip-lighthouse",
+    "ci-fix": "node scripts/ci-auto-fix.js",
+    "ci-check": "node scripts/test-ci.js",
+    "lint-fix": "npx eslint . --fix",
+    "type-fix": "npx vue-tsc --noEmit"
   },
   "dependencies": {
     "vue": "^3.5.13",

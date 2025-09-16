@@ -59,6 +59,12 @@ npm run format:check
 
 # Run Lighthouse CI checks
 npm run lighthouse
+
+# Test entire CI/CD pipeline locally (before commit)
+npm run test:ci
+
+# Quick CI test (skip E2E and Lighthouse for faster feedback)
+npm run test:ci:fast
 ```
 
 ## PWA Features
@@ -97,6 +103,52 @@ app-name/
 ├── vitest.config.ts    # Vitest configuration
 ├── playwright.config.ts # Playwright configuration
 └── lighthouserc.js    # Lighthouse CI configuration
+```
+
+## Local CI/CD Testing
+
+Before committing your changes, you can test the entire CI/CD pipeline locally to catch issues early:
+
+### Full Pipeline Test
+```bash
+npm run test:ci
+```
+This runs all CI/CD steps in sequence:
+1. ✅ Check prerequisites
+2. 📦 Install dependencies (`npm ci`)  
+3. 🔍 Run ESLint
+4. 🧪 Run unit tests
+5. 🏗️ Build production bundle
+6. 🎭 Run E2E tests with Playwright
+7. 💡 Run Lighthouse CI with quality thresholds
+
+### Quick Test (Development)
+```bash
+npm run test:ci:fast
+```
+Skips E2E and Lighthouse tests for faster feedback during development.
+
+### Benefits
+- **Early Detection**: Catch CI failures before pushing
+- **Save Time**: Avoid failed CI builds on GitHub
+- **Confidence**: Know your changes will pass before committing
+- **Offline Testing**: Test without internet connection
+
+### Exit Codes
+- `0`: All tests passed ✅
+- `1`: One or more tests failed ❌
+
+The script provides detailed error messages and a summary report to help you fix issues quickly.
+
+### Optional: Pre-commit Hook
+Automatically run CI tests before each commit:
+```bash
+# Enable pre-commit hook
+cp scripts/pre-commit-hook .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
+# Skip pre-commit hook if needed
+git commit --no-verify -m "message"
 ```
 
 ## Troubleshooting

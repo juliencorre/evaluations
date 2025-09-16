@@ -4,8 +4,8 @@
       <h3>Installer l'application</h3>
       <p>Installez cette app pour une meilleure expérience !</p>
       <div class="prompt-actions">
-        <button @click="install" class="install-btn">Installer</button>
-        <button @click="dismiss" class="dismiss-btn">Plus tard</button>
+        <button class="install-btn" @click="install">Installer</button>
+        <button class="dismiss-btn" @click="dismiss">Plus tard</button>
       </div>
     </div>
   </div>
@@ -15,7 +15,7 @@
 import { ref, onMounted } from 'vue'
 
 const showPrompt = ref(false)
-let deferredPrompt: any = null
+let deferredPrompt: unknown = null
 
 onMounted(() => {
   window.addEventListener('beforeinstallprompt', (e) => {
@@ -31,9 +31,9 @@ onMounted(() => {
 })
 
 const install = async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
+  if (deferredPrompt && typeof deferredPrompt === 'object' && 'prompt' in deferredPrompt) {
+    ;(deferredPrompt as { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }).prompt()
+    const { outcome } = await (deferredPrompt as { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }).userChoice
     
     if (outcome === 'accepted') {
       showPrompt.value = false

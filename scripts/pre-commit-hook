@@ -1,0 +1,22 @@
+#!/bin/sh
+# Pre-commit hook to run CI tests locally
+# To enable: cp scripts/pre-commit-hook .git/hooks/pre-commit
+
+echo "🔍 Running pre-commit CI tests..."
+
+# Run quick CI tests
+npm run test:ci:fast
+
+# Check exit code
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Pre-commit tests failed!"
+    echo "💡 Fix the issues or use 'git commit --no-verify' to skip"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo "✅ Pre-commit tests passed! Proceeding with commit..."
+echo ""
+exit 0

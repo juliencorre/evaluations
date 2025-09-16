@@ -723,6 +723,7 @@ const toggleCompetency = (competencyId: string) => {
  
  
 const handleDragStart = (
+  // eslint-disable-next-line no-undef
   event: Event,
   item: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
   type: string,
@@ -773,6 +774,7 @@ const handleDragOver = (event: Event) => {
  
  
 const handleDragEnter = (
+  // eslint-disable-next-line no-undef
   event: Event,
   targetItem: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
   targetType: string,
@@ -825,6 +827,7 @@ const handleDragEnter = (
  
  
 const handleDrop = (
+  // eslint-disable-next-line no-undef
   event: Event,
   targetItem: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
   targetType: string,

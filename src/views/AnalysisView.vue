@@ -610,7 +610,11 @@ const exportStudentChart = () => {
    
    
    
-  alert(`Export en cours pour ${studentName} - ${metricType}`)
+   
+   
+
+   
+  window.alert(`Export en cours pour ${studentName} - ${metricType}`)  
 }
 
 const exportAllStudents = () => {
@@ -624,7 +628,10 @@ const exportAllStudents = () => {
    
    
    
-  alert('Export en cours pour tous les élèves')
+   
+   
+   
+  window.alert('Export en cours pour tous les élèves')  
 }
 </script>
 

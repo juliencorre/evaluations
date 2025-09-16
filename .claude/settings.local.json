@@ -9,7 +9,8 @@
       "Bash(npm.cmd run test:ci)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(npm.cmd run lint)"
     ],
     "deny": [],
     "ask": []

@@ -14,16 +14,13 @@ This repository provides a foundational Vue 3 PWA that is:
 ## Prerequisites
 
 - Node.js >= 18.0.0
-- pnpm (preferred) or npm/yarn
+- npm (or pnpm/yarn)
 - Modern browser with PWA support
 
 ## Installation
 
 ```bash
-# Install dependencies with pnpm (recommended)
-pnpm install
-
-# Or with npm
+# Install dependencies
 npm install
 ```
 
@@ -31,37 +28,37 @@ npm install
 
 ```bash
 # Run development server (PWA features disabled in dev)
-pnpm dev
+npm run dev
 
 # Run unit tests
-pnpm test:unit
+npm run test:unit
 
 # Run unit tests once
-pnpm test:unit:run
+npm run test:unit:run
 
 # Build for production
-pnpm build
+npm run build
 
 # Preview production build locally
-pnpm preview
+npm run preview
 
 # Run E2E tests (requires built app)
-pnpm test:e2e
+npm run test:e2e
 
 # Run E2E tests with UI
-pnpm test:e2e:ui
+npm run test:e2e:ui
 
 # Run linting
-pnpm lint
+npm run lint
 
 # Format code
-pnpm format
+npm run format
 
 # Check formatting
-pnpm format:check
+npm run format:check
 
 # Run Lighthouse CI checks
-pnpm lighthouse
+npm run lighthouse
 ```
 
 ## PWA Features
@@ -126,7 +123,7 @@ app-name/
 
 - Ensure Node.js version meets requirements (>=18.0.0)
 - Delete node_modules and lockfile, then reinstall
-- Check TypeScript errors with `pnpm vue-tsc --noEmit`
+- Check TypeScript errors with `npx vue-tsc --noEmit`
 
 ## Deployment
 

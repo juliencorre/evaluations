@@ -157,73 +157,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import type { Student } from '../types/evaluation'
-import { serviceWorkerBridge } from '../services/serviceWorkerBridge'
+import { useStudentsStore } from '../stores/studentsStore'
 
-// Données des élèves récupérées via le service worker
-const students = ref<Student[]>([])
-
-// Fonctions pour interagir avec les élèves via le service worker
-const loadStudents = async () => {
-  // Pour l'instant, utiliser directement le store
-  // Le service worker sera utilisé uniquement en production
-  const { useStudentsStore } = await import('../stores/studentsStore')
-  const store = useStudentsStore()
-  students.value = store.allStudents.value
-
-  // Essayer d'utiliser le service worker si disponible (pour la production)
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    try {
-      const swStudents = await serviceWorkerBridge.getAllStudents()
-      if (swStudents && swStudents.length > 0) {
-        students.value = swStudents
-      }
-    } catch {
-      // Ignorer silencieusement, le store est déjà chargé
-      console.log('Service Worker non disponible, utilisation du store local')
-    }
-  }
-}
-
-const addStudentViaServiceWorker = async (firstName: string, lastName: string) => {
-  // Utiliser directement le store pour plus de rapidité
-  const { useStudentsStore } = await import('../stores/studentsStore')
-  const store = useStudentsStore()
-
-  // Appel direct sans attendre Supabase
-  const newStudent = await store.addStudent({ firstName, lastName })
-  students.value = store.allStudents.value
-
-  return newStudent
-}
-
-const updateStudentViaServiceWorker = async (studentId: string, updates: { firstName?: string; lastName?: string }) => {
-  // Utiliser directement le store pour plus de rapidité
-  const { useStudentsStore } = await import('../stores/studentsStore')
-  const store = useStudentsStore()
-
-  const updatedStudent = await store.updateStudent(studentId, updates)
-  students.value = store.allStudents.value
-
-  return updatedStudent
-}
-
-const deleteStudentViaServiceWorker = async (studentId: string) => {
-  // Utiliser directement le store pour plus de rapidité
-  const { useStudentsStore } = await import('../stores/studentsStore')
-  const store = useStudentsStore()
-
-  const deletedStudent = await store.deleteStudent(studentId)
-  students.value = store.allStudents.value
-
-  return deletedStudent
-}
-
-// Charger les élèves au montage du composant
-onMounted(() => {
-  loadStudents()
-})
+// Utiliser directement le store réactif global
+const studentsStore = useStudentsStore()
 
 // État réactif local
 const searchTerm = ref('')
@@ -238,11 +177,11 @@ const isDeleting = ref(false)
 // Élèves filtrés par la recherche
 const filteredStudents = computed(() => {
   if (!searchTerm.value) {
-    return students.value
+    return studentsStore.allStudents.value
   }
 
   const search = searchTerm.value.toLowerCase()
-  return students.value.filter(
+  return studentsStore.allStudents.value.filter(
     (student) =>
       student.firstName.toLowerCase().includes(search) ||
       student.lastName.toLowerCase().includes(search) ||
@@ -270,17 +209,17 @@ const saveStudent = async () => {
     if (showEditModal.value) {
       // Modifier un élève existant
       console.log('📝 Modification élève:', currentStudent.value.id)
-      await updateStudentViaServiceWorker(currentStudent.value.id, {
+      await studentsStore.updateStudent(currentStudent.value.id, {
         firstName: currentStudent.value.firstName,
         lastName: currentStudent.value.lastName
       })
     } else {
       // Ajouter un nouvel élève
       console.log('➕ Ajout élève:', currentStudent.value.firstName, currentStudent.value.lastName)
-      const result = await addStudentViaServiceWorker(
-        currentStudent.value.firstName,
-        currentStudent.value.lastName
-      )
+      const result = await studentsStore.addStudent({
+        firstName: currentStudent.value.firstName,
+        lastName: currentStudent.value.lastName
+      })
       console.log('✅ Élève ajouté:', result)
     }
 
@@ -300,7 +239,7 @@ const confirmDelete = async () => {
   isDeleting.value = true
 
   try {
-    await deleteStudentViaServiceWorker(studentToDelete.value.id)
+    await studentsStore.deleteStudent(studentToDelete.value.id)
     closeModal()
   } catch (error) {
     console.error('Erreur lors de la suppression:', error)
@@ -333,7 +272,6 @@ const closeModal = () => {
   })
 }
 
-// Plus besoin d'initialisation : le store contient déjà les données
 </script>
 
 <style scoped>

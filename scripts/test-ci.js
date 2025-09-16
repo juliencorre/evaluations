@@ -7,7 +7,6 @@
 
 import { spawn } from 'child_process'
 import { existsSync } from 'fs'
-import { join } from 'path'
 
 const colors = {
   red: '\x1b[31m',
@@ -115,7 +114,7 @@ class CITester {
       await this.runCommand('npm', ['ci'])
       this.success('Dependencies installed successfully')
       return true
-    } catch (error) {
+    } catch {
       this.warning(`npm ci failed, trying npm install as fallback`)
       this.info('This might happen if development servers are running')
       
@@ -184,11 +183,11 @@ class CITester {
     // Check if Playwright is installed
     try {
       await this.runCommand('npx', ['playwright', 'install', 'chromium', '--dry-run'])
-    } catch (error) {
+    } catch {
       this.info('Installing Playwright browsers...')
       try {
         await this.runCommand('npx', ['playwright', 'install', 'chromium'])
-      } catch (installError) {
+      } catch {
         this.warning('Failed to install Playwright browsers, E2E tests may fail')
       }
     }
@@ -257,7 +256,7 @@ class CITester {
         }
       } catch (error) {
         results.push({ name: step.name, success: false })
-        this.error(`Unexpected error in ${step.name}: ${error.message}`)
+        this.error(`Unexpected error in ${step.name}: ${error.message || error}`)
         break
       }
     }

@@ -1,0 +1,8 @@
+dist
+node_modules
+public
+*.ico
+*.png
+*.svg
+package-lock.json
+pnpm-lock.yaml

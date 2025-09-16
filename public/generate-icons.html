@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generate PWA Icons</title>
+</head>
+<body>
+    <h1>Right-click and save each icon:</h1>
+    
+    <h2>192x192 Icon</h2>
+    <canvas id="icon192" width="192" height="192"></canvas>
+    
+    <h2>512x512 Icon</h2>
+    <canvas id="icon512" width="512" height="512"></canvas>
+    
+    <h2>512x512 Maskable Icon</h2>
+    <canvas id="iconMaskable" width="512" height="512"></canvas>
+    
+    <h2>Apple Touch Icon (180x180)</h2>
+    <canvas id="iconApple" width="180" height="180"></canvas>
+    
+    <h2>Favicon (16x16)</h2>
+    <canvas id="iconFav" width="16" height="16"></canvas>
+
+    <script>
+        function drawIcon(canvasId, size, maskable = false) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#4A90E2';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Safe zone for maskable
+            const safeZone = maskable ? size * 0.8 : size;
+            const offset = maskable ? size * 0.1 : 0;
+            
+            // Draw circle
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, safeZone / 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw letter A
+            ctx.fillStyle = '#4A90E2';
+            ctx.font = `bold ${safeZone / 3}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('A', size / 2, size / 2);
+        }
+        
+        drawIcon('icon192', 192);
+        drawIcon('icon512', 512);
+        drawIcon('iconMaskable', 512, true);
+        drawIcon('iconApple', 180);
+        drawIcon('iconFav', 16);
+    </script>
+</body>
+</html>

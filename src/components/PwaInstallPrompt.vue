@@ -1,7 +1,7 @@
 <template>
   <div v-if="showPrompt" class="pwa-install-prompt">
     <div class="prompt-content">
-      <h3>Installer l'application</h3>
+      <h2>Installer l'application</h2>
       <p>Installez cette app pour une meilleure expérience !</p>
       <div class="prompt-actions">
         <button class="install-btn" @click="install">Installer</button>
@@ -82,7 +82,7 @@ const dismiss = () => {
 }
 
 .install-btn {
-  background: #4A90E2;
+  background: #2563eb;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -93,7 +93,7 @@ const dismiss = () => {
 }
 
 .install-btn:hover {
-  background: #357ABD;
+  background: #1d4ed8;
 }
 
 .dismiss-btn {

@@ -4,6 +4,10 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  server: {
+    port: 5173,
+    strictPort: false
+  },
   plugins: [
     vue(),
     VitePWA({

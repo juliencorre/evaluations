@@ -55,7 +55,7 @@ class CITester {
   async runCommand(command, args = [], options = {}) {
     return new Promise((resolve, reject) => {
       this.info(`Running: ${command} ${args.join(' ')}`)
-      
+
       const child = spawn(command, args, {
         stdio: 'pipe',
         shell: true,
@@ -89,7 +89,7 @@ class CITester {
 
   checkPrerequisites() {
     this.step('Checking prerequisites')
-    
+
     // Check if package.json exists
     if (!existsSync('package.json')) {
       this.error('package.json not found')
@@ -109,7 +109,7 @@ class CITester {
 
   async installDependencies() {
     this.step('Installing dependencies (npm ci)')
-    
+
     try {
       await this.runCommand('npm', ['ci'])
       this.success('Dependencies installed successfully')
@@ -117,7 +117,7 @@ class CITester {
     } catch {
       this.warning(`npm ci failed, trying npm install as fallback`)
       this.info('This might happen if development servers are running')
-      
+
       try {
         await this.runCommand('npm', ['install'])
         this.success('Dependencies installed successfully with npm install')
@@ -132,7 +132,7 @@ class CITester {
 
   async runLinting() {
     this.step('Running ESLint')
-    
+
     try {
       await this.runCommand('npm', ['run', 'lint'])
       this.success('Linting passed')
@@ -145,7 +145,7 @@ class CITester {
 
   async runUnitTests() {
     this.step('Running unit tests')
-    
+
     try {
       await this.runCommand('npm', ['run', 'test:unit:run'])
       this.success('Unit tests passed')
@@ -158,11 +158,11 @@ class CITester {
 
   async buildProject() {
     this.step('Building production bundle')
-    
+
     try {
       await this.runCommand('npm', ['run', 'build'])
       this.success('Build completed successfully')
-      
+
       // Check if dist folder was created
       if (existsSync('dist')) {
         this.success('dist/ folder created')
@@ -179,7 +179,7 @@ class CITester {
 
   async runE2ETests() {
     this.step('Running E2E tests')
-    
+
     // Check if Playwright is installed
     try {
       await this.runCommand('npx', ['playwright', 'install', 'chromium', '--dry-run'])
@@ -204,7 +204,7 @@ class CITester {
 
   async runLighthouseCI() {
     this.step('Running Lighthouse CI')
-    
+
     try {
       // Build again to ensure fresh build for Lighthouse
       await this.runCommand('npm', ['run', 'build'])
@@ -218,11 +218,13 @@ class CITester {
   }
 
   async runAll() {
-    this.log(`${colors.bold}${colors.magenta}🧪 Starting Local CI/CD Pipeline Test${colors.reset}\n`)
-    
+    this.log(
+      `${colors.bold}${colors.magenta}🧪 Starting Local CI/CD Pipeline Test${colors.reset}\n`
+    )
+
     const skipE2E = process.argv.includes('--skip-e2e')
     const skipLighthouse = process.argv.includes('--skip-lighthouse')
-    
+
     const steps = [
       { name: 'Prerequisites', fn: () => this.checkPrerequisites() },
       { name: 'Install Dependencies', fn: () => this.installDependencies() },
@@ -230,13 +232,13 @@ class CITester {
       { name: 'Unit Tests', fn: () => this.runUnitTests() },
       { name: 'Build', fn: () => this.buildProject() }
     ]
-    
+
     if (!skipE2E) {
       steps.push({ name: 'E2E Tests', fn: () => this.runE2ETests() })
     } else {
       this.info('Skipping E2E tests (--skip-e2e flag)')
     }
-    
+
     if (!skipLighthouse) {
       steps.push({ name: 'Lighthouse CI', fn: () => this.runLighthouseCI() })
     } else {
@@ -244,14 +246,16 @@ class CITester {
     }
 
     const results = []
-    
+
     for (const step of steps) {
       try {
         const result = await step.fn()
         results.push({ name: step.name, success: result })
-        
+
         if (!result) {
-          this.log(`\n${colors.red}${colors.bold}❌ Pipeline failed at: ${step.name}${colors.reset}`)
+          this.log(
+            `\n${colors.red}${colors.bold}❌ Pipeline failed at: ${step.name}${colors.reset}`
+          )
           break
         }
       } catch (error) {
@@ -266,37 +270,41 @@ class CITester {
 
   printSummary(results) {
     const duration = Math.round((Date.now() - this.startTime) / 1000)
-    
+
     this.log(`\n${colors.bold}${colors.magenta}📊 CI/CD Pipeline Test Summary${colors.reset}`)
     this.log(`${colors.blue}Duration: ${duration}s${colors.reset}\n`)
 
     // Print step results
-    results.forEach(result => {
+    results.forEach((result) => {
       const icon = result.success ? '✅' : '❌'
       const color = result.success ? colors.green : colors.red
       this.log(`${icon} ${color}${result.name}${colors.reset}`)
     })
 
     // Print statistics
-    const passed = results.filter(r => r.success).length
+    const passed = results.filter((r) => r.success).length
     const total = results.length
-    
+
     this.log(`\n${colors.bold}Results: ${passed}/${total} steps passed${colors.reset}`)
-    
+
     if (this.warnings.length > 0) {
       this.log(`${colors.yellow}Warnings: ${this.warnings.length}${colors.reset}`)
     }
-    
+
     if (this.errors.length > 0) {
       this.log(`${colors.red}Errors: ${this.errors.length}${colors.reset}`)
     }
 
     // Final verdict
     if (passed === total && this.errors.length === 0) {
-      this.log(`\n${colors.green}${colors.bold}🎉 All checks passed! Ready to commit and push.${colors.reset}`)
+      this.log(
+        `\n${colors.green}${colors.bold}🎉 All checks passed! Ready to commit and push.${colors.reset}`
+      )
       process.exit(0)
     } else {
-      this.log(`\n${colors.red}${colors.bold}💥 Pipeline failed! Fix the issues before committing.${colors.reset}`)
+      this.log(
+        `\n${colors.red}${colors.bold}💥 Pipeline failed! Fix the issues before committing.${colors.reset}`
+      )
       process.exit(1)
     }
   }
@@ -304,7 +312,7 @@ class CITester {
 
 // Run the CI test
 const tester = new CITester()
-tester.runAll().catch(error => {
+tester.runAll().catch((error) => {
   console.error('Unexpected error:', error)
   process.exit(1)
 })

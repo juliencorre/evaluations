@@ -20,6 +20,11 @@ const router = createRouter({
       path: '/competencies',
       name: 'competencies',
       component: () => import('./views/CompetenciesView.vue')
+    },
+    {
+      path: '/analysis',
+      name: 'analysis',
+      component: () => import('./views/AnalysisView.vue')
     }
   ]
 })

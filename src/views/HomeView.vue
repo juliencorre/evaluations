@@ -23,5 +23,7 @@ const evaluation = SAMPLE_EVALUATION
 main {
   height: calc(100vh - 60px);
   overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
 }
 </style>

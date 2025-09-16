@@ -39,7 +39,7 @@
             <span class="nav-label">Compétences</span>
           </router-link>
 
-          <a href="#" class="nav-destination">
+          <router-link to="/analysis" class="nav-destination" :class="{ active: $route.name === 'analysis' }">
             <div class="nav-indicator"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -47,7 +47,7 @@
               </svg>
             </div>
             <span class="nav-label">Analyses</span>
-          </a>
+          </router-link>
         </div>
 
         <div class="user-actions">
@@ -128,14 +128,14 @@
             <span class="drawer-label">Compétences</span>
           </router-link>
 
-          <a href="#" class="drawer-destination" @click="closeMobileMenu">
+          <router-link to="/analysis" class="drawer-destination" :class="{ active: $route.name === 'analysis' }" @click="closeMobileMenu">
             <div class="drawer-icon-container">
               <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
               </svg>
             </div>
             <span class="drawer-label">Analyses</span>
-          </a>
+          </router-link>
         </nav>
 
         <div class="drawer-divider"></div>

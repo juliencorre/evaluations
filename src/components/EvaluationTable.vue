@@ -351,11 +351,12 @@ watch(searchTerm, (newTerm) => {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  background-color: #ffffff;
 }
 
 .table-header {
   padding: 1rem;
-  background: #f8f9fa;
+  background: #ffffff;
   border-bottom: 1px solid #e9ecef;
   flex-shrink: 0;
   display: flex;
@@ -773,7 +774,7 @@ watch(searchTerm, (newTerm) => {
 /* Footer styles */
 .table-footer {
   padding: 1rem;
-  background: #f8f9fa;
+  background: #ffffff;
   border-top: 1px solid #e9ecef;
   flex-shrink: 0;
 }

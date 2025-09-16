@@ -224,11 +224,11 @@ export const useStudentsStore = () => {
   }
 }
 
-// Store réactif global pour le framework de compétences - vide au départ
+// Store réactif global pour le framework de compétences - démarrage minimal
 const competencyFramework = ref<CompetencyFramework>({
-  id: '',
-  name: 'Chargement...',
-  version: '',
+  id: 'temp',
+  name: 'Chargement en cours...',
+  version: '1.0',
   domains: []
 })
 
@@ -259,7 +259,8 @@ const loadFromSupabase = async () => {
   }
 }
 
-// Charger au démarrage
+// Chargement automatique au démarrage de l'application
+console.log('🚀 [Store] Initialisation du store des compétences...')
 loadFromSupabase()
 
 // Actions pour manipuler le framework de compétences

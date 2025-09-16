@@ -511,10 +511,13 @@ console.log('📊 [Vue] Framework initial:', {
   isLoading: competenciesStore.isCompetenciesLoading.value
 })
 
-// Forcer le rechargement des données Supabase à chaque visite de la page
-onMounted(async () => {
-  console.log('🚪 [Vue] Page des compétences ouverte, rechargement Supabase...')
-  await competenciesStore.refreshFromSupabase()
+// Hook onMounted - le store se charge automatiquement
+onMounted(() => {
+  console.log('🚪 [Vue] Page des compétences montée avec succès!')
+  console.log('📊 [Vue] État du store:', {
+    domains: competenciesStore.framework.value.domains.length,
+    frameworkName: competenciesStore.framework.value.name
+  })
 })
 
 // Watcher pour détecter les changements du framework
@@ -527,6 +530,17 @@ watch(
       newFrameworkName: newFramework?.name
     })
     console.log('🌳 [Vue] Nouveaux domaines:', newFramework.domains.map(d => ({ id: d.id, name: d.name, fields: d.fields.length })))
+
+    // Debug: vérifier si les données sont bien présentes
+    if (newFramework.domains.length > 0) {
+      console.log('✅ [Vue] Données reçues dans Vue:', {
+        domainsCount: newFramework.domains.length,
+        firstDomain: newFramework.domains[0],
+        frameworkName: newFramework.name
+      })
+    } else {
+      console.log('⚠️ [Vue] Aucun domaine reçu dans Vue')
+    }
   },
   { deep: true, immediate: true }
 )
@@ -538,7 +552,8 @@ const frameworkWithDragDrop = computed(() => {
     isDragging: isDragging.value,
     ghostPosition: ghostPosition.value,
     domains: currentFramework.domains.length,
-    frameworkName: currentFramework.name
+    frameworkName: currentFramework.name,
+    firstDomainName: currentFramework.domains[0]?.name || 'aucun'
   })
 
   if (!isDragging.value || ghostPosition.value < 0) {

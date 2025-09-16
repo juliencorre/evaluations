@@ -41,7 +41,12 @@ export default [
         URLSearchParams: 'readonly',
         document: 'readonly',
         window: 'readonly',
-        navigator: 'readonly'
+        navigator: 'readonly',
+        ServiceWorker: 'readonly',
+        ServiceWorkerGlobalScope: 'readonly',
+        ExtendableMessageEvent: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
       }
     },
     plugins: {

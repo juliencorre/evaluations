@@ -92,7 +92,8 @@ export class SupabaseStudentsService {
         display_name: displayName
       }
 
-      const { data, error } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
         .from('students')
         .insert(newStudent)
         .select()
@@ -142,7 +143,8 @@ export class SupabaseStudentsService {
         updateData.display_name = this.generateDisplayName(firstName, lastName)
       }
 
-      const { data, error } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
         .from('students')
         .update(updateData)
         .eq('id', id)
@@ -222,7 +224,8 @@ export class SupabaseStudentsService {
         display_name: this.generateDisplayName(student.firstName, student.lastName)
       }))
 
-      const { data, error } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
         .from('students')
         .insert(studentsToInsert)
         .select()
@@ -242,7 +245,7 @@ export class SupabaseStudentsService {
   /**
    * Subscribe aux changements en temps réel sur la table students
    */
-  subscribeToStudentsChanges(callback: (payload: any) => void) {
+  subscribeToStudentsChanges(callback: (payload: unknown) => void) {
     return supabase
       .channel('students-changes')
       .on('postgres_changes',

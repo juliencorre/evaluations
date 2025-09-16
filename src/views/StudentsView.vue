@@ -101,14 +101,14 @@
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="text-button" @click="closeModal" :disabled="isSaving">
+          <button type="button" class="text-button" :disabled="isSaving" @click="closeModal">
             Annuler
           </button>
           <button
             type="submit"
             class="filled-button"
-            @click="saveStudent"
             :disabled="isSaving"
+            @click="saveStudent"
           >
             <span v-if="!isSaving">{{ showEditModal ? 'Modifier' : 'Ajouter' }}</span>
             <span v-else>{{ showEditModal ? 'Modification...' : 'Ajout...' }}</span>
@@ -138,14 +138,14 @@
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="text-button" @click="closeModal" :disabled="isDeleting">
+          <button type="button" class="text-button" :disabled="isDeleting" @click="closeModal">
             Annuler
           </button>
           <button
             type="button"
             class="filled-button destructive"
-            @click="confirmDelete"
             :disabled="isDeleting"
+            @click="confirmDelete"
           >
             <span v-if="!isDeleting">Supprimer</span>
             <span v-else>Suppression...</span>
@@ -179,7 +179,7 @@ const loadStudents = async () => {
       if (swStudents && swStudents.length > 0) {
         students.value = swStudents
       }
-    } catch (error) {
+    } catch {
       // Ignorer silencieusement, le store est déjà chargé
       console.log('Service Worker non disponible, utilisation du store local')
     }

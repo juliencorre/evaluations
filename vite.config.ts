@@ -17,7 +17,9 @@ export default defineConfig({
       filename: 'sw/customServiceWorker.ts',
       strategies: 'injectManifest',
       injectManifest: {
-        injectionPoint: 'self.__WB_MANIFEST'
+        injectionPoint: 'self.__WB_MANIFEST',
+        rollupFormat: 'iife',
+        swDest: 'dist/customServiceWorker.js'
       },
       manifest: {
         name: 'App Name - Vue 3 PWA',

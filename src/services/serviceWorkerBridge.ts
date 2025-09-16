@@ -7,6 +7,7 @@ import type { Student } from '@/types/evaluation'
 export class ServiceWorkerBridge {
   private serviceWorker: ServiceWorker | null = null
   private pendingRequests = new Map<string, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: (value: any) => void
     reject: (error: Error) => void
   }>()
@@ -67,22 +68,16 @@ export class ServiceWorkerBridge {
   }
 
   private async sendMessage<T>(message: StudentsServiceMessage): Promise<T> {
-    return new Promise(async (resolve, reject) => {
-      // S'assurer que le service worker est disponible
-      if (!this.serviceWorker) {
-        try {
-          await this.waitForServiceWorker()
-        } catch (error) {
-          reject(error)
-          return
-        }
-      }
+    // S'assurer que le service worker est disponible
+    if (!this.serviceWorker) {
+      await this.waitForServiceWorker()
+    }
 
-      if (!this.serviceWorker) {
-        reject(new Error('Service Worker non disponible'))
-        return
-      }
+    if (!this.serviceWorker) {
+      throw new Error('Service Worker non disponible')
+    }
 
+    return new Promise((resolve, reject) => {
       const requestId = this.generateRequestId()
       const messageWithId = { ...message, requestId }
 
@@ -98,7 +93,7 @@ export class ServiceWorkerBridge {
       }, 10000) // 10 secondes
 
       // Envoyer le message
-      this.serviceWorker.postMessage(messageWithId)
+      this.serviceWorker!.postMessage(messageWithId)
     })
   }
 

@@ -4,7 +4,7 @@ import { useStudentsStore } from '@/stores/studentsStore'
 // Interface pour la communication avec le service worker
 export interface StudentsServiceMessage {
   type: 'GET_STUDENTS' | 'ADD_STUDENT' | 'UPDATE_STUDENT' | 'DELETE_STUDENT' | 'RESET_STUDENTS'
-  payload?: any
+  payload?: unknown
   requestId?: string
 }
 
@@ -35,22 +35,22 @@ export class StudentsService {
   /**
    * Ajoute un nouvel élève
    */
-  addStudent(studentData: { firstName: string; lastName: string }): Student {
-    return this.studentsStore.addStudent(studentData)
+  async addStudent(studentData: { firstName: string; lastName: string }): Promise<Student> {
+    return await this.studentsStore.addStudent(studentData)
   }
 
   /**
    * Met à jour un élève existant
    */
-  updateStudent(studentId: string, updates: { firstName?: string; lastName?: string }): Student | null {
-    return this.studentsStore.updateStudent(studentId, updates)
+  async updateStudent(studentId: string, updates: { firstName?: string; lastName?: string }): Promise<Student | null> {
+    return await this.studentsStore.updateStudent(studentId, updates)
   }
 
   /**
    * Supprime un élève
    */
-  deleteStudent(studentId: string): Student | null {
-    return this.studentsStore.deleteStudent(studentId)
+  async deleteStudent(studentId: string): Promise<Student | null> {
+    return await this.studentsStore.deleteStudent(studentId)
   }
 
   /**
@@ -70,7 +70,7 @@ export class StudentsService {
   /**
    * Traite les messages venant du service worker
    */
-  handleMessage(message: StudentsServiceMessage): StudentsServiceResponse {
+  async handleMessage(message: StudentsServiceMessage): Promise<StudentsServiceResponse> {
     const { type, payload, requestId = '' } = message
 
     try {
@@ -82,24 +82,26 @@ export class StudentsService {
           break
 
         case 'ADD_STUDENT':
-          if (payload?.firstName && payload?.lastName) {
-            data = this.addStudent(payload)
+          if (payload && typeof payload === 'object' && 'firstName' in payload && 'lastName' in payload) {
+            data = await this.addStudent(payload as { firstName: string; lastName: string })
           } else {
             throw new Error('firstName et lastName sont requis')
           }
           break
 
         case 'UPDATE_STUDENT':
-          if (payload?.studentId) {
-            data = this.updateStudent(payload.studentId, payload.updates || {})
+          if (payload && typeof payload === 'object' && 'studentId' in payload) {
+            const updatePayload = payload as { studentId: string; updates?: { firstName?: string; lastName?: string } }
+            data = await this.updateStudent(updatePayload.studentId, updatePayload.updates || {})
           } else {
             throw new Error('studentId est requis')
           }
           break
 
         case 'DELETE_STUDENT':
-          if (payload?.studentId) {
-            data = this.deleteStudent(payload.studentId)
+          if (payload && typeof payload === 'object' && 'studentId' in payload) {
+            const deletePayload = payload as { studentId: string }
+            data = await this.deleteStudent(deletePayload.studentId)
           } else {
             throw new Error('studentId est requis')
           }

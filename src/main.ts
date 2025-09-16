@@ -38,7 +38,7 @@ app.mount('#app')
 
 // Gestionnaire pour les messages du service worker vers le service des élèves
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', (event) => {
+  navigator.serviceWorker.addEventListener('message', async (event) => {
     const { data } = event
 
     // Traiter les messages du service worker pour les élèves
@@ -47,7 +47,7 @@ if ('serviceWorker' in navigator) {
 
       try {
         // Traiter le message avec le service des élèves
-        const response = studentsService.handleMessage(message)
+        const response = await studentsService.handleMessage(message)
 
         // Renvoyer la réponse au service worker
         if (event.source) {

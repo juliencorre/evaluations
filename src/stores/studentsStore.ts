@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import type { Student, CompetencyFramework } from '@/types/evaluation'
 import { STUDENTS, COMPETENCY_FRAMEWORK } from '@/data/staticData'
 import { supabaseStudentsService } from '@/services/supabaseStudentsService'

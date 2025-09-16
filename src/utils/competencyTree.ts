@@ -8,60 +8,28 @@ export function buildCompetencyTree(framework: CompetencyFramework): TreeNode[] 
   const tree: TreeNode[] = []
   
   framework.domains.forEach(domain => {
-    const domainNode: TreeNode = {
-      id: domain.id,
-      name: domain.name,
-      type: 'domain',
-      level: 0,
-      isExpanded: true,
-      children: [],
-      originalItem: domain
-    }
-    
     domain.fields.forEach(field => {
-      const fieldNode: TreeNode = {
-        id: field.id,
-        name: field.name,
-        type: 'field',
-        level: 1,
-        parentId: domain.id,
-        isExpanded: true,
-        children: [],
-        originalItem: field
-      }
-      
       field.competencies.forEach(competency => {
-        const competencyNode: TreeNode = {
-          id: competency.id,
-          name: competency.name,
-          type: 'competency',
-          level: 2,
-          parentId: field.id,
-          isExpanded: true,
-          children: [],
-          originalItem: competency
-        }
-        
         competency.specificCompetencies.forEach(specificCompetency => {
+          // Create specific competency nodes with separate hierarchy data
           const specificNode: TreeNode = {
             id: specificCompetency.id,
             name: specificCompetency.name,
             type: 'specificCompetency',
-            level: 3,
-            parentId: competency.id,
-            originalItem: specificCompetency
+            level: 0,
+            originalItem: specificCompetency,
+            hierarchyData: {
+              domain: domain.name,
+              field: field.name,
+              competency: competency.name,
+              specificCompetency: specificCompetency.name
+            }
           }
           
-          competencyNode.children!.push(specificNode)
+          tree.push(specificNode)
         })
-        
-        fieldNode.children!.push(competencyNode)
       })
-      
-      domainNode.children!.push(fieldNode)
     })
-    
-    tree.push(domainNode)
   })
   
   return tree

@@ -69,4 +69,10 @@ export interface TreeNode {
   isExpanded?: boolean
   children?: TreeNode[]
   originalItem: Domain | Field | Competency | SpecificCompetency
+  hierarchyData?: {
+    domain: string
+    field: string
+    competency: string
+    specificCompetency: string
+  }
 }

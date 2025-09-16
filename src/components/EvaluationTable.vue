@@ -11,9 +11,78 @@
           <!-- Fixed header -->
           <thead>
             <tr>
-              <th class="competency-header sticky-left">
+              <th class="hierarchy-header sticky-left domain-col">
                 <div class="header-content">
-                  <span>Compétences</span>
+                  <span>Domaine</span>
+                  <button 
+                    v-if="domainSearch"
+                    class="clear-search-btn"
+                    type="button"
+                    aria-label="Effacer la recherche domaine"
+                    @click="clearDomainSearch"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div class="search-container">
+                  <input
+                    v-model="domainSearch"
+                    type="text"
+                    placeholder="Rechercher..."
+                    class="search-input"
+                    aria-label="Rechercher un domaine"
+                  >
+                </div>
+              </th>
+              <th class="hierarchy-header sticky-left field-col">
+                <div class="header-content">
+                  <span>Champ</span>
+                  <button 
+                    v-if="fieldSearch"
+                    class="clear-search-btn"
+                    type="button"
+                    aria-label="Effacer la recherche champ"
+                    @click="clearFieldSearch"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div class="search-container">
+                  <input
+                    v-model="fieldSearch"
+                    type="text"
+                    placeholder="Rechercher..."
+                    class="search-input"
+                    aria-label="Rechercher un champ"
+                  >
+                </div>
+              </th>
+              <th class="hierarchy-header sticky-left competency-col">
+                <div class="header-content">
+                  <span>Compétence</span>
+                  <button 
+                    v-if="competencySearch"
+                    class="clear-search-btn"
+                    type="button"
+                    aria-label="Effacer la recherche compétence"
+                    @click="clearCompetencySearch"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div class="search-container">
+                  <input
+                    v-model="competencySearch"
+                    type="text"
+                    placeholder="Rechercher..."
+                    class="search-input"
+                    aria-label="Rechercher une compétence"
+                  >
+                </div>
+              </th>
+              <th class="hierarchy-header sticky-left specific-competency-col">
+                <div class="header-content">
+                  <span>Sous-compétence</span>
                   <button 
                     v-if="searchTerm"
                     class="clear-search-btn"
@@ -28,7 +97,7 @@
                   <input
                     v-model="searchTerm"
                     type="text"
-                    placeholder="Rechercher une compétence..."
+                    placeholder="Rechercher..."
                     class="search-input"
                     aria-label="Rechercher une compétence"
                   >
@@ -54,31 +123,28 @@
               :key="node.id"
               :class="[
                 'competency-row',
-                `level-${node.level}`,
-                `type-${node.type}`,
-                { 'has-children': node.children && node.children.length > 0 }
+                `type-${node.type}`
               ]"
             >
-              <!-- Competency cell (sticky left) -->
-              <td class="competency-cell sticky-left">
-                <div 
-                  class="competency-content"
-                  :style="{ paddingLeft: `${node.level * 20 + 8}px` }"
-                >
-                  <button
-                    v-if="node.children && node.children.length > 0"
-                    class="expand-btn"
-                    type="button"
-                    :aria-label="node.isExpanded ? 'Réduire' : 'Développer'"
-                    @click="toggleExpansion(node.id)"
-                  >
-                    <span class="expand-icon" :class="{ expanded: node.isExpanded }">▶</span>
-                  </button>
-                  <span v-else class="expand-spacer"></span>
-                  
-                  <div class="competency-info">
-                    <div class="competency-name">{{ node.name }}</div>
-                  </div>
+              <!-- Hierarchy cells (sticky left) -->
+              <td class="hierarchy-cell sticky-left domain-cell">
+                <div class="cell-content">
+                  {{ node.hierarchyData?.domain || '' }}
+                </div>
+              </td>
+              <td class="hierarchy-cell sticky-left field-cell">
+                <div class="cell-content">
+                  {{ node.hierarchyData?.field || '' }}
+                </div>
+              </td>
+              <td class="hierarchy-cell sticky-left competency-cell">
+                <div class="cell-content">
+                  {{ node.hierarchyData?.competency || '' }}
+                </div>
+              </td>
+              <td class="hierarchy-cell sticky-left specific-competency-cell">
+                <div class="cell-content">
+                  {{ node.hierarchyData?.specificCompetency || node.name }}
                 </div>
               </td>
               
@@ -146,9 +212,7 @@ import type {
 import { 
   buildCompetencyTree, 
   flattenTree, 
-  toggleNodeExpansion, 
-  getCompetencyResult,
-  searchTree 
+  getCompetencyResult
 } from '@/utils/competencyTree'
 
 interface Props {
@@ -160,17 +224,54 @@ interface Props {
 const props = defineProps<Props>()
 
 const searchTerm = ref('')
+const domainSearch = ref('')
+const fieldSearch = ref('')
+const competencySearch = ref('')
 const competencyTree = ref<TreeNode[]>([])
+
+// Column visibility
+const showDomain = ref(true)
+const showField = ref(true)
+const showCompetency = ref(true)
+const showSpecificCompetency = ref(true)
 
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
 
-// Computed for filtered tree based on search
+// Computed for filtered tree based on multiple searches
 const filteredTree = computed(() => {
-  if (!searchTerm.value.trim()) {
-    return competencyTree.value
+  let filtered = competencyTree.value
+  
+  // Filter by domain
+  if (domainSearch.value.trim()) {
+    filtered = filtered.filter(node => 
+      node.hierarchyData?.domain.toLowerCase().includes(domainSearch.value.toLowerCase())
+    )
   }
-  return searchTree(competencyTree.value, searchTerm.value)
+  
+  // Filter by field
+  if (fieldSearch.value.trim()) {
+    filtered = filtered.filter(node => 
+      node.hierarchyData?.field.toLowerCase().includes(fieldSearch.value.toLowerCase())
+    )
+  }
+  
+  // Filter by competency
+  if (competencySearch.value.trim()) {
+    filtered = filtered.filter(node => 
+      node.hierarchyData?.competency.toLowerCase().includes(competencySearch.value.toLowerCase())
+    )
+  }
+  
+  // Filter by specific competency
+  if (searchTerm.value.trim()) {
+    filtered = filtered.filter(node => 
+      node.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      (node.hierarchyData?.specificCompetency.toLowerCase().includes(searchTerm.value.toLowerCase()))
+    )
+  }
+  
+  return filtered
 })
 
 // Computed for flattened visible nodes
@@ -179,12 +280,37 @@ const visibleNodes = computed(() => {
 })
 
 // Methods
-function toggleExpansion(nodeId: string) {
-  competencyTree.value = toggleNodeExpansion(competencyTree.value, nodeId)
-}
-
 function clearSearch() {
   searchTerm.value = ''
+}
+
+function clearDomainSearch() {
+  domainSearch.value = ''
+}
+
+function clearFieldSearch() {
+  fieldSearch.value = ''
+}
+
+function clearCompetencySearch() {
+  competencySearch.value = ''
+}
+
+// Column visibility toggles
+function toggleDomain() {
+  showDomain.value = !showDomain.value
+}
+
+function toggleField() {
+  showField.value = !showField.value
+}
+
+function toggleCompetency() {
+  showCompetency.value = !showCompetency.value
+}
+
+function toggleSpecificCompetency() {
+  showSpecificCompetency.value = !showSpecificCompetency.value
 }
 
 function getStudentResult(competencyId: string, studentId: string): EvaluationResult | undefined {
@@ -251,9 +377,17 @@ watch(searchTerm, (newTerm) => {
   background: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
   flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
 }
 
-.table-header h2 {
+.header-main {
+  flex: 1;
+}
+
+.header-main h2 {
   margin: 0 0 0.5rem 0;
   color: #2c3e50;
   font-size: 1.5rem;
@@ -263,6 +397,35 @@ watch(searchTerm, (newTerm) => {
   margin: 0;
   color: #6c757d;
   font-size: 0.95rem;
+}
+
+.column-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.controls-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.restore-column-btn {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.restore-column-btn:hover {
+  background: #bbdefb;
+  color: #0d47a1;
 }
 
 .table-wrapper {
@@ -287,7 +450,7 @@ watch(searchTerm, (newTerm) => {
 .evaluation-table thead {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
   background: #fff;
 }
 
@@ -301,17 +464,73 @@ watch(searchTerm, (newTerm) => {
   vertical-align: top;
 }
 
-.competency-header {
-  min-width: 350px;
-  max-width: 350px;
-  width: 350px;
+.hierarchy-header {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  vertical-align: top;
 }
 
-.competency-header .header-content {
+.domain-col {
+  min-width: 150px;
+  max-width: 150px;
+  width: 150px;
+  background: #f0f8ff !important;
+  background-color: #f0f8ff !important;
+}
+
+.field-col {
+  min-width: 200px;
+  max-width: 200px;
+  width: 200px;
+  background: #faf0ff !important;
+  background-color: #faf0ff !important;
+}
+
+.competency-col {
+  min-width: 250px;
+  max-width: 250px;
+  width: 250px;
+  background: #fff8f0 !important;
+  background-color: #fff8f0 !important;
+}
+
+.specific-competency-col {
+  min-width: 300px;
+  max-width: 300px;
+  width: 300px;
+}
+
+.hierarchy-header .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.visibility-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.8rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.visibility-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  opacity: 1;
 }
 
 .clear-search-btn {
@@ -372,10 +591,42 @@ watch(searchTerm, (newTerm) => {
 /* Sticky positioning */
 .sticky-left {
   position: sticky;
-  left: 0;
-  z-index: 5;
+  z-index: 10;
   background: #fff;
+}
+
+.domain-col,
+.domain-cell {
+  left: 0;
+  border-right: 1px solid #dee2e6;
+  z-index: 14;
+  opacity: 1;
+  backdrop-filter: none;
+}
+
+.field-col,
+.field-cell {
+  left: 150px;
+  border-right: 1px solid #dee2e6;
+  z-index: 13;
+  opacity: 1;
+  backdrop-filter: none;
+}
+
+.competency-col,
+.competency-cell {
+  left: 350px;
+  border-right: 1px solid #dee2e6;
+  z-index: 12;
+  opacity: 1;
+  backdrop-filter: none;
+}
+
+.specific-competency-col,
+.specific-competency-cell {
+  left: 600px;
   border-right: 2px solid #dee2e6;
+  z-index: 11;
 }
 
 /* Row styles */
@@ -385,20 +636,6 @@ watch(searchTerm, (newTerm) => {
 
 .competency-row:hover {
   background-color: #f8f9fa;
-}
-
-.competency-row.type-domain {
-  background-color: #e3f2fd;
-  font-weight: 600;
-}
-
-.competency-row.type-field {
-  background-color: #f3e5f5;
-  font-weight: 500;
-}
-
-.competency-row.type-competency {
-  background-color: #fff3e0;
 }
 
 .competency-row.type-specificCompetency {
@@ -412,56 +649,51 @@ watch(searchTerm, (newTerm) => {
   vertical-align: top;
 }
 
-.competency-cell {
-  min-width: 350px;
-  max-width: 350px;
-  width: 350px;
+.hierarchy-cell {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  position: sticky;
+  background: #fff;
 }
 
-.competency-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+.domain-cell {
+  min-width: 150px;
+  max-width: 150px;
+  width: 150px;
+  font-weight: 600;
+  background: #f0f8ff !important;
+  background-color: #f0f8ff !important;
 }
 
-.expand-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-}
-
-.expand-icon {
-  display: block;
-  font-size: 0.7rem;
-  transition: transform 0.2s ease;
-  color: #6c757d;
-}
-
-.expand-icon.expanded {
-  transform: rotate(90deg);
-}
-
-.expand-spacer {
-  width: 16px;
-  flex-shrink: 0;
-}
-
-.competency-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.competency-name {
+.field-cell {
+  min-width: 200px;
+  max-width: 200px;
+  width: 200px;
   font-weight: 500;
-  line-height: 1.3;
+  background: #faf0ff !important;
+  background-color: #faf0ff !important;
+}
+
+.competency-cell {
+  min-width: 250px;
+  max-width: 250px;
+  width: 250px;
+  background: #fff8f0 !important;
+  background-color: #fff8f0 !important;
+}
+
+.specific-competency-cell {
+  min-width: 300px;
+  max-width: 300px;
+  width: 300px;
+  background: #ffffff;
+  background-color: #ffffff;
+}
+
+.cell-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .result-cell {
@@ -470,6 +702,8 @@ watch(searchTerm, (newTerm) => {
   max-width: 100px;
   width: 90px;
   padding: 0.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .result-content {
@@ -589,16 +823,31 @@ watch(searchTerm, (newTerm) => {
     height: 100vh;
   }
   
-  .competency-header {
-    min-width: 280px;
-    max-width: 280px;
-    width: 280px;
+  .domain-col, .domain-cell {
+    min-width: 120px;
+    max-width: 120px;
+    width: 120px;
   }
   
-  .competency-cell {
-    min-width: 280px;
-    max-width: 280px;
-    width: 280px;
+  .field-col, .field-cell {
+    min-width: 160px;
+    max-width: 160px;
+    width: 160px;
+    left: 120px;
+  }
+  
+  .competency-col, .competency-cell {
+    min-width: 200px;
+    max-width: 200px;
+    width: 200px;
+    left: 280px;
+  }
+  
+  .specific-competency-col, .specific-competency-cell {
+    min-width: 240px;
+    max-width: 240px;
+    width: 240px;
+    left: 480px;
   }
   
   .student-header {
@@ -613,10 +862,18 @@ watch(searchTerm, (newTerm) => {
     width: 75px;
   }
   
-  
   .legend-items {
     flex-direction: column;
     gap: 0.5rem;
+  }
+  
+  .table-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .column-controls {
+    justify-content: flex-start;
   }
 }
 

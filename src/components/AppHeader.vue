@@ -10,14 +10,14 @@
       
       <div class="navbar-menu">
         <div class="navbar-start">
-          <a href="#" class="navbar-item active" aria-current="page">
+          <router-link to="/" class="navbar-item" :class="{ active: $route.name === 'home' }" aria-current="page">
             <span class="item-icon">📋</span>
             Tableaux d'évaluation
-          </a>
-          <a href="#" class="navbar-item">
+          </router-link>
+          <router-link to="/students" class="navbar-item" :class="{ active: $route.name === 'students' }">
             <span class="item-icon">👥</span>
             Élèves
-          </a>
+          </router-link>
           <a href="#" class="navbar-item">
             <span class="item-icon">🎯</span>
             Compétences
@@ -60,14 +60,14 @@
     <!-- Mobile menu -->
     <div class="mobile-menu" :class="{ 'is-active': isMobileMenuOpen }">
       <div class="mobile-menu-content">
-        <a href="#" class="mobile-menu-item active">
+        <router-link to="/" class="mobile-menu-item" :class="{ active: $route.name === 'home' }">
           <span class="item-icon">📋</span>
           Tableaux d'évaluation
-        </a>
-        <a href="#" class="mobile-menu-item">
+        </router-link>
+        <router-link to="/students" class="mobile-menu-item" :class="{ active: $route.name === 'students' }">
           <span class="item-icon">👥</span>
           Élèves
-        </a>
+        </router-link>
         <a href="#" class="mobile-menu-item">
           <span class="item-icon">🎯</span>
           Compétences

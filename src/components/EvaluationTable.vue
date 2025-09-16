@@ -229,11 +229,7 @@ const fieldSearch = ref('')
 const competencySearch = ref('')
 const competencyTree = ref<TreeNode[]>([])
 
-// Column visibility
-const showDomain = ref(true)
-const showField = ref(true)
-const showCompetency = ref(true)
-const showSpecificCompetency = ref(true)
+// Column visibility variables removed (columns are now always visible)
 
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
@@ -296,22 +292,7 @@ function clearCompetencySearch() {
   competencySearch.value = ''
 }
 
-// Column visibility toggles
-function toggleDomain() {
-  showDomain.value = !showDomain.value
-}
-
-function toggleField() {
-  showField.value = !showField.value
-}
-
-function toggleCompetency() {
-  showCompetency.value = !showCompetency.value
-}
-
-function toggleSpecificCompetency() {
-  showSpecificCompetency.value = !showSpecificCompetency.value
-}
+// Column visibility functions removed (columns are now always visible)
 
 function getStudentResult(competencyId: string, studentId: string): EvaluationResult | undefined {
   return getCompetencyResult(props.evaluation.results, studentId, competencyId)

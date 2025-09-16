@@ -3,7 +3,7 @@
     <h1 class="visually-hidden">Tableau d'évaluation des compétences</h1>
     <EvaluationTable
       :evaluation="evaluation"
-      :students="students"
+      :students="allStudents"
       :framework="framework"
     />
   </main>
@@ -11,9 +11,10 @@
 
 <script setup lang="ts">
 import EvaluationTable from '@/components/EvaluationTable.vue'
-import { STUDENTS, COMPETENCY_FRAMEWORK, SAMPLE_EVALUATION } from '@/data/staticData'
+import { COMPETENCY_FRAMEWORK, SAMPLE_EVALUATION } from '@/data/staticData'
+import { useStudentsStore } from '@/stores/studentsStore'
 
-const students = STUDENTS
+const { allStudents } = useStudentsStore()
 const framework = COMPETENCY_FRAMEWORK
 const evaluation = SAMPLE_EVALUATION
 </script>

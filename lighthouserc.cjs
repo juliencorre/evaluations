@@ -7,7 +7,8 @@ module.exports = {
       numberOfRuns: 1,
       settings: {
         preset: 'desktop',
-        skipAudits: ['uses-http2']
+        skipAudits: ['uses-http2'],
+        onlyCategories: ['pwa', 'performance', 'accessibility', 'best-practices', 'seo']
       }
     },
     assert: {

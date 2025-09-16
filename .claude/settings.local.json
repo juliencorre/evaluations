@@ -1,19 +1,15 @@
 {
   "permissions": {
     "allow": [
-<<<<<<< HEAD
-      "Bash(npm install:*)",
-      "Bash(curl:*)",
-      "Bash(copy publicpwa-64x64.png publicpwa-192x192.png)",
-      "Bash(copy publicpwa-64x64.png publicpwa-512x512.png)",
-      "WebFetch(domain:nuxt.com)"
-=======
-      "Bash(npm run dev:*)",
-      "Bash(npx nuxt:*)",
-      "Bash(taskkill:*)",
-      "Bash(wmic process where processid=22696 delete:*)",
-      "Bash(wmic process where processid=8924 delete:*)"
->>>>>>> 174e92452d77bb0c41c8e93a8f6872ba22ada883
+      "Bash(Stop-Process -Force)",
+      "Bash(npm.cmd install:*)",
+      "Bash(tasklist)",
+      "Bash(kill:*)",
+      "Bash(npm.cmd cache clean:*)",
+      "Bash(npm.cmd run test:ci)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(del nul)"
     ],
     "deny": [],
     "ask": []

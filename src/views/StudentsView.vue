@@ -10,20 +10,16 @@
     <div class="page-content">
       <div class="search-bar">
         <span class="material-symbols-outlined search-icon">search</span>
-        <input 
-          v-model="searchTerm" 
-          type="text" 
+        <input
+          v-model="searchTerm"
+          type="text"
           placeholder="Rechercher un élève..."
           class="search-input"
         />
       </div>
 
       <div class="students-list">
-        <div 
-          v-for="student in filteredStudents" 
-          :key="student.id"
-          class="student-item"
-        >
+        <div v-for="student in filteredStudents" :key="student.id" class="student-item">
           <div class="student-content">
             <div class="student-name-grid">
               <span class="first-name">{{ student.firstName }}</span>
@@ -31,10 +27,14 @@
             </div>
           </div>
           <div class="student-trailing">
-            <button @click="editStudent(student)" class="action-btn edit-action" title="Modifier">
+            <button class="action-btn edit-action" title="Modifier" @click="editStudent(student)">
               <span class="material-symbols-outlined">edit</span>
             </button>
-            <button @click="deleteStudent(student)" class="action-btn delete-action" title="Supprimer">
+            <button
+              class="action-btn delete-action"
+              title="Supprimer"
+              @click="deleteStudent(student)"
+            >
               <span class="material-symbols-outlined">delete</span>
             </button>
           </div>
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Material 3 Extended FAB -->
-    <button @click="showAddModal = true" class="extended-fab">
+    <button class="extended-fab" @click="showAddModal = true">
       <span class="material-symbols-outlined fab-icon">add</span>
       <span class="fab-label">Ajouter un élève</span>
     </button>
@@ -53,36 +53,44 @@
       <div class="dialog-container" @click.stop>
         <div class="dialog-header">
           <span class="dialog-icon">
-            <span class="material-symbols-outlined">{{ showEditModal ? 'edit' : 'person_add' }}</span>
+            <span class="material-symbols-outlined">{{
+              showEditModal ? 'edit' : 'person_add'
+            }}</span>
           </span>
-          <h2 class="dialog-headline">{{ showEditModal ? 'Modifier l\'élève' : 'Ajouter un élève' }}</h2>
+          <h2 class="dialog-headline">
+            {{ showEditModal ? "Modifier l'élève" : 'Ajouter un élève' }}
+          </h2>
         </div>
-        
+
         <div class="dialog-content">
           <p class="dialog-supporting-text">
-            {{ showEditModal ? 'Modifiez les informations de l\'élève.' : 'Saisissez les informations du nouvel élève.' }}
+            {{
+              showEditModal
+                ? "Modifiez les informations de l'élève."
+                : 'Saisissez les informations du nouvel élève.'
+            }}
           </p>
-          
-          <form @submit.prevent="saveStudent" class="dialog-form">
+
+          <form class="dialog-form" @submit.prevent="saveStudent">
             <div class="text-field">
               <label for="firstName" class="text-field-label">Prénom *</label>
-              <input 
+              <input
                 id="firstName"
-                v-model="currentStudent.firstName" 
-                type="text" 
+                v-model="currentStudent.firstName"
+                type="text"
                 required
                 class="text-field-input"
                 placeholder="Prénom de l'élève"
               />
               <div class="text-field-underline"></div>
             </div>
-            
+
             <div class="text-field">
               <label for="lastName" class="text-field-label">Nom *</label>
-              <input 
+              <input
                 id="lastName"
-                v-model="currentStudent.lastName" 
-                type="text" 
+                v-model="currentStudent.lastName"
+                type="text"
                 required
                 class="text-field-input"
                 placeholder="Nom de famille"
@@ -91,12 +99,10 @@
             </div>
           </form>
         </div>
-        
+
         <div class="dialog-actions">
-          <button type="button" @click="closeModal" class="text-button">
-            Annuler
-          </button>
-          <button type="submit" @click="saveStudent" class="filled-button">
+          <button type="button" class="text-button" @click="closeModal">Annuler</button>
+          <button type="submit" class="filled-button" @click="saveStudent">
             {{ showEditModal ? 'Modifier' : 'Ajouter' }}
           </button>
         </div>
@@ -112,21 +118,20 @@
           </span>
           <h2 class="dialog-headline">Supprimer l'élève</h2>
         </div>
-        
+
         <div class="dialog-content">
           <p class="dialog-supporting-text">
-            Êtes-vous sûr de vouloir supprimer <strong>{{ studentToDelete?.firstName }} {{ studentToDelete?.lastName }}</strong> ?
+            Êtes-vous sûr de vouloir supprimer
+            <strong>{{ studentToDelete?.firstName }} {{ studentToDelete?.lastName }}</strong> ?
           </p>
           <p class="dialog-supporting-text warning-text">
             Cette action est irréversible et supprimera toutes les données associées à cet élève.
           </p>
         </div>
-        
+
         <div class="dialog-actions">
-          <button type="button" @click="closeModal" class="text-button">
-            Annuler
-          </button>
-          <button type="button" @click="confirmDelete" class="filled-button destructive">
+          <button type="button" class="text-button" @click="closeModal">Annuler</button>
+          <button type="button" class="filled-button destructive" @click="confirmDelete">
             Supprimer
           </button>
         </div>
@@ -141,7 +146,12 @@ import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
 
 // Store global des élèves
-const { allStudents, addStudent, updateStudent, deleteStudent: deleteStudentFromStore } = useStudentsStore()
+const {
+  allStudents,
+  addStudent,
+  updateStudent,
+  deleteStudent: deleteStudentFromStore
+} = useStudentsStore()
 
 // État réactif local
 const searchTerm = ref('')
@@ -156,12 +166,13 @@ const filteredStudents = computed(() => {
   if (!searchTerm.value) {
     return allStudents.value
   }
-  
+
   const search = searchTerm.value.toLowerCase()
-  return allStudents.value.filter(student => 
-    student.firstName.toLowerCase().includes(search) ||
-    student.lastName.toLowerCase().includes(search) ||
-    student.id.toLowerCase().includes(search)
+  return allStudents.value.filter(
+    (student) =>
+      student.firstName.toLowerCase().includes(search) ||
+      student.lastName.toLowerCase().includes(search) ||
+      student.id.toLowerCase().includes(search)
   )
 })
 
@@ -189,7 +200,7 @@ const saveStudent = () => {
       lastName: currentStudent.value.lastName
     })
   }
-  
+
   closeModal()
 }
 
@@ -338,7 +349,8 @@ const closeModal = () => {
   width: 100%;
 }
 
-.first-name, .last-name {
+.first-name,
+.last-name {
   font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
   font-size: var(--md-sys-typescale-body-large-size, 16px);
   font-weight: var(--md-sys-typescale-body-large-weight, 400);
@@ -467,13 +479,17 @@ const closeModal = () => {
 }
 
 @keyframes scrimFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Basic Dialog - 280dp minimum width, 560dp maximum */
 .dialog-container {
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 28px;
   box-shadow:
     0px 3px 1px -2px rgba(0, 0, 0, 0.2),
@@ -488,13 +504,13 @@ const closeModal = () => {
 }
 
 @keyframes dialogSlideIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.8) translateY(16px); 
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(16px);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1) translateY(0); 
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -524,7 +540,12 @@ const closeModal = () => {
 }
 
 .dialog-headline {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 32px;
@@ -539,7 +560,12 @@ const closeModal = () => {
 }
 
 .dialog-supporting-text {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
@@ -571,7 +597,12 @@ const closeModal = () => {
 }
 
 .text-field-label {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
@@ -581,7 +612,12 @@ const closeModal = () => {
 }
 
 .text-field-input {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
@@ -638,7 +674,12 @@ const closeModal = () => {
 
 /* Material 3 Buttons */
 .text-button {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
@@ -679,7 +720,12 @@ const closeModal = () => {
 }
 
 .filled-button {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
@@ -693,7 +739,9 @@ const closeModal = () => {
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .filled-button::before {
@@ -741,37 +789,37 @@ const closeModal = () => {
   right: 24px;
   z-index: 1001;
   pointer-events: auto;
-  
+
   /* Extended FAB Dimensions */
   height: 56px;
   min-width: 80px;
   max-width: none;
   padding: 0 16px;
-  
+
   /* Material 3 Extended FAB Surface */
   background: var(--md-sys-color-primary-container, #eaddff);
   color: var(--md-sys-color-on-primary-container, #21005d);
   border: none;
   border-radius: 16px;
-  
+
   /* Elevation Level 3 */
-  box-shadow: 
+  box-shadow:
     0px 1px 3px 0px rgba(0, 0, 0, 0.3),
     0px 4px 8px 3px rgba(0, 0, 0, 0.15);
-  
+
   /* Layout */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  
+
   /* Typography - Label Large */
   font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
   font-size: var(--md-sys-typescale-label-large-size, 14px);
   font-weight: var(--md-sys-typescale-label-large-weight, 500);
   line-height: var(--md-sys-typescale-label-large-line-height, 20px);
   letter-spacing: 0.1px;
-  
+
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
@@ -806,7 +854,7 @@ const closeModal = () => {
 }
 
 .extended-fab:hover {
-  box-shadow: 
+  box-shadow:
     0px 2px 3px 0px rgba(0, 0, 0, 0.3),
     0px 6px 10px 4px rgba(0, 0, 0, 0.15);
 }
@@ -838,9 +886,15 @@ const closeModal = () => {
 }
 
 @keyframes fabPress {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.96); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Responsive */
@@ -848,75 +902,76 @@ const closeModal = () => {
   .students-page {
     padding: 1rem;
   }
-  
+
   .page-header {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   /* Mobile: Maintain Material 3 list specifications */
   .student-item {
     padding: 8px 16px;
     min-height: 56px; /* Keep Material 3 standard height */
   }
-  
+
   .student-name-grid {
     grid-template-columns: 100px 1fr;
     gap: 6px;
   }
-  
-  .first-name, .last-name {
+
+  .first-name,
+  .last-name {
     font-size: var(--md-sys-typescale-body-large-size, 16px);
   }
-  
+
   .student-trailing {
     margin-left: 16px; /* Keep standard margin */
   }
-  
+
   .action-btn {
     width: 40px; /* Keep standard icon button size */
     height: 40px;
   }
-  
+
   .action-btn .material-symbols-outlined {
     font-size: 18px;
   }
-  
+
   /* Mobile Dialog Adaptations */
   .dialog-scrim {
     padding: 8px;
   }
-  
+
   .dialog-container {
     min-width: 280px;
     max-width: calc(100vw - 16px);
   }
-  
+
   .dialog-header {
     padding: 16px 16px 12px 16px;
   }
-  
+
   .dialog-content {
     padding: 0 16px 16px 16px;
   }
-  
+
   .dialog-actions {
     padding: 12px 16px 16px 16px;
     flex-direction: column-reverse;
     gap: 8px;
   }
-  
+
   .text-button,
   .filled-button {
     width: 100%;
     justify-content: center;
   }
-  
+
   /* Mobile Extended FAB */
   .extended-fab {
     position: fixed !important;
@@ -926,7 +981,7 @@ const closeModal = () => {
     padding: 0 16px;
     z-index: 1001;
   }
-  
+
   .fab-label {
     font-size: 13px;
   }
@@ -943,11 +998,11 @@ const closeModal = () => {
     min-width: 72px;
     z-index: 1001;
   }
-  
+
   .fab-icon {
     font-size: 22px;
   }
-  
+
   .fab-label {
     font-size: 12px;
   }

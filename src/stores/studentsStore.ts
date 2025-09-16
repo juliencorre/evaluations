@@ -7,16 +7,15 @@ const students = ref<Student[]>([...STUDENTS])
 
 // Actions pour manipuler les élèves
 export const useStudentsStore = () => {
-  
   // Getters
   const allStudents = computed(() => students.value)
   const studentCount = computed(() => students.value.length)
-  
+
   // Utility function to generate displayName
   const generateDisplayName = (firstName: string, lastName: string): string => {
     return `${firstName} ${lastName.charAt(0)}.`
   }
-  
+
   // Actions
   const addStudent = (studentData: { firstName: string; lastName: string }) => {
     const newId = `STU${String(students.value.length + 1).padStart(3, '0')}`
@@ -29,9 +28,9 @@ export const useStudentsStore = () => {
     students.value.push(newStudent)
     return newStudent
   }
-  
+
   const updateStudent = (studentId: string, updates: { firstName?: string; lastName?: string }) => {
-    const index = students.value.findIndex(s => s.id === studentId)
+    const index = students.value.findIndex((s) => s.id === studentId)
     if (index !== -1) {
       const updatedStudent = {
         ...students.value[index],
@@ -49,9 +48,9 @@ export const useStudentsStore = () => {
     }
     return null
   }
-  
+
   const deleteStudent = (studentId: string) => {
-    const index = students.value.findIndex(s => s.id === studentId)
+    const index = students.value.findIndex((s) => s.id === studentId)
     if (index !== -1) {
       const deletedStudent = students.value[index]
       students.value.splice(index, 1)
@@ -59,20 +58,20 @@ export const useStudentsStore = () => {
     }
     return null
   }
-  
+
   const getStudentById = (studentId: string) => {
-    return students.value.find(s => s.id === studentId) || null
+    return students.value.find((s) => s.id === studentId) || null
   }
-  
+
   const resetStudents = () => {
     students.value = [...STUDENTS]
   }
-  
+
   return {
     // Getters
     allStudents,
     studentCount,
-    
+
     // Actions
     addStudent,
     updateStudent,
@@ -83,14 +82,15 @@ export const useStudentsStore = () => {
 }
 
 // Store réactif global pour le framework de compétences
-const competencyFramework = ref<CompetencyFramework>(JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK)))
+const competencyFramework = ref<CompetencyFramework>(
+  JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK))
+)
 
 // Actions pour manipuler le framework de compétences
 export const useCompetencyFrameworkStore = () => {
-  
   // Getters
   const framework = computed(() => competencyFramework.value)
-  
+
   // Actions pour les domaines
   const addDomain = (domainData: { name: string; description: string }) => {
     const newDomain = {
@@ -102,18 +102,18 @@ export const useCompetencyFrameworkStore = () => {
     competencyFramework.value.domains.push(newDomain)
     return newDomain
   }
-  
+
   const updateDomain = (domainId: string, updates: { name?: string; description?: string }) => {
-    const domain = competencyFramework.value.domains.find(d => d.id === domainId)
+    const domain = competencyFramework.value.domains.find((d) => d.id === domainId)
     if (domain) {
       Object.assign(domain, updates)
       return domain
     }
     return null
   }
-  
+
   const deleteDomain = (domainId: string) => {
-    const index = competencyFramework.value.domains.findIndex(d => d.id === domainId)
+    const index = competencyFramework.value.domains.findIndex((d) => d.id === domainId)
     if (index !== -1) {
       const deletedDomain = competencyFramework.value.domains[index]
       competencyFramework.value.domains.splice(index, 1)
@@ -121,10 +121,10 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   // Actions pour les champs
   const addField = (domainId: string, fieldData: { name: string; description: string }) => {
-    const domain = competencyFramework.value.domains.find(d => d.id === domainId)
+    const domain = competencyFramework.value.domains.find((d) => d.id === domainId)
     if (domain) {
       const newField = {
         id: `field-${Date.now()}`,
@@ -137,10 +137,10 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   const updateField = (fieldId: string, updates: { name?: string; description?: string }) => {
     for (const domain of competencyFramework.value.domains) {
-      const field = domain.fields.find(f => f.id === fieldId)
+      const field = domain.fields.find((f) => f.id === fieldId)
       if (field) {
         Object.assign(field, updates)
         return field
@@ -148,10 +148,10 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   const deleteField = (fieldId: string) => {
     for (const domain of competencyFramework.value.domains) {
-      const index = domain.fields.findIndex(f => f.id === fieldId)
+      const index = domain.fields.findIndex((f) => f.id === fieldId)
       if (index !== -1) {
         const deletedField = domain.fields[index]
         domain.fields.splice(index, 1)
@@ -160,11 +160,14 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   // Actions pour les compétences
-  const addCompetency = (fieldId: string, competencyData: { name: string; description: string }) => {
+  const addCompetency = (
+    fieldId: string,
+    competencyData: { name: string; description: string }
+  ) => {
     for (const domain of competencyFramework.value.domains) {
-      const field = domain.fields.find(f => f.id === fieldId)
+      const field = domain.fields.find((f) => f.id === fieldId)
       if (field) {
         const newCompetency = {
           id: `comp-${Date.now()}`,
@@ -178,11 +181,14 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
-  const updateCompetency = (competencyId: string, updates: { name?: string; description?: string }) => {
+
+  const updateCompetency = (
+    competencyId: string,
+    updates: { name?: string; description?: string }
+  ) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
-        const competency = field.competencies.find(c => c.id === competencyId)
+        const competency = field.competencies.find((c) => c.id === competencyId)
         if (competency) {
           Object.assign(competency, updates)
           return competency
@@ -191,11 +197,11 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   const deleteCompetency = (competencyId: string) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
-        const index = field.competencies.findIndex(c => c.id === competencyId)
+        const index = field.competencies.findIndex((c) => c.id === competencyId)
         if (index !== -1) {
           const deletedCompetency = field.competencies[index]
           field.competencies.splice(index, 1)
@@ -205,12 +211,15 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   // Actions pour les sous-compétences
-  const addSpecificCompetency = (competencyId: string, specificCompetencyData: { name: string; description: string }) => {
+  const addSpecificCompetency = (
+    competencyId: string,
+    specificCompetencyData: { name: string; description: string }
+  ) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
-        const competency = field.competencies.find(c => c.id === competencyId)
+        const competency = field.competencies.find((c) => c.id === competencyId)
         if (competency) {
           const newSpecificCompetency = {
             id: `spec-${Date.now()}`,
@@ -224,12 +233,17 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
-  const updateSpecificCompetency = (specificCompetencyId: string, updates: { name?: string; description?: string }) => {
+
+  const updateSpecificCompetency = (
+    specificCompetencyId: string,
+    updates: { name?: string; description?: string }
+  ) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
         for (const competency of field.competencies) {
-          const specificCompetency = competency.specificCompetencies.find(s => s.id === specificCompetencyId)
+          const specificCompetency = competency.specificCompetencies.find(
+            (s) => s.id === specificCompetencyId
+          )
           if (specificCompetency) {
             Object.assign(specificCompetency, updates)
             return specificCompetency
@@ -239,12 +253,14 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   const deleteSpecificCompetency = (specificCompetencyId: string) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
         for (const competency of field.competencies) {
-          const index = competency.specificCompetencies.findIndex(s => s.id === specificCompetencyId)
+          const index = competency.specificCompetencies.findIndex(
+            (s) => s.id === specificCompetencyId
+          )
           if (index !== -1) {
             const deletedSpecificCompetency = competency.specificCompetencies[index]
             competency.specificCompetencies.splice(index, 1)
@@ -255,7 +271,7 @@ export const useCompetencyFrameworkStore = () => {
     }
     return null
   }
-  
+
   // Fonctions de réorganisation
   const reorderDomains = (fromIndex: number, toIndex: number) => {
     const domains = [...competencyFramework.value.domains]
@@ -265,7 +281,7 @@ export const useCompetencyFrameworkStore = () => {
   }
 
   const reorderFields = (domainId: string, fromIndex: number, toIndex: number) => {
-    const domain = competencyFramework.value.domains.find(d => d.id === domainId)
+    const domain = competencyFramework.value.domains.find((d) => d.id === domainId)
     if (domain) {
       const fields = [...domain.fields]
       const [movedItem] = fields.splice(fromIndex, 1)
@@ -276,7 +292,7 @@ export const useCompetencyFrameworkStore = () => {
 
   const reorderCompetencies = (fieldId: string, fromIndex: number, toIndex: number) => {
     for (const domain of competencyFramework.value.domains) {
-      const field = domain.fields.find(f => f.id === fieldId)
+      const field = domain.fields.find((f) => f.id === fieldId)
       if (field) {
         const competencies = [...field.competencies]
         const [movedItem] = competencies.splice(fromIndex, 1)
@@ -287,10 +303,14 @@ export const useCompetencyFrameworkStore = () => {
     }
   }
 
-  const reorderSpecificCompetencies = (competencyId: string, fromIndex: number, toIndex: number) => {
+  const reorderSpecificCompetencies = (
+    competencyId: string,
+    fromIndex: number,
+    toIndex: number
+  ) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
-        const competency = field.competencies.find(c => c.id === competencyId)
+        const competency = field.competencies.find((c) => c.id === competencyId)
         if (competency) {
           const specificCompetencies = [...competency.specificCompetencies]
           const [movedItem] = specificCompetencies.splice(fromIndex, 1)
@@ -306,37 +326,37 @@ export const useCompetencyFrameworkStore = () => {
   const resetFramework = () => {
     competencyFramework.value = JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK))
   }
-  
+
   return {
     // Getter
     framework,
-    
+
     // Actions domaines
     addDomain,
     updateDomain,
     deleteDomain,
-    
+
     // Actions champs
     addField,
     updateField,
     deleteField,
-    
+
     // Actions compétences
     addCompetency,
     updateCompetency,
     deleteCompetency,
-    
+
     // Actions sous-compétences
     addSpecificCompetency,
     updateSpecificCompetency,
     deleteSpecificCompetency,
-    
+
     // Actions de réorganisation
     reorderDomains,
     reorderFields,
     reorderCompetencies,
     reorderSpecificCompetencies,
-    
+
     // Reset
     resetFramework
   }

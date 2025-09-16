@@ -13,7 +13,7 @@ describe('HomeView', () => {
         }
       }
     })
-    
+
     const main = wrapper.find('main')
     expect(main.exists()).toBe(true)
     expect(main.attributes('role')).toBe('main')
@@ -21,7 +21,7 @@ describe('HomeView', () => {
     const h1 = wrapper.find('h1')
     expect(h1.exists()).toBe(true)
     expect(h1.classes()).toContain('visually-hidden')
-    expect(h1.text()).toBe('Tableau d\'évaluation des compétences')
+    expect(h1.text()).toBe("Tableau d'évaluation des compétences")
 
     // Verify the evaluation table is rendered
     const evaluationTable = wrapper.find('[data-test="evaluation-table"]')

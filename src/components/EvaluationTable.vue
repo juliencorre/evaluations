@@ -4,7 +4,7 @@
       <h2>{{ evaluation.name }}</h2>
       <p class="table-description">{{ evaluation.description }}</p>
     </div>
-    
+
     <div class="table-wrapper">
       <div class="table-scroll-container">
         <table class="evaluation-table">
@@ -14,7 +14,7 @@
               <th class="hierarchy-header sticky-left domain-col">
                 <div class="header-content">
                   <span>Domaine</span>
-                  <button 
+                  <button
                     v-if="domainSearch"
                     class="clear-search-btn"
                     type="button"
@@ -31,13 +31,13 @@
                     placeholder="Rechercher..."
                     class="search-input"
                     aria-label="Rechercher un domaine"
-                  >
+                  />
                 </div>
               </th>
               <th class="hierarchy-header sticky-left field-col">
                 <div class="header-content">
                   <span>Champ</span>
-                  <button 
+                  <button
                     v-if="fieldSearch"
                     class="clear-search-btn"
                     type="button"
@@ -54,13 +54,13 @@
                     placeholder="Rechercher..."
                     class="search-input"
                     aria-label="Rechercher un champ"
-                  >
+                  />
                 </div>
               </th>
               <th class="hierarchy-header sticky-left competency-col">
                 <div class="header-content">
                   <span>Compétence</span>
-                  <button 
+                  <button
                     v-if="competencySearch"
                     class="clear-search-btn"
                     type="button"
@@ -77,13 +77,13 @@
                     placeholder="Rechercher..."
                     class="search-input"
                     aria-label="Rechercher une compétence"
-                  >
+                  />
                 </div>
               </th>
               <th class="hierarchy-header sticky-left specific-competency-col">
                 <div class="header-content">
                   <span>Sous-compétence</span>
-                  <button 
+                  <button
                     v-if="searchTerm"
                     class="clear-search-btn"
                     type="button"
@@ -100,11 +100,11 @@
                     placeholder="Rechercher..."
                     class="search-input"
                     aria-label="Rechercher une compétence"
-                  >
+                  />
                 </div>
               </th>
-              <th 
-                v-for="student in students" 
+              <th
+                v-for="student in students"
                 :key="student.id"
                 class="student-header"
                 :title="`${student.firstName} ${student.lastName}`"
@@ -115,16 +115,13 @@
               </th>
             </tr>
           </thead>
-          
+
           <!-- Table body -->
           <tbody>
-            <tr 
-              v-for="node in visibleNodes" 
+            <tr
+              v-for="node in visibleNodes"
               :key="node.id"
-              :class="[
-                'competency-row',
-                `type-${node.type}`
-              ]"
+              :class="['competency-row', `type-${node.type}`]"
             >
               <!-- Hierarchy cells (sticky left) -->
               <td class="hierarchy-cell sticky-left domain-cell">
@@ -147,7 +144,7 @@
                   {{ node.hierarchyData?.specificCompetency || node.name }}
                 </div>
               </td>
-              
+
               <!-- Student result cells -->
               <td
                 v-for="student in students"
@@ -156,7 +153,7 @@
                 :class="getResultCellClass(node, student.id)"
               >
                 <div class="result-content">
-                  <span 
+                  <span
                     v-if="canShowResult(node)"
                     class="result-badge"
                     :class="`level-${getStudentResult(node.id, student.id)?.level?.toLowerCase()}`"
@@ -171,7 +168,7 @@
         </table>
       </div>
     </div>
-    
+
     <div class="table-footer">
       <div class="legend">
         <h3>Légende des niveaux :</h3>
@@ -202,18 +199,14 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { 
-  Student, 
-  Evaluation, 
-  TreeNode, 
+import type {
+  Student,
+  Evaluation,
+  TreeNode,
   EvaluationResult,
   CompetencyFramework
 } from '@/types/evaluation'
-import { 
-  buildCompetencyTree, 
-  flattenTree, 
-  getCompetencyResult
-} from '@/utils/competencyTree'
+import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/competencyTree'
 
 interface Props {
   evaluation: Evaluation
@@ -237,36 +230,39 @@ competencyTree.value = buildCompetencyTree(props.framework)
 // Computed for filtered tree based on multiple searches
 const filteredTree = computed(() => {
   let filtered = competencyTree.value
-  
+
   // Filter by domain
   if (domainSearch.value.trim()) {
-    filtered = filtered.filter(node => 
+    filtered = filtered.filter((node) =>
       node.hierarchyData?.domain.toLowerCase().includes(domainSearch.value.toLowerCase())
     )
   }
-  
+
   // Filter by field
   if (fieldSearch.value.trim()) {
-    filtered = filtered.filter(node => 
+    filtered = filtered.filter((node) =>
       node.hierarchyData?.field.toLowerCase().includes(fieldSearch.value.toLowerCase())
     )
   }
-  
+
   // Filter by competency
   if (competencySearch.value.trim()) {
-    filtered = filtered.filter(node => 
+    filtered = filtered.filter((node) =>
       node.hierarchyData?.competency.toLowerCase().includes(competencySearch.value.toLowerCase())
     )
   }
-  
+
   // Filter by specific competency
   if (searchTerm.value.trim()) {
-    filtered = filtered.filter(node => 
-      node.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      (node.hierarchyData?.specificCompetency.toLowerCase().includes(searchTerm.value.toLowerCase()))
+    filtered = filtered.filter(
+      (node) =>
+        node.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+        node.hierarchyData?.specificCompetency
+          .toLowerCase()
+          .includes(searchTerm.value.toLowerCase())
     )
   }
-  
+
   return filtered
 })
 
@@ -305,7 +301,7 @@ function canShowResult(node: TreeNode): boolean {
 
 function getResultCellClass(node: TreeNode, studentId: string): string[] {
   const classes: string[] = []
-  
+
   if (canShowResult(node)) {
     const result = getStudentResult(node.id, studentId)
     if (result) {
@@ -316,23 +312,23 @@ function getResultCellClass(node: TreeNode, studentId: string): string[] {
   } else {
     classes.push('no-evaluation')
   }
-  
+
   return classes
 }
 
 function getResultTitle(competencyId: string, studentId: string): string {
   const result = getStudentResult(competencyId, studentId)
   if (!result) return 'Non évalué'
-  
+
   const levelNames = {
-    'A': 'Très bonne maîtrise',
-    'B': 'Maîtrise satisfaisante', 
-    'C': 'Maîtrise fragile',
-    'D': 'Maîtrise insuffisante',
-    'E': 'Maîtrise très insuffisante',
+    A: 'Très bonne maîtrise',
+    B: 'Maîtrise satisfaisante',
+    C: 'Maîtrise fragile',
+    D: 'Maîtrise insuffisante',
+    E: 'Maîtrise très insuffisante',
     'N/A': 'Non évalué'
   }
-  
+
   return levelNames[result.level] || result.level
 }
 
@@ -804,56 +800,60 @@ watch(searchTerm, (newTerm) => {
   .evaluation-table-container {
     height: 100vh;
   }
-  
-  .domain-col, .domain-cell {
+
+  .domain-col,
+  .domain-cell {
     min-width: 120px;
     max-width: 120px;
     width: 120px;
   }
-  
-  .field-col, .field-cell {
+
+  .field-col,
+  .field-cell {
     min-width: 160px;
     max-width: 160px;
     width: 160px;
     left: 120px;
   }
-  
-  .competency-col, .competency-cell {
+
+  .competency-col,
+  .competency-cell {
     min-width: 200px;
     max-width: 200px;
     width: 200px;
     left: 280px;
   }
-  
-  .specific-competency-col, .specific-competency-cell {
+
+  .specific-competency-col,
+  .specific-competency-cell {
     min-width: 240px;
     max-width: 240px;
     width: 240px;
     left: 480px;
   }
-  
+
   .student-header {
     min-width: 70px;
     max-width: 80px;
     width: 75px;
   }
-  
+
   .result-cell {
     min-width: 70px;
     max-width: 80px;
     width: 75px;
   }
-  
+
   .legend-items {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .table-header {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .column-controls {
     justify-content: flex-start;
   }
@@ -863,29 +863,29 @@ watch(searchTerm, (newTerm) => {
   .table-header {
     padding: 0.75rem;
   }
-  
+
   .table-header h2 {
     font-size: 1.25rem;
   }
-  
+
   .competency-header {
     min-width: 240px;
     max-width: 240px;
     width: 240px;
   }
-  
+
   .competency-cell {
     min-width: 240px;
     max-width: 240px;
     width: 240px;
   }
-  
+
   .student-header {
     min-width: 60px;
     max-width: 70px;
     width: 65px;
   }
-  
+
   .result-cell {
     min-width: 60px;
     max-width: 70px;

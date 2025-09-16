@@ -23,10 +23,14 @@
 
       <div class="competencies-tree">
         <!-- Domain Level -->
-        <div 
-          v-for="(domain, domainIndex) in frameworkWithDragDrop.domains" 
+        <div
+          v-for="(domain, domainIndex) in frameworkWithDragDrop.domains"
           :key="domain.id"
-          :class="['tree-node', 'domain-node', { 'ghost-element': domain.isGhost, 'dragging-element': domain.isDragging }]"
+          :class="[
+            'tree-node',
+            'domain-node',
+            { 'ghost-element': domain.isGhost, 'dragging-element': domain.isDragging }
+          ]"
           :draggable="!domain.isGhost && !domain.isDragging"
           @dragstart="!domain.isGhost && handleDragStart($event, domain, 'domain', domainIndex)"
           @dragend="handleDragEnd"
@@ -35,7 +39,7 @@
           @drop="handleDrop($event, domain, 'domain', domainIndex)"
         >
           <div class="node-content" @click="!domain.isGhost && toggleDomain(domain.id)">
-            <span class="node-icon" v-if="!domain.isGhost">
+            <span v-if="!domain.isGhost" class="node-icon">
               <span class="material-symbols-outlined">
                 {{ expandedDomains.has(domain.id) ? 'expand_more' : 'chevron_right' }}
               </span>
@@ -43,34 +47,58 @@
             <span class="node-label domain-label" :class="{ 'ghost-text': domain.isGhost }">
               {{ domain.isGhost ? 'Zone de dépôt' : domain.name }}
             </span>
-            <div class="node-actions" v-if="!domain.isGhost">
-              <button @click.stop="openAddFieldModal(domain)" class="action-btn" title="Ajouter un champ">
+            <div v-if="!domain.isGhost" class="node-actions">
+              <button
+                class="action-btn"
+                title="Ajouter un champ"
+                @click.stop="openAddFieldModal(domain)"
+              >
                 <span class="material-symbols-outlined">add</span>
               </button>
-              <button @click.stop="openEditDomainModal(domain)" class="action-btn" title="Modifier le domaine">
+              <button
+                class="action-btn"
+                title="Modifier le domaine"
+                @click.stop="openEditDomainModal(domain)"
+              >
                 <span class="material-symbols-outlined">edit</span>
               </button>
-              <button @click.stop="openDeleteDomainModal(domain)" class="action-btn delete-action" title="Supprimer le domaine">
+              <button
+                class="action-btn delete-action"
+                title="Supprimer le domaine"
+                @click.stop="openDeleteDomainModal(domain)"
+              >
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
           </div>
-          
+
           <!-- Field Level -->
           <div v-if="expandedDomains.has(domain.id)" class="tree-children">
-            <div 
-              v-for="(field, fieldIndex) in domain.fields" 
+            <div
+              v-for="(field, fieldIndex) in domain.fields"
               :key="field.id"
-              :class="['tree-node', 'field-node', { 'ghost-element': field.isGhost, 'dragging-element': field.isDragging }]"
+              :class="[
+                'tree-node',
+                'field-node',
+                { 'ghost-element': field.isGhost, 'dragging-element': field.isDragging }
+              ]"
               :draggable="!field.isGhost && !field.isDragging"
-              @dragstart="!field.isGhost && handleDragStart($event, field, 'field', fieldIndex, { domain }); $event.stopPropagation()"
+              @dragstart="(event) => {
+                if (!field.isGhost) {
+                  handleDragStart(event, field, 'field', fieldIndex, { domain });
+                  event.stopPropagation();
+                }
+              }"
               @dragend="handleDragEnd"
               @dragover="handleDragOver"
-              @dragenter="handleDragEnter($event, field, 'field', fieldIndex, { domain }); $event.stopPropagation()"
+              @dragenter="(event) => {
+                handleDragEnter(event, field, 'field', fieldIndex, { domain });
+                event.stopPropagation();
+              }"
               @drop="handleDrop($event, field, 'field', fieldIndex, { domain })"
             >
               <div class="node-content" @click="!field.isGhost && toggleField(field.id)">
-                <span class="node-icon" v-if="!field.isGhost">
+                <span v-if="!field.isGhost" class="node-icon">
                   <span class="material-symbols-outlined">
                     {{ expandedFields.has(field.id) ? 'expand_more' : 'chevron_right' }}
                   </span>
@@ -78,79 +106,196 @@
                 <span class="node-label field-label" :class="{ 'ghost-text': field.isGhost }">
                   {{ field.isGhost ? 'Zone de dépôt' : field.name }}
                 </span>
-                <div class="node-actions" v-if="!field.isGhost">
-                  <button @click.stop="openAddCompetencyModal(field, domain)" class="action-btn" title="Ajouter une compétence">
+                <div v-if="!field.isGhost" class="node-actions">
+                  <button
+                    class="action-btn"
+                    title="Ajouter une compétence"
+                    @click.stop="openAddCompetencyModal(field, domain)"
+                  >
                     <span class="material-symbols-outlined">add</span>
                   </button>
-                  <button @click.stop="openEditFieldModal(field, domain)" class="action-btn" title="Modifier le champ">
+                  <button
+                    class="action-btn"
+                    title="Modifier le champ"
+                    @click.stop="openEditFieldModal(field, domain)"
+                  >
                     <span class="material-symbols-outlined">edit</span>
                   </button>
-                  <button @click.stop="openDeleteFieldModal(field, domain)" class="action-btn delete-action" title="Supprimer le champ">
+                  <button
+                    class="action-btn delete-action"
+                    title="Supprimer le champ"
+                    @click.stop="openDeleteFieldModal(field, domain)"
+                  >
                     <span class="material-symbols-outlined">delete</span>
                   </button>
                 </div>
               </div>
-              
+
               <!-- Competency Level -->
               <div v-if="expandedFields.has(field.id)" class="tree-children">
-                <div 
-                  v-for="(competency, competencyIndex) in field.competencies" 
+                <div
+                  v-for="(competency, competencyIndex) in field.competencies"
                   :key="competency.id"
-                  :class="['tree-node', 'competency-node', { 'ghost-element': competency.isGhost, 'dragging-element': competency.isDragging }]"
+                  :class="[
+                    'tree-node',
+                    'competency-node',
+                    {
+                      'ghost-element': competency.isGhost,
+                      'dragging-element': competency.isDragging
+                    }
+                  ]"
                   :draggable="!competency.isGhost && !competency.isDragging"
-                  @dragstart="!competency.isGhost && handleDragStart($event, competency, 'competency', competencyIndex, { domain, field }); $event.stopPropagation()"
+                  @dragstart="(event) => {
+                    if (!competency.isGhost) {
+                      handleDragStart(event, competency, 'competency', competencyIndex, {
+                        domain,
+                        field
+                      });
+                      event.stopPropagation();
+                    }
+                  }"
                   @dragend="handleDragEnd"
                   @dragover="handleDragOver"
-                  @dragenter="handleDragEnter($event, competency, 'competency', competencyIndex, { domain, field }); $event.stopPropagation()"
-                  @drop="handleDrop($event, competency, 'competency', competencyIndex, { domain, field })"
+                  @dragenter="(event) => {
+                    handleDragEnter(event, competency, 'competency', competencyIndex, {
+                      domain,
+                      field
+                    });
+                    event.stopPropagation();
+                  }"
+                  @drop="
+                    handleDrop($event, competency, 'competency', competencyIndex, { domain, field })
+                  "
                 >
-                  <div class="node-content" @click="!competency.isGhost && toggleCompetency(competency.id)">
-                    <span class="node-icon" v-if="!competency.isGhost">
+                  <div
+                    class="node-content"
+                    @click="!competency.isGhost && toggleCompetency(competency.id)"
+                  >
+                    <span v-if="!competency.isGhost" class="node-icon">
                       <span class="material-symbols-outlined">
-                        {{ expandedCompetencies.has(competency.id) ? 'expand_more' : 'chevron_right' }}
+                        {{
+                          expandedCompetencies.has(competency.id) ? 'expand_more' : 'chevron_right'
+                        }}
                       </span>
                     </span>
-                    <span class="node-label competency-label" :class="{ 'ghost-text': competency.isGhost }">
+                    <span
+                      class="node-label competency-label"
+                      :class="{ 'ghost-text': competency.isGhost }"
+                    >
                       {{ competency.isGhost ? 'Zone de dépôt' : competency.name }}
                     </span>
-                    <div class="node-actions" v-if="!competency.isGhost">
-                      <button @click.stop="openAddSpecificCompetencyModal(competency, field, domain)" class="action-btn" title="Ajouter une sous-compétence">
+                    <div v-if="!competency.isGhost" class="node-actions">
+                      <button
+                        class="action-btn"
+                        title="Ajouter une sous-compétence"
+                        @click.stop="openAddSpecificCompetencyModal(competency, field, domain)"
+                      >
                         <span class="material-symbols-outlined">add</span>
                       </button>
-                      <button @click.stop="openEditCompetencyModal(competency, field, domain)" class="action-btn" title="Modifier la compétence">
+                      <button
+                        class="action-btn"
+                        title="Modifier la compétence"
+                        @click.stop="openEditCompetencyModal(competency, field, domain)"
+                      >
                         <span class="material-symbols-outlined">edit</span>
                       </button>
-                      <button @click.stop="openDeleteCompetencyModal(competency, field, domain)" class="action-btn delete-action" title="Supprimer la compétence">
+                      <button
+                        class="action-btn delete-action"
+                        title="Supprimer la compétence"
+                        @click.stop="openDeleteCompetencyModal(competency, field, domain)"
+                      >
                         <span class="material-symbols-outlined">delete</span>
                       </button>
                     </div>
                   </div>
-                  
+
                   <!-- Specific Competency Level -->
                   <div v-if="expandedCompetencies.has(competency.id)" class="tree-children">
-                    <div 
-                      v-for="(specificCompetency, specificIndex) in competency.specificCompetencies" 
+                    <div
+                      v-for="(specificCompetency, specificIndex) in competency.specificCompetencies"
                       :key="specificCompetency.id"
-                      :class="['tree-node', 'specific-competency-node', { 'ghost-element': specificCompetency.isGhost, 'dragging-element': specificCompetency.isDragging }]"
+                      :class="[
+                        'tree-node',
+                        'specific-competency-node',
+                        {
+                          'ghost-element': specificCompetency.isGhost,
+                          'dragging-element': specificCompetency.isDragging
+                        }
+                      ]"
                       :draggable="!specificCompetency.isGhost && !specificCompetency.isDragging"
-                      @dragstart="!specificCompetency.isGhost && handleDragStart($event, specificCompetency, 'specificCompetency', specificIndex, { domain, field, competency }); $event.stopPropagation()"
+                      @dragstart="(event) => {
+                        if (!specificCompetency.isGhost) {
+                          handleDragStart(
+                            event,
+                            specificCompetency,
+                            'specificCompetency',
+                            specificIndex,
+                            { domain, field, competency }
+                          );
+                          event.stopPropagation();
+                        }
+                      }"
                       @dragend="handleDragEnd"
                       @dragover="handleDragOver"
-                      @dragenter="handleDragEnter($event, specificCompetency, 'specificCompetency', specificIndex, { domain, field, competency }); $event.stopPropagation()"
-                      @drop="handleDrop($event, specificCompetency, 'specificCompetency', specificIndex, { domain, field, competency })"
+                      @dragenter="(event) => {
+                        handleDragEnter(
+                          event,
+                          specificCompetency,
+                          'specificCompetency',
+                          specificIndex,
+                          { domain, field, competency }
+                        );
+                        event.stopPropagation();
+                      }"
+                      @drop="
+                        handleDrop(
+                          $event,
+                          specificCompetency,
+                          'specificCompetency',
+                          specificIndex,
+                          { domain, field, competency }
+                        )
+                      "
                     >
                       <div class="node-content">
-                        <span class="node-icon" v-if="!specificCompetency.isGhost">
+                        <span v-if="!specificCompetency.isGhost" class="node-icon">
                           <span class="material-symbols-outlined">fiber_manual_record</span>
                         </span>
-                        <span class="node-label specific-competency-label" :class="{ 'ghost-text': specificCompetency.isGhost }">
-                          {{ specificCompetency.isGhost ? 'Zone de dépôt' : specificCompetency.name }}
+                        <span
+                          class="node-label specific-competency-label"
+                          :class="{ 'ghost-text': specificCompetency.isGhost }"
+                        >
+                          {{
+                            specificCompetency.isGhost ? 'Zone de dépôt' : specificCompetency.name
+                          }}
                         </span>
-                        <div class="node-actions" v-if="!specificCompetency.isGhost">
-                          <button @click.stop="openEditSpecificCompetencyModal(specificCompetency, competency, field, domain)" class="action-btn" title="Modifier la sous-compétence">
+                        <div v-if="!specificCompetency.isGhost" class="node-actions">
+                          <button
+                            class="action-btn"
+                            title="Modifier la sous-compétence"
+                            @click.stop="
+                              openEditSpecificCompetencyModal(
+                                specificCompetency,
+                                competency,
+                                field,
+                                domain
+                              )
+                            "
+                          >
                             <span class="material-symbols-outlined">edit</span>
                           </button>
-                          <button @click.stop="openDeleteSpecificCompetencyModal(specificCompetency, competency, field, domain)" class="action-btn delete-action" title="Supprimer la sous-compétence">
+                          <button
+                            class="action-btn delete-action"
+                            title="Supprimer la sous-compétence"
+                            @click.stop="
+                              openDeleteSpecificCompetencyModal(
+                                specificCompetency,
+                                competency,
+                                field,
+                                domain
+                              )
+                            "
+                          >
                             <span class="material-symbols-outlined">delete</span>
                           </button>
                         </div>
@@ -166,7 +311,7 @@
     </div>
 
     <!-- Material 3 Extended FAB -->
-    <button @click="openAddDomainModal()" class="extended-fab">
+    <button class="extended-fab" @click="openAddDomainModal()">
       <span class="material-symbols-outlined fab-icon">add</span>
       <span class="fab-label">Ajouter un domaine</span>
     </button>
@@ -176,35 +321,39 @@
       <div class="dialog-container" @click.stop>
         <div class="dialog-header">
           <span class="dialog-icon">
-            <span class="material-symbols-outlined">{{ showEditModal ? 'edit' : 'psychology_alt' }}</span>
+            <span class="material-symbols-outlined">{{
+              showEditModal ? 'edit' : 'psychology_alt'
+            }}</span>
           </span>
           <h2 class="dialog-headline">{{ getModalTitle() }}</h2>
         </div>
-        
+
         <div class="dialog-content">
           <p class="dialog-supporting-text">
             {{ getModalDescription() }}
           </p>
-          
-          <form @submit.prevent="saveCompetency" class="dialog-form">
+
+          <form class="dialog-form" @submit.prevent="saveCompetency">
             <div class="text-field">
               <label for="itemName" class="text-field-label">{{ getFieldLabel('name') }} *</label>
-              <input 
+              <input
                 id="itemName"
-                v-model="currentCompetency.name" 
-                type="text" 
+                v-model="currentCompetency.name"
+                type="text"
                 required
                 class="text-field-input"
                 :placeholder="getFieldPlaceholder('name')"
               />
               <div class="text-field-underline"></div>
             </div>
-            
+
             <div class="text-field">
-              <label for="itemDescription" class="text-field-label">{{ getFieldLabel('description') }} *</label>
-              <textarea 
+              <label for="itemDescription" class="text-field-label"
+                >{{ getFieldLabel('description') }} *</label
+              >
+              <textarea
                 id="itemDescription"
-                v-model="currentCompetency.description" 
+                v-model="currentCompetency.description"
                 required
                 class="text-field-textarea"
                 :placeholder="getFieldPlaceholder('description')"
@@ -212,7 +361,7 @@
               ></textarea>
               <div class="text-field-underline"></div>
             </div>
-            
+
             <!-- Affichage du contexte (lecture seule) -->
             <div v-if="currentContext && showContextInfo()" class="context-info">
               <div v-if="currentContext.domain">
@@ -227,12 +376,10 @@
             </div>
           </form>
         </div>
-        
+
         <div class="dialog-actions">
-          <button type="button" @click="closeModal" class="text-button">
-            Annuler
-          </button>
-          <button type="submit" @click="saveCompetency" class="filled-button">
+          <button type="button" class="text-button" @click="closeModal">Annuler</button>
+          <button type="submit" class="filled-button" @click="saveCompetency">
             {{ showEditModal ? 'Modifier' : 'Ajouter' }}
           </button>
         </div>
@@ -248,7 +395,7 @@
           </span>
           <h2 class="dialog-headline">{{ getDeleteModalTitle() }}</h2>
         </div>
-        
+
         <div class="dialog-content">
           <p class="dialog-supporting-text">
             {{ getDeleteModalText() }}
@@ -257,12 +404,10 @@
             {{ getDeleteWarningText() }}
           </p>
         </div>
-        
+
         <div class="dialog-actions">
-          <button type="button" @click="closeModal" class="text-button">
-            Annuler
-          </button>
-          <button type="button" @click="confirmDelete" class="filled-button destructive">
+          <button type="button" class="text-button" @click="closeModal">Annuler</button>
+          <button type="button" class="filled-button destructive" @click="confirmDelete">
             Supprimer
           </button>
         </div>
@@ -271,11 +416,12 @@
   </div>
 </template>
 
+/* eslint-disable no-undef */
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
 
-// Interface pour les compétences
+// Interfaces pour les éléments du framework de compétences
 interface CompetencyItem {
   id: string
   name: string
@@ -284,14 +430,61 @@ interface CompetencyItem {
   field: string
 }
 
+interface DomainItem {
+  id: string
+  name: string
+  description: string
+  fields: FieldItem[]
+  isGhost?: boolean
+  isDragging?: boolean
+}
+
+interface FieldItem {
+  id: string
+  name: string
+  description: string
+  competencies: CompetencyItemDetailed[]
+  isGhost?: boolean
+  isDragging?: boolean
+}
+
+interface CompetencyItemDetailed {
+  id: string
+  name: string
+  description: string
+  specificCompetencies: SpecificCompetencyItem[]
+  isGhost?: boolean
+  isDragging?: boolean
+}
+
+interface SpecificCompetencyItem {
+  id: string
+  name: string
+  description: string
+  isGhost?: boolean
+  isDragging?: boolean
+}
+
+interface DragContext {
+  domain?: DomainItem
+  field?: FieldItem
+  competency?: CompetencyItemDetailed
+}
+
 // État réactif local
 // const searchTerm = ref('') // Fonction de recherche temporairement désactivée
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
-const currentCompetency = ref<CompetencyItem>({ id: '', name: '', description: '', domain: '', field: '' })
-const competencyToDelete = ref<any>(null)
-const currentContext = ref<any>(null) // Pour stocker le contexte d'ajout
+const currentCompetency = ref<CompetencyItem>({
+  id: '',
+  name: '',
+  description: '',
+  domain: '',
+  field: ''
+})
+const competencyToDelete = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | null>(null)
+const currentContext = ref<{ type: string; domain?: DomainItem; field?: FieldItem; competency?: CompetencyItemDetailed; specificCompetency?: SpecificCompetencyItem } | null>(null)
 
 // État d'expansion des nœuds de l'arbre
 const expandedDomains = ref(new Set<string>())
@@ -299,17 +492,17 @@ const expandedFields = ref(new Set<string>())
 const expandedCompetencies = ref(new Set<string>())
 
 // États pour le drag & drop
-const draggedItem = ref<any>(null)
+const draggedItem = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | null>(null)
 const draggedType = ref<string>('')
 const draggedIndex = ref<number>(-1)
-const draggedContext = ref<any>(null)
+const draggedContext = ref<DragContext | null>(null)
 const isDragging = ref(false)
-const ghostElement = ref<any>(null)
+const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | null>(null)
 const ghostPosition = ref<number>(-1)
-const ghostContext = ref<any>(null)
+const ghostContext = ref<DragContext | null>(null)
 
 // Utilisation du store global pour le framework de compétences
-const { 
+const {
   framework,
   updateDomain,
   updateField,
@@ -342,7 +535,7 @@ const frameworkWithDragDrop = computed(() => {
     if (result.domains[draggedIndex.value]) {
       result.domains[draggedIndex.value].isDragging = true
     }
-    
+
     // Ajouter l'élément fantôme si une position est définie
     if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value) {
       const ghost = {
@@ -353,20 +546,24 @@ const frameworkWithDragDrop = computed(() => {
         isGhost: true
       }
       // Ajuster la position si on insère après l'élément dragué
-      const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+      const insertPos =
+        ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
       result.domains.splice(insertPos, 0, ghost)
     }
   } else if (draggedType.value === 'field') {
     // Trouver et modifier le bon domaine
-    const domain = result.domains.find((d: any) => d.id === draggedContext.value?.domain?.id)
+    const domain = result.domains.find((d: DomainItem) => d.id === draggedContext.value?.domain?.id)
     if (domain) {
       // Marquer le champ dragué comme étant en cours de drag
       if (domain.fields[draggedIndex.value]) {
         domain.fields[draggedIndex.value].isDragging = true
       }
-      
-      if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value && 
-          ghostContext.value?.domain?.id === draggedContext.value?.domain?.id) {
+
+      if (
+        ghostPosition.value >= 0 &&
+        ghostPosition.value !== draggedIndex.value &&
+        ghostContext.value?.domain?.id === draggedContext.value?.domain?.id
+      ) {
         const ghost = {
           id: 'ghost-field',
           name: '',
@@ -374,23 +571,27 @@ const frameworkWithDragDrop = computed(() => {
           competencies: [],
           isGhost: true
         }
-        const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+        const insertPos =
+          ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
         domain.fields.splice(insertPos, 0, ghost)
       }
     }
   } else if (draggedType.value === 'competency') {
     // Trouver et modifier le bon champ
-    const domain = result.domains.find((d: any) => d.id === draggedContext.value?.domain?.id)
+    const domain = result.domains.find((d: DomainItem) => d.id === draggedContext.value?.domain?.id)
     if (domain) {
-      const field = domain.fields.find((f: any) => f.id === draggedContext.value?.field?.id)
+      const field = domain.fields.find((f: FieldItem) => f.id === draggedContext.value?.field?.id)
       if (field) {
         // Marquer la compétence draguée comme étant en cours de drag
         if (field.competencies[draggedIndex.value]) {
           field.competencies[draggedIndex.value].isDragging = true
         }
-        
-        if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value &&
-            ghostContext.value?.field?.id === draggedContext.value?.field?.id) {
+
+        if (
+          ghostPosition.value >= 0 &&
+          ghostPosition.value !== draggedIndex.value &&
+          ghostContext.value?.field?.id === draggedContext.value?.field?.id
+        ) {
           const ghost = {
             id: 'ghost-competency',
             name: '',
@@ -398,33 +599,40 @@ const frameworkWithDragDrop = computed(() => {
             specificCompetencies: [],
             isGhost: true
           }
-          const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+          const insertPos =
+            ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
           field.competencies.splice(insertPos, 0, ghost)
         }
       }
     }
   } else if (draggedType.value === 'specificCompetency') {
     // Trouver et modifier la bonne compétence
-    const domain = result.domains.find((d: any) => d.id === draggedContext.value?.domain?.id)
+    const domain = result.domains.find((d: DomainItem) => d.id === draggedContext.value?.domain?.id)
     if (domain) {
-      const field = domain.fields.find((f: any) => f.id === draggedContext.value?.field?.id)
+      const field = domain.fields.find((f: FieldItem) => f.id === draggedContext.value?.field?.id)
       if (field) {
-        const competency = field.competencies.find((c: any) => c.id === draggedContext.value?.competency?.id)
+        const competency = field.competencies.find(
+          (c: CompetencyItemDetailed) => c.id === draggedContext.value?.competency?.id
+        )
         if (competency) {
           // Marquer la sous-compétence draguée comme étant en cours de drag
           if (competency.specificCompetencies[draggedIndex.value]) {
             competency.specificCompetencies[draggedIndex.value].isDragging = true
           }
-          
-          if (ghostPosition.value >= 0 && ghostPosition.value !== draggedIndex.value &&
-              ghostContext.value?.competency?.id === draggedContext.value?.competency?.id) {
+
+          if (
+            ghostPosition.value >= 0 &&
+            ghostPosition.value !== draggedIndex.value &&
+            ghostContext.value?.competency?.id === draggedContext.value?.competency?.id
+          ) {
             const ghost = {
               id: 'ghost-specific',
               name: '',
               description: '',
               isGhost: true
             }
-            const insertPos = ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
+            const insertPos =
+              ghostPosition.value > draggedIndex.value ? ghostPosition.value : ghostPosition.value
             competency.specificCompetencies.splice(insertPos, 0, ghost)
           }
         }
@@ -512,24 +720,35 @@ const toggleCompetency = (competencyId: string) => {
 }
 
 // Fonctions de drag & drop
-const handleDragStart = (event: DragEvent, item: any, type: string, index: number, context?: any) => {
-  if (!event.dataTransfer) return
-  
+ 
+ 
+const handleDragStart = (
+  event: Event,
+  item: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
+  type: string,
+  index: number,
+  context?: DragContext
+) => {
+  // eslint-disable-next-line no-undef
+  const dragEvent = event as DragEvent
+  if (!dragEvent.dataTransfer) return
+
   event.stopPropagation()
-  
+
   draggedItem.value = item
   draggedType.value = type
   draggedIndex.value = index
   draggedContext.value = context
   isDragging.value = true
-  
-  event.dataTransfer.effectAllowed = 'move'
-  event.dataTransfer.setData('text/plain', item.id)
+
+  dragEvent.dataTransfer.effectAllowed = 'move'
+  dragEvent.dataTransfer.setData('text/plain', item.id)
 }
 
-const handleDragEnd = (_event: DragEvent) => {
+// eslint-disable-next-line no-undef
+const handleDragEnd = (_event: Event) => {
   isDragging.value = false
-  
+
   // Réinitialiser les états
   draggedItem.value = null
   draggedType.value = ''
@@ -540,36 +759,62 @@ const handleDragEnd = (_event: DragEvent) => {
   ghostContext.value = null
 }
 
-const handleDragOver = (event: DragEvent) => {
+// eslint-disable-next-line no-undef
+const handleDragOver = (event: Event) => {
   event.preventDefault()
   event.stopPropagation()
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = 'move'
+  // eslint-disable-next-line no-undef
+  const dragEvent = event as DragEvent
+  if (dragEvent.dataTransfer) {
+    dragEvent.dataTransfer.dropEffect = 'move'
   }
 }
 
-const handleDragEnter = (event: DragEvent, targetItem: any, targetType: string, targetIndex: number, targetContext?: any) => {
+ 
+ 
+const handleDragEnter = (
+  event: Event,
+  targetItem: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
+  targetType: string,
+  targetIndex: number,
+  targetContext?: DragContext
+) => {
   event.preventDefault()
   event.stopPropagation()
-  
+
   // Ne pas traiter les éléments fantômes ou en cours de drag
   if (targetItem.isGhost || targetItem.isDragging) return
-  
+
   // Vérifier que le type de glissé correspond au type de la cible
   if (draggedType.value !== targetType) return
-  
+
   // Vérifier que c'est le même contexte parent
-  if (targetType === 'field' && (!targetContext?.domain || !draggedContext.value?.domain || 
-      targetContext.domain.id !== draggedContext.value.domain.id)) return
-  if (targetType === 'competency' && (!targetContext?.field || !draggedContext.value?.field || 
-      targetContext.field.id !== draggedContext.value.field.id)) return
-  if (targetType === 'specificCompetency' && (!targetContext?.competency || !draggedContext.value?.competency || 
-      targetContext.competency.id !== draggedContext.value.competency.id)) return
-  
+  if (
+    targetType === 'field' &&
+    (!targetContext?.domain ||
+      !draggedContext.value?.domain ||
+      targetContext.domain.id !== draggedContext.value.domain.id)
+  )
+    return
+  if (
+    targetType === 'competency' &&
+    (!targetContext?.field ||
+      !draggedContext.value?.field ||
+      targetContext.field.id !== draggedContext.value.field.id)
+  )
+    return
+  if (
+    targetType === 'specificCompetency' &&
+    (!targetContext?.competency ||
+      !draggedContext.value?.competency ||
+      targetContext.competency.id !== draggedContext.value.competency.id)
+  )
+    return
+
   // Définir la position du fantôme
   ghostPosition.value = targetIndex
   ghostContext.value = targetContext
-  
+
   // Créer l'élément fantôme basé sur l'élément dragué
   ghostElement.value = {
     ...draggedItem.value,
@@ -577,24 +822,32 @@ const handleDragEnter = (event: DragEvent, targetItem: any, targetType: string, 
   }
 }
 
-const handleDrop = (event: DragEvent, targetItem: any, targetType: string, targetIndex: number, _targetContext?: any) => {
+ 
+ 
+const handleDrop = (
+  event: Event,
+  targetItem: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
+  targetType: string,
+  targetIndex: number,
+  _targetContext?: DragContext
+) => {
   event.preventDefault()
   event.stopPropagation()
-  
+
   // Vérifier que le type de glissé correspond au type de la cible
   if (draggedType.value !== targetType) return
-  
+
   // Éviter de se déposer sur soi-même
   if (draggedItem.value?.id === targetItem?.id) return
-  
+
   const fromIndex = draggedIndex.value
   let toIndex = ghostPosition.value >= 0 ? ghostPosition.value : targetIndex
-  
+
   // Ajuster l'index si on déplace vers le bas dans la même liste
   if (ghostPosition.value > draggedIndex.value) {
     toIndex = ghostPosition.value - 1
   }
-  
+
   try {
     switch (draggedType.value) {
       case 'domain':
@@ -628,7 +881,7 @@ const openAddDomainModal = () => {
   currentContext.value = { type: 'domain' }
 }
 
-const openEditDomainModal = (domain: any) => {
+const openEditDomainModal = (domain: DomainItem) => {
   console.log('Ouvrir modal éditer domaine:', domain)
   currentCompetency.value = {
     id: domain.id,
@@ -641,20 +894,20 @@ const openEditDomainModal = (domain: any) => {
   currentContext.value = { type: 'domain', domain }
 }
 
-const openDeleteDomainModal = (domain: any) => {
+const openDeleteDomainModal = (domain: DomainItem) => {
   console.log('Ouvrir modal supprimer domaine:', domain)
   competencyToDelete.value = domain
   showDeleteModal.value = true
 }
 
 // Fonctions CRUD - Champs (interface)
-const openAddFieldModal = (domain: any) => {
+const openAddFieldModal = (domain: DomainItem) => {
   console.log('Ouvrir modal ajouter champ au domaine:', domain)
   showAddModal.value = true
   currentContext.value = { type: 'field', domain }
 }
 
-const openEditFieldModal = (field: any, domain: any) => {
+const openEditFieldModal = (field: FieldItem, domain: DomainItem) => {
   console.log('Ouvrir modal éditer champ:', field, 'du domaine:', domain)
   currentCompetency.value = {
     id: field.id,
@@ -667,21 +920,28 @@ const openEditFieldModal = (field: any, domain: any) => {
   currentContext.value = { type: 'field', field, domain }
 }
 
-const openDeleteFieldModal = (field: any, domain: any) => {
+const openDeleteFieldModal = (field: FieldItem, domain: DomainItem) => {
   console.log('Ouvrir modal supprimer champ:', field, 'du domaine:', domain)
   competencyToDelete.value = field
   showDeleteModal.value = true
 }
 
 // Fonctions CRUD - Compétences (interface)
-const openAddCompetencyModal = (field: any, domain: any) => {
+const openAddCompetencyModal = (field: FieldItem, domain: DomainItem) => {
   console.log('Ouvrir modal ajouter compétence au champ:', field, 'du domaine:', domain)
   showAddModal.value = true
   currentContext.value = { type: 'competency', field, domain }
 }
 
-const openEditCompetencyModal = (competency: any, field: any, domain: any) => {
-  console.log('Ouvrir modal éditer compétence:', competency, 'du champ:', field, 'du domaine:', domain)
+const openEditCompetencyModal = (competency: CompetencyItemDetailed, field: FieldItem, domain: DomainItem) => {
+  console.log(
+    'Ouvrir modal éditer compétence:',
+    competency,
+    'du champ:',
+    field,
+    'du domaine:',
+    domain
+  )
   currentCompetency.value = {
     id: competency.id,
     name: competency.name,
@@ -693,20 +953,39 @@ const openEditCompetencyModal = (competency: any, field: any, domain: any) => {
   currentContext.value = { type: 'competency', competency, field, domain }
 }
 
-const openDeleteCompetencyModal = (competency: any, field: any, domain: any) => {
-  console.log('Ouvrir modal supprimer compétence:', competency, 'du champ:', field, 'du domaine:', domain)
+const openDeleteCompetencyModal = (competency: CompetencyItemDetailed, field: FieldItem, domain: DomainItem) => {
+  console.log(
+    'Ouvrir modal supprimer compétence:',
+    competency,
+    'du champ:',
+    field,
+    'du domaine:',
+    domain
+  )
   competencyToDelete.value = competency
   showDeleteModal.value = true
 }
 
 // Fonctions CRUD - Sous-compétences (interface)
-const openAddSpecificCompetencyModal = (competency: any, field: any, domain: any) => {
-  console.log('Ouvrir modal ajouter sous-compétence à:', competency, 'du champ:', field, 'du domaine:', domain)
+const openAddSpecificCompetencyModal = (competency: CompetencyItemDetailed, field: FieldItem, domain: DomainItem) => {
+  console.log(
+    'Ouvrir modal ajouter sous-compétence à:',
+    competency,
+    'du champ:',
+    field,
+    'du domaine:',
+    domain
+  )
   showAddModal.value = true
   currentContext.value = { type: 'specificCompetency', competency, field, domain }
 }
 
-const openEditSpecificCompetencyModal = (specificCompetency: any, competency: any, field: any, domain: any) => {
+const openEditSpecificCompetencyModal = (
+  specificCompetency: SpecificCompetencyItem,
+  competency: CompetencyItemDetailed,
+  field: FieldItem,
+  domain: DomainItem
+) => {
   console.log('Ouvrir modal éditer sous-compétence:', specificCompetency)
   currentCompetency.value = {
     id: specificCompetency.id,
@@ -716,10 +995,21 @@ const openEditSpecificCompetencyModal = (specificCompetency: any, competency: an
     field: ''
   }
   showEditModal.value = true
-  currentContext.value = { type: 'specificCompetency', specificCompetency, competency, field, domain }
+  currentContext.value = {
+    type: 'specificCompetency',
+    specificCompetency,
+    competency,
+    field,
+    domain
+  }
 }
 
-const openDeleteSpecificCompetencyModal = (specificCompetency: any, _competency: any, _field: any, _domain: any) => {
+const openDeleteSpecificCompetencyModal = (
+  specificCompetency: SpecificCompetencyItem,
+  _competency: CompetencyItemDetailed,
+  _field: FieldItem,
+  _domain: DomainItem
+) => {
   console.log('Ouvrir modal supprimer sous-compétence:', specificCompetency)
   competencyToDelete.value = specificCompetency
   showDeleteModal.value = true
@@ -731,14 +1021,14 @@ const getModalTitle = () => {
   if (!currentContext.value) return ''
   const type = currentContext.value.type
   const isEdit = showEditModal.value
-  
+
   const titles: Record<string, string> = {
     domain: isEdit ? 'Modifier le domaine' : 'Ajouter un domaine',
     field: isEdit ? 'Modifier le champ' : 'Ajouter un champ',
     competency: isEdit ? 'Modifier la compétence' : 'Ajouter une compétence',
     specificCompetency: isEdit ? 'Modifier la sous-compétence' : 'Ajouter une sous-compétence'
   }
-  
+
   return titles[type] || ''
 }
 
@@ -746,54 +1036,65 @@ const getModalDescription = () => {
   if (!currentContext.value) return ''
   const type = currentContext.value.type
   const isEdit = showEditModal.value
-  
+
   const descriptions: Record<string, string> = {
-    domain: isEdit ? 'Modifiez les informations du domaine.' : 'Saisissez les informations du nouveau domaine.',
-    field: isEdit ? 'Modifiez les informations du champ.' : 'Saisissez les informations du nouveau champ.',
-    competency: isEdit ? 'Modifiez les informations de la compétence.' : 'Saisissez les informations de la nouvelle compétence.',
-    specificCompetency: isEdit ? 'Modifiez les informations de la sous-compétence.' : 'Saisissez les informations de la nouvelle sous-compétence.'
+    domain: isEdit
+      ? 'Modifiez les informations du domaine.'
+      : 'Saisissez les informations du nouveau domaine.',
+    field: isEdit
+      ? 'Modifiez les informations du champ.'
+      : 'Saisissez les informations du nouveau champ.',
+    competency: isEdit
+      ? 'Modifiez les informations de la compétence.'
+      : 'Saisissez les informations de la nouvelle compétence.',
+    specificCompetency: isEdit
+      ? 'Modifiez les informations de la sous-compétence.'
+      : 'Saisissez les informations de la nouvelle sous-compétence.'
   }
-  
+
   return descriptions[type] || ''
 }
 
 const getFieldLabel = (field: string) => {
   if (!currentContext.value) return ''
   const type = currentContext.value.type
-  
+
   const labels: Record<string, Record<string, string>> = {
     domain: { name: 'Nom du domaine', description: 'Description du domaine' },
     field: { name: 'Nom du champ', description: 'Description du champ' },
     competency: { name: 'Nom de la compétence', description: 'Description de la compétence' },
-    specificCompetency: { name: 'Nom de la sous-compétence', description: 'Description de la sous-compétence' }
+    specificCompetency: {
+      name: 'Nom de la sous-compétence',
+      description: 'Description de la sous-compétence'
+    }
   }
-  
+
   return labels[type]?.[field] || ''
 }
 
 const getFieldPlaceholder = (field: string) => {
   if (!currentContext.value) return ''
   const type = currentContext.value.type
-  
+
   const placeholders: Record<string, Record<string, string>> = {
-    domain: { 
-      name: 'Ex: Mathématiques', 
-      description: 'Décrivez le domaine de compétences...' 
+    domain: {
+      name: 'Ex: Mathématiques',
+      description: 'Décrivez le domaine de compétences...'
     },
-    field: { 
-      name: 'Ex: Nombres et calculs', 
-      description: 'Décrivez le champ de compétences...' 
+    field: {
+      name: 'Ex: Nombres et calculs',
+      description: 'Décrivez le champ de compétences...'
     },
-    competency: { 
-      name: 'Ex: Comprendre un texte', 
-      description: 'Décrivez la compétence...' 
+    competency: {
+      name: 'Ex: Comprendre un texte',
+      description: 'Décrivez la compétence...'
     },
-    specificCompetency: { 
-      name: 'Ex: Identifier les informations principales', 
-      description: 'Décrivez la sous-compétence en détail...' 
+    specificCompetency: {
+      name: 'Ex: Identifier les informations principales',
+      description: 'Décrivez la sous-compétence en détail...'
     }
   }
-  
+
   return placeholders[type]?.[field] || ''
 }
 
@@ -806,10 +1107,10 @@ const showContextInfo = () => {
 
 const getDeleteModalTitle = () => {
   if (!competencyToDelete.value) return ''
-  
+
   // Déterminer le type d'élément à supprimer en fonction de ses propriétés
   if (competencyToDelete.value.fields) return 'Supprimer le domaine'
-  if (competencyToDelete.value.competencies) return 'Supprimer le champ'  
+  if (competencyToDelete.value.competencies) return 'Supprimer le champ'
   if (competencyToDelete.value.specificCompetencies) return 'Supprimer la compétence'
   return 'Supprimer la sous-compétence'
 }
@@ -817,16 +1118,19 @@ const getDeleteModalTitle = () => {
 const getDeleteModalText = () => {
   if (!competencyToDelete.value) return ''
   const name = competencyToDelete.value.name
-  
-  if (competencyToDelete.value.fields) return `Êtes-vous sûr de vouloir supprimer le domaine "${name}" ?`
-  if (competencyToDelete.value.competencies) return `Êtes-vous sûr de vouloir supprimer le champ "${name}" ?`
-  if (competencyToDelete.value.specificCompetencies) return `Êtes-vous sûr de vouloir supprimer la compétence "${name}" ?`
+
+  if (competencyToDelete.value.fields)
+    return `Êtes-vous sûr de vouloir supprimer le domaine "${name}" ?`
+  if (competencyToDelete.value.competencies)
+    return `Êtes-vous sûr de vouloir supprimer le champ "${name}" ?`
+  if (competencyToDelete.value.specificCompetencies)
+    return `Êtes-vous sûr de vouloir supprimer la compétence "${name}" ?`
   return `Êtes-vous sûr de vouloir supprimer la sous-compétence "${name}" ?`
 }
 
 const getDeleteWarningText = () => {
   if (!competencyToDelete.value) return ''
-  
+
   if (competencyToDelete.value.fields) {
     return 'Cette action supprimera définitivement ce domaine et tous ses champs, compétences et évaluations associées.'
   }
@@ -841,10 +1145,10 @@ const getDeleteWarningText = () => {
 
 const saveCompetency = () => {
   if (!currentContext.value || !currentCompetency.value.name.trim()) return
-  
+
   const { type } = currentContext.value
   const isEdit = showEditModal.value
-  
+
   try {
     if (type === 'domain') {
       if (isEdit) {
@@ -895,21 +1199,21 @@ const saveCompetency = () => {
         })
       }
     }
-    
+
     console.log('Modification sauvegardée via store:', type, isEdit ? 'modifié' : 'ajouté')
   } catch (error) {
     console.error('Erreur lors de la sauvegarde:', error)
   }
-  
+
   closeModal()
 }
 
 const confirmDelete = () => {
   if (!competencyToDelete.value) return
-  
+
   try {
     const itemToDelete = competencyToDelete.value
-    
+
     // Identifier le type d'élément et le supprimer via le store
     if (itemToDelete.fields) {
       // Supprimer un domaine
@@ -931,7 +1235,7 @@ const confirmDelete = () => {
   } catch (error) {
     console.error('Erreur lors de la suppression:', error)
   }
-  
+
   closeModal()
 }
 
@@ -1158,7 +1462,6 @@ const closeModal = () => {
   margin-bottom: 4px;
 }
 
-
 /* Material 3 Icon Button - Standard (40x40dp) */
 .action-btn {
   width: 40px;
@@ -1171,7 +1474,7 @@ const closeModal = () => {
   justify-content: center;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  color: #49454f;
   position: relative;
 }
 
@@ -1194,17 +1497,17 @@ const closeModal = () => {
 }
 
 .action-btn:hover::before {
-  background: var(--md-sys-color-on-surface-variant, #49454f);
+  background: #49454f;
   opacity: 0.08;
 }
 
 .action-btn:focus::before {
-  background: var(--md-sys-color-on-surface-variant, #49454f);
+  background: #49454f;
   opacity: 0.12;
 }
 
 .action-btn:active::before {
-  background: var(--md-sys-color-on-surface-variant, #49454f);
+  background: #49454f;
   opacity: 0.12;
 }
 
@@ -1213,20 +1516,20 @@ const closeModal = () => {
 }
 
 .delete-action:hover {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .delete-action:hover::before {
-  background: var(--md-sys-color-error, #ba1a1a);
+  background: #ba1a1a;
   opacity: 0.08;
 }
 
 .delete-action:focus {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .delete-action:focus::before {
-  background: var(--md-sys-color-error, #ba1a1a);
+  background: #ba1a1a;
   opacity: 0.12;
 }
 
@@ -1237,32 +1540,32 @@ const closeModal = () => {
   right: 24px;
   z-index: 1001;
   pointer-events: auto;
-  
+
   height: 56px;
   min-width: 80px;
   max-width: none;
   padding: 0 16px;
-  
-  background: var(--md-sys-color-primary-container, #eaddff);
-  color: var(--md-sys-color-on-primary-container, #21005d);
+
+  background: #eaddff;
+  color: #21005d;
   border: none;
   border-radius: 16px;
-  
-  box-shadow: 
+
+  box-shadow:
     0px 1px 3px 0px rgba(0, 0, 0, 0.3),
     0px 4px 8px 3px rgba(0, 0, 0, 0.15);
-  
+
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  
-  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-label-large-size, 14px);
-  font-weight: var(--md-sys-typescale-label-large-weight, 500);
-  line-height: var(--md-sys-typescale-label-large-line-height, 20px);
+
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
   letter-spacing: 0.1px;
-  
+
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
@@ -1287,14 +1590,14 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-on-primary-container, #21005d);
+  background: #21005d;
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
   border-radius: inherit;
 }
 
 .extended-fab:hover {
-  box-shadow: 
+  box-shadow:
     0px 2px 3px 0px rgba(0, 0, 0, 0.3),
     0px 6px 10px 4px rgba(0, 0, 0, 0.15);
 }
@@ -1320,9 +1623,15 @@ const closeModal = () => {
 }
 
 @keyframes fabPress {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.96); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Material 3 Dialog Specifications - Same as students page */
@@ -1332,7 +1641,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-scrim, rgba(0, 0, 0, 0.32));
+  background: rgba(0, 0, 0, 0.32);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1342,14 +1651,18 @@ const closeModal = () => {
 }
 
 @keyframes scrimFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .dialog-container {
-  background: var(--md-sys-color-surface-container-high, #f3edf7);
+  background: #ffffff;
   border-radius: 28px;
-  box-shadow: 
+  box-shadow:
     0px 3px 1px -2px rgba(0, 0, 0, 0.2),
     0px 2px 2px 0px rgba(0, 0, 0, 0.14),
     0px 1px 5px 0px rgba(0, 0, 0, 0.12);
@@ -1362,13 +1675,13 @@ const closeModal = () => {
 }
 
 @keyframes dialogSlideIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.8) translateY(16px); 
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(16px);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1) translateY(0); 
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -1386,21 +1699,21 @@ const closeModal = () => {
 .dialog-icon {
   width: 24px;
   height: 24px;
-  color: var(--md-sys-color-secondary, #625b71);
+  color: #625b71;
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .alert-icon {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .dialog-headline {
-  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-headline-small-size, 24px);
-  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
-  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
-  color: var(--md-sys-color-on-surface, #1c1b1f);
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #1c1b1f;
   margin: 0;
   flex: 1;
 }
@@ -1410,11 +1723,11 @@ const closeModal = () => {
 }
 
 .dialog-supporting-text {
-  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-medium-size, 14px);
-  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
-  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #49454f;
   margin: 0 0 16px 0;
 }
 
@@ -1423,7 +1736,7 @@ const closeModal = () => {
 }
 
 .warning-text {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .dialog-form {
@@ -1440,11 +1753,11 @@ const closeModal = () => {
 }
 
 .text-field-label {
-  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  font-weight: var(--md-sys-typescale-body-small-weight, 400);
-  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #49454f;
   margin-bottom: 8px;
   transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -1452,11 +1765,11 @@ const closeModal = () => {
 .text-field-input,
 .text-field-textarea,
 .text-field-select {
-  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-large-size, 16px);
-  font-weight: var(--md-sys-typescale-body-large-weight, 400);
-  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
-  color: var(--md-sys-color-on-surface, #1c1b1f);
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #1c1b1f;
   background: transparent;
   border: none;
   outline: none;
@@ -1468,13 +1781,13 @@ const closeModal = () => {
 
 .text-field-input::placeholder,
 .text-field-textarea::placeholder {
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  color: #49454f;
   opacity: 0.6;
 }
 
 .text-field-underline {
   height: 1px;
-  background: var(--md-sys-color-outline, #79747e);
+  background: #79747e;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
 }
@@ -1486,7 +1799,7 @@ const closeModal = () => {
   left: 50%;
   right: 50%;
   height: 2px;
-  background: var(--md-sys-color-primary, #6750a4);
+  background: #6750a4;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -1501,7 +1814,7 @@ const closeModal = () => {
 .text-field-textarea:focus ~ .text-field-label,
 .text-field-select:focus ~ .text-field-label,
 .text-field:focus-within .text-field-label {
-  color: var(--md-sys-color-primary, #6750a4);
+  color: #6750a4;
 }
 
 /* Styles pour l'affichage du contexte dans le modal */
@@ -1533,11 +1846,11 @@ const closeModal = () => {
 }
 
 .text-button {
-  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-label-large-size, 14px);
-  font-weight: var(--md-sys-typescale-label-large-weight, 500);
-  line-height: var(--md-sys-typescale-label-large-line-height, 20px);
-  color: var(--md-sys-color-primary, #6750a4);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6750a4;
   background: transparent;
   border: none;
   border-radius: 20px;
@@ -1556,7 +1869,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-primary, #6750a4);
+  background: #6750a4;
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -1574,12 +1887,12 @@ const closeModal = () => {
 }
 
 .filled-button {
-  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-label-large-size, 14px);
-  font-weight: var(--md-sys-typescale-label-large-weight, 500);
-  line-height: var(--md-sys-typescale-label-large-line-height, 20px);
-  color: var(--md-sys-color-on-primary, #ffffff);
-  background: var(--md-sys-color-primary, #6750a4);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #ffffff;
+  background: #6750a4;
   border: none;
   border-radius: 20px;
   padding: 10px 24px;
@@ -1588,7 +1901,9 @@ const closeModal = () => {
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .filled-button::before {
@@ -1598,7 +1913,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--md-sys-color-on-primary, #ffffff);
+  background: #ffffff;
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -1616,12 +1931,12 @@ const closeModal = () => {
 }
 
 .filled-button.destructive {
-  background: var(--md-sys-color-error, #ba1a1a);
-  color: var(--md-sys-color-on-error, #ffffff);
+  background: #ba1a1a;
+  color: #ffffff;
 }
 
 .filled-button.destructive::before {
-  background: var(--md-sys-color-on-error, #ffffff);
+  background: #ffffff;
 }
 
 /* Responsive */
@@ -1629,55 +1944,55 @@ const closeModal = () => {
   .competencies-page {
     padding: 1rem;
   }
-  
+
   .page-header {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   /* Ajustements pour l'arbre sur mobile */
   .field-node {
     padding-left: 12px;
   }
-  
+
   .competency-node {
     padding-left: 24px;
   }
-  
+
   .specific-competency-node {
     padding-left: 36px;
   }
-  
+
   .domain-node .node-content {
     padding: 10px 12px;
   }
-  
+
   .field-node .node-content {
     padding: 8px 12px;
   }
-  
+
   .competency-node .node-content {
     padding: 6px 12px;
   }
-  
+
   .specific-competency-node .node-content {
     padding: 4px 12px;
   }
-  
+
   .action-btn {
     width: 36px;
     height: 36px;
   }
-  
+
   .action-btn .material-symbols-outlined {
     font-size: 18px;
   }
-  
+
   .extended-fab {
     position: fixed !important;
     bottom: 16px;
@@ -1686,34 +2001,34 @@ const closeModal = () => {
     padding: 0 16px;
     z-index: 1001;
   }
-  
+
   .fab-label {
     font-size: 13px;
   }
-  
+
   .dialog-scrim {
     padding: 8px;
   }
-  
+
   .dialog-container {
     min-width: 280px;
     max-width: calc(100vw - 16px);
   }
-  
+
   .dialog-header {
     padding: 16px 16px 12px 16px;
   }
-  
+
   .dialog-content {
     padding: 0 16px 16px 16px;
   }
-  
+
   .dialog-actions {
     padding: 12px 16px 16px 16px;
     flex-direction: column-reverse;
     gap: 8px;
   }
-  
+
   .text-button,
   .filled-button {
     width: 100%;
@@ -1726,31 +2041,31 @@ const closeModal = () => {
   .field-node {
     padding-left: 8px;
   }
-  
+
   .competency-node {
     padding-left: 16px;
   }
-  
+
   .specific-competency-node {
     padding-left: 24px;
   }
-  
+
   .domain-node .node-content {
     padding: 8px 8px;
   }
-  
+
   .field-node .node-content {
     padding: 6px 8px;
   }
-  
+
   .competency-node .node-content {
     padding: 4px 8px;
   }
-  
+
   .specific-competency-node .node-content {
     padding: 3px 8px;
   }
-  
+
   .extended-fab {
     position: fixed !important;
     bottom: 12px;
@@ -1760,11 +2075,11 @@ const closeModal = () => {
     min-width: 72px;
     z-index: 1001;
   }
-  
+
   .fab-icon {
     font-size: 22px;
   }
-  
+
   .fab-label {
     font-size: 12px;
   }

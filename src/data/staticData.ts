@@ -1,9 +1,4 @@
-import type { 
-  Student, 
-  CompetencyFramework, 
-  Evaluation, 
-  EvaluationResult 
-} from '@/types/evaluation'
+import type { Student, CompetencyFramework, Evaluation, EvaluationResult } from '@/types/evaluation'
 
 export const STUDENTS: Student[] = [
   { id: 'student-01', firstName: 'Alice', lastName: 'Martin', displayName: 'Alice M.' },
@@ -66,13 +61,13 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
                 {
                   id: 'spec-ecoute-2',
                   name: 'Écouter des textes documentaires et retenir des informations',
-                  description: 'Extraire l\'information pertinente d\'un discours informatif'
+                  description: "Extraire l'information pertinente d'un discours informatif"
                 }
               ]
             },
             {
               id: 'comp-expression',
-              name: 'S\'exprimer à l\'oral',
+              name: "S'exprimer à l'oral",
               description: 'Produire des messages oraux adaptés',
               specificCompetencies: [
                 {
@@ -91,7 +86,7 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
         },
         {
           id: 'field-lecture',
-          name: 'Lecture et compréhension de l\'écrit',
+          name: "Lecture et compréhension de l'écrit",
           description: 'Décodage et compréhension de textes écrits',
           competencies: [
             {
@@ -114,7 +109,7 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
             {
               id: 'comp-comprendre-texte',
               name: 'Comprendre un texte',
-              description: 'Construire le sens d\'un texte écrit',
+              description: "Construire le sens d'un texte écrit",
               specificCompetencies: [
                 {
                   id: 'spec-comprendre-1',
@@ -133,11 +128,11 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
         {
           id: 'field-ecriture',
           name: 'Écriture',
-          description: 'Production d\'écrits variés',
+          description: "Production d'écrits variés",
           competencies: [
             {
               id: 'comp-ecrire',
-              name: 'Écrire des textes en commençant à s\'approprier une démarche',
+              name: "Écrire des textes en commençant à s'approprier une démarche",
               description: 'Planifier, mettre en texte, réviser',
               specificCompetencies: [
                 {
@@ -174,12 +169,12 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
                 {
                   id: 'spec-nombres-1',
                   name: 'Dénombrer, constituer et comparer des collections',
-                  description: 'Quantifier et comparer des ensembles d\'objets'
+                  description: "Quantifier et comparer des ensembles d'objets"
                 },
                 {
                   id: 'spec-nombres-2',
                   name: 'Utiliser diverses représentations des nombres',
-                  description: 'Passer d\'une représentation à l\'autre'
+                  description: "Passer d'une représentation à l'autre"
                 }
               ]
             },
@@ -209,7 +204,7 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
           competencies: [
             {
               id: 'comp-espace',
-              name: 'Se repérer et se déplacer dans l\'espace',
+              name: "Se repérer et se déplacer dans l'espace",
               description: 'Orientation et localisation spatiale',
               specificCompetencies: [
                 {
@@ -219,7 +214,7 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
                 },
                 {
                   id: 'spec-espace-2',
-                  name: 'Programmer les déplacements d\'un robot',
+                  name: "Programmer les déplacements d'un robot",
                   description: 'Concevoir et coder des parcours'
                 }
               ]
@@ -282,51 +277,56 @@ export const COMPETENCY_FRAMEWORK: CompetencyFramework = {
 function generateRandomResults(): EvaluationResult[] {
   const results: EvaluationResult[] = []
   const levels = ['A', 'B', 'C', 'D', 'E', 'N/A'] as const
-  
+
   // Function to get all competency IDs recursively
   function getAllCompetencyIds(framework: CompetencyFramework): string[] {
     const ids: string[] = []
-    
-    framework.domains.forEach(domain => {
-      domain.fields.forEach(field => {
-        field.competencies.forEach(competency => {
+
+    framework.domains.forEach((domain) => {
+      domain.fields.forEach((field) => {
+        field.competencies.forEach((competency) => {
           ids.push(competency.id)
-          competency.specificCompetencies.forEach(specific => {
+          competency.specificCompetencies.forEach((specific) => {
             ids.push(specific.id)
           })
         })
       })
     })
-    
+
     return ids
   }
-  
+
   const allCompetencyIds = getAllCompetencyIds(COMPETENCY_FRAMEWORK)
-  
+
   // Generate results for each student and competency
-  STUDENTS.forEach(student => {
-    allCompetencyIds.forEach(competencyId => {
+  STUDENTS.forEach((student) => {
+    allCompetencyIds.forEach((competencyId) => {
       // Generate some variation in results (not all students have all evaluations)
-      if (Math.random() > 0.1) { // 90% chance of having a result
+      if (Math.random() > 0.1) {
+        // 90% chance of having a result
         results.push({
           studentId: student.id,
           competencyId: competencyId,
           level: levels[Math.floor(Math.random() * levels.length)],
-          evaluatedAt: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString()
+          evaluatedAt: new Date(
+            2025,
+            Math.floor(Math.random() * 12),
+            Math.floor(Math.random() * 28) + 1
+          ).toISOString()
         })
       }
     })
   })
-  
+
   return results
 }
 
 export const SAMPLE_EVALUATION: Evaluation = {
-  id: 'eval-2024-t1',
-  name: 'Évaluation Trimestre 1 - 2024',
-  description: 'Première évaluation de l\'année scolaire 2024',
+  id: 'eval-2025-t1',
+  name: 'Évaluation Trimestre 1 - 2025-2026',
+  description: "Première évaluation de l'année scolaire 2025-2026",
   frameworkId: 'framework-fr-primary',
   classId: 'class-cm1-a',
-  createdAt: '2024-01-15T08:00:00.000Z',
+  createdAt: '2025-01-15T08:00:00.000Z',
   results: generateRandomResults()
 }

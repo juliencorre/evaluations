@@ -110,12 +110,15 @@ app-name/
 Before committing your changes, you can test the entire CI/CD pipeline locally to catch issues early:
 
 ### Full Pipeline Test
+
 ```bash
 npm run test:ci
 ```
+
 This runs all CI/CD steps in sequence:
+
 1. ✅ Check prerequisites
-2. 📦 Install dependencies (`npm ci`)  
+2. 📦 Install dependencies (`npm ci`)
 3. 🔍 Run ESLint
 4. 🧪 Run unit tests
 5. 🏗️ Build production bundle
@@ -123,25 +126,31 @@ This runs all CI/CD steps in sequence:
 7. 💡 Run Lighthouse CI with quality thresholds
 
 ### Quick Test (Development)
+
 ```bash
 npm run test:ci:fast
 ```
+
 Skips E2E and Lighthouse tests for faster feedback during development.
 
 ### Benefits
+
 - **Early Detection**: Catch CI failures before pushing
 - **Save Time**: Avoid failed CI builds on GitHub
 - **Confidence**: Know your changes will pass before committing
 - **Offline Testing**: Test without internet connection
 
 ### Exit Codes
+
 - `0`: All tests passed ✅
 - `1`: One or more tests failed ❌
 
 The script provides detailed error messages and a summary report to help you fix issues quickly.
 
 ### Optional: Pre-commit Hook
+
 Automatically run CI tests before each commit:
+
 ```bash
 # Enable pre-commit hook
 cp scripts/pre-commit-hook .git/hooks/pre-commit

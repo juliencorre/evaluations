@@ -1,11 +1,7 @@
 <template>
   <main role="main">
     <h1 class="visually-hidden">Tableau d'évaluation des compétences</h1>
-    <EvaluationTable
-      :evaluation="evaluation"
-      :students="allStudents"
-      :framework="framework"
-    />
+    <EvaluationTable :evaluation="evaluation" :students="allStudents" :framework="framework" />
   </main>
 </template>
 

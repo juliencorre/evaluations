@@ -32,13 +32,17 @@ onMounted(() => {
 
 const install = async () => {
   if (deferredPrompt && typeof deferredPrompt === 'object' && 'prompt' in deferredPrompt) {
-    ;(deferredPrompt as { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }).prompt()
-    const { outcome } = await (deferredPrompt as { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }).userChoice
-    
+    ;(
+      deferredPrompt as { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }
+    ).prompt()
+    const { outcome } = await (
+      deferredPrompt as { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }
+    ).userChoice
+
     if (outcome === 'accepted') {
       showPrompt.value = false
     }
-    
+
     deferredPrompt = null
   }
 }
@@ -117,7 +121,7 @@ const dismiss = () => {
     left: 10px;
     right: 10px;
   }
-  
+
   .prompt-actions {
     flex-direction: column;
   }

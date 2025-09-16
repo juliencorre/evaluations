@@ -9,7 +9,7 @@
           @click="activeView = 'dashboard'"
         >
           <svg class="rail-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3,13H11V3H3M3,21H11V15H3M13,21H21V11H13M13,3V9H21V3"/>
+            <path d="M3,13H11V3H3M3,21H11V15H3M13,21H21V11H13M13,3V9H21V3" />
           </svg>
           <span class="rail-label">Dashboard</span>
         </button>
@@ -20,7 +20,9 @@
           @click="activeView = 'class-analysis'"
         >
           <svg class="rail-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
+            <path
+              d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"
+            />
           </svg>
           <span class="rail-label">Analyse classe</span>
         </button>
@@ -31,7 +33,9 @@
           @click="activeView = 'student-analysis'"
         >
           <svg class="rail-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+            <path
+              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+            />
           </svg>
           <span class="rail-label">Analyse élèves</span>
         </button>
@@ -45,7 +49,7 @@
           <div class="header-text">
             <h1 class="page-title">
               <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
               </svg>
               {{ getPageTitle() }}
             </h1>
@@ -55,11 +59,17 @@
           </div>
 
           <!-- Global Export Button -->
-          <div class="header-actions" v-if="activeView === 'student-analysis'">
-            <button class="export-button export-all" @click="exportAllStudents" title="Exporter tous les élèves en PDF">
+          <div v-if="activeView === 'student-analysis'" class="header-actions">
+            <button
+              class="export-button export-all"
+              title="Exporter tous les élèves en PDF"
+              @click="exportAllStudents"
+            >
               <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                <path d="M12,11L16,15H13V19H11V15H8L12,11Z"/>
+                <path
+                  d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+                />
+                <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
               </svg>
               Exporter tous les élèves
             </button>
@@ -68,14 +78,14 @@
       </header>
 
       <!-- Dashboard View -->
-      <div class="page-content" v-if="activeView === 'dashboard'">
+      <div v-if="activeView === 'dashboard'" class="page-content">
         <!-- Métriques principales -->
         <section class="metrics-section">
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-header">
                 <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9,11H7v6h2V11zm4-4h-2v10h2V7zm4-3h-2v13h2V4z"/>
+                  <path d="M9,11H7v6h2V11zm4-4h-2v10h2V7zm4-3h-2v13h2V4z" />
                 </svg>
                 <div class="metric-info">
                   <span class="metric-label">Moyenne générale</span>
@@ -84,7 +94,9 @@
               </div>
               <div class="metric-trend positive">
                 <svg class="trend-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z"/>
+                  <path
+                    d="M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z"
+                  />
                 </svg>
                 <span>+0.2 points</span>
               </div>
@@ -103,7 +115,7 @@
               </div>
               <div class="chart-content">
                 <div class="level-distribution">
-                  <div class="level-item" v-for="level in levelDistribution" :key="level.name">
+                  <div v-for="level in levelDistribution" :key="level.name" class="level-item">
                     <div class="level-info">
                       <span class="level-name">{{ level.name }}</span>
                       <span class="level-count">{{ level.count }} élèves</span>
@@ -134,10 +146,15 @@
                       <!-- Grille -->
                       <defs>
                         <pattern id="grid" width="40" height="25" patternUnits="userSpaceOnUse">
-                          <path d="M 40 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                          <path
+                            d="M 40 0 L 0 0 0 25"
+                            fill="none"
+                            stroke="#e0e0e0"
+                            stroke-width="1"
+                          />
                         </pattern>
                       </defs>
-                      <rect width="400" height="200" fill="url(#grid)"/>
+                      <rect width="400" height="200" fill="url(#grid)" />
 
                       <!-- Courbe de progression -->
                       <path
@@ -148,15 +165,15 @@
                       />
 
                       <!-- Points de données -->
-                      <circle cx="50" cy="150" r="4" fill="#6750a4"/>
-                      <circle cx="90" cy="140" r="4" fill="#6750a4"/>
-                      <circle cx="130" cy="130" r="4" fill="#6750a4"/>
-                      <circle cx="170" cy="125" r="4" fill="#6750a4"/>
-                      <circle cx="210" cy="120" r="4" fill="#6750a4"/>
-                      <circle cx="250" cy="110" r="4" fill="#6750a4"/>
-                      <circle cx="290" cy="100" r="4" fill="#6750a4"/>
-                      <circle cx="330" cy="95" r="4" fill="#6750a4"/>
-                      <circle cx="370" cy="90" r="4" fill="#6750a4"/>
+                      <circle cx="50" cy="150" r="4" fill="#6750a4" />
+                      <circle cx="90" cy="140" r="4" fill="#6750a4" />
+                      <circle cx="130" cy="130" r="4" fill="#6750a4" />
+                      <circle cx="170" cy="125" r="4" fill="#6750a4" />
+                      <circle cx="210" cy="120" r="4" fill="#6750a4" />
+                      <circle cx="250" cy="110" r="4" fill="#6750a4" />
+                      <circle cx="290" cy="100" r="4" fill="#6750a4" />
+                      <circle cx="330" cy="95" r="4" fill="#6750a4" />
+                      <circle cx="370" cy="90" r="4" fill="#6750a4" />
                     </svg>
                   </div>
                   <div class="chart-labels">
@@ -175,7 +192,7 @@
       </div>
 
       <!-- Class Analysis View -->
-      <div class="page-content" v-if="activeView === 'class-analysis'">
+      <div v-if="activeView === 'class-analysis'" class="page-content">
         <section class="charts-section">
           <div class="chart-card">
             <div class="card-header">
@@ -183,7 +200,7 @@
               <p class="card-subtitle">Performance des différentes classes</p>
             </div>
             <div class="chart-content">
-              <p style="text-align: center; color: #49454f; padding: 40px;">
+              <p style="text-align: center; color: #49454f; padding: 40px">
                 Contenu de l'analyse par classe à développer
               </p>
             </div>
@@ -192,7 +209,7 @@
       </div>
 
       <!-- Student Analysis View -->
-      <div class="page-content" v-if="activeView === 'student-analysis'">
+      <div v-if="activeView === 'student-analysis'" class="page-content">
         <!-- Student Selection and Filters -->
         <section class="controls-section">
           <div class="controls-grid">
@@ -234,20 +251,28 @@
         </section>
 
         <!-- Student Analysis Chart -->
-        <section class="charts-section" v-if="selectedStudent">
+        <section v-if="selectedStudent" class="charts-section">
           <div class="chart-card">
             <div class="card-header">
               <div class="card-header-content">
                 <div class="card-title-group">
                   <h3 class="card-title">{{ getSelectedStudentName() }}</h3>
-                  <p class="card-subtitle">{{ getMetricTypeLabel() }} - Résultats des évaluations de l'année</p>
+                  <p class="card-subtitle">
+                    {{ getMetricTypeLabel() }} - Résultats des évaluations de l'année
+                  </p>
                 </div>
 
                 <!-- Individual Export Button -->
-                <button class="export-button export-single" @click="exportStudentChart" title="Exporter ce graphique en PDF">
+                <button
+                  class="export-button export-single"
+                  title="Exporter ce graphique en PDF"
+                  @click="exportStudentChart"
+                >
                   <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                    <path d="M12,11L16,15H13V19H11V15H8L12,11Z"/>
+                    <path
+                      d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+                    />
+                    <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
                   </svg>
                 </button>
               </div>
@@ -255,18 +280,18 @@
             <div class="chart-content">
               <!-- Legend -->
               <div class="chart-legend">
-                <div class="legend-item" v-for="evaluation in evaluationPeriods" :key="evaluation.id">
+                <div
+                  v-for="evaluation in evaluationPeriods"
+                  :key="evaluation.id"
+                  class="legend-item"
+                >
                   <div class="legend-color" :style="{ backgroundColor: evaluation.color }"></div>
                   <span class="legend-label">{{ evaluation.name }}</span>
                 </div>
               </div>
 
               <div class="horizontal-bar-chart">
-                <div
-                  v-for="item in getStudentData()"
-                  :key="item.name"
-                  class="bar-item"
-                >
+                <div v-for="item in getStudentData()" :key="item.name" class="bar-item">
                   <div class="bar-info">
                     <span class="bar-label">{{ item.name }}</span>
                   </div>
@@ -295,15 +320,19 @@
         </section>
 
         <!-- No Student Selected State -->
-        <section class="charts-section" v-else>
+        <section v-else class="charts-section">
           <div class="chart-card">
             <div class="chart-content">
               <div class="empty-state">
                 <svg class="empty-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                  <path
+                    d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                  />
                 </svg>
                 <h4 class="empty-title">Sélectionnez un élève</h4>
-                <p class="empty-description">Choisissez un élève dans la liste pour voir ses résultats d'évaluation</p>
+                <p class="empty-description">
+                  Choisissez un élève dans la liste pour voir ses résultats d'évaluation
+                </p>
               </div>
             </div>
           </div>
@@ -313,6 +342,7 @@
   </div>
 </template>
 
+/* eslint-disable no-alert */
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -331,7 +361,7 @@ const levelDistribution = ref([
     class: 'level-not-acquired'
   },
   {
-    name: 'En cours d\'acquisition',
+    name: "En cours d'acquisition",
     count: 28,
     percentage: 35,
     class: 'level-in-progress'
@@ -386,127 +416,67 @@ const studentData = ref({
     domains: [
       {
         name: 'Français',
-        evaluations: [
-          { score: 2.8 },
-          { score: 3.1 },
-          { score: 3.2 }
-        ]
+        evaluations: [{ score: 2.8 }, { score: 3.1 }, { score: 3.2 }]
       },
       {
         name: 'Mathématiques',
-        evaluations: [
-          { score: 2.5 },
-          { score: 2.7 },
-          { score: 2.8 }
-        ]
+        evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }]
       },
       {
         name: 'Histoire-Géographie',
-        evaluations: [
-          { score: 3.2 },
-          { score: 3.4 },
-          { score: 3.5 }
-        ]
+        evaluations: [{ score: 3.2 }, { score: 3.4 }, { score: 3.5 }]
       },
       {
         name: 'Sciences',
-        evaluations: [
-          { score: 2.6 },
-          { score: 2.8 },
-          { score: 2.9 }
-        ]
+        evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }]
       },
       {
         name: 'Arts',
-        evaluations: [
-          { score: 3.5 },
-          { score: 3.7 },
-          { score: 3.8 }
-        ]
+        evaluations: [{ score: 3.5 }, { score: 3.7 }, { score: 3.8 }]
       }
     ],
     fields: [
       {
         name: 'Lecture',
-        evaluations: [
-          { score: 2.9 },
-          { score: 3.0 },
-          { score: 3.1 }
-        ]
+        evaluations: [{ score: 2.9 }, { score: 3.0 }, { score: 3.1 }]
       },
       {
         name: 'Écriture',
-        evaluations: [
-          { score: 3.0 },
-          { score: 3.2 },
-          { score: 3.3 }
-        ]
+        evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }]
       },
       {
         name: 'Calcul',
-        evaluations: [
-          { score: 2.4 },
-          { score: 2.6 },
-          { score: 2.7 }
-        ]
+        evaluations: [{ score: 2.4 }, { score: 2.6 }, { score: 2.7 }]
       },
       {
         name: 'Géométrie',
-        evaluations: [
-          { score: 2.6 },
-          { score: 2.8 },
-          { score: 2.9 }
-        ]
+        evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }]
       },
       {
         name: 'Mesures',
-        evaluations: [
-          { score: 2.5 },
-          { score: 2.7 },
-          { score: 2.8 }
-        ]
+        evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }]
       }
     ],
     competencies: [
       {
         name: 'Comprendre un texte',
-        evaluations: [
-          { score: 2.7 },
-          { score: 2.9 },
-          { score: 3.0 }
-        ]
+        evaluations: [{ score: 2.7 }, { score: 2.9 }, { score: 3.0 }]
       },
       {
         name: 'Rédiger un paragraphe',
-        evaluations: [
-          { score: 2.9 },
-          { score: 3.1 },
-          { score: 3.2 }
-        ]
+        evaluations: [{ score: 2.9 }, { score: 3.1 }, { score: 3.2 }]
       },
       {
         name: 'Résoudre un problème',
-        evaluations: [
-          { score: 2.3 },
-          { score: 2.5 },
-          { score: 2.6 }
-        ]
+        evaluations: [{ score: 2.3 }, { score: 2.5 }, { score: 2.6 }]
       },
       {
         name: 'Calculer mentalement',
-        evaluations: [
-          { score: 2.5 },
-          { score: 2.7 },
-          { score: 2.8 }
-        ]
+        evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }]
       },
       {
-        name: 'Se repérer dans l\'espace',
-        evaluations: [
-          { score: 3.0 },
-          { score: 3.2 },
-          { score: 3.3 }
-        ]
+        name: "Se repérer dans l'espace",
+        evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }]
       }
     ]
   },
@@ -514,127 +484,67 @@ const studentData = ref({
     domains: [
       {
         name: 'Français',
-        evaluations: [
-          { score: 2.5 },
-          { score: 2.7 },
-          { score: 2.8 }
-        ]
+        evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }]
       },
       {
         name: 'Mathématiques',
-        evaluations: [
-          { score: 2.8 },
-          { score: 3.0 },
-          { score: 3.1 }
-        ]
+        evaluations: [{ score: 2.8 }, { score: 3.0 }, { score: 3.1 }]
       },
       {
         name: 'Histoire-Géographie',
-        evaluations: [
-          { score: 2.6 },
-          { score: 2.8 },
-          { score: 2.9 }
-        ]
+        evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }]
       },
       {
         name: 'Sciences',
-        evaluations: [
-          { score: 3.0 },
-          { score: 3.2 },
-          { score: 3.3 }
-        ]
+        evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }]
       },
       {
         name: 'Arts',
-        evaluations: [
-          { score: 2.9 },
-          { score: 3.1 },
-          { score: 3.2 }
-        ]
+        evaluations: [{ score: 2.9 }, { score: 3.1 }, { score: 3.2 }]
       }
     ],
     fields: [
       {
         name: 'Lecture',
-        evaluations: [
-          { score: 2.6 },
-          { score: 2.8 },
-          { score: 2.9 }
-        ]
+        evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }]
       },
       {
         name: 'Écriture',
-        evaluations: [
-          { score: 2.4 },
-          { score: 2.6 },
-          { score: 2.7 }
-        ]
+        evaluations: [{ score: 2.4 }, { score: 2.6 }, { score: 2.7 }]
       },
       {
         name: 'Calcul',
-        evaluations: [
-          { score: 2.9 },
-          { score: 3.1 },
-          { score: 3.2 }
-        ]
+        evaluations: [{ score: 2.9 }, { score: 3.1 }, { score: 3.2 }]
       },
       {
         name: 'Géométrie',
-        evaluations: [
-          { score: 2.7 },
-          { score: 2.9 },
-          { score: 3.0 }
-        ]
+        evaluations: [{ score: 2.7 }, { score: 2.9 }, { score: 3.0 }]
       },
       {
         name: 'Mesures',
-        evaluations: [
-          { score: 2.8 },
-          { score: 3.0 },
-          { score: 3.1 }
-        ]
+        evaluations: [{ score: 2.8 }, { score: 3.0 }, { score: 3.1 }]
       }
     ],
     competencies: [
       {
         name: 'Comprendre un texte',
-        evaluations: [
-          { score: 2.5 },
-          { score: 2.7 },
-          { score: 2.8 }
-        ]
+        evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }]
       },
       {
         name: 'Rédiger un paragraphe',
-        evaluations: [
-          { score: 2.5 },
-          { score: 2.7 },
-          { score: 2.8 }
-        ]
+        evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }]
       },
       {
         name: 'Résoudre un problème',
-        evaluations: [
-          { score: 2.8 },
-          { score: 3.0 },
-          { score: 3.1 }
-        ]
+        evaluations: [{ score: 2.8 }, { score: 3.0 }, { score: 3.1 }]
       },
       {
         name: 'Calculer mentalement',
-        evaluations: [
-          { score: 3.0 },
-          { score: 3.2 },
-          { score: 3.3 }
-        ]
+        evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }]
       },
       {
-        name: 'Se repérer dans l\'espace',
-        evaluations: [
-          { score: 2.6 },
-          { score: 2.8 },
-          { score: 2.9 }
-        ]
+        name: "Se repérer dans l'espace",
+        evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }]
       }
     ]
   }
@@ -657,24 +567,24 @@ const getPageTitle = () => {
 const getPageDescription = () => {
   switch (activeView.value) {
     case 'dashboard':
-      return 'Vue d\'ensemble des performances et tendances des évaluations'
+      return "Vue d'ensemble des performances et tendances des évaluations"
     case 'class-analysis':
       return 'Analyse détaillée des performances par classe'
     case 'student-analysis':
       return 'Analyse individuelle des performances des élèves'
     default:
-      return 'Vue d\'ensemble des performances et tendances des évaluations'
+      return "Vue d'ensemble des performances et tendances des évaluations"
   }
 }
 
 // Student analysis helper functions
 const getSelectedStudentName = () => {
-  const student = students.value.find(s => s.id === selectedStudent.value)
+  const student = students.value.find((s: { id: string; name: string }) => s.id === selectedStudent.value)
   return student ? student.name : ''
 }
 
 const getMetricTypeLabel = () => {
-  const type = metricTypes.value.find(t => t.value === selectedMetricType.value)
+  const type = metricTypes.value.find((t: { value: string; label: string }) => t.value === selectedMetricType.value)
   return type ? type.label : ''
 }
 
@@ -683,13 +593,6 @@ const getStudentData = () => {
     return []
   }
   return studentData.value[selectedStudent.value][selectedMetricType.value] || []
-}
-
-const getBarClass = (score: number) => {
-  if (score < 1.5) return 'bar-not-acquired'
-  if (score < 2.5) return 'bar-in-progress'
-  if (score < 3.5) return 'bar-acquired'
-  return 'bar-expert'
 }
 
 // Export functions
@@ -702,6 +605,11 @@ const exportStudentChart = () => {
 
   // Here you would implement the actual PDF generation logic
   // For example using libraries like jsPDF or html2canvas
+   
+   
+   
+   
+   
   alert(`Export en cours pour ${studentName} - ${metricType}`)
 }
 
@@ -711,6 +619,11 @@ const exportAllStudents = () => {
 
   // Here you would implement the logic to export all students
   // This could iterate through all students and generate a comprehensive PDF
+   
+   
+   
+   
+   
   alert('Export en cours pour tous les élèves')
 }
 </script>
@@ -719,7 +632,7 @@ const exportAllStudents = () => {
 .analysis-page {
   display: flex;
   margin: 0;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 100%;
   min-height: 100vh;
 }
@@ -777,7 +690,12 @@ const exportAllStudents = () => {
 }
 
 .rail-label {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1rem;
@@ -815,7 +733,12 @@ const exportAllStudents = () => {
 }
 
 .page-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 2rem;
   font-weight: 400;
   line-height: 2.5rem;
@@ -833,7 +756,12 @@ const exportAllStudents = () => {
 }
 
 .page-description {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5rem;
@@ -854,9 +782,14 @@ const exportAllStudents = () => {
   padding: 12px 16px;
   border: 1px solid #79747e;
   border-radius: 20px;
-  background: #FFFFFF;
+  background: #ffffff;
   color: #49454f;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -904,7 +837,7 @@ const exportAllStudents = () => {
 }
 
 .metric-card {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 16px;
   padding: 24px;
@@ -912,7 +845,9 @@ const exportAllStudents = () => {
 }
 
 .metric-card:hover {
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
 .metric-header {
@@ -938,7 +873,12 @@ const exportAllStudents = () => {
 }
 
 .metric-label {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
@@ -946,7 +886,12 @@ const exportAllStudents = () => {
 }
 
 .metric-value {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 2rem;
   font-weight: 400;
   line-height: 2.5rem;
@@ -982,7 +927,7 @@ const exportAllStudents = () => {
 }
 
 .chart-card {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 16px;
   padding: 24px;
@@ -990,7 +935,9 @@ const exportAllStudents = () => {
 }
 
 .chart-card:hover {
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
 .card-header {
@@ -1011,7 +958,12 @@ const exportAllStudents = () => {
 }
 
 .card-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.75rem;
@@ -1020,7 +972,12 @@ const exportAllStudents = () => {
 }
 
 .card-subtitle {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
@@ -1133,7 +1090,7 @@ const exportAllStudents = () => {
 }
 
 .control-card {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 16px;
   padding: 24px;
@@ -1145,7 +1102,12 @@ const exportAllStudents = () => {
 }
 
 .control-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5rem;
@@ -1158,8 +1120,13 @@ const exportAllStudents = () => {
   padding: 12px 16px;
   border: 1px solid #79747e;
   border-radius: 8px;
-  background: #FFFFFF;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #ffffff;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1rem;
   color: #1c1b1f;
   cursor: pointer;
@@ -1180,9 +1147,14 @@ const exportAllStudents = () => {
   padding: 10px 16px;
   border: 1px solid #79747e;
   border-radius: 20px;
-  background: #FFFFFF;
+  background: #ffffff;
   color: #49454f;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -1195,7 +1167,7 @@ const exportAllStudents = () => {
 
 .metric-type-button.active {
   background: #6750a4;
-  color: #FFFFFF;
+  color: #ffffff;
   border-color: #6750a4;
 }
 
@@ -1222,7 +1194,12 @@ const exportAllStudents = () => {
 }
 
 .legend-label {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   color: #1c1b1f;
@@ -1250,7 +1227,12 @@ const exportAllStudents = () => {
 }
 
 .bar-label {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   color: #1c1b1f;
@@ -1285,7 +1267,12 @@ const exportAllStudents = () => {
 }
 
 .bar-value {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.75rem;
   color: #49454f;
   min-width: 40px;
@@ -1310,7 +1297,12 @@ const exportAllStudents = () => {
 }
 
 .empty-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.25rem;
   font-weight: 500;
   color: #1c1b1f;
@@ -1318,12 +1310,16 @@ const exportAllStudents = () => {
 }
 
 .empty-description {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 0.875rem;
   color: #49454f;
   margin: 0;
 }
-
 
 /* Responsive Design */
 @media (max-width: 1200px) {

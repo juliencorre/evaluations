@@ -9,41 +9,64 @@
         </div>
 
         <div class="nav-destinations">
-          <router-link to="/" class="nav-destination" :class="{ active: $route.name === 'home' }" aria-current="page">
+          <router-link
+            to="/"
+            class="nav-destination"
+            :class="{ active: $route.name === 'home' }"
+            aria-current="page"
+          >
             <div class="nav-indicator"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
+                />
               </svg>
             </div>
             <span class="nav-label">Tableaux</span>
           </router-link>
 
-          <router-link to="/students" class="nav-destination" :class="{ active: $route.name === 'students' }">
+          <router-link
+            to="/students"
+            class="nav-destination"
+            :class="{ active: $route.name === 'students' }"
+          >
             <div class="nav-indicator"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                />
               </svg>
             </div>
             <span class="nav-label">Élèves</span>
           </router-link>
 
-          <router-link to="/competencies" class="nav-destination" :class="{ active: $route.name === 'competencies' }">
+          <router-link
+            to="/competencies"
+            class="nav-destination"
+            :class="{ active: $route.name === 'competencies' }"
+          >
             <div class="nav-indicator"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
               </svg>
             </div>
             <span class="nav-label">Compétences</span>
           </router-link>
 
-          <router-link to="/analysis" class="nav-destination" :class="{ active: $route.name === 'analysis' }">
+          <router-link
+            to="/analysis"
+            class="nav-destination"
+            :class="{ active: $route.name === 'analysis' }"
+          >
             <div class="nav-indicator"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
               </svg>
             </div>
             <span class="nav-label">Analyses</span>
@@ -53,13 +76,17 @@
         <div class="user-actions">
           <button class="icon-button" type="button" aria-label="Paramètres">
             <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+              <path
+                d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
+              />
             </svg>
           </button>
 
           <button class="user-avatar" type="button" aria-label="Profil utilisateur">
             <svg class="avatar-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"/>
+              <path
+                d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"
+              />
             </svg>
           </button>
         </div>
@@ -74,7 +101,7 @@
           @click="toggleMobileMenu"
         >
           <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+            <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
           </svg>
         </button>
 
@@ -82,56 +109,90 @@
 
         <button class="mobile-user-avatar" type="button" aria-label="Profil">
           <svg class="avatar-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"/>
+            <path
+              d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"
+            />
           </svg>
         </button>
       </div>
     </nav>
 
     <!-- Navigation Drawer (Mobile) -->
-    <div class="navigation-drawer" :class="{ 'is-open': isMobileMenuOpen }" @click="closeMobileMenu">
+    <div
+      class="navigation-drawer"
+      :class="{ 'is-open': isMobileMenuOpen }"
+      @click="closeMobileMenu"
+    >
       <div class="drawer-content" @click.stop>
         <div class="drawer-header">
           <h2 class="drawer-title">Navigation</h2>
-          <button class="close-button" @click="closeMobileMenu" aria-label="Fermer le menu">
+          <button class="close-button" aria-label="Fermer le menu" @click="closeMobileMenu">
             <svg class="close-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+              <path
+                d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+              />
             </svg>
           </button>
         </div>
 
         <nav class="drawer-nav">
-          <router-link to="/" class="drawer-destination" :class="{ active: $route.name === 'home' }" @click="closeMobileMenu">
+          <router-link
+            to="/"
+            class="drawer-destination"
+            :class="{ active: $route.name === 'home' }"
+            @click="closeMobileMenu"
+          >
             <div class="drawer-icon-container">
               <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
+                />
               </svg>
             </div>
             <span class="drawer-label">Tableaux d'évaluation</span>
           </router-link>
 
-          <router-link to="/students" class="drawer-destination" :class="{ active: $route.name === 'students' }" @click="closeMobileMenu">
+          <router-link
+            to="/students"
+            class="drawer-destination"
+            :class="{ active: $route.name === 'students' }"
+            @click="closeMobileMenu"
+          >
             <div class="drawer-icon-container">
               <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                />
               </svg>
             </div>
             <span class="drawer-label">Élèves</span>
           </router-link>
 
-          <router-link to="/competencies" class="drawer-destination" :class="{ active: $route.name === 'competencies' }" @click="closeMobileMenu">
+          <router-link
+            to="/competencies"
+            class="drawer-destination"
+            :class="{ active: $route.name === 'competencies' }"
+            @click="closeMobileMenu"
+          >
             <div class="drawer-icon-container">
               <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
               </svg>
             </div>
             <span class="drawer-label">Compétences</span>
           </router-link>
 
-          <router-link to="/analysis" class="drawer-destination" :class="{ active: $route.name === 'analysis' }" @click="closeMobileMenu">
+          <router-link
+            to="/analysis"
+            class="drawer-destination"
+            :class="{ active: $route.name === 'analysis' }"
+            @click="closeMobileMenu"
+          >
             <div class="drawer-icon-container">
               <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
               </svg>
             </div>
             <span class="drawer-label">Analyses</span>
@@ -144,7 +205,9 @@
           <button class="drawer-action" @click="closeMobileMenu">
             <div class="drawer-icon-container">
               <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                <path
+                  d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
+                />
               </svg>
             </div>
             <span class="drawer-label">Paramètres</span>
@@ -154,7 +217,11 @@
     </div>
 
     <!-- Scrim (Mobile overlay) -->
-    <div class="drawer-scrim" :class="{ 'is-visible': isMobileMenuOpen }" @click="closeMobileMenu"></div>
+    <div
+      class="drawer-scrim"
+      :class="{ 'is-visible': isMobileMenuOpen }"
+      @click="closeMobileMenu"
+    ></div>
   </header>
 </template>
 
@@ -175,23 +242,23 @@ function closeMobileMenu() {
 <style scoped>
 /* Material Design 3 Variables */
 :root {
-  --md-sys-color-primary: #006A6B;
-  --md-sys-color-on-primary: #FFFFFF;
-  --md-sys-color-primary-container: #6FF7F5;
+  --md-sys-color-primary: #006a6b;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #6ff7f5;
   --md-sys-color-on-primary-container: #002020;
-  --md-sys-color-secondary-container: #CCE8E7;
-  --md-sys-color-on-secondary-container: #041F1F;
-  --md-sys-color-surface: #FEFEFE;
-  --md-sys-color-on-surface: #1B1C1C;
-  --md-sys-color-surface-container: #F0F4F3;
-  --md-sys-color-surface-container-low: #F5F9F8;
-  --md-sys-color-surface-variant: #DBE4E4;
-  --md-sys-color-on-surface-variant: #3F4948;
-  --md-sys-color-outline: #6F7978;
-  --md-sys-color-outline-variant: #BFC8C7;
+  --md-sys-color-secondary-container: #cce8e7;
+  --md-sys-color-on-secondary-container: #041f1f;
+  --md-sys-color-surface: #fefefe;
+  --md-sys-color-on-surface: #1b1c1c;
+  --md-sys-color-surface-container: #f0f4f3;
+  --md-sys-color-surface-container-low: #f5f9f8;
+  --md-sys-color-surface-variant: #dbe4e4;
+  --md-sys-color-on-surface-variant: #3f4948;
+  --md-sys-color-outline: #6f7978;
+  --md-sys-color-outline-variant: #bfc8c7;
   --md-elevation-level-0: none;
-  --md-elevation-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
-  --md-elevation-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --md-elevation-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
 /* App Header */
@@ -199,13 +266,15 @@ function closeMobileMenu() {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 /* Top App Bar */
 .top-app-bar {
-  background: #FFFFFF;
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  background: #ffffff;
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
   width: 100%;
   position: relative;
 }
@@ -218,7 +287,7 @@ function closeMobileMenu() {
   padding: 0 24px;
   min-height: 64px;
   width: 100%;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .brand-section {
@@ -226,7 +295,12 @@ function closeMobileMenu() {
 }
 
 .brand-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.375rem;
   font-weight: 400;
   line-height: 1.75rem;
@@ -250,7 +324,12 @@ function closeMobileMenu() {
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
   border-radius: 16px;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-weight: 500;
   font-size: 0.75rem;
   line-height: 1rem;
@@ -258,7 +337,7 @@ function closeMobileMenu() {
   gap: 4px;
   min-width: 64px;
   min-height: 56px;
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
 }
 
@@ -294,7 +373,7 @@ function closeMobileMenu() {
   background: var(--md-sys-color-secondary-container);
   border-radius: 16px;
   opacity: 0;
-  transition: all 0.3s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
   z-index: 0;
 }
 
@@ -346,7 +425,7 @@ function closeMobileMenu() {
   border-radius: 20px;
   cursor: pointer;
   color: var(--md-sys-color-on-surface-variant);
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .icon-button:hover {
@@ -375,11 +454,15 @@ function closeMobileMenu() {
   border-radius: 16px;
   cursor: pointer;
   color: var(--md-sys-color-on-primary-container);
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .user-avatar:hover {
-  background-color: color-mix(in srgb, var(--md-sys-color-primary-container) 92%, var(--md-sys-color-on-primary-container) 8%);
+  background-color: color-mix(
+    in srgb,
+    var(--md-sys-color-primary-container) 92%,
+    var(--md-sys-color-on-primary-container) 8%
+  );
 }
 
 .user-avatar:focus-visible {
@@ -400,7 +483,7 @@ function closeMobileMenu() {
   padding: 0 16px;
   min-height: 64px;
   width: 100%;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .nav-drawer-button {
@@ -414,7 +497,7 @@ function closeMobileMenu() {
   border-radius: 24px;
   cursor: pointer;
   color: var(--md-sys-color-on-surface);
-  transition: background-color 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .nav-drawer-button:hover {
@@ -432,7 +515,12 @@ function closeMobileMenu() {
 }
 
 .mobile-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.375rem;
   font-weight: 400;
   line-height: 1.75rem;
@@ -451,11 +539,15 @@ function closeMobileMenu() {
   border-radius: 16px;
   cursor: pointer;
   color: var(--md-sys-color-on-primary-container);
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .mobile-user-avatar:hover {
-  background-color: color-mix(in srgb, var(--md-sys-color-primary-container) 92%, var(--md-sys-color-on-primary-container) 8%);
+  background-color: color-mix(
+    in srgb,
+    var(--md-sys-color-primary-container) 92%,
+    var(--md-sys-color-on-primary-container) 8%
+  );
 }
 
 .mobile-user-avatar:focus-visible {
@@ -471,12 +563,14 @@ function closeMobileMenu() {
   bottom: 0;
   width: 360px;
   max-width: 80vw;
-  background: #FFFFFF !important;
-  background-color: #FFFFFF !important;
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
   z-index: 1100;
   transform: translateX(-100%);
-  transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   visibility: hidden;
 }
 
@@ -490,7 +584,7 @@ function closeMobileMenu() {
   flex-direction: column;
   height: 100%;
   padding: 0;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .drawer-header {
@@ -498,12 +592,17 @@ function closeMobileMenu() {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-bottom: 1px solid #E0E0E0;
-  background: #FFFFFF;
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
 }
 
 .drawer-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.125rem;
   font-weight: 500;
   line-height: 1.5rem;
@@ -522,7 +621,7 @@ function closeMobileMenu() {
   border-radius: 20px;
   cursor: pointer;
   color: var(--md-sys-color-on-surface-variant);
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .close-button:hover {
@@ -543,7 +642,7 @@ function closeMobileMenu() {
 .drawer-nav {
   flex: 1;
   padding: 12px 0;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .drawer-destination {
@@ -552,7 +651,12 @@ function closeMobileMenu() {
   padding: 12px 24px;
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -560,7 +664,7 @@ function closeMobileMenu() {
   min-height: 56px;
   border-radius: 0 28px 28px 0;
   margin-right: 12px;
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .drawer-destination:hover {
@@ -615,7 +719,7 @@ function closeMobileMenu() {
 
 .drawer-actions {
   padding: 12px 0 24px 0;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .drawer-action {
@@ -625,7 +729,12 @@ function closeMobileMenu() {
   background: none;
   border: none;
   color: var(--md-sys-color-on-surface-variant);
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -636,7 +745,7 @@ function closeMobileMenu() {
   text-align: left;
   border-radius: 0 28px 28px 0;
   margin-right: 12px;
-  transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .drawer-action:hover {
@@ -660,7 +769,7 @@ function closeMobileMenu() {
   z-index: 1050;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .drawer-scrim.is-visible {
@@ -691,20 +800,20 @@ function closeMobileMenu() {
 
   .mobile-header {
     display: flex;
-    background: #FFFFFF;
+    background: #ffffff;
   }
 
   .top-app-bar {
     min-height: 64px;
-    background: #FFFFFF;
+    background: #ffffff;
   }
 
   .navigation-drawer {
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .drawer-content {
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 }
 
@@ -712,7 +821,7 @@ function closeMobileMenu() {
   .mobile-header {
     padding: 0 12px;
     min-height: 56px;
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .mobile-title {
@@ -722,24 +831,24 @@ function closeMobileMenu() {
 
   .navigation-drawer {
     width: 320px;
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .drawer-content {
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .drawer-header {
     padding: 12px 20px;
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .drawer-nav {
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .drawer-actions {
-    background: #FFFFFF !important;
+    background: #ffffff !important;
   }
 
   .drawer-destination,
@@ -752,28 +861,28 @@ function closeMobileMenu() {
 /* Dark Theme */
 @media (prefers-color-scheme: dark) {
   :root {
-    --md-sys-color-primary: #4DD6D4;
+    --md-sys-color-primary: #4dd6d4;
     --md-sys-color-on-primary: #003738;
-    --md-sys-color-primary-container: #004F50;
-    --md-sys-color-on-primary-container: #6FF7F5;
-    --md-sys-color-secondary-container: #1E3535;
-    --md-sys-color-on-secondary-container: #CCE8E7;
-    --md-sys-color-surface: #0E1515;
-    --md-sys-color-on-surface: #E1E3E2;
-    --md-sys-color-surface-container: #1A2020;
-    --md-sys-color-surface-container-low: #161B1B;
-    --md-sys-color-surface-variant: #3F4948;
-    --md-sys-color-on-surface-variant: #BFC8C7;
+    --md-sys-color-primary-container: #004f50;
+    --md-sys-color-on-primary-container: #6ff7f5;
+    --md-sys-color-secondary-container: #1e3535;
+    --md-sys-color-on-secondary-container: #cce8e7;
+    --md-sys-color-surface: #0e1515;
+    --md-sys-color-on-surface: #e1e3e2;
+    --md-sys-color-surface-container: #1a2020;
+    --md-sys-color-surface-container-low: #161b1b;
+    --md-sys-color-surface-variant: #3f4948;
+    --md-sys-color-on-surface-variant: #bfc8c7;
     --md-sys-color-outline: #899392;
-    --md-sys-color-outline-variant: #3F4948;
+    --md-sys-color-outline-variant: #3f4948;
   }
 
   .navigation-drawer {
-    background: #1A1C1C;
+    background: #1a1c1c;
   }
 
   .drawer-content {
-    background: #1A1C1C;
+    background: #1a1c1c;
   }
 }
 
@@ -787,7 +896,7 @@ function closeMobileMenu() {
   .nav-drawer-button,
   .close-button,
   .drawer-action {
-    transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
 }
 

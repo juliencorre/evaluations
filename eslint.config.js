@@ -6,7 +6,15 @@ import vueParser from 'vue-eslint-parser'
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'public/**', '*.config.js', '*.config.ts', 'generate-icons.js', 'lighthouserc.js']
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'public/**',
+      '*.config.js',
+      '*.config.ts',
+      'generate-icons.js',
+      'lighthouserc.js'
+    ]
   },
   js.configs.recommended,
   {

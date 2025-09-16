@@ -11,11 +11,11 @@
 
 <script setup lang="ts">
 import EvaluationTable from '@/components/EvaluationTable.vue'
-import { COMPETENCY_FRAMEWORK, SAMPLE_EVALUATION } from '@/data/staticData'
-import { useStudentsStore } from '@/stores/studentsStore'
+import { SAMPLE_EVALUATION } from '@/data/staticData'
+import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 
 const { allStudents } = useStudentsStore()
-const framework = COMPETENCY_FRAMEWORK
+const { framework } = useCompetencyFrameworkStore()
 const evaluation = SAMPLE_EVALUATION
 </script>
 

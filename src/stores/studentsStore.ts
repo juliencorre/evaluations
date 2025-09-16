@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
-import type { Student } from '@/types/evaluation'
-import { STUDENTS } from '@/data/staticData'
+import type { Student, CompetencyFramework } from '@/types/evaluation'
+import { STUDENTS, COMPETENCY_FRAMEWORK } from '@/data/staticData'
 
 // Store réactif global pour les élèves
 const students = ref<Student[]>([...STUDENTS])
@@ -79,5 +79,213 @@ export const useStudentsStore = () => {
     deleteStudent,
     getStudentById,
     resetStudents
+  }
+}
+
+// Store réactif global pour le framework de compétences
+const competencyFramework = ref<CompetencyFramework>(JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK)))
+
+// Actions pour manipuler le framework de compétences
+export const useCompetencyFrameworkStore = () => {
+  
+  // Getters
+  const framework = computed(() => competencyFramework.value)
+  
+  // Actions pour les domaines
+  const addDomain = (domainData: { name: string; description: string }) => {
+    const newDomain = {
+      id: `domain-${Date.now()}`,
+      name: domainData.name,
+      description: domainData.description,
+      fields: []
+    }
+    competencyFramework.value.domains.push(newDomain)
+    return newDomain
+  }
+  
+  const updateDomain = (domainId: string, updates: { name?: string; description?: string }) => {
+    const domain = competencyFramework.value.domains.find(d => d.id === domainId)
+    if (domain) {
+      Object.assign(domain, updates)
+      return domain
+    }
+    return null
+  }
+  
+  const deleteDomain = (domainId: string) => {
+    const index = competencyFramework.value.domains.findIndex(d => d.id === domainId)
+    if (index !== -1) {
+      const deletedDomain = competencyFramework.value.domains[index]
+      competencyFramework.value.domains.splice(index, 1)
+      return deletedDomain
+    }
+    return null
+  }
+  
+  // Actions pour les champs
+  const addField = (domainId: string, fieldData: { name: string; description: string }) => {
+    const domain = competencyFramework.value.domains.find(d => d.id === domainId)
+    if (domain) {
+      const newField = {
+        id: `field-${Date.now()}`,
+        name: fieldData.name,
+        description: fieldData.description,
+        competencies: []
+      }
+      domain.fields.push(newField)
+      return newField
+    }
+    return null
+  }
+  
+  const updateField = (fieldId: string, updates: { name?: string; description?: string }) => {
+    for (const domain of competencyFramework.value.domains) {
+      const field = domain.fields.find(f => f.id === fieldId)
+      if (field) {
+        Object.assign(field, updates)
+        return field
+      }
+    }
+    return null
+  }
+  
+  const deleteField = (fieldId: string) => {
+    for (const domain of competencyFramework.value.domains) {
+      const index = domain.fields.findIndex(f => f.id === fieldId)
+      if (index !== -1) {
+        const deletedField = domain.fields[index]
+        domain.fields.splice(index, 1)
+        return deletedField
+      }
+    }
+    return null
+  }
+  
+  // Actions pour les compétences
+  const addCompetency = (fieldId: string, competencyData: { name: string; description: string }) => {
+    for (const domain of competencyFramework.value.domains) {
+      const field = domain.fields.find(f => f.id === fieldId)
+      if (field) {
+        const newCompetency = {
+          id: `comp-${Date.now()}`,
+          name: competencyData.name,
+          description: competencyData.description,
+          specificCompetencies: []
+        }
+        field.competencies.push(newCompetency)
+        return newCompetency
+      }
+    }
+    return null
+  }
+  
+  const updateCompetency = (competencyId: string, updates: { name?: string; description?: string }) => {
+    for (const domain of competencyFramework.value.domains) {
+      for (const field of domain.fields) {
+        const competency = field.competencies.find(c => c.id === competencyId)
+        if (competency) {
+          Object.assign(competency, updates)
+          return competency
+        }
+      }
+    }
+    return null
+  }
+  
+  const deleteCompetency = (competencyId: string) => {
+    for (const domain of competencyFramework.value.domains) {
+      for (const field of domain.fields) {
+        const index = field.competencies.findIndex(c => c.id === competencyId)
+        if (index !== -1) {
+          const deletedCompetency = field.competencies[index]
+          field.competencies.splice(index, 1)
+          return deletedCompetency
+        }
+      }
+    }
+    return null
+  }
+  
+  // Actions pour les sous-compétences
+  const addSpecificCompetency = (competencyId: string, specificCompetencyData: { name: string; description: string }) => {
+    for (const domain of competencyFramework.value.domains) {
+      for (const field of domain.fields) {
+        const competency = field.competencies.find(c => c.id === competencyId)
+        if (competency) {
+          const newSpecificCompetency = {
+            id: `spec-${Date.now()}`,
+            name: specificCompetencyData.name,
+            description: specificCompetencyData.description
+          }
+          competency.specificCompetencies.push(newSpecificCompetency)
+          return newSpecificCompetency
+        }
+      }
+    }
+    return null
+  }
+  
+  const updateSpecificCompetency = (specificCompetencyId: string, updates: { name?: string; description?: string }) => {
+    for (const domain of competencyFramework.value.domains) {
+      for (const field of domain.fields) {
+        for (const competency of field.competencies) {
+          const specificCompetency = competency.specificCompetencies.find(s => s.id === specificCompetencyId)
+          if (specificCompetency) {
+            Object.assign(specificCompetency, updates)
+            return specificCompetency
+          }
+        }
+      }
+    }
+    return null
+  }
+  
+  const deleteSpecificCompetency = (specificCompetencyId: string) => {
+    for (const domain of competencyFramework.value.domains) {
+      for (const field of domain.fields) {
+        for (const competency of field.competencies) {
+          const index = competency.specificCompetencies.findIndex(s => s.id === specificCompetencyId)
+          if (index !== -1) {
+            const deletedSpecificCompetency = competency.specificCompetencies[index]
+            competency.specificCompetencies.splice(index, 1)
+            return deletedSpecificCompetency
+          }
+        }
+      }
+    }
+    return null
+  }
+  
+  // Fonction pour réinitialiser le framework
+  const resetFramework = () => {
+    competencyFramework.value = JSON.parse(JSON.stringify(COMPETENCY_FRAMEWORK))
+  }
+  
+  return {
+    // Getter
+    framework,
+    
+    // Actions domaines
+    addDomain,
+    updateDomain,
+    deleteDomain,
+    
+    // Actions champs
+    addField,
+    updateField,
+    deleteField,
+    
+    // Actions compétences
+    addCompetency,
+    updateCompetency,
+    deleteCompetency,
+    
+    // Actions sous-compétences
+    addSpecificCompetency,
+    updateSpecificCompetency,
+    deleteSpecificCompetency,
+    
+    // Reset
+    resetFramework
   }
 }

@@ -9,7 +9,7 @@
 
     <div class="page-content">
       <div class="search-bar">
-        <i class="fas fa-search"></i>
+        <span class="material-symbols-outlined search-icon">search</span>
         <input 
           v-model="searchTerm" 
           type="text" 
@@ -250,12 +250,13 @@ const closeModal = () => {
   max-width: 400px;
 }
 
-.search-bar i {
+.search-icon {
   position: absolute;
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: #6b7280;
+  font-size: 20px;
 }
 
 .search-input {
@@ -273,29 +274,21 @@ const closeModal = () => {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Material 3 List Specifications */
+/* Material 3 List Specifications - Sans conteneur */
 .students-list {
-  background: var(--md-sys-color-surface, #fefbff);
-  border-radius: 12px;
-  border: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
-  overflow: hidden;
-  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  background: transparent;
 }
 
-/* One-line list item - Height: 56dp */
+/* Material 3 List Item - 56dp height, pas de bordures */
 .student-item {
   display: flex;
   align-items: center;
   padding: 8px 16px;
   min-height: 56px;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
   transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
   cursor: pointer;
   position: relative;
-}
-
-.student-item:last-child {
-  border-bottom: none;
+  border-radius: 0;
 }
 
 /* Material 3 State Layer */
@@ -307,23 +300,21 @@ const closeModal = () => {
   right: 0;
   bottom: 0;
   background: transparent;
-  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   pointer-events: none;
+  border-radius: 0;
 }
 
 .student-item:hover::before {
-  background: var(--md-sys-color-on-surface, #1c1b1f);
-  opacity: 0.08;
+  background: rgba(103, 80, 164, 0.08);
 }
 
 .student-item:focus::before {
-  background: var(--md-sys-color-on-surface, #1c1b1f);
-  opacity: 0.12;
+  background: rgba(103, 80, 164, 0.12);
 }
 
 .student-item:active::before {
-  background: var(--md-sys-color-on-surface, #1c1b1f);
-  opacity: 0.12;
+  background: rgba(103, 80, 164, 0.12);
 }
 
 .student-item:focus {
@@ -398,14 +389,14 @@ const closeModal = () => {
   width: 40px;
   height: 40px;
   border: none;
-  border-radius: 50%;
+  border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  color: rgba(28, 27, 31, 0.6);
   position: relative;
 }
 
@@ -422,24 +413,21 @@ const closeModal = () => {
   right: 0;
   bottom: 0;
   background: transparent;
-  border-radius: 50%;
-  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  border-radius: 20px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   pointer-events: none;
 }
 
 .action-btn:hover::before {
-  background: var(--md-sys-color-on-surface-variant, #49454f);
-  opacity: 0.08;
+  background: rgba(103, 80, 164, 0.08);
 }
 
 .action-btn:focus::before {
-  background: var(--md-sys-color-on-surface-variant, #49454f);
-  opacity: 0.12;
+  background: rgba(103, 80, 164, 0.12);
 }
 
 .action-btn:active::before {
-  background: var(--md-sys-color-on-surface-variant, #49454f);
-  opacity: 0.12;
+  background: rgba(103, 80, 164, 0.12);
 }
 
 .action-btn:focus {
@@ -447,21 +435,19 @@ const closeModal = () => {
 }
 
 .delete-action:hover {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .delete-action:hover::before {
-  background: var(--md-sys-color-error, #ba1a1a);
-  opacity: 0.08;
+  background: rgba(186, 26, 26, 0.08);
 }
 
 .delete-action:focus {
-  color: var(--md-sys-color-error, #ba1a1a);
+  color: #ba1a1a;
 }
 
 .delete-action:focus::before {
-  background: var(--md-sys-color-error, #ba1a1a);
-  opacity: 0.12;
+  background: rgba(186, 26, 26, 0.12);
 }
 
 /* Material 3 Dialog Specifications */

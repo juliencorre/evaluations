@@ -28,7 +28,13 @@
       "Bash(npm install:*)",
       "Bash(set CHROME_PATH=C:Usersjulien.cachepuppeteerchromewin64-140.0.7339.82chrome-win64chrome.exe)",
       "Bash($env:LIGHTHOUSE_CHROMIUM_PATH=\"C:\\Users\\julien\\.cache\\puppeteer\\chrome\\win64-140.0.7339.82\\chrome-win64\\chrome.exe\")",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run test:unit:*)",
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_anon_key",
+      "mcp__supabase__generate_typescript_types",
+      "mcp__supabase__execute_sql"
     ],
     "deny": [],
     "ask": []

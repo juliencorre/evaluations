@@ -101,9 +101,17 @@
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="text-button" @click="closeModal">Annuler</button>
-          <button type="submit" class="filled-button" @click="saveStudent">
-            {{ showEditModal ? 'Modifier' : 'Ajouter' }}
+          <button type="button" class="text-button" @click="closeModal" :disabled="isSaving">
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="filled-button"
+            @click="saveStudent"
+            :disabled="isSaving"
+          >
+            <span v-if="!isSaving">{{ showEditModal ? 'Modifier' : 'Ajouter' }}</span>
+            <span v-else>{{ showEditModal ? 'Modification...' : 'Ajout...' }}</span>
           </button>
         </div>
       </div>
@@ -130,9 +138,17 @@
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="text-button" @click="closeModal">Annuler</button>
-          <button type="button" class="filled-button destructive" @click="confirmDelete">
-            Supprimer
+          <button type="button" class="text-button" @click="closeModal" :disabled="isDeleting">
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="filled-button destructive"
+            @click="confirmDelete"
+            :disabled="isDeleting"
+          >
+            <span v-if="!isDeleting">Supprimer</span>
+            <span v-else>Suppression...</span>
           </button>
         </div>
       </div>
@@ -141,17 +157,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Student } from '../types/evaluation'
-import { useStudentsStore } from '../stores/studentsStore'
+import { serviceWorkerBridge } from '../services/serviceWorkerBridge'
 
-// Store global des élèves
-const {
-  allStudents,
-  addStudent,
-  updateStudent,
-  deleteStudent: deleteStudentFromStore
-} = useStudentsStore()
+// Données des élèves récupérées via le service worker
+const students = ref<Student[]>([])
+
+// Fonctions pour interagir avec les élèves via le service worker
+const loadStudents = async () => {
+  // Pour l'instant, utiliser directement le store
+  // Le service worker sera utilisé uniquement en production
+  const { useStudentsStore } = await import('../stores/studentsStore')
+  const store = useStudentsStore()
+  students.value = store.allStudents.value
+
+  // Essayer d'utiliser le service worker si disponible (pour la production)
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    try {
+      const swStudents = await serviceWorkerBridge.getAllStudents()
+      if (swStudents && swStudents.length > 0) {
+        students.value = swStudents
+      }
+    } catch (error) {
+      // Ignorer silencieusement, le store est déjà chargé
+      console.log('Service Worker non disponible, utilisation du store local')
+    }
+  }
+}
+
+const addStudentViaServiceWorker = async (firstName: string, lastName: string) => {
+  // Utiliser directement le store pour plus de rapidité
+  const { useStudentsStore } = await import('../stores/studentsStore')
+  const store = useStudentsStore()
+
+  // Appel direct sans attendre Supabase
+  const newStudent = await store.addStudent({ firstName, lastName })
+  students.value = store.allStudents.value
+
+  return newStudent
+}
+
+const updateStudentViaServiceWorker = async (studentId: string, updates: { firstName?: string; lastName?: string }) => {
+  // Utiliser directement le store pour plus de rapidité
+  const { useStudentsStore } = await import('../stores/studentsStore')
+  const store = useStudentsStore()
+
+  const updatedStudent = await store.updateStudent(studentId, updates)
+  students.value = store.allStudents.value
+
+  return updatedStudent
+}
+
+const deleteStudentViaServiceWorker = async (studentId: string) => {
+  // Utiliser directement le store pour plus de rapidité
+  const { useStudentsStore } = await import('../stores/studentsStore')
+  const store = useStudentsStore()
+
+  const deletedStudent = await store.deleteStudent(studentId)
+  students.value = store.allStudents.value
+
+  return deletedStudent
+}
+
+// Charger les élèves au montage du composant
+onMounted(() => {
+  loadStudents()
+})
 
 // État réactif local
 const searchTerm = ref('')
@@ -160,15 +232,17 @@ const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 const currentStudent = ref<Student>({ id: '', firstName: '', lastName: '', displayName: '' })
 const studentToDelete = ref<Student | null>(null)
+const isSaving = ref(false)
+const isDeleting = ref(false)
 
 // Élèves filtrés par la recherche
 const filteredStudents = computed(() => {
   if (!searchTerm.value) {
-    return allStudents.value
+    return students.value
   }
 
   const search = searchTerm.value.toLowerCase()
-  return allStudents.value.filter(
+  return students.value.filter(
     (student) =>
       student.firstName.toLowerCase().includes(search) ||
       student.lastName.toLowerCase().includes(search) ||
@@ -186,37 +260,77 @@ const deleteStudent = (student: Student) => {
   showDeleteModal.value = true
 }
 
-const saveStudent = () => {
-  if (showEditModal.value) {
-    // Modifier un élève existant
-    updateStudent(currentStudent.value.id, {
-      firstName: currentStudent.value.firstName,
-      lastName: currentStudent.value.lastName
-    })
-  } else {
-    // Ajouter un nouvel élève
-    addStudent({
-      firstName: currentStudent.value.firstName,
-      lastName: currentStudent.value.lastName
-    })
-  }
+const saveStudent = async () => {
+  if (isSaving.value) return // Éviter la double soumission
 
-  closeModal()
+  isSaving.value = true
+  console.log('🚀 Début sauvegarde élève')
+
+  try {
+    if (showEditModal.value) {
+      // Modifier un élève existant
+      console.log('📝 Modification élève:', currentStudent.value.id)
+      await updateStudentViaServiceWorker(currentStudent.value.id, {
+        firstName: currentStudent.value.firstName,
+        lastName: currentStudent.value.lastName
+      })
+    } else {
+      // Ajouter un nouvel élève
+      console.log('➕ Ajout élève:', currentStudent.value.firstName, currentStudent.value.lastName)
+      const result = await addStudentViaServiceWorker(
+        currentStudent.value.firstName,
+        currentStudent.value.lastName
+      )
+      console.log('✅ Élève ajouté:', result)
+    }
+
+    console.log('🎯 Fermeture du dialog')
+    closeModal()
+  } catch (error) {
+    console.error('❌ Erreur lors de la sauvegarde:', error)
+  } finally {
+    isSaving.value = false
+    console.log('🏁 Fin sauvegarde élève')
+  }
 }
 
-const confirmDelete = () => {
-  if (studentToDelete.value) {
-    deleteStudentFromStore(studentToDelete.value.id)
+const confirmDelete = async () => {
+  if (isDeleting.value || !studentToDelete.value) return
+
+  isDeleting.value = true
+
+  try {
+    await deleteStudentViaServiceWorker(studentToDelete.value.id)
+    closeModal()
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error)
+  } finally {
+    isDeleting.value = false
   }
-  closeModal()
 }
 
 const closeModal = () => {
+  console.log('🔒 Fermeture modal - États avant:', {
+    addModal: showAddModal.value,
+    editModal: showEditModal.value,
+    deleteModal: showDeleteModal.value,
+    saving: isSaving.value
+  })
+
   showAddModal.value = false
   showEditModal.value = false
   showDeleteModal.value = false
   currentStudent.value = { id: '', firstName: '', lastName: '', displayName: '' }
   studentToDelete.value = null
+  isSaving.value = false
+  isDeleting.value = false
+
+  console.log('✅ Modal fermée - États après:', {
+    addModal: showAddModal.value,
+    editModal: showEditModal.value,
+    deleteModal: showDeleteModal.value,
+    saving: isSaving.value
+  })
 }
 
 // Plus besoin d'initialisation : le store contient déjà les données
@@ -775,6 +889,19 @@ const closeModal = () => {
 
 .filled-button.destructive::before {
   background: #ffffff;
+}
+
+/* Styles pour les boutons disabled */
+.text-button:disabled,
+.filled-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.text-button:disabled::before,
+.filled-button:disabled::before {
+  display: none;
 }
 
 /* Ensure FAB container doesn't interfere with positioning */

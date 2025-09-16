@@ -1,9 +1,39 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Student, CompetencyFramework } from '@/types/evaluation'
 import { STUDENTS, COMPETENCY_FRAMEWORK } from '@/data/staticData'
+import { supabaseStudentsService } from '@/services/supabaseStudentsService'
 
 // Store réactif global pour les élèves
-const students = ref<Student[]>([...STUDENTS])
+const students = ref<Student[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const useSupabase = ref(true) // Flag pour activer/désactiver Supabase
+
+// Charger les élèves depuis Supabase au démarrage
+const loadStudentsFromSupabase = async () => {
+  if (!useSupabase.value) {
+    students.value = [...STUDENTS]
+    return
+  }
+
+  isLoading.value = true
+  error.value = null
+
+  try {
+    const supabaseStudents = await supabaseStudentsService.getAllStudents()
+    students.value = supabaseStudents
+  } catch (err) {
+    console.error('Erreur lors du chargement depuis Supabase, utilisation des données locales:', err)
+    error.value = 'Impossible de charger les élèves depuis Supabase, utilisation des données locales'
+    students.value = [...STUDENTS]
+    useSupabase.value = false // Désactiver Supabase en cas d'erreur
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Initialiser les données au démarrage
+loadStudentsFromSupabase()
 
 // Actions pour manipuler les élèves
 export const useStudentsStore = () => {
@@ -17,67 +47,180 @@ export const useStudentsStore = () => {
   }
 
   // Actions
-  const addStudent = (studentData: { firstName: string; lastName: string }) => {
-    const newId = `STU${String(students.value.length + 1).padStart(3, '0')}`
-    const newStudent: Student = {
-      id: newId,
-      firstName: studentData.firstName,
-      lastName: studentData.lastName,
-      displayName: generateDisplayName(studentData.firstName, studentData.lastName)
+  const addStudent = async (studentData: { firstName: string; lastName: string }) => {
+    // Si Supabase est désactivé, utiliser directement le local
+    if (!useSupabase.value) {
+      const newId = `STU${String(students.value.length + 1).padStart(3, '0')}`
+      const newStudent: Student = {
+        id: newId,
+        firstName: studentData.firstName,
+        lastName: studentData.lastName,
+        displayName: generateDisplayName(studentData.firstName, studentData.lastName)
+      }
+      students.value.push(newStudent)
+      return newStudent
     }
-    students.value.push(newStudent)
-    return newStudent
+
+    // Essayer Supabase
+    try {
+      const newStudent = await supabaseStudentsService.createStudent(
+        studentData.firstName,
+        studentData.lastName
+      )
+      students.value.push(newStudent)
+      return newStudent
+    } catch (err) {
+      console.error('Erreur lors de l\'ajout dans Supabase, basculement local:', err)
+      useSupabase.value = false // Désactiver Supabase pour les prochaines fois
+
+      // Fallback: création locale
+      const newId = `STU${String(students.value.length + 1).padStart(3, '0')}`
+      const newStudent: Student = {
+        id: newId,
+        firstName: studentData.firstName,
+        lastName: studentData.lastName,
+        displayName: generateDisplayName(studentData.firstName, studentData.lastName)
+      }
+      students.value.push(newStudent)
+      return newStudent
+    }
   }
 
-  const updateStudent = (studentId: string, updates: { firstName?: string; lastName?: string }) => {
-    const index = students.value.findIndex((s) => s.id === studentId)
-    if (index !== -1) {
-      const updatedStudent = {
-        ...students.value[index],
-        ...updates
+  const updateStudent = async (studentId: string, updates: { firstName?: string; lastName?: string }) => {
+    // Si Supabase est désactivé, utiliser directement le local
+    if (!useSupabase.value) {
+      const index = students.value.findIndex((s) => s.id === studentId)
+      if (index !== -1) {
+        const updatedStudent = {
+          ...students.value[index],
+          ...updates
+        }
+        // Regenerate displayName if firstName or lastName changed
+        if (updates.firstName || updates.lastName) {
+          updatedStudent.displayName = generateDisplayName(
+            updatedStudent.firstName,
+            updatedStudent.lastName
+          )
+        }
+        students.value[index] = updatedStudent
+        return updatedStudent
       }
-      // Regenerate displayName if firstName or lastName changed
-      if (updates.firstName || updates.lastName) {
-        updatedStudent.displayName = generateDisplayName(
-          updatedStudent.firstName,
-          updatedStudent.lastName
-        )
-      }
-      students.value[index] = updatedStudent
-      return updatedStudent
+      return null
     }
-    return null
+
+    // Essayer Supabase
+    try {
+      const updatedStudent = await supabaseStudentsService.updateStudent(studentId, updates)
+      if (updatedStudent) {
+        const index = students.value.findIndex((s) => s.id === studentId)
+        if (index !== -1) {
+          students.value[index] = updatedStudent
+        }
+        return updatedStudent
+      }
+      return null
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour dans Supabase, basculement local:', err)
+      useSupabase.value = false // Désactiver Supabase pour les prochaines fois
+
+      // Fallback: mise à jour locale
+      const index = students.value.findIndex((s) => s.id === studentId)
+      if (index !== -1) {
+        const updatedStudent = {
+          ...students.value[index],
+          ...updates
+        }
+        // Regenerate displayName if firstName or lastName changed
+        if (updates.firstName || updates.lastName) {
+          updatedStudent.displayName = generateDisplayName(
+            updatedStudent.firstName,
+            updatedStudent.lastName
+          )
+        }
+        students.value[index] = updatedStudent
+        return updatedStudent
+      }
+      return null
+    }
   }
 
-  const deleteStudent = (studentId: string) => {
-    const index = students.value.findIndex((s) => s.id === studentId)
-    if (index !== -1) {
-      const deletedStudent = students.value[index]
-      students.value.splice(index, 1)
-      return deletedStudent
+  const deleteStudent = async (studentId: string) => {
+    const studentToDelete = students.value.find((s) => s.id === studentId)
+    if (!studentToDelete) return null
+
+    // Si Supabase est désactivé, utiliser directement le local
+    if (!useSupabase.value) {
+      students.value = students.value.filter((s) => s.id !== studentId)
+      return studentToDelete
     }
-    return null
+
+    // Essayer Supabase
+    try {
+      await supabaseStudentsService.deleteStudent(studentId)
+      students.value = students.value.filter((s) => s.id !== studentId)
+      return studentToDelete
+    } catch (err) {
+      console.error('Erreur lors de la suppression dans Supabase, basculement local:', err)
+      useSupabase.value = false // Désactiver Supabase pour les prochaines fois
+
+      // Fallback: suppression locale
+      students.value = students.value.filter((s) => s.id !== studentId)
+      return studentToDelete
+    }
   }
 
   const getStudentById = (studentId: string) => {
     return students.value.find((s) => s.id === studentId) || null
   }
 
-  const resetStudents = () => {
+  const resetStudents = async () => {
     students.value = [...STUDENTS]
+
+    // Optionnel: réinitialiser aussi dans Supabase
+    if (useSupabase.value) {
+      try {
+        // D'abord supprimer tous les élèves existants
+        const existingStudents = await supabaseStudentsService.getAllStudents()
+        for (const student of existingStudents) {
+          await supabaseStudentsService.deleteStudent(student.id)
+        }
+
+        // Puis importer les élèves par défaut
+        await supabaseStudentsService.bulkImportStudents(
+          STUDENTS.map(s => ({
+            firstName: s.firstName,
+            lastName: s.lastName
+          }))
+        )
+
+        // Recharger depuis Supabase
+        await loadStudentsFromSupabase()
+      } catch (err) {
+        console.error('Erreur lors de la réinitialisation dans Supabase:', err)
+        error.value = 'Erreur lors de la réinitialisation des élèves'
+      }
+    }
+  }
+
+  const refreshFromSupabase = async () => {
+    await loadStudentsFromSupabase()
   }
 
   return {
     // Getters
     allStudents,
     studentCount,
+    isLoading: computed(() => isLoading.value),
+    error: computed(() => error.value),
+    useSupabase: computed(() => useSupabase.value),
 
     // Actions
     addStudent,
     updateStudent,
     deleteStudent,
     getStudentById,
-    resetStudents
+    resetStudents,
+    refreshFromSupabase
   }
 }
 

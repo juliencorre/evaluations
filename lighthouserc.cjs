@@ -8,7 +8,9 @@ module.exports = {
       settings: {
         preset: 'desktop',
         skipAudits: ['uses-http2'],
-        onlyCategories: ['pwa', 'performance', 'accessibility', 'best-practices', 'seo']
+        onlyCategories: ['pwa', 'performance', 'accessibility', 'best-practices', 'seo'],
+        chromeFlags: ['--no-sandbox', '--disable-dev-shm-usage'],
+        chromePath: require('puppeteer').executablePath()
       }
     },
     assert: {

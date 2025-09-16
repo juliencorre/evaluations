@@ -8,6 +8,30 @@ export default defineConfig({
     port: 5173,
     strictPort: false
   },
+  build: {
+    target: 'esnext',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router'],
+          supabase: ['@supabase/supabase-js'],
+          views: [
+            'src/views/CompetenciesView.vue',
+            'src/views/AnalysisView.vue',
+            'src/views/StudentsView.vue'
+          ]
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
   plugins: [
     vue(),
     VitePWA({

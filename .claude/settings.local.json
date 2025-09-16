@@ -37,7 +37,12 @@
       "mcp__supabase__execute_sql",
       "Bash(npm run test:*)",
       "Bash(npx vue-tsc:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npm run lighthouse:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run preview:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

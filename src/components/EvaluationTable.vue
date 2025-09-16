@@ -151,10 +151,35 @@
                 :key="`${node.id}-${student.id}`"
                 class="result-cell"
                 :class="getResultCellClass(node, student.id)"
+                @click="startEditing(node, student.id)"
               >
                 <div class="result-content">
+                  <!-- Editing mode -->
+                  <div
+                    v-if="canShowResult(node) && isEditing(node.id, student.id)"
+                    class="edit-mode"
+                  >
+                    <select
+                      ref="editSelect"
+                      v-model="editingValue"
+                      class="result-select"
+                      @change="saveResult(node.id, student.id)"
+                      @blur="cancelEditing"
+                      @keydown.enter="saveResult(node.id, student.id)"
+                      @keydown.escape="cancelEditing"
+                    >
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="D">D</option>
+                      <option value="E">E</option>
+                      <option value="N/A">N/A</option>
+                    </select>
+                  </div>
+
+                  <!-- Display mode -->
                   <span
-                    v-if="canShowResult(node)"
+                    v-else-if="canShowResult(node)"
                     class="result-badge"
                     :class="`level-${getStudentResult(node.id, student.id)?.level?.toLowerCase()}`"
                     :title="getResultTitle(node.id, student.id)"
@@ -198,15 +223,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type {
   Student,
   Evaluation,
   TreeNode,
   EvaluationResult,
-  CompetencyFramework
+  CompetencyFramework,
+  EvaluationLevel
 } from '@/types/evaluation'
 import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/competencyTree'
+import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 
 interface Props {
   evaluation: Evaluation
@@ -222,10 +249,27 @@ const fieldSearch = ref('')
 const competencySearch = ref('')
 const competencyTree = ref<TreeNode[]>([])
 
-// Column visibility variables removed (columns are now always visible)
+// Inline editing state
+const editingCell = ref<{ competencyId: string; studentId: string } | null>(null)
+const editingValue = ref<string>('')
+
+// Initialize evaluation results store
+const evaluationStore = useEvaluationResultsStore()
 
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
+
+// Initialize evaluation store on mount
+onMounted(async () => {
+  await evaluationStore.initializeEvaluation({
+    id: props.evaluation.id,
+    name: props.evaluation.name,
+    description: props.evaluation.description,
+    frameworkId: props.evaluation.frameworkId,
+    classId: props.evaluation.classId,
+    createdAt: props.evaluation.createdAt
+  })
+})
 
 // Computed for filtered tree based on multiple searches
 const filteredTree = computed(() => {
@@ -291,6 +335,10 @@ function clearCompetencySearch() {
 // Column visibility functions removed (columns are now always visible)
 
 function getStudentResult(competencyId: string, studentId: string): EvaluationResult | undefined {
+  // Try to get from the store first, fallback to props for compatibility
+  const storeResult = evaluationStore.getResult(studentId, competencyId)
+  if (storeResult) return storeResult
+
   return getCompetencyResult(props.evaluation.results, studentId, competencyId)
 }
 
@@ -330,6 +378,78 @@ function getResultTitle(competencyId: string, studentId: string): string {
   }
 
   return levelNames[result.level] || result.level
+}
+
+// Inline editing functions
+function isEditing(competencyId: string, studentId: string): boolean {
+  return editingCell.value?.competencyId === competencyId && editingCell.value?.studentId === studentId
+}
+
+function startEditing(node: TreeNode, studentId: string) {
+  if (!canShowResult(node)) return
+
+  console.log('🖊️ [Edition] Début d\'édition:', { competencyId: node.id, studentId })
+
+  const currentResult = getStudentResult(node.id, studentId)
+  editingCell.value = { competencyId: node.id, studentId }
+  editingValue.value = currentResult?.level || 'N/A'
+
+  // Focus the select element after Vue has updated the DOM
+  setTimeout(() => {
+    const selectEl = document.querySelector('.result-select')
+    if (selectEl && 'focus' in selectEl) {
+      (selectEl as { focus(): void }).focus()
+    }
+  }, 0)
+}
+
+async function saveResult(competencyId: string, studentId: string) {
+  console.log('💾 [Edition] Sauvegarde du résultat:', {
+    competencyId,
+    studentId,
+    newLevel: editingValue.value
+  })
+
+  try {
+    // Save using the persistence service
+    const savedResult = await evaluationStore.saveResult(
+      studentId,
+      competencyId,
+      editingValue.value as EvaluationLevel,
+      '' // comment - can be extended later
+    )
+
+    if (savedResult) {
+      // Also update the local props for immediate UI feedback
+      let result = props.evaluation.results.find(r =>
+        r.studentId === studentId && r.competencyId === competencyId
+      )
+
+      if (result) {
+        result.level = editingValue.value as EvaluationLevel
+        result.evaluatedAt = savedResult.evaluatedAt
+      } else {
+        props.evaluation.results.push(savedResult)
+      }
+
+      editingCell.value = null
+      editingValue.value = ''
+
+      console.log('✅ [Edition] Résultat sauvegardé avec succès')
+    } else {
+      console.error('❌ [Edition] Erreur lors de la sauvegarde')
+      // Keep editing mode active to allow retry
+    }
+  } catch (error) {
+    console.error('❌ [Edition] Erreur lors de la sauvegarde:', error)
+    // Keep editing mode active to allow retry
+  }
+}
+
+function cancelEditing() {
+  console.log('❌ [Edition] Annulation de l\'édition')
+  editingCell.value = null
+  editingValue.value = ''
 }
 
 // Watch for search term changes to expand all nodes when searching
@@ -682,6 +802,12 @@ watch(searchTerm, (newTerm) => {
   padding: 0.25rem;
   position: relative;
   z-index: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.result-cell:hover {
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
 .result-content {
@@ -765,6 +891,36 @@ watch(searchTerm, (newTerm) => {
 
 .no-evaluation {
   background-color: #f8f9fa;
+  cursor: default;
+}
+
+.no-evaluation:hover {
+  background-color: #f8f9fa;
+}
+
+/* Inline editing styles */
+.edit-mode {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.result-select {
+  width: 60px;
+  padding: 0.25rem;
+  border: 2px solid #007bff;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  background: white;
+  color: #495057;
+  outline: none;
+}
+
+.result-select:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 /* Footer styles */

@@ -777,7 +777,7 @@ const handleDragStart = (
   index: number,
   context?: DragContext
 ) => {
-  // eslint-disable-next-line no-undef
+   
   const dragEvent = event as DragEvent
   if (!dragEvent.dataTransfer) return
 
@@ -811,7 +811,7 @@ const handleDragEnd = (_event: Event) => {
 const handleDragOver = (event: Event) => {
   event.preventDefault()
   event.stopPropagation()
-  // eslint-disable-next-line no-undef
+   
   const dragEvent = event as DragEvent
   if (dragEvent.dataTransfer) {
     dragEvent.dataTransfer.dropEffect = 'move'

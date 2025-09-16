@@ -46,7 +46,11 @@ export default [
         ServiceWorkerGlobalScope: 'readonly',
         ExtendableMessageEvent: 'readonly',
         setTimeout: 'readonly',
-        clearTimeout: 'readonly'
+        clearTimeout: 'readonly',
+        DragEvent: 'readonly',
+        localStorage: 'readonly',
+        Blob: 'readonly',
+        confirm: 'readonly'
       }
     },
     plugins: {

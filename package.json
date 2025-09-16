@@ -45,6 +45,7 @@
     "lighthouse": "^12.2.1",
     "prettier": "^3.4.2",
     "puppeteer": "^24.21.0",
+    "terser": "^5.44.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vite-plugin-pwa": "^0.21.1",

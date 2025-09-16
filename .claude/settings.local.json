@@ -34,7 +34,9 @@
       "mcp__supabase__get_project_url",
       "mcp__supabase__get_anon_key",
       "mcp__supabase__generate_typescript_types",
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "Bash(npm run test:*)",
+      "Bash(npx vue-tsc:*)"
     ],
     "deny": [],
     "ask": []

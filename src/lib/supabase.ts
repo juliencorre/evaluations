@@ -1,16 +1,75 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../types/supabase'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Vérifier si nous sommes dans un environnement de test
+const isTestEnvironment = typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+const isVitest = typeof process !== 'undefined' && process.env.VITEST === 'true'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file')
+// Mock Supabase pour les tests (directement dans le fichier)
+const createMockSupabase = () => {
+  const createChainableMock = () => {
+    const mockArrayResult = {
+      data: [],
+      error: null
+    }
+
+    const mockSingleResult = {
+      data: null,
+      error: null
+    }
+
+    const chainable = {
+      select: () => chainable,
+      order: () => chainable,
+      eq: () => chainable,
+      or: () => chainable,
+      single: () => mockSingleResult,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      then: (resolve: (value: any) => void) => resolve(mockArrayResult),
+      ...mockArrayResult
+    }
+
+    return chainable
+  }
+
+  return {
+    from: () => ({
+      select: () => createChainableMock(),
+      insert: () => createChainableMock(),
+      update: () => createChainableMock(),
+      delete: () => createChainableMock()
+    }),
+    channel: () => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      on: (..._args: any[]) => ({
+        subscribe: () => ({})
+      })
+    })
+  }
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
+// Créer le client approprié selon l'environnement
+function createSupabaseClient() {
+  if (isTestEnvironment || isVitest) {
+    return createMockSupabase()
+  } else {
+    // En mode production/développement, utiliser le vrai client Supabase
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file')
+      // Créer un client avec des valeurs par défaut pour éviter les erreurs
+      return createClient<Database>('https://localhost', 'dummy-key')
+    } else {
+      return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+        }
+      })
+    }
   }
-})
+}
+
+export const supabase = createSupabaseClient()

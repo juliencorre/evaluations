@@ -10,6 +10,10 @@ export default defineConfig({
     exclude: ['node_modules', 'dist', 'e2e/**'],
     coverage: {
       reporter: ['text', 'json', 'html']
+    },
+    env: {
+      VITEST: 'true',
+      NODE_ENV: 'test'
     }
   },
   resolve: {

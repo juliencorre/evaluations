@@ -246,7 +246,8 @@ export class SupabaseStudentsService {
    * Subscribe aux changements en temps réel sur la table students
    */
   subscribeToStudentsChanges(callback: (payload: unknown) => void) {
-    return supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (supabase as any)
       .channel('students-changes')
       .on('postgres_changes',
         {

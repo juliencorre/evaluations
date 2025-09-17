@@ -1,4 +1,4 @@
-import type { Evaluation, EvaluationResult, EvaluationLevel } from '@/types/evaluation'
+import type { Evaluation, EvaluationResult, EvaluationValue } from '@/types/evaluation'
 
 export interface EvaluationResultsServiceMessage {
   type: 'GET_EVALUATION' | 'SAVE_RESULT' | 'DELETE_RESULT' | 'BULK_SAVE_RESULTS' | 'RESET_EVALUATION'
@@ -31,14 +31,14 @@ export class EvaluationResultsService {
     evaluationId: string,
     studentId: string,
     competencyId: string,
-    level: EvaluationLevel,
+    value: EvaluationValue,
     comment?: string
   ): EvaluationResult {
     console.log('💾 [EvaluationService] Sauvegarde du résultat:', {
       evaluationId,
       studentId,
       competencyId,
-      level,
+      value,
       comment
     })
 
@@ -55,7 +55,7 @@ export class EvaluationResultsService {
     const newResult: EvaluationResult = {
       studentId,
       competencyId,
-      level,
+      value,
       comment: comment || '',
       evaluatedAt: new Date().toISOString()
     }

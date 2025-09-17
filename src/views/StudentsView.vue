@@ -48,74 +48,67 @@
       <span class="fab-label">Ajouter un élève</span>
     </button>
 
-    <!-- Material 3 Dialog - Add/Edit Student -->
-    <div v-if="showAddModal || showEditModal" class="dialog-scrim" @click="closeModal">
-      <div class="dialog-container" @click.stop>
-        <div class="dialog-header">
-          <span class="dialog-icon">
-            <span class="material-symbols-outlined">{{
-              showEditModal ? 'edit' : 'person_add'
-            }}</span>
-          </span>
-          <h2 class="dialog-headline">
-            {{ showEditModal ? "Modifier l'élève" : 'Ajouter un élève' }}
-          </h2>
+    <!-- Full-screen Dialog pour les élèves -->
+    <FullscreenDialog
+      :model-value="showAddModal || showEditModal"
+      :title="showEditModal ? 'Modifier l\'élève' : 'Nouvel élève'"
+      :save-button-text="showEditModal ? 'Modifier' : 'Ajouter'"
+      :saving-text="showEditModal ? 'Modification...' : 'Ajout...'"
+      :save-disabled="isSaving || !currentStudent.firstName.trim() || !currentStudent.lastName.trim()"
+      :is-saving="isSaving"
+      @close="closeModal"
+      @save="saveStudent"
+    >
+      <ContentSection
+        title="Informations personnelles"
+        :description="showEditModal
+          ? 'Modifiez les informations de l\'élève.'
+          : 'Saisissez les informations du nouvel élève à ajouter à la classe.'"
+      >
+        <div class="form-fields">
+          <TextFieldOutlined
+            id="firstName"
+            v-model="currentStudent.firstName"
+            label="Prénom"
+            :required="true"
+            type="text"
+            :max-length="50"
+            supporting-text="Entrez le prénom de l'élève"
+          />
+
+          <TextFieldOutlined
+            id="lastName"
+            v-model="currentStudent.lastName"
+            label="Nom de famille"
+            :required="true"
+            type="text"
+            :max-length="50"
+            supporting-text="Entrez le nom de famille de l'élève"
+          />
         </div>
+      </ContentSection>
 
-        <div class="dialog-content">
-          <p class="dialog-supporting-text">
-            {{
-              showEditModal
-                ? "Modifiez les informations de l'élève."
-                : 'Saisissez les informations du nouvel élève.'
-            }}
-          </p>
-
-          <form class="dialog-form" @submit.prevent="saveStudent">
-            <div class="text-field">
-              <label for="firstName" class="text-field-label">Prénom *</label>
-              <input
-                id="firstName"
-                v-model="currentStudent.firstName"
-                type="text"
-                required
-                class="text-field-input"
-                placeholder="Prénom de l'élève"
-              />
-              <div class="text-field-underline"></div>
+      <ContentSection
+        v-if="currentStudent.firstName.trim() && currentStudent.lastName.trim()"
+        title="Aperçu"
+        description="Voici comment l'élève apparaîtra dans la liste :"
+      >
+        <div class="preview-container">
+          <div class="student-preview">
+            <div class="student-preview-avatar">
+              <span class="material-symbols-outlined">person</span>
             </div>
-
-            <div class="text-field">
-              <label for="lastName" class="text-field-label">Nom *</label>
-              <input
-                id="lastName"
-                v-model="currentStudent.lastName"
-                type="text"
-                required
-                class="text-field-input"
-                placeholder="Nom de famille"
-              />
-              <div class="text-field-underline"></div>
+            <div class="student-preview-details">
+              <div class="student-preview-name">
+                <span class="first-name">{{ currentStudent.firstName }}</span>
+                <span class="last-name">{{ currentStudent.lastName }}</span>
+              </div>
+              <div class="student-preview-meta">Élève</div>
             </div>
-          </form>
+          </div>
         </div>
-
-        <div class="dialog-actions">
-          <button type="button" class="text-button" :disabled="isSaving" @click="closeModal">
-            Annuler
-          </button>
-          <button
-            type="submit"
-            class="filled-button"
-            :disabled="isSaving"
-            @click="saveStudent"
-          >
-            <span v-if="!isSaving">{{ showEditModal ? 'Modifier' : 'Ajouter' }}</span>
-            <span v-else>{{ showEditModal ? 'Modification...' : 'Ajout...' }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
+      </ContentSection>
+    </FullscreenDialog>
 
     <!-- Material 3 Dialog - Delete Confirmation -->
     <div v-if="showDeleteModal" class="dialog-scrim" @click="closeModal">
@@ -160,6 +153,9 @@
 import { ref, computed } from 'vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
+import FullscreenDialog from '@/components/FullscreenDialog.vue'
+import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
+import ContentSection from '@/components/ContentSection.vue'
 
 // Utiliser directement le store réactif global
 const studentsStore = useStudentsStore()
@@ -1070,6 +1066,101 @@ const closeModal = () => {
 
   .fab-label {
     font-size: 12px;
+  }
+}
+
+/* Form Fields Layout */
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Preview Container */
+.preview-container {
+  background: #ffffff;
+  border: 1px solid #e7e0ec;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* Student Preview */
+.student-preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.student-preview-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e8def8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-preview-avatar .material-symbols-outlined {
+  color: #6750a4;
+  font-size: 24px;
+}
+
+.student-preview-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-preview-name {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.student-preview-name .first-name,
+.student-preview-name .last-name {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1d1b20;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-preview-name .last-name {
+  font-weight: 500;
+}
+
+.student-preview-meta {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #49454f;
+}
+
+/* Responsive pour student preview */
+@media (max-width: 840px) {
+  .student-preview {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .student-preview-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .student-preview-avatar .material-symbols-outlined {
+    font-size: 20px;
   }
 }
 </style>

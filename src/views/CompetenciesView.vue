@@ -1,27 +1,61 @@
 <template>
   <div class="competencies-page">
-    <header class="page-header">
-      <h1 class="page-title">
-        <span class="material-symbols-outlined">psychology</span>
-        Gestion des Compétences
-      </h1>
-    </header>
+    <!-- Navigation Rail -->
+    <nav class="navigation-rail">
+      <div class="rail-items">
+        <button
+          class="rail-item"
+          :class="{ active: activeView === 'tree' }"
+          @click="activeView = 'tree'"
+        >
+          <span class="material-symbols-outlined rail-icon">account_tree</span>
+          <span class="rail-label">Référentiels</span>
+        </button>
 
-    <div class="page-content">
-      <!-- Fonction de recherche temporairement désactivée -->
-      <!-- 
-      <div class="search-bar">
-        <span class="material-symbols-outlined">search</span>
-        <input 
-          v-model="searchTerm" 
-          type="text" 
-          placeholder="Rechercher dans l'arborescence..."
-          class="search-input"
-        />
+        <button
+          class="rail-item"
+          :class="{ active: activeView === 'types' }"
+          @click="activeView = 'types'"
+        >
+          <span class="material-symbols-outlined rail-icon">category</span>
+          <span class="rail-label">Types de résultats</span>
+        </button>
+
+        <button
+          class="rail-item"
+          :class="{ active: activeView === 'import' }"
+          @click="activeView = 'import'"
+        >
+          <span class="material-symbols-outlined rail-icon">upload</span>
+          <span class="rail-label">Import/Export</span>
+        </button>
       </div>
-      -->
+    </nav>
 
-      <div class="competencies-tree">
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Tree View -->
+      <div v-if="activeView === 'tree'" class="page-content">
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="card-title">Référentiels de compétences</h2>
+          </div>
+
+          <!-- Fonction de recherche temporairement désactivée -->
+          <!--
+          <div class="search-bar">
+            <span class="material-symbols-outlined">search</span>
+            <input
+              v-model="searchTerm"
+              type="text"
+              placeholder="Rechercher dans les référentiels..."
+              class="search-input"
+            />
+          </div>
+          -->
+
+          <div class="competencies-tree">
         <!-- Domain Level -->
         <div
           v-for="(domain, domainIndex) in frameworkWithDragDrop.domains"
@@ -309,79 +343,135 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Material 3 Extended FAB -->
-    <button class="extended-fab" @click="openAddDomainModal()">
-      <span class="material-symbols-outlined fab-icon">add</span>
-      <span class="fab-label">Ajouter un domaine</span>
-    </button>
 
-    <!-- Material 3 Dialog - Add/Edit Competency -->
-    <div v-if="showAddModal || showEditModal" class="dialog-scrim" @click="closeModal">
-      <div class="dialog-container" @click.stop>
-        <div class="dialog-header">
-          <span class="dialog-icon">
-            <span class="material-symbols-outlined">{{
-              showEditModal ? 'edit' : 'psychology_alt'
-            }}</span>
-          </span>
-          <h2 class="dialog-headline">{{ getModalTitle() }}</h2>
+  <!-- Full-screen Dialog pour les compétences -->
+    <div v-if="showAddModal || showEditModal" class="fullscreen-dialog">
+      <!-- App Bar -->
+      <div class="fullscreen-app-bar">
+        <div class="app-bar-leading">
+          <button class="icon-btn" @click="closeModal">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
-
-        <div class="dialog-content">
-          <p class="dialog-supporting-text">
-            {{ getModalDescription() }}
-          </p>
-
-          <form class="dialog-form" @submit.prevent="saveCompetency">
-            <div class="text-field">
-              <label for="itemName" class="text-field-label">{{ getFieldLabel('name') }} *</label>
-              <input
-                id="itemName"
-                v-model="currentCompetency.name"
-                type="text"
-                required
-                class="text-field-input"
-                :placeholder="getFieldPlaceholder('name')"
-              />
-              <div class="text-field-underline"></div>
-            </div>
-
-            <div class="text-field">
-              <label for="itemDescription" class="text-field-label"
-                >{{ getFieldLabel('description') }} *</label
-              >
-              <textarea
-                id="itemDescription"
-                v-model="currentCompetency.description"
-                required
-                class="text-field-textarea"
-                :placeholder="getFieldPlaceholder('description')"
-                rows="3"
-              ></textarea>
-              <div class="text-field-underline"></div>
-            </div>
-
-            <!-- Affichage du contexte (lecture seule) -->
-            <div v-if="currentContext && showContextInfo()" class="context-info">
-              <div v-if="currentContext.domain">
-                <p><strong>Domaine :</strong> {{ currentContext.domain.name }}</p>
-              </div>
-              <div v-if="currentContext.field">
-                <p><strong>Champ :</strong> {{ currentContext.field.name }}</p>
-              </div>
-              <div v-if="currentContext.competency">
-                <p><strong>Compétence parent :</strong> {{ currentContext.competency.name }}</p>
-              </div>
-            </div>
-          </form>
+        <div class="app-bar-headline">
+          <h1 class="app-bar-title">{{ getModalTitle() }}</h1>
         </div>
-
-        <div class="dialog-actions">
-          <button type="button" class="text-button" @click="closeModal">Annuler</button>
-          <button type="submit" class="filled-button" @click="saveCompetency">
+        <div class="app-bar-trailing">
+          <button class="text-button app-bar-action" @click="saveCompetency" :disabled="!currentCompetency.name.trim() || !currentCompetency.description.trim()">
             {{ showEditModal ? 'Modifier' : 'Ajouter' }}
           </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="fullscreen-content">
+        <div class="fullscreen-body">
+          <div class="content-section">
+            <h2 class="section-headline">Informations générales</h2>
+            <p class="section-supporting-text">
+              {{ getModalDescription() }}
+            </p>
+
+            <div class="form-fields">
+              <div class="text-field-outlined">
+                <input
+                  id="itemName"
+                  v-model="currentCompetency.name"
+                  type="text"
+                  required
+                  class="text-field-input-outlined"
+                  placeholder=" "
+                />
+                <label for="itemName" class="text-field-label-outlined">{{ getFieldLabel('name') }} *</label>
+                <div class="text-field-outline">
+                  <div class="text-field-outline-start"></div>
+                  <div class="text-field-outline-notch">
+                    <div class="text-field-outline-leading"></div>
+                    <div class="text-field-outline-trailing"></div>
+                  </div>
+                  <div class="text-field-outline-end"></div>
+                </div>
+              </div>
+
+              <div class="text-field-outlined">
+                <textarea
+                  id="itemDescription"
+                  v-model="currentCompetency.description"
+                  required
+                  class="text-field-textarea-outlined"
+                  placeholder=" "
+                  rows="4"
+                ></textarea>
+                <label for="itemDescription" class="text-field-label-outlined">{{ getFieldLabel('description') }} *</label>
+                <div class="text-field-outline">
+                  <div class="text-field-outline-start"></div>
+                  <div class="text-field-outline-notch">
+                    <div class="text-field-outline-leading"></div>
+                    <div class="text-field-outline-trailing"></div>
+                  </div>
+                  <div class="text-field-outline-end"></div>
+                </div>
+                <div class="field-helper-text">{{ getFieldPlaceholder('description') }}</div>
+              </div>
+
+              <!-- Sélection du type de résultat pour les sous-compétences -->
+              <div v-if="currentContext?.type === 'specificCompetency'" class="text-field-outlined">
+                <select
+                  id="resultType"
+                  v-model="currentCompetency.resultTypeConfigId"
+                  required
+                  class="text-field-select-outlined"
+                >
+                  <option value="" disabled>Sélectionner un type de résultat</option>
+                  <option v-for="type in resultTypes" :key="type.id" :value="type.id">
+                    {{ type.name }}
+                  </option>
+                </select>
+                <label for="resultType" class="text-field-label-outlined">Type de résultat *</label>
+                <div class="text-field-outline">
+                  <div class="text-field-outline-start"></div>
+                  <div class="text-field-outline-notch">
+                    <div class="text-field-outline-leading"></div>
+                    <div class="text-field-outline-trailing"></div>
+                  </div>
+                  <div class="text-field-outline-end"></div>
+                </div>
+                <div class="field-helper-text">Choisissez le type d'évaluation pour cette sous-compétence</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Affichage du contexte -->
+          <div v-if="currentContext && showContextInfo()" class="content-section">
+            <h2 class="section-headline">Contexte</h2>
+            <p class="section-supporting-text">Cette {{ getContextItemName() }} sera ajoutée dans :</p>
+
+            <div class="context-container">
+              <div v-if="currentContext.domain" class="context-item">
+                <span class="material-symbols-outlined context-icon">domain</span>
+                <div class="context-details">
+                  <span class="context-label">Domaine</span>
+                  <span class="context-value">{{ currentContext.domain.name }}</span>
+                </div>
+              </div>
+              <div v-if="currentContext.field" class="context-item">
+                <span class="material-symbols-outlined context-icon">folder</span>
+                <div class="context-details">
+                  <span class="context-label">Champ</span>
+                  <span class="context-value">{{ currentContext.field.name }}</span>
+                </div>
+              </div>
+              <div v-if="currentContext.competency" class="context-item">
+                <span class="material-symbols-outlined context-icon">psychology</span>
+                <div class="context-details">
+                  <span class="context-label">Compétence parent</span>
+                  <span class="context-value">{{ currentContext.competency.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -413,6 +503,211 @@
         </div>
       </div>
     </div>
+
+    <!-- Full-screen Dialog pour les types de résultats -->
+    <div v-if="showResultTypeModal || showEditResultTypeModal" class="fullscreen-dialog">
+      <!-- App Bar -->
+      <div class="fullscreen-app-bar">
+        <div class="app-bar-leading">
+          <button class="icon-btn" @click="closeResultTypeModal">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="app-bar-headline">
+          <h1 class="app-bar-title">{{ showEditResultTypeModal ? 'Modifier le type' : 'Nouveau type' }}</h1>
+        </div>
+        <div class="app-bar-trailing">
+          <button class="text-button app-bar-action" @click="saveResultType" :disabled="!currentResultType.name.trim()">
+            {{ showEditResultTypeModal ? 'Modifier' : 'Créer' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="fullscreen-content">
+        <div class="fullscreen-body">
+          <div class="content-section">
+            <h2 class="section-headline">Informations générales</h2>
+            <p class="section-supporting-text">
+              {{ showEditResultTypeModal ? 'Modifiez les informations du type de résultat.' : 'Définissez un nouveau type de résultat pour l\'évaluation des compétences.' }}
+            </p>
+
+            <div class="form-fields">
+              <div class="text-field-outlined">
+                <input
+                  id="resultTypeName"
+                  v-model="currentResultType.name"
+                  type="text"
+                  required
+                  class="text-field-input-outlined"
+                  placeholder=" "
+                />
+                <label for="resultTypeName" class="text-field-label-outlined">Nom du type *</label>
+                <div class="text-field-outline">
+                  <div class="text-field-outline-start"></div>
+                  <div class="text-field-outline-notch">
+                    <div class="text-field-outline-leading"></div>
+                    <div class="text-field-outline-trailing"></div>
+                  </div>
+                  <div class="text-field-outline-end"></div>
+                </div>
+              </div>
+
+              <div class="text-field-outlined">
+                <textarea
+                  id="resultTypeValues"
+                  v-model="valuesInput"
+                  required
+                  class="text-field-textarea-outlined"
+                  placeholder=" "
+                  rows="3"
+                  @input="updateResultTypeValues"
+                ></textarea>
+                <label for="resultTypeValues" class="text-field-label-outlined">Valeurs possibles *</label>
+                <div class="text-field-outline">
+                  <div class="text-field-outline-start"></div>
+                  <div class="text-field-outline-notch">
+                    <div class="text-field-outline-leading"></div>
+                    <div class="text-field-outline-trailing"></div>
+                  </div>
+                  <div class="text-field-outline-end"></div>
+                </div>
+                <div class="field-helper-text">Séparez les valeurs par des virgules (ex: Oui, Non, Peut-être)</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="currentResultType.config.values.length > 0" class="content-section">
+            <h2 class="section-headline">Aperçu</h2>
+            <p class="section-supporting-text">Voici comment apparaîtront les valeurs dans l'interface d'évaluation :</p>
+
+            <div class="preview-container">
+              <div class="preview-values">
+                <span v-for="value in currentResultType.config.values" :key="value" class="preview-chip">
+                  {{ value }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de suppression pour les types de résultats -->
+    <div v-if="showDeleteResultTypeModal" class="dialog-scrim" @click="closeResultTypeModal">
+      <div class="dialog-container alert-dialog" @click.stop>
+        <div class="dialog-header">
+          <span class="dialog-icon alert-icon">
+            <span class="material-symbols-outlined">warning</span>
+          </span>
+          <h2 class="dialog-headline">Supprimer le type de résultat</h2>
+        </div>
+
+        <div class="dialog-content">
+          <p class="dialog-supporting-text">
+            Êtes-vous sûr de vouloir supprimer le type de résultat "{{ resultTypeToDelete?.name }}" ?
+          </p>
+          <p class="dialog-supporting-text warning-text">
+            Cette action supprimera définitivement ce type de résultat. Les sous-compétences utilisant ce type devront être mises à jour.
+          </p>
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" class="text-button" @click="closeResultTypeModal">Annuler</button>
+          <button type="button" class="filled-button destructive" @click="confirmDeleteResultType">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+
+      <!-- Types View -->
+      <div v-if="activeView === 'types'" class="page-content">
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="card-title">Types de résultats disponibles</h2>
+          </div>
+          <div class="card-content">
+            <div class="types-grid">
+              <div v-for="type in resultTypes" :key="type.id" class="type-card">
+                <div class="type-header">
+                  <h3>{{ type.name }}</h3>
+                  <div class="type-actions">
+                    <button class="icon-btn" @click="editResultType(type)">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="icon-btn" @click="deleteResultType(type)">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="type-content">
+                  <div class="type-values">
+                    <span class="type-label">Valeurs :</span>
+                    <div class="values-list">
+                      <span v-for="value in type.config.values" :key="value" class="value-chip">
+                        {{ value }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import/Export View -->
+      <div v-if="activeView === 'import'" class="page-content">
+        <!-- Import Card -->
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="card-title">Importer un référentiel</h2>
+          </div>
+          <div class="card-content">
+            <p class="section-description">Importez un fichier JSON contenant un référentiel de compétences</p>
+            <div class="import-zone">
+              <input type="file" accept=".json" @change="handleFileImport" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Card -->
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="card-title">Exporter le référentiel</h2>
+          </div>
+          <div class="card-content">
+            <p class="section-description">Exportez le référentiel actuel au format JSON</p>
+            <div class="card-actions">
+              <button class="btn-primary" @click="exportFramework">
+                <span class="material-symbols-outlined">download</span>
+                Exporter en JSON
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Extended FAB flottants -->
+    <button
+      v-if="activeView === 'tree' && !showAddModal && !showEditModal && !showDeleteModal"
+      class="extended-fab"
+      @click="openAddDomainModal()"
+    >
+      <span class="material-symbols-outlined fab-icon">add</span>
+      <span class="fab-label">Ajouter un domaine</span>
+    </button>
+
+    <button
+      v-if="activeView === 'types' && !showResultTypeModal && !showEditResultTypeModal && !showDeleteResultTypeModal"
+      class="extended-fab"
+      @click="openAddResultTypeModal"
+    >
+      <span class="material-symbols-outlined fab-icon">add</span>
+      <span class="fab-label">Nouveau type</span>
+    </button>
   </div>
 </template>
 
@@ -420,6 +715,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
+import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
+import type { ResultTypeConfig } from '@/types/evaluation'
+import FullscreenDialog from '@/components/FullscreenDialog.vue'
+import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
+import ContentSection from '@/components/ContentSection.vue'
 
 // Interfaces pour les éléments du framework de compétences
 interface CompetencyItem {
@@ -461,6 +761,7 @@ interface SpecificCompetencyItem {
   id: string
   name: string
   description: string
+  resultTypeConfigId?: string
   isGhost?: boolean
   isDragging?: boolean
 }
@@ -473,15 +774,17 @@ interface DragContext {
 
 // État réactif local
 // const searchTerm = ref('') // Fonction de recherche temporairement désactivée
+const activeView = ref<'tree' | 'types' | 'import'>('tree')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
-const currentCompetency = ref<CompetencyItem>({
+const currentCompetency = ref<CompetencyItem & { resultTypeConfigId?: string }>({
   id: '',
   name: '',
   description: '',
   domain: '',
-  field: ''
+  field: '',
+  resultTypeConfigId: undefined
 })
 const competencyToDelete = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | null>(null)
 const currentContext = ref<{ type: string; domain?: DomainItem; field?: FieldItem; competency?: CompetencyItemDetailed; specificCompetency?: SpecificCompetencyItem } | null>(null)
@@ -497,6 +800,37 @@ const draggedType = ref<string>('')
 const draggedIndex = ref<number>(-1)
 const draggedContext = ref<DragContext | null>(null)
 const isDragging = ref(false)
+
+// État pour les types de résultats
+const resultTypes = ref<ResultTypeConfig[]>([])
+
+// Functions for page header
+function getPageIcon(): string {
+  switch (activeView.value) {
+    case 'tree': return 'account_tree'
+    case 'types': return 'category'
+    case 'import': return 'upload'
+    default: return 'psychology'
+  }
+}
+
+function getPageTitle(): string {
+  switch (activeView.value) {
+    case 'tree': return 'Gestion des Compétences'
+    case 'types': return 'Types de Résultats'
+    case 'import': return 'Import / Export'
+    default: return 'Gestion des Compétences'
+  }
+}
+
+function getPageDescription(): string {
+  switch (activeView.value) {
+    case 'tree': return 'Organisez et structurez le référentiel de compétences'
+    case 'types': return 'Gérez les différents types de résultats pour l’évaluation'
+    case 'import': return 'Importez ou exportez votre référentiel de compétences'
+    default: return ''
+  }
+}
 const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | { isGhost: true } | null>(null)
 const ghostPosition = ref<number>(-1)
 const ghostContext = ref<DragContext | null>(null)
@@ -512,12 +846,14 @@ console.log('📊 [Vue] Framework initial:', {
 })
 
 // Hook onMounted - le store se charge automatiquement
-onMounted(() => {
+onMounted(async () => {
   console.log('🚪 [Vue] Page des compétences montée avec succès!')
   console.log('📊 [Vue] État du store:', {
     domains: competenciesStore.framework.value.domains.length,
     frameworkName: competenciesStore.framework.value.name
   })
+  // Charger les types de résultats disponibles
+  resultTypes.value = await supabaseResultTypesService.getResultTypes()
 })
 
 // Watcher pour détecter les changements du framework
@@ -1026,6 +1362,16 @@ const openAddSpecificCompetencyModal = (competency: CompetencyItemDetailed, fiel
     'du domaine:',
     domain
   )
+  // Réinitialiser avec le type de résultat par défaut (Échelle A-E)
+  const defaultResultType = resultTypes.value.find(rt => rt.name === 'Échelle A-E')
+  currentCompetency.value = {
+    id: '',
+    name: '',
+    description: '',
+    domain: '',
+    field: '',
+    resultTypeConfigId: defaultResultType?.id || ''
+  }
   showAddModal.value = true
   currentContext.value = { type: 'specificCompetency', competency, field, domain }
 }
@@ -1042,7 +1388,8 @@ const openEditSpecificCompetencyModal = (
     name: specificCompetency.name,
     description: specificCompetency.description,
     domain: '',
-    field: ''
+    field: '',
+    resultTypeConfigId: specificCompetency.resultTypeConfigId || ''
   }
   showEditModal.value = true
   currentContext.value = {
@@ -1155,6 +1502,19 @@ const showContextInfo = () => {
   return type !== 'domain'
 }
 
+const getContextItemName = () => {
+  if (!currentContext.value) return ''
+  const type = currentContext.value.type
+
+  const names: Record<string, string> = {
+    field: 'champ',
+    competency: 'compétence',
+    specificCompetency: 'sous-compétence'
+  }
+
+  return names[type] || 'élément'
+}
+
 const getDeleteModalTitle = () => {
   if (!competencyToDelete.value) return ''
 
@@ -1250,12 +1610,14 @@ const saveCompetency = async () => {
       if (isEdit) {
         await competenciesStore.updateSpecificCompetency(currentContext.value.specificCompetency!.id, {
           name: currentCompetency.value.name,
-          description: currentCompetency.value.description
+          description: currentCompetency.value.description,
+          resultTypeConfigId: currentCompetency.value.resultTypeConfigId
         })
       } else {
         await competenciesStore.addSpecificCompetency(currentContext.value.competency!.id, {
           name: currentCompetency.value.name,
-          description: currentCompetency.value.description
+          description: currentCompetency.value.description,
+          resultTypeConfigId: currentCompetency.value.resultTypeConfigId
         })
       }
     }
@@ -1323,21 +1685,235 @@ const closeModal = () => {
   competencyToDelete.value = null
   currentContext.value = null
 }
+
+// État pour les types de résultats
+const showResultTypeModal = ref(false)
+const showEditResultTypeModal = ref(false)
+const showDeleteResultTypeModal = ref(false)
+const currentResultType = ref<{
+  id?: string
+  name: string
+  type: string
+  config: { values: string[]; labels: Record<string, string> }
+}>({
+  name: '',
+  type: 'custom',
+  config: { values: [], labels: {} }
+})
+const resultTypeToDelete = ref<ResultTypeConfig | null>(null)
+const valuesInput = ref('')
+
+// Functions for result types management
+function openAddResultTypeModal() {
+  console.log('Opening add result type modal')
+  currentResultType.value = {
+    name: '',
+    type: 'custom',
+    config: { values: [], labels: {} }
+  }
+  valuesInput.value = ''
+  showResultTypeModal.value = true
+}
+
+function editResultType(type: ResultTypeConfig) {
+  console.log('Editing result type:', type)
+  currentResultType.value = { ...type }
+  valuesInput.value = type.config.values.join(', ')
+  showEditResultTypeModal.value = true
+}
+
+function deleteResultType(type: ResultTypeConfig) {
+  console.log('Deleting result type:', type)
+  resultTypeToDelete.value = type
+  showDeleteResultTypeModal.value = true
+}
+
+function updateResultTypeValues() {
+  const values = valuesInput.value
+    .split(',')
+    .map(v => v.trim())
+    .filter(v => v.length > 0)
+
+  currentResultType.value.config.values = values
+  currentResultType.value.config.labels = values.reduce((acc, val) => {
+    acc[val] = val
+    return acc
+  }, {} as Record<string, string>)
+}
+
+function closeResultTypeModal() {
+  showResultTypeModal.value = false
+  showEditResultTypeModal.value = false
+  showDeleteResultTypeModal.value = false
+  currentResultType.value = {
+    name: '',
+    type: 'custom',
+    config: { values: [], labels: {} }
+  }
+  valuesInput.value = ''
+  resultTypeToDelete.value = null
+}
+
+async function saveResultType() {
+  if (!currentResultType.value.name.trim()) return
+
+  try {
+    if (showEditResultTypeModal.value && currentResultType.value.id) {
+      // Modifier un type existant
+      const updated = await supabaseResultTypesService.updateResultType(
+        currentResultType.value.id,
+        currentResultType.value
+      )
+      if (updated) {
+        const index = resultTypes.value.findIndex(t => t.id === updated.id)
+        if (index !== -1) {
+          resultTypes.value[index] = updated
+        }
+      }
+    } else {
+      // Créer un nouveau type
+      const created = await supabaseResultTypesService.createResultType(currentResultType.value)
+      if (created) {
+        resultTypes.value.push(created)
+      }
+    }
+    closeResultTypeModal()
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du type de résultat:', error)
+  }
+}
+
+async function confirmDeleteResultType() {
+  if (!resultTypeToDelete.value) return
+
+  try {
+    const success = await supabaseResultTypesService.deleteResultType(resultTypeToDelete.value.id)
+    if (success) {
+      resultTypes.value = resultTypes.value.filter(t => t.id !== resultTypeToDelete.value!.id)
+    }
+    closeResultTypeModal()
+  } catch (error) {
+    console.error('Erreur lors de la suppression du type de résultat:', error)
+  }
+}
+
+// Functions for import/export
+function handleFileImport(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target?.result as string)
+      console.log('Imported data:', data)
+      // TODO: Implement import functionality
+    } catch (error) {
+      console.error('Error importing file:', error)
+    }
+  }
+  reader.readAsText(file)
+}
+
+function exportFramework() {
+  const framework = competenciesStore.framework.value
+  const dataStr = JSON.stringify(framework, null, 2)
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
+
+  const exportFileDefaultName = `competences_${new Date().toISOString().split('T')[0]}.json`
+
+  const linkElement = document.createElement('a')
+  linkElement.setAttribute('href', dataUri)
+  linkElement.setAttribute('download', exportFileDefaultName)
+  linkElement.click()
+}
 </script>
 
 <style scoped>
 /* Réutilisation des styles de la page des élèves avec adaptations */
 .competencies-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  height: 100vh;
+  background-color: #f9fafb;
   position: relative;
 }
 
+/* Navigation Rail */
+.navigation-rail {
+  width: 88px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.rail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
+  background: none;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  text-decoration: none;
+  position: relative;
+}
+
+.rail-item:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.rail-item.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.rail-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.rail-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 56px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .page-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e9ecef;
+  padding: 24px 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.page-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
 }
 
 .page-title {
@@ -1356,9 +1932,47 @@ const closeModal = () => {
 }
 
 .page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+  background-color: #f9fafb;
+}
+
+/* Unified Card Styles for all views */
+.content-card {
+  background: #ffffff;
+  margin: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.card-header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'Roboto', sans-serif;
+}
+
+.card-content {
+  padding: 24px;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
 }
 
 .search-bar {
@@ -1392,7 +2006,7 @@ const closeModal = () => {
 
 /* Design épuré pour l'arborescence des compétences */
 .competencies-tree {
-  background: #ffffff;
+  margin-top: 16px;
 }
 
 /* Styles généraux des nœuds de l'arbre */
@@ -1893,6 +2507,30 @@ const closeModal = () => {
   color: #6750a4;
 }
 
+.text-field-select {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1c1b1f;
+  background: #ffffff;
+  border: 1px solid #79747e;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-field-select:focus {
+  outline: none;
+  border-color: #6750a4;
+  box-shadow: 0 0 0 1px #6750a4;
+}
+
+.text-field-select:hover {
+  border-color: #49454f;
+}
+
 /* Styles pour l'affichage du contexte dans le modal */
 .context-info {
   background: #f8f9fa;
@@ -2015,8 +2653,127 @@ const closeModal = () => {
   background: #ffffff;
 }
 
+/* Material 3 Extended FAB Specifications */
+.extended-fab {
+  position: fixed !important;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1001;
+  pointer-events: auto;
+
+  /* Extended FAB Dimensions */
+  height: 56px;
+  min-width: 80px;
+  max-width: none;
+  padding: 0 16px;
+
+  /* Material 3 Extended FAB Surface */
+  background: var(--md-sys-color-primary-container, #eaddff);
+  color: var(--md-sys-color-on-primary-container, #21005d);
+  border: none;
+  border-radius: 16px;
+
+  /* Elevation Level 3 */
+  box-shadow:
+    0px 1px 3px 0px rgba(0, 0, 0, 0.3),
+    0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  /* Typography - Label Large */
+  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-label-large-size, 14px);
+  font-weight: var(--md-sys-typescale-label-large-weight, 500);
+  line-height: var(--md-sys-typescale-label-large-line-height, 20px);
+  letter-spacing: 0.1px;
+
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Extended FAB Icon */
+.fab-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Extended FAB Label */
+.fab-label {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Extended FAB State Layer */
+.extended-fab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--md-sys-color-on-primary-container, #21005d);
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+  border-radius: inherit;
+}
+
+.extended-fab:hover {
+  box-shadow:
+    0px 2px 3px 0px rgba(0, 0, 0, 0.3),
+    0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+}
+
+.extended-fab:hover::before {
+  opacity: 0.08;
+}
+
+.extended-fab:focus {
+  outline: none;
+}
+
+.extended-fab:focus::before {
+  opacity: 0.12;
+}
+
+.extended-fab:active {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+.extended-fab:active::before {
+  opacity: 0.12;
+}
+
+/* Extended FAB Pressed Animation */
+.extended-fab:active {
+  animation: fabPress 0.1s ease;
+}
+
+@keyframes fabPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  .rail-label {
+    display: none;
+  }
+
   .competencies-page {
     padding: 1rem;
   }
@@ -2192,5 +2949,615 @@ const closeModal = () => {
 
 .dragging-element * {
   pointer-events: none;
+}
+
+/* Section Titles for Import/Export */
+.section-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'Roboto', sans-serif;
+}
+
+.section-description {
+  margin: 0 0 16px 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.5;
+}
+
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.type-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.type-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+}
+
+.type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.type-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'Roboto', sans-serif;
+}
+
+.type-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.type-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.values-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.value-chip {
+  background: #eaddff;
+  color: #21005d;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  border: 1px solid rgba(103, 80, 164, 0.12);
+}
+
+/* Import/Export Section Spacing */
+.import-section,
+.export-section {
+  margin-bottom: 32px;
+}
+
+.export-section {
+  margin-bottom: 0;
+}
+
+.import-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.import-zone:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.import-zone input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+/* Common Button Styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #6750a4;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 40px;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.btn-primary:hover::before {
+  opacity: 0.08;
+}
+
+.btn-primary:focus::before {
+  opacity: 0.12;
+}
+
+.btn-primary:active::before {
+  opacity: 0.12;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  color: #49454f;
+  position: relative;
+}
+
+.icon-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  border-radius: 50%;
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+}
+
+.icon-btn:hover::before {
+  background: #49454f;
+  opacity: 0.08;
+}
+
+.icon-btn:focus::before {
+  background: #49454f;
+  opacity: 0.12;
+}
+
+.icon-btn:active::before {
+  background: #49454f;
+  opacity: 0.12;
+}
+
+.icon-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* Styles pour la modale des types de résultats */
+.field-helper-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.values-preview {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #6750a4;
+}
+
+.values-preview .type-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.values-preview .values-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Full-screen Dialog Styles */
+.fullscreen-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: fullscreenSlideIn 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes fullscreenSlideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* App Bar */
+.fullscreen-app-bar {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e7e0ec;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.app-bar-leading {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.app-bar-headline {
+  flex: 1;
+  margin-left: 8px;
+}
+
+.app-bar-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #1d1b20;
+  margin: 0;
+}
+
+.app-bar-trailing {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+  margin-right: 12px;
+}
+
+.app-bar-action {
+  margin: 0;
+}
+
+.app-bar-action:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* Content */
+.fullscreen-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.fullscreen-body {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.content-section {
+  margin-bottom: 48px;
+}
+
+.content-section:last-child {
+  margin-bottom: 24px;
+}
+
+.section-headline {
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #1d1b20;
+  margin: 0 0 8px 0;
+}
+
+.section-supporting-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #49454f;
+  margin: 0 0 24px 0;
+}
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Outlined Text Fields */
+.text-field-outlined {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-field-input-outlined,
+.text-field-textarea-outlined {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #1d1b20;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 16px;
+  min-height: 56px;
+  box-sizing: border-box;
+  width: 100%;
+  resize: none;
+}
+
+.text-field-textarea-outlined {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.text-field-select-outlined {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #1d1b20;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 16px;
+  min-height: 56px;
+  box-sizing: border-box;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.text-field-label-outlined {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #49454f;
+  background: #ffffff;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transform-origin: left top;
+}
+
+.text-field-input-outlined:focus + .text-field-label-outlined,
+.text-field-textarea-outlined:focus + .text-field-label-outlined,
+.text-field-select-outlined:focus + .text-field-label-outlined,
+.text-field-input-outlined:not(:placeholder-shown) + .text-field-label-outlined,
+.text-field-textarea-outlined:not(:placeholder-shown) + .text-field-label-outlined,
+.text-field-select-outlined:not([value=""]) + .text-field-label-outlined {
+  top: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: #6750a4;
+  transform: translateY(-50%);
+}
+
+.text-field-outline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+}
+
+.text-field-outline-start {
+  width: 12px;
+  border: 1px solid #79747e;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.text-field-outline-notch {
+  flex: 1;
+  display: flex;
+  border-top: 1px solid #79747e;
+  border-bottom: 1px solid #79747e;
+}
+
+.text-field-outline-leading {
+  width: 12px;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-field-outline-trailing {
+  flex: 1;
+  border-top: 1px solid #79747e;
+  border-bottom: 1px solid #79747e;
+}
+
+.text-field-outline-end {
+  width: 12px;
+  border: 1px solid #79747e;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+}
+
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-start,
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-end,
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-trailing,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-start,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-end,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-trailing,
+.text-field-select-outlined:focus ~ .text-field-outline .text-field-outline-start,
+.text-field-select-outlined:focus ~ .text-field-outline .text-field-outline-end,
+.text-field-select-outlined:focus ~ .text-field-outline .text-field-outline-trailing {
+  border-color: #6750a4;
+  border-width: 2px;
+}
+
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-leading,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-leading,
+.text-field-select-outlined:focus ~ .text-field-outline .text-field-outline-leading {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+}
+
+.text-field-input-outlined:not(:placeholder-shown) ~ .text-field-outline .text-field-outline-leading,
+.text-field-textarea-outlined:not(:placeholder-shown) ~ .text-field-outline .text-field-outline-leading,
+.text-field-select-outlined:not([value=""]) ~ .text-field-outline .text-field-outline-leading {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+}
+
+/* Preview */
+.preview-container {
+  background: #ffffff;
+  border: 1px solid #e7e0ec;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.preview-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.preview-chip {
+  background: #e8def8;
+  color: #1d1b20;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  border: 1px solid #cac4d0;
+}
+
+/* Context Section */
+.context-container {
+  background: #f8f9fa;
+  border: 1px solid #e7e0ec;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.context-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e7e0ec;
+}
+
+.context-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.context-item:first-child {
+  padding-top: 0;
+}
+
+.context-icon {
+  color: #6750a4;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.context-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.context-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.context-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1d1b20;
+  line-height: 24px;
+}
+
+/* Responsive */
+@media (max-width: 840px) {
+  .fullscreen-body {
+    padding: 16px;
+  }
+
+  .content-section {
+    margin-bottom: 32px;
+  }
+
+  .app-bar-title {
+    font-size: 20px;
+  }
+
+  .context-item {
+    gap: 12px;
+  }
+
+  .context-icon {
+    font-size: 20px;
+  }
 }
 </style>

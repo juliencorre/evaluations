@@ -662,8 +662,8 @@ const exportAllStudents = () => {
 
 /* Navigation Rail */
 .navigation-rail {
-  width: 80px;
-  background: #fffbfe;
+  width: 88px;
+  background: #ffffff;
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
@@ -1367,7 +1367,7 @@ const exportAllStudents = () => {
   }
 
   .rail-label {
-    font-size: 0.6rem;
+    display: none;
   }
 
   .header-content {
@@ -1468,7 +1468,7 @@ const exportAllStudents = () => {
   }
 
   .rail-label {
-    font-size: 0.55rem;
+    display: none;
   }
 
   .metric-header {

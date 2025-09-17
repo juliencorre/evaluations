@@ -168,12 +168,13 @@
                       @keydown.enter="saveResult(node.id, student.id)"
                       @keydown.escape="cancelEditing"
                     >
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                      <option value="D">D</option>
-                      <option value="E">E</option>
-                      <option value="N/A">N/A</option>
+                      <option
+                        v-for="value in getResultValues(node)"
+                        :key="value"
+                        :value="value"
+                      >
+                        {{ value }}
+                      </option>
                     </select>
                   </div>
 
@@ -184,7 +185,7 @@
                     :class="`level-${getStudentResult(node.id, student.id)?.level?.toLowerCase()}`"
                     :title="getResultTitle(node.id, student.id)"
                   >
-                    {{ getStudentResult(node.id, student.id)?.level || 'N/A' }}
+                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || getResultValues(node)[getResultValues(node).length - 1] }}
                   </span>
                 </div>
               </td>
@@ -230,10 +231,12 @@ import type {
   TreeNode,
   EvaluationResult,
   CompetencyFramework,
-  EvaluationLevel
+  EvaluationLevel,
+  ResultTypeConfig
 } from '@/types/evaluation'
 import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/competencyTree'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
+import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
 
 interface Props {
   evaluation: Evaluation
@@ -256,6 +259,10 @@ const editingValue = ref<string>('')
 // Initialize evaluation results store
 const evaluationStore = useEvaluationResultsStore()
 
+// Result types management
+const resultTypes = ref<ResultTypeConfig[]>([])
+const resultTypesMap = ref<Map<string, ResultTypeConfig>>(new Map())
+
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
 
@@ -269,6 +276,10 @@ onMounted(async () => {
     classId: props.evaluation.classId,
     createdAt: props.evaluation.createdAt
   })
+
+  // Load result types
+  resultTypes.value = await supabaseResultTypesService.getResultTypes()
+  resultTypesMap.value = new Map(resultTypes.value.map(rt => [rt.id, rt]))
 })
 
 // Computed for filtered tree based on multiple searches
@@ -353,7 +364,9 @@ function getResultCellClass(node: TreeNode, studentId: string): string[] {
   if (canShowResult(node)) {
     const result = getStudentResult(node.id, studentId)
     if (result) {
-      classes.push(`has-result-${result.level.toLowerCase()}`)
+      // Use value if available (new system), fallback to level (old system)
+      const resultValue = result.value || result.level || 'N/A'
+      classes.push(`has-result-${resultValue.toLowerCase().replace(/[^a-z0-9]/g, '-')}`)
     } else {
       classes.push('no-result')
     }
@@ -374,10 +387,45 @@ function getResultTitle(competencyId: string, studentId: string): string {
     C: 'Maîtrise fragile',
     D: 'Maîtrise insuffisante',
     E: 'Maîtrise très insuffisante',
-    'N/A': 'Non évalué'
+    'N/A': 'Non évalué',
+    'Oui': 'Acquis',
+    'Non': 'Non acquis',
+    'Acquis': 'Compétence acquise',
+    'En cours': "En cours d'acquisition",
+    'Non acquis': 'Non acquis'
   }
 
-  return levelNames[result.level] || result.level
+  // Use value if available (new system), fallback to level (old system)
+  const resultValue = result.value || result.level || 'N/A'
+  return levelNames[resultValue] || resultValue
+}
+
+// Get result type config for a specific competency
+function getResultTypeConfig(node: TreeNode): ResultTypeConfig | null {
+  if (node.type !== 'specificCompetency') return null
+
+  // Get the specific competency from the original item
+  const specificComp = node.originalItem as any
+  if (!specificComp.resultTypeConfigId) {
+    // Default to 'Échelle A-E' if not specified
+    return resultTypes.value.find(rt => rt.name === 'Échelle A-E') || null
+  }
+
+  return resultTypesMap.value.get(specificComp.resultTypeConfigId) || null
+}
+
+// Get result values based on the competency's result type
+function getResultValues(node: TreeNode): string[] {
+  const config = getResultTypeConfig(node)
+  if (!config) return ['A', 'B', 'C', 'D', 'E', 'N/A'] // Default values
+  return config.config.values
+}
+
+// Get result label for display
+function getResultLabel(node: TreeNode, value: string): string {
+  const config = getResultTypeConfig(node)
+  if (!config) return value
+  return config.config.labels[value] || value
 }
 
 // Inline editing functions
@@ -392,7 +440,8 @@ function startEditing(node: TreeNode, studentId: string) {
 
   const currentResult = getStudentResult(node.id, studentId)
   editingCell.value = { competencyId: node.id, studentId }
-  editingValue.value = currentResult?.level || 'N/A'
+  // Use value if available (new system), fallback to level (old system)
+  editingValue.value = currentResult?.value || currentResult?.level || getResultValues(node)[getResultValues(node).length - 1]
 
   // Focus the select element after Vue has updated the DOM
   setTimeout(() => {
@@ -415,7 +464,7 @@ async function saveResult(competencyId: string, studentId: string) {
     const savedResult = await evaluationStore.saveResult(
       studentId,
       competencyId,
-      editingValue.value as EvaluationLevel,
+      editingValue.value,
       '' // comment - can be extended later
     )
 

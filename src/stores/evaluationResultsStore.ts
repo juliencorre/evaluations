@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { Evaluation, EvaluationResult, EvaluationLevel } from '@/types/evaluation'
+import type { Evaluation, EvaluationResult, EvaluationLevel, EvaluationValue } from '@/types/evaluation'
 import { evaluationResultsService } from '@/services/evaluationResultsService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
@@ -23,14 +23,17 @@ export const useEvaluationResultsStore = () => {
     if (!currentEvaluation.value) return null
 
     const totalResults = results.value.length
-    const levelCounts = results.value.reduce((acc, result) => {
-      acc[result.level] = (acc[result.level] || 0) + 1
+    const valueCounts = results.value.reduce((acc, result) => {
+      // Use value if available (new system), fallback to level (old system)
+      const resultValue = result.value || result.level || 'N/A'
+      acc[resultValue] = (acc[resultValue] || 0) + 1
       return acc
-    }, {} as Record<EvaluationLevel, number>)
+    }, {} as Record<string, number>)
 
     return {
       totalResults,
-      levelCounts,
+      valueCounts,
+      levelCounts: valueCounts, // Keep for backward compatibility
       lastUpdated: results.value.length > 0
         ? Math.max(...results.value.map(r => new Date(r.evaluatedAt).getTime()))
         : null
@@ -97,7 +100,7 @@ export const useEvaluationResultsStore = () => {
   const saveResult = async (
     studentId: string,
     competencyId: string,
-    level: EvaluationLevel,
+    value: EvaluationValue,
     comment?: string
   ): Promise<EvaluationResult | null> => {
     if (!currentEvaluation.value) {
@@ -109,7 +112,7 @@ export const useEvaluationResultsStore = () => {
     console.log('💾 [EvaluationResultsStore] Sauvegarde du résultat:', {
       studentId,
       competencyId,
-      level,
+      value,
       comment,
       source: useSupabase.value ? 'Supabase' : 'localStorage'
     })
@@ -124,7 +127,7 @@ export const useEvaluationResultsStore = () => {
             currentEvaluation.value.id,
             studentId,
             competencyId,
-            level,
+            value,
             comment
           )
           console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec Supabase')
@@ -134,7 +137,7 @@ export const useEvaluationResultsStore = () => {
             currentEvaluation.value.id,
             studentId,
             competencyId,
-            level,
+            value,
             comment
           )
         } catch (supabaseError) {
@@ -144,7 +147,7 @@ export const useEvaluationResultsStore = () => {
             currentEvaluation.value.id,
             studentId,
             competencyId,
-            level,
+            value,
             comment
           )
           console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec localStorage (fallback)')
@@ -155,7 +158,7 @@ export const useEvaluationResultsStore = () => {
           currentEvaluation.value.id,
           studentId,
           competencyId,
-          level,
+          value,
           comment
         )
         console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec localStorage')

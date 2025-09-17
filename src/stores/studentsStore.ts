@@ -392,16 +392,17 @@ export const useCompetencyFrameworkStore = () => {
   // Actions pour les sous-compétences
   const addSpecificCompetency = (
     competencyId: string,
-    specificCompetencyData: { name: string; description: string }
+    specificCompetencyData: { name: string; description: string; resultTypeConfigId?: string }
   ) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {
         const competency = field.competencies.find((c) => c.id === competencyId)
         if (competency) {
-          const newSpecificCompetency = {
+          const newSpecificCompetency: any = {
             id: `spec-${Date.now()}`,
             name: specificCompetencyData.name,
-            description: specificCompetencyData.description
+            description: specificCompetencyData.description,
+            resultTypeConfigId: specificCompetencyData.resultTypeConfigId
           }
           competency.specificCompetencies.push(newSpecificCompetency)
           return newSpecificCompetency
@@ -413,7 +414,7 @@ export const useCompetencyFrameworkStore = () => {
 
   const updateSpecificCompetency = (
     specificCompetencyId: string,
-    updates: { name?: string; description?: string }
+    updates: { name?: string; description?: string; resultTypeConfigId?: string }
   ) => {
     for (const domain of competencyFramework.value.domains) {
       for (const field of domain.fields) {

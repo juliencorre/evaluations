@@ -6,6 +6,8 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type ResultType = 'scale' | 'boolean' | 'custom'
+
 export type Database = {
   public: {
     Tables: {
@@ -155,6 +157,7 @@ export type Database = {
           name: string
           description: string | null
           order_index: number
+          result_type_config_id: string
           created_at: string
           updated_at: string
         }
@@ -164,6 +167,7 @@ export type Database = {
           name: string
           description?: string | null
           order_index?: number
+          result_type_config_id: string
           created_at?: string
           updated_at?: string
         }
@@ -173,6 +177,7 @@ export type Database = {
           name?: string
           description?: string | null
           order_index?: number
+          result_type_config_id?: string
           created_at?: string
           updated_at?: string
         }
@@ -212,7 +217,7 @@ export type Database = {
           evaluation_id: string
           student_id: string
           specific_competency_id: string
-          level: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+          value: string
           comment: string | null
           evaluated_at: string
           created_at: string
@@ -223,7 +228,7 @@ export type Database = {
           evaluation_id: string
           student_id: string
           specific_competency_id: string
-          level: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+          value: string
           comment?: string | null
           evaluated_at?: string
           created_at?: string
@@ -234,9 +239,35 @@ export type Database = {
           evaluation_id?: string
           student_id?: string
           specific_competency_id?: string
-          level?: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+          value?: 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
           comment?: string | null
           evaluated_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      result_type_configs: {
+        Row: {
+          id: string
+          name: string
+          type: ResultType
+          config: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: ResultType
+          config: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: ResultType
+          config?: Json
           created_at?: string
           updated_at?: string
         }
@@ -249,7 +280,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      result_type: ResultType
     }
     CompositeTypes: {
       [_ in never]: never

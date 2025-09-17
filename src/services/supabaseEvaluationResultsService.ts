@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/supabase'
-import type { Evaluation, EvaluationResult, EvaluationLevel } from '@/types/evaluation'
+import type { Evaluation, EvaluationResult, EvaluationValue } from '@/types/evaluation'
 
 type SupabaseEvaluation = Database['public']['Tables']['evaluations']['Row']
 type SupabaseEvaluationInsert = Database['public']['Tables']['evaluations']['Insert']
@@ -158,14 +158,14 @@ export class SupabaseEvaluationResultsService {
     evaluationId: string,
     studentId: string,
     specificCompetencyId: string,
-    level: EvaluationLevel,
+    value: EvaluationValue,
     comment?: string
   ): Promise<EvaluationResult> {
     console.log('💾 [SupabaseResult] Sauvegarde résultat:', {
       evaluationId,
       studentId,
       specificCompetencyId,
-      level
+      value
     })
 
     try {
@@ -174,7 +174,7 @@ export class SupabaseEvaluationResultsService {
         evaluation_id: supabaseEvaluationId,
         student_id: studentId,
         specific_competency_id: specificCompetencyId,
-        level,
+        value,
         comment: comment || null,
         evaluated_at: new Date().toISOString()
       }
@@ -480,7 +480,7 @@ export class SupabaseEvaluationResultsService {
     return {
       studentId: supabaseResult.student_id,
       competencyId: supabaseResult.specific_competency_id,
-      level: supabaseResult.level,
+      value: supabaseResult.value,
       comment: supabaseResult.comment || '',
       evaluatedAt: supabaseResult.evaluated_at
     }

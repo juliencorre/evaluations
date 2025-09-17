@@ -5,10 +5,24 @@ export interface Student {
   displayName: string
 }
 
+export type ResultType = 'scale' | 'boolean' | 'custom'
+
+export interface ResultTypeConfig {
+  id: string
+  name: string
+  type: ResultType
+  config: {
+    values: string[]
+    labels: Record<string, string>
+  }
+}
+
 export interface SpecificCompetency {
   id: string
   name: string
   description: string
+  resultTypeConfigId?: string
+  resultTypeConfig?: ResultTypeConfig
 }
 
 export interface Competency {
@@ -40,12 +54,14 @@ export interface CompetencyFramework {
 }
 
 export type EvaluationLevel = 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
+export type EvaluationValue = string // Now supports any string value based on result type
 
 export interface EvaluationResult {
   studentId: string
   competencyId: string
   specificCompetencyId?: string
-  level: EvaluationLevel
+  level?: EvaluationLevel // Deprecated, kept for backward compatibility
+  value?: EvaluationValue // New field supporting different result types
   comment?: string
   evaluatedAt: string
 }

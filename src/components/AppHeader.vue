@@ -24,8 +24,8 @@
           <router-link
             to="/"
             class="nav-destination"
-            :class="{ active: $route.name === 'home' }"
-            aria-current="page"
+            :class="{ active: currentRouteName === ROUTE_NAMES.HOME }"
+            :aria-current="currentRouteName === ROUTE_NAMES.HOME ? 'page' : undefined"
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
@@ -41,7 +41,8 @@
           <router-link
             to="/students"
             class="nav-destination"
-            :class="{ active: $route.name === 'students' }"
+            :class="{ active: currentRouteName === ROUTE_NAMES.STUDENTS }"
+            :aria-current="currentRouteName === ROUTE_NAMES.STUDENTS ? 'page' : undefined"
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
@@ -57,7 +58,8 @@
           <router-link
             to="/competencies"
             class="nav-destination"
-            :class="{ active: $route.name === 'competencies' }"
+            :class="{ active: currentRouteName === ROUTE_NAMES.COMPETENCIES }"
+            :aria-current="currentRouteName === ROUTE_NAMES.COMPETENCIES ? 'page' : undefined"
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
@@ -73,7 +75,8 @@
           <router-link
             to="/analysis"
             class="nav-destination"
-            :class="{ active: $route.name === 'analysis' }"
+            :class="{ active: currentRouteName === ROUTE_NAMES.ANALYSIS }"
+            :aria-current="currentRouteName === ROUTE_NAMES.ANALYSIS ? 'page' : undefined"
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
@@ -87,7 +90,8 @@
           <router-link
             to="/settings"
             class="nav-destination"
-            :class="{ active: $route.name === 'settings' }"
+            :class="{ active: currentRouteName === ROUTE_NAMES.SETTINGS }"
+            :aria-current="currentRouteName === ROUTE_NAMES.SETTINGS ? 'page' : undefined"
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
@@ -117,7 +121,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { ROUTE_NAMES } from '../router'
+
+type AppRouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]
+
+const route = useRoute()
+const currentRouteName = computed<AppRouteName | undefined>(() => {
+  return typeof route.name === 'string' ? (route.name as AppRouteName) : undefined
+})
 
 // State for expanded navigation rail
 const isExpanded = ref(false)

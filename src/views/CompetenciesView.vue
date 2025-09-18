@@ -745,9 +745,10 @@ const ThreeDotMenu = defineAsyncComponent(() => import('@/components/ThreeDotMen
 
 // Import lightweight components normally
 import TopAppBar from '@/components/TopAppBar.vue'
+import type { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 
 // Lazy load Supabase service only when needed
-let supabaseResultTypesService: any = null
+let supabaseResultTypesService: SupabaseResultTypesService | null = null
 const loadSupabaseService = async () => {
   if (!supabaseResultTypesService) {
     const module = await import('@/services/supabaseResultTypesService')

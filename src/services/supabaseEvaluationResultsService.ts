@@ -226,7 +226,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      return data ? this.mapSupabaseToEvaluationResult(data as any) : null
+      return data ? this.mapSupabaseToEvaluationResult(data as SupabaseEvaluationResult) : null
 
     } catch (error) {
       console.error('💥 [SupabaseResult] Erreur lors de la récupération:', error)
@@ -253,7 +253,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      const results = (data || []).map(result => this.mapSupabaseToEvaluationResult(result as any))
+      const results = (data || []).map(result => this.mapSupabaseToEvaluationResult(result as SupabaseEvaluationResult))
       console.log('✅ [SupabaseResult] Résultats récupérés:', results.length)
       return results
 
@@ -280,7 +280,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      return (data || []).map(result => this.mapSupabaseToEvaluationResult(result as any))
+      return (data || []).map(result => this.mapSupabaseToEvaluationResult(result as SupabaseEvaluationResult))
 
     } catch (error) {
       console.error('💥 [SupabaseResult] Erreur lors de la récupération par élève:', error)
@@ -308,7 +308,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      return (data || []).map(result => this.mapSupabaseToEvaluationResult(result as any))
+      return (data || []).map(result => this.mapSupabaseToEvaluationResult(result as SupabaseEvaluationResult))
 
     } catch (error) {
       console.error('💥 [SupabaseResult] Erreur lors de la récupération par compétence:', error)

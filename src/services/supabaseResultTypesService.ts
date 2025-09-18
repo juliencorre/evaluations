@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
+import type { Json } from '@/types/supabase'
 
 export class SupabaseResultTypesService {
   private validatePivotValues(values: ResultTypeConfigValue[]) {
@@ -76,7 +77,7 @@ export class SupabaseResultTypesService {
         .insert({
           name: resultType.name,
           type: resultType.type,
-          config: resultType.config as any
+          config: resultType.config as Json
         })
         .select()
         .single()
@@ -107,7 +108,7 @@ export class SupabaseResultTypesService {
         .update({
           name: resultType.name,
           type: resultType.type,
-          config: resultType.config as any
+          config: resultType.config as Json
         })
         .eq('id', id)
         .select()

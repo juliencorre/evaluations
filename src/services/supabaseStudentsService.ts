@@ -50,7 +50,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map((student: any) => this.mapSupabaseToStudent(student))
+      return (data || []).map((student: SupabaseStudent) => this.mapSupabaseToStudent(student))
     } catch (error) {
       console.error('Erreur lors de la récupération des élèves:', error)
       throw error
@@ -77,7 +77,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return data ? this.mapSupabaseToStudent(data as any) : null
+      return data ? this.mapSupabaseToStudent(data as SupabaseStudent) : null
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'élève:', error)
       throw error
@@ -97,8 +97,7 @@ export class SupabaseStudentsService {
         display_name: displayName
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('students')
         .insert(newStudent)
         .select()
@@ -113,7 +112,7 @@ export class SupabaseStudentsService {
         throw new Error('Aucune donnée retournée lors de la création')
       }
 
-      return this.mapSupabaseToStudent(data as any)
+      return this.mapSupabaseToStudent(data as SupabaseStudent)
     } catch (error) {
       console.error('Erreur lors de la création de l\'élève:', error)
       throw error
@@ -148,8 +147,7 @@ export class SupabaseStudentsService {
         updateData.display_name = this.generateDisplayName(firstName, lastName)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('students')
         .update(updateData)
         .eq('id', id)
@@ -165,7 +163,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return data ? this.mapSupabaseToStudent(data as any) : null
+      return data ? this.mapSupabaseToStudent(data as SupabaseStudent) : null
     } catch (error) {
       console.error('Erreur lors de la mise à jour de l\'élève:', error)
       throw error
@@ -211,7 +209,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map((student: any) => this.mapSupabaseToStudent(student))
+      return (data || []).map((student: SupabaseStudent) => this.mapSupabaseToStudent(student))
     } catch (error) {
       console.error('Erreur lors de la recherche d\'élèves:', error)
       throw error
@@ -229,8 +227,7 @@ export class SupabaseStudentsService {
         display_name: this.generateDisplayName(student.firstName, student.lastName)
       }))
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('students')
         .insert(studentsToInsert)
         .select()
@@ -240,7 +237,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map((student: any) => this.mapSupabaseToStudent(student))
+      return (data || []).map((student: SupabaseStudent) => this.mapSupabaseToStudent(student))
     } catch (error) {
       console.error('Erreur lors de l\'import en masse:', error)
       throw error
@@ -251,8 +248,8 @@ export class SupabaseStudentsService {
    * Subscribe aux changements en temps réel sur la table students
    */
   subscribeToStudentsChanges(callback: (payload: unknown) => void) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (supabase as any)
+     
+    return supabase
       .channel('students-changes')
       .on('postgres_changes',
         {

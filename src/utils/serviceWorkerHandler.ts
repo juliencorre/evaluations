@@ -1,8 +1,8 @@
 // Service Worker message handling - separated for better code splitting
-import type { StudentsServiceMessage, StudentsServiceResponse } from '../services/studentsService'
+import type { StudentsServiceMessage, StudentsServiceResponse, StudentsService } from '../services/studentsService'
 
 // Lazy load the students service only when needed
-let studentsService: any = null
+let studentsService: StudentsService | null = null
 
 const loadStudentsService = async () => {
   if (!studentsService) {

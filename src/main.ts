@@ -29,4 +29,13 @@ const performanceOptimizations = async () => {
 }
 
 // Run optimizations after initial app load
-requestIdleCallback(performanceOptimizations, { timeout: 2000 })
+if ('requestIdleCallback' in window) {
+  const rIC = (window as unknown as { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => void }).requestIdleCallback
+  if (rIC) {
+    rIC(performanceOptimizations, { timeout: 2000 })
+  } else {
+    setTimeout(performanceOptimizations, 0)
+  }
+} else {
+  setTimeout(performanceOptimizations, 0)
+}

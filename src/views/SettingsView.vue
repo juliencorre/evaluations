@@ -33,7 +33,7 @@
             type="checkbox"
             role="switch"
             :checked="isConsoleLogoEnabled"
-            :aria-checked="String(isConsoleLogoEnabled)"
+            :aria-checked="consoleLogoAriaChecked"
             aria-describedby="console-settings-title"
             @change="handleConsoleLogoToggle"
           />
@@ -53,6 +53,10 @@ import { useSettingsStore } from '@/stores/settingsStore'
 const { showConsoleLogos, setShowConsoleLogos } = useSettingsStore()
 
 const isConsoleLogoEnabled = computed(() => showConsoleLogos.value)
+
+const consoleLogoAriaChecked = computed<'true' | 'false'>(() =>
+  isConsoleLogoEnabled.value ? 'true' : 'false'
+)
 
 const handleConsoleLogoToggle = (event: Event) => {
   const target = event.target as HTMLInputElement | null

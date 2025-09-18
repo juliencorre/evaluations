@@ -60,7 +60,6 @@ export class SupabaseEvaluationResultsService {
 
       const { data: newEvaluation, error: createError } = await supabase
         .from('evaluations')
-        // @ts-expect-error - Mock Supabase types issue
         .insert(newEvaluationData)
         .select()
         .single() as { data: SupabaseEvaluation | null; error: unknown }
@@ -100,7 +99,6 @@ export class SupabaseEvaluationResultsService {
 
       const { data: updatedEvaluation, error } = await supabase
         .from('evaluations')
-        // @ts-expect-error - Mock Supabase types issue
         .update(updateData)
         .eq('id', evaluationId)
         .select()
@@ -182,7 +180,6 @@ export class SupabaseEvaluationResultsService {
       // Utiliser upsert pour gérer les mises à jour
       const { data: savedResult, error } = await supabase
         .from('evaluation_results')
-        // @ts-expect-error - Mock Supabase types issue
         .upsert(resultData, {
           onConflict: 'evaluation_id,student_id,specific_competency_id'
         })
@@ -229,7 +226,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      return data ? this.mapSupabaseToEvaluationResult(data) : null
+      return data ? this.mapSupabaseToEvaluationResult(data as any) : null
 
     } catch (error) {
       console.error('💥 [SupabaseResult] Erreur lors de la récupération:', error)
@@ -256,7 +253,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      const results = (data || []).map(this.mapSupabaseToEvaluationResult)
+      const results = (data || []).map(result => this.mapSupabaseToEvaluationResult(result as any))
       console.log('✅ [SupabaseResult] Résultats récupérés:', results.length)
       return results
 
@@ -283,7 +280,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      return (data || []).map(this.mapSupabaseToEvaluationResult)
+      return (data || []).map(result => this.mapSupabaseToEvaluationResult(result as any))
 
     } catch (error) {
       console.error('💥 [SupabaseResult] Erreur lors de la récupération par élève:', error)
@@ -311,7 +308,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      return (data || []).map(this.mapSupabaseToEvaluationResult)
+      return (data || []).map(result => this.mapSupabaseToEvaluationResult(result as any))
 
     } catch (error) {
       console.error('💥 [SupabaseResult] Erreur lors de la récupération par compétence:', error)
@@ -370,14 +367,13 @@ export class SupabaseEvaluationResultsService {
         evaluation_id: evaluationId,
         student_id: result.studentId,
         specific_competency_id: result.competencyId,
-        level: result.level,
+        value: result.value || 'N/A',
         comment: result.comment || null,
         evaluated_at: now
       }))
 
       const { data: savedResults, error } = await supabase
         .from('evaluation_results')
-        // @ts-expect-error - Mock Supabase types issue
         .upsert(resultsToInsert, {
           onConflict: 'evaluation_id,student_id,specific_competency_id'
         })
@@ -388,7 +384,7 @@ export class SupabaseEvaluationResultsService {
         throw error
       }
 
-      const mappedResults = (savedResults || []).map(this.mapSupabaseToEvaluationResult)
+      const mappedResults = (savedResults || []).map(result => this.mapSupabaseToEvaluationResult(result))
       console.log('✅ [SupabaseResult] Sauvegarde en lot terminée:', mappedResults.length)
       return mappedResults
 
@@ -476,13 +472,19 @@ export class SupabaseEvaluationResultsService {
   /**
    * Transforme un résultat Supabase en objet EvaluationResult
    */
-  private mapSupabaseToEvaluationResult(supabaseResult: SupabaseEvaluationResult): EvaluationResult {
+  private mapSupabaseToEvaluationResult(supabaseResult: Partial<SupabaseEvaluationResult> & {
+    id: string;
+    student_id: string;
+    evaluation_id: string;
+    specific_competency_id: string;
+    value: string;
+  }): EvaluationResult {
     return {
       studentId: supabaseResult.student_id,
       competencyId: supabaseResult.specific_competency_id,
       value: supabaseResult.value,
       comment: supabaseResult.comment || '',
-      evaluatedAt: supabaseResult.evaluated_at
+      evaluatedAt: supabaseResult.evaluated_at || new Date().toISOString()
     }
   }
 

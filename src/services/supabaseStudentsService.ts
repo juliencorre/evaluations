@@ -13,7 +13,12 @@ export class SupabaseStudentsService {
   /**
    * Convertit un élève Supabase en Student local
    */
-  private mapSupabaseToStudent(supabaseStudent: SupabaseStudent): Student {
+  private mapSupabaseToStudent(supabaseStudent: Partial<SupabaseStudent> & {
+    id: string;
+    first_name: string;
+    last_name: string;
+    display_name: string;
+  }): Student {
     return {
       id: supabaseStudent.id,
       firstName: supabaseStudent.first_name,
@@ -45,7 +50,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map(this.mapSupabaseToStudent)
+      return (data || []).map((student: any) => this.mapSupabaseToStudent(student))
     } catch (error) {
       console.error('Erreur lors de la récupération des élèves:', error)
       throw error
@@ -72,7 +77,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return data ? this.mapSupabaseToStudent(data) : null
+      return data ? this.mapSupabaseToStudent(data as any) : null
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'élève:', error)
       throw error
@@ -108,7 +113,7 @@ export class SupabaseStudentsService {
         throw new Error('Aucune donnée retournée lors de la création')
       }
 
-      return this.mapSupabaseToStudent(data)
+      return this.mapSupabaseToStudent(data as any)
     } catch (error) {
       console.error('Erreur lors de la création de l\'élève:', error)
       throw error
@@ -160,7 +165,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return data ? this.mapSupabaseToStudent(data) : null
+      return data ? this.mapSupabaseToStudent(data as any) : null
     } catch (error) {
       console.error('Erreur lors de la mise à jour de l\'élève:', error)
       throw error
@@ -206,7 +211,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map(this.mapSupabaseToStudent)
+      return (data || []).map((student: any) => this.mapSupabaseToStudent(student))
     } catch (error) {
       console.error('Erreur lors de la recherche d\'élèves:', error)
       throw error
@@ -235,7 +240,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map(this.mapSupabaseToStudent)
+      return (data || []).map((student: any) => this.mapSupabaseToStudent(student))
     } catch (error) {
       console.error('Erreur lors de l\'import en masse:', error)
       throw error

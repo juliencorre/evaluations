@@ -23,7 +23,7 @@ export class PivotAnalysisService {
 
     // Find the corresponding pivot value in the result type configuration
     const configValue = resultTypeConfig.config.values.find(v =>
-      (typeof v === 'object' && v.value === value) || v === value
+      (typeof v === 'object' && v.value === value) || (typeof v === 'string' && v === value)
     )
 
     if (!configValue) {

@@ -601,8 +601,8 @@
 
             <div class="preview-container">
               <div class="preview-values">
-                <span v-for="value in currentResultType.config.values" :key="value" class="preview-chip">
-                  {{ value }}
+                <span v-for="value in currentResultType.config.values" :key="value.value || value.label" class="preview-chip">
+                  {{ value.label || value }}
                 </span>
               </div>
             </div>
@@ -875,8 +875,8 @@ const menuItems = computed(() => [
 ])
 
 // Menu handling
-const handleMenuSelection = (item: { value: string }) => {
-  activeView.value = item.value
+const handleMenuSelection = (item: { value: string | number | boolean }) => {
+  activeView.value = item.value as 'tree' | 'types' | 'import'
 }
 const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | { isGhost: true } | null>(null)
 const ghostPosition = ref<number>(-1)
@@ -1852,7 +1852,7 @@ async function saveResultType() {
   const resultTypeData = {
     id: currentResultType.value.id,
     name: currentResultType.value.name.trim(),
-    type: currentResultType.value.type,
+    type: currentResultType.value.type as import('@/types/evaluation').ResultType,
     config: { values: cleanedValues }
   }
 

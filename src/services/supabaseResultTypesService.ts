@@ -10,6 +10,19 @@ export class SupabaseResultTypesService {
     }
   }
 
+  private parseConfig(config: unknown): { values: ResultTypeConfigValue[] } {
+    // Type guard for config structure
+    if (typeof config === 'object' && config !== null && 'values' in config) {
+      const configObj = config as { values: unknown }
+      if (Array.isArray(configObj.values)) {
+        return { values: configObj.values as ResultTypeConfigValue[] }
+      }
+    }
+
+    // Fallback to empty array if config is invalid
+    return { values: [] }
+  }
+
   async getResultTypes(): Promise<ResultTypeConfig[]> {
     try {
       const { data, error } = await supabase
@@ -23,7 +36,7 @@ export class SupabaseResultTypesService {
         id: item.id,
         name: item.name,
         type: item.type,
-        config: item.config as { values: ResultTypeConfigValue[] }
+        config: this.parseConfig(item.config)
       }))
     } catch (error) {
       console.error('Erreur lors de la récupération des types de résultats:', error)
@@ -45,7 +58,7 @@ export class SupabaseResultTypesService {
         id: data.id,
         name: data.name,
         type: data.type,
-        config: data.config as { values: ResultTypeConfigValue[] }
+        config: this.parseConfig(data.config)
       }
     } catch (error) {
       console.error('Erreur lors de la récupération du type de résultat:', error)
@@ -63,7 +76,7 @@ export class SupabaseResultTypesService {
         .insert({
           name: resultType.name,
           type: resultType.type,
-          config: resultType.config
+          config: resultType.config as any
         })
         .select()
         .single()
@@ -74,7 +87,7 @@ export class SupabaseResultTypesService {
         id: data.id,
         name: data.name,
         type: data.type,
-        config: data.config as { values: ResultTypeConfigValue[] }
+        config: this.parseConfig(data.config)
       }
     } catch (error) {
       console.error('Erreur lors de la création du type de résultat:', error)
@@ -94,7 +107,7 @@ export class SupabaseResultTypesService {
         .update({
           name: resultType.name,
           type: resultType.type,
-          config: resultType.config
+          config: resultType.config as any
         })
         .eq('id', id)
         .select()
@@ -106,7 +119,7 @@ export class SupabaseResultTypesService {
         id: data.id,
         name: data.name,
         type: data.type,
-        config: data.config as { values: ResultTypeConfigValue[] }
+        config: this.parseConfig(data.config)
       }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du type de résultat:', error)

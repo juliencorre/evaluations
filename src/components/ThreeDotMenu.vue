@@ -73,7 +73,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: null
+  modelValue: undefined
 })
 
 const emit = defineEmits<{

@@ -255,7 +255,7 @@
                           class="bar-fill"
                           :style="{
                             width: (evaluation.score / 4) * 100 + '%',
-                            backgroundColor: evaluationPeriods.value?.[index]?.color || evaluationPeriods[index]?.color || '#6750a4'
+                            backgroundColor: evaluationPeriods[index]?.color || '#6750a4'
                           }"
                         ></div>
                       </div>
@@ -561,10 +561,11 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
       currentEvaluation: evaluationResultsStore.evaluation.value?.id
     })
 
-    if (!acc[evaluationId]) {
-      acc[evaluationId] = []
+    const safeEvaluationId = evaluationId || 'unknown'
+    if (!acc[safeEvaluationId]) {
+      acc[safeEvaluationId] = []
     }
-    acc[evaluationId].push(result)
+    acc[safeEvaluationId].push(result)
     return acc
   }, {} as Record<string, EvaluationResult[]>)
 
@@ -866,11 +867,11 @@ const getStudentData = () => {
 
     // Fallback to static data if no dynamic data is available
     console.log('🔄 Falling back to static data')
-    const fallbackData = fallbackStudentData?.[selectedStudent.value]
+    const fallbackData = fallbackStudentData?.[selectedStudent.value as keyof typeof fallbackStudentData]
     console.log('📋 Fallback data:', fallbackData)
 
     if (fallbackData) {
-      const result = fallbackData[selectedMetricType.value] || []
+      const result = (fallbackData as any)[selectedMetricType.value] || []
       console.log('✅ Using fallback data:', result)
       return result
     }

@@ -310,7 +310,10 @@ export const useEvaluationResultsStore = () => {
     if (studentResults.length === 0) return null
 
     const levelCounts = studentResults.reduce((acc, result) => {
-      acc[result.level] = (acc[result.level] || 0) + 1
+      const level = (result.level || result.value) as EvaluationLevel
+      if (level) {
+        acc[level] = (acc[level] || 0) + 1
+      }
       return acc
     }, {} as Record<EvaluationLevel, number>)
 
@@ -349,7 +352,10 @@ export const useEvaluationResultsStore = () => {
       'N/A': 0
     }
 
-    const totalScore = results.reduce((sum, result) => sum + scoreMap[result.level], 0)
+    const totalScore = results.reduce((sum, result) => {
+      const level = (result.level || result.value) as EvaluationLevel
+      return sum + (level && scoreMap[level] ? scoreMap[level] : 0)
+    }, 0)
     return totalScore / results.length
   }
 

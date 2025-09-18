@@ -401,7 +401,7 @@ function getResultTitle(competencyId: string, studentId: string): string {
 
   // Use value if available (new system), fallback to level (old system)
   const resultValue = result.value || result.level || 'N/A'
-  return levelNames[resultValue] || resultValue
+  return levelNames[resultValue as keyof typeof levelNames] || resultValue
 }
 
 // Get result type config for a specific competency

@@ -150,8 +150,11 @@
                 v-for="student in students"
                 :key="`${node.id}-${student.id}`"
                 class="result-cell"
-                :class="getResultCellClass(node, student.id)"
-                @click="startEditing(node, student.id)"
+                :class="[
+                  ...getResultCellClass(node, student.id),
+                  { editing: isEditing(node.id, student.id) }
+                ]"
+                @click.stop="startEditing(node, student.id)"
               >
                 <div class="result-content">
                   <!-- Editing mode -->
@@ -159,23 +162,19 @@
                     v-if="canShowResult(node) && isEditing(node.id, student.id)"
                     class="edit-mode"
                   >
-                    <select
-                      ref="editSelect"
-                      v-model="editingValue"
-                      class="result-select"
-                      @change="saveResult(node.id, student.id)"
-                      @blur="cancelEditing"
-                      @keydown.enter="saveResult(node.id, student.id)"
-                      @keydown.escape="cancelEditing"
-                    >
-                      <option
-                        v-for="value in getResultValues(node)"
-                        :key="value"
-                        :value="value"
-                      >
-                        {{ value }}
-                      </option>
-                    </select>
+                    <div class="custom-select" :class="{ 'open': true }">
+                      <div class="select-dropdown" @click.stop>
+                        <button
+                          v-for="valueObj in getResultValues(node)"
+                          :key="valueObj.value"
+                          :class="{ 'selected': valueObj.value === editingValue }"
+                          class="select-option"
+                          @click.stop="selectValue(valueObj.value, node.id, student.id)"
+                        >
+                          {{ valueObj.label }}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Display mode -->
@@ -185,7 +184,7 @@
                     :class="`level-${getStudentResult(node.id, student.id)?.level?.toLowerCase()}`"
                     :title="getResultTitle(node.id, student.id)"
                   >
-                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || getResultValues(node)[getResultValues(node).length - 1] }}
+                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || getResultValues(node)[getResultValues(node).length - 1]?.label }}
                   </span>
                 </div>
               </td>
@@ -195,44 +194,19 @@
       </div>
     </div>
 
-    <div class="table-footer">
-      <div class="legend">
-        <h3>Légende des niveaux :</h3>
-        <div class="legend-items">
-          <span class="legend-item">
-            <span class="result-badge level-a">A</span> Très bonne maîtrise
-          </span>
-          <span class="legend-item">
-            <span class="result-badge level-b">B</span> Maîtrise satisfaisante
-          </span>
-          <span class="legend-item">
-            <span class="result-badge level-c">C</span> Maîtrise fragile
-          </span>
-          <span class="legend-item">
-            <span class="result-badge level-d">D</span> Maîtrise insuffisante
-          </span>
-          <span class="legend-item">
-            <span class="result-badge level-e">E</span> Maîtrise très insuffisante
-          </span>
-          <span class="legend-item">
-            <span class="result-badge level-n-a">N/A</span> Non évalué
-          </span>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import type {
   Student,
   Evaluation,
   TreeNode,
   EvaluationResult,
   CompetencyFramework,
-  EvaluationLevel,
-  ResultTypeConfig
+  ResultTypeConfig,
+  ResultTypeConfigValue
 } from '@/types/evaluation'
 import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/competencyTree'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
@@ -255,6 +229,7 @@ const competencyTree = ref<TreeNode[]>([])
 // Inline editing state
 const editingCell = ref<{ competencyId: string; studentId: string } | null>(null)
 const editingValue = ref<string>('')
+const ignoreNextGlobalClick = ref(false)
 
 // Initialize evaluation results store
 const evaluationStore = useEvaluationResultsStore()
@@ -265,6 +240,27 @@ const resultTypesMap = ref<Map<string, ResultTypeConfig>>(new Map())
 
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
+
+// Handle click outside to close dropdown
+function handleClickOutside(event: Event) {
+  if (ignoreNextGlobalClick.value) {
+    ignoreNextGlobalClick.value = false
+    return
+  }
+
+  if (editingCell.value) {
+    const target = event.target as Element
+    console.log('🖱️ [Global] Clic détecté sur:', target?.className)
+
+    // Ne fermer que si le clic n'est pas sur le dropdown ou ses éléments
+    if (target && !target.closest('.select-dropdown') && !target.closest('.select-option') && !target.closest('.custom-select')) {
+      console.log('🚪 [Global] Fermeture du dropdown')
+      cancelEditing()
+    } else {
+      console.log('🔒 [Global] Clic sur dropdown - pas de fermeture')
+    }
+  }
+}
 
 // Initialize evaluation store on mount
 onMounted(async () => {
@@ -280,6 +276,14 @@ onMounted(async () => {
   // Load result types
   resultTypes.value = await supabaseResultTypesService.getResultTypes()
   resultTypesMap.value = new Map(resultTypes.value.map(rt => [rt.id, rt]))
+
+  // Add global click listener to close dropdown when clicking outside
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  // Clean up event listener
+  document.removeEventListener('click', handleClickOutside)
 })
 
 // Computed for filtered tree based on multiple searches
@@ -415,18 +419,29 @@ function getResultTypeConfig(node: TreeNode): ResultTypeConfig | null {
 }
 
 // Get result values based on the competency's result type
-function getResultValues(node: TreeNode): string[] {
+function getResultValues(node: TreeNode): ResultTypeConfigValue[] {
   const config = getResultTypeConfig(node)
-  if (!config) return ['A', 'B', 'C', 'D', 'E', 'N/A'] // Default values
-  return config.config.values
+  if (!config) {
+    // Default values for backward compatibility
+    return [
+      { label: 'A', value: 'A', pivot_value: 10 },
+      { label: 'B', value: 'B', pivot_value: 7.5 },
+      { label: 'C', value: 'C', pivot_value: 5 },
+      { label: 'D', value: 'D', pivot_value: 2.5 },
+      { label: 'E', value: 'E', pivot_value: 0 },
+      { label: 'N/A', value: 'N/A', pivot_value: 0 }
+    ]
+  }
+
+  // Handle backward compatibility: convert string values to objects
+  return config.config.values.map(v => {
+    if (typeof v === 'string') {
+      return { label: v, value: v, pivot_value: 5 }
+    }
+    return v
+  })
 }
 
-// Get result label for display
-function getResultLabel(node: TreeNode, value: string): string {
-  const config = getResultTypeConfig(node)
-  if (!config) return value
-  return config.config.labels[value] || value
-}
 
 // Inline editing functions
 function isEditing(competencyId: string, studentId: string): boolean {
@@ -438,18 +453,18 @@ function startEditing(node: TreeNode, studentId: string) {
 
   console.log('🖊️ [Edition] Début d\'édition:', { competencyId: node.id, studentId })
 
+  // Set flag to ignore the global click that triggered this function
+  ignoreNextGlobalClick.value = true
+
   const currentResult = getStudentResult(node.id, studentId)
   editingCell.value = { competencyId: node.id, studentId }
   // Use value if available (new system), fallback to level (old system)
-  editingValue.value = currentResult?.value || currentResult?.level || getResultValues(node)[getResultValues(node).length - 1]
+  editingValue.value = currentResult?.value || currentResult?.level || getResultValues(node)[getResultValues(node).length - 1]?.value
+}
 
-  // Focus the select element after Vue has updated the DOM
-  setTimeout(() => {
-    const selectEl = document.querySelector('.result-select')
-    if (selectEl && 'focus' in selectEl) {
-      (selectEl as { focus(): void }).focus()
-    }
-  }, 0)
+function selectValue(value: string, competencyId: string, studentId: string) {
+  editingValue.value = value
+  saveResult(competencyId, studentId)
 }
 
 async function saveResult(competencyId: string, studentId: string) {
@@ -475,7 +490,7 @@ async function saveResult(competencyId: string, studentId: string) {
       )
 
       if (result) {
-        result.level = editingValue.value as EvaluationLevel
+        result.value = editingValue.value
         result.evaluatedAt = savedResult.evaluatedAt
       } else {
         props.evaluation.results.push(savedResult)
@@ -494,6 +509,7 @@ async function saveResult(competencyId: string, studentId: string) {
     // Keep editing mode active to allow retry
   }
 }
+
 
 function cancelEditing() {
   console.log('❌ [Edition] Annulation de l\'édition')
@@ -855,6 +871,16 @@ watch(searchTerm, (newTerm) => {
   transition: background-color 0.2s ease;
 }
 
+/* Lower z-index when in edit mode to let dropdown appear above */
+.result-cell:has(.edit-mode) {
+  z-index: 0;
+}
+
+/* Fallback for browsers that don't support :has() */
+.result-cell.editing {
+  z-index: 0;
+}
+
 .result-cell:hover {
   background-color: rgba(0, 123, 255, 0.1);
 }
@@ -972,33 +998,60 @@ watch(searchTerm, (newTerm) => {
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Footer styles */
-.table-footer {
-  padding: 1rem;
+/* Custom select dropdown styles */
+.custom-select {
+  position: relative;
+  width: 80px;
+}
+
+.select-dropdown {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   background: #ffffff;
-  border-top: 1px solid #e9ecef;
-  flex-shrink: 0;
+  border: 2px solid #6750a4;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  min-width: 100px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.legend h3 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1rem;
-  color: #495057;
+.select-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: #ffffff;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.legend-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.select-option:hover {
+  background-color: #f3f0ff;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #495057;
+.select-option.selected {
+  background-color: #6750a4;
+  color: white;
 }
+
+.select-option:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.select-option:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.select-option:only-child {
+  border-radius: 6px;
+}
+
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -1008,51 +1061,62 @@ watch(searchTerm, (newTerm) => {
 
   .domain-col,
   .domain-cell {
-    min-width: 120px;
-    max-width: 120px;
-    width: 120px;
+    min-width: 80px;
+    max-width: 80px;
+    width: 80px;
   }
 
   .field-col,
   .field-cell {
-    min-width: 160px;
-    max-width: 160px;
-    width: 160px;
-    left: 120px;
+    min-width: 100px;
+    max-width: 100px;
+    width: 100px;
+    left: 80px;
   }
 
   .competency-col,
   .competency-cell {
-    min-width: 200px;
-    max-width: 200px;
-    width: 200px;
-    left: 280px;
+    min-width: 120px;
+    max-width: 120px;
+    width: 120px;
+    left: 180px;
   }
 
   .specific-competency-col,
   .specific-competency-cell {
-    min-width: 240px;
-    max-width: 240px;
-    width: 240px;
-    left: 480px;
+    min-width: 140px;
+    max-width: 140px;
+    width: 140px;
+    left: 300px;
   }
 
   .student-header {
-    min-width: 70px;
-    max-width: 80px;
-    width: 75px;
+    min-width: 60px;
+    max-width: 70px;
+    width: 65px;
   }
 
   .result-cell {
-    min-width: 70px;
-    max-width: 80px;
-    width: 75px;
+    min-width: 60px;
+    max-width: 70px;
+    width: 65px;
   }
 
-  .legend-items {
-    flex-direction: column;
-    gap: 0.5rem;
+  /* Optimize search inputs for mobile */
+  .search-input {
+    padding: 0.25rem 0.375rem;
+    font-size: 0.75rem;
   }
+
+  .search-container {
+    margin-top: 0.25rem;
+  }
+
+  .clear-search-btn {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.25rem;
+  }
+
 
   .table-header {
     flex-direction: column;
@@ -1073,28 +1137,64 @@ watch(searchTerm, (newTerm) => {
     font-size: 1.25rem;
   }
 
-  .competency-header {
-    min-width: 240px;
-    max-width: 240px;
-    width: 240px;
+  /* Very aggressive reduction for smallest screens */
+  .domain-col,
+  .domain-cell {
+    min-width: 60px;
+    max-width: 60px;
+    width: 60px;
   }
 
+  .field-col,
+  .field-cell {
+    min-width: 80px;
+    max-width: 80px;
+    width: 80px;
+    left: 60px;
+  }
+
+  .competency-col,
   .competency-cell {
-    min-width: 240px;
-    max-width: 240px;
-    width: 240px;
+    min-width: 100px;
+    max-width: 100px;
+    width: 100px;
+    left: 140px;
+  }
+
+  .specific-competency-col,
+  .specific-competency-cell {
+    min-width: 120px;
+    max-width: 120px;
+    width: 120px;
+    left: 240px;
   }
 
   .student-header {
-    min-width: 60px;
-    max-width: 70px;
-    width: 65px;
+    min-width: 45px;
+    max-width: 55px;
+    width: 50px;
   }
 
   .result-cell {
-    min-width: 60px;
-    max-width: 70px;
-    width: 65px;
+    min-width: 45px;
+    max-width: 55px;
+    width: 50px;
+  }
+
+  /* Hide search functionality on very small screens to save space */
+  .search-container {
+    display: none;
+  }
+
+  .clear-search-btn {
+    display: none;
+  }
+
+  /* Reduce font sizes */
+  .hierarchy-header,
+  .student-header {
+    font-size: 0.75rem;
+    padding: 0.25rem;
   }
 }
 </style>

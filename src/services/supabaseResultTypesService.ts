@@ -1,7 +1,15 @@
 import { supabase } from '@/lib/supabase'
-import type { ResultTypeConfig } from '@/types/evaluation'
+import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
 
 export class SupabaseResultTypesService {
+  private validatePivotValues(values: ResultTypeConfigValue[]) {
+    for (const value of values) {
+      if (value.pivot_value < 0 || value.pivot_value > 10) {
+        throw new Error(`Pivot value must be between 0 and 10. Got: ${value.pivot_value} for value: ${value.label}`)
+      }
+    }
+  }
+
   async getResultTypes(): Promise<ResultTypeConfig[]> {
     try {
       const { data, error } = await supabase
@@ -15,7 +23,7 @@ export class SupabaseResultTypesService {
         id: item.id,
         name: item.name,
         type: item.type,
-        config: item.config as { values: string[]; labels: Record<string, string> }
+        config: item.config as { values: ResultTypeConfigValue[] }
       }))
     } catch (error) {
       console.error('Erreur lors de la récupération des types de résultats:', error)
@@ -37,7 +45,7 @@ export class SupabaseResultTypesService {
         id: data.id,
         name: data.name,
         type: data.type,
-        config: data.config as { values: string[]; labels: Record<string, string> }
+        config: data.config as { values: ResultTypeConfigValue[] }
       }
     } catch (error) {
       console.error('Erreur lors de la récupération du type de résultat:', error)
@@ -47,6 +55,9 @@ export class SupabaseResultTypesService {
 
   async createResultType(resultType: Omit<ResultTypeConfig, 'id'>): Promise<ResultTypeConfig | null> {
     try {
+      // Validate pivot values are between 0 and 10
+      this.validatePivotValues(resultType.config.values)
+
       const { data, error } = await supabase
         .from('result_type_configs')
         .insert({
@@ -63,7 +74,7 @@ export class SupabaseResultTypesService {
         id: data.id,
         name: data.name,
         type: data.type,
-        config: data.config as { values: string[]; labels: Record<string, string> }
+        config: data.config as { values: ResultTypeConfigValue[] }
       }
     } catch (error) {
       console.error('Erreur lors de la création du type de résultat:', error)
@@ -73,6 +84,11 @@ export class SupabaseResultTypesService {
 
   async updateResultType(id: string, resultType: Partial<ResultTypeConfig>): Promise<ResultTypeConfig | null> {
     try {
+      // Validate pivot values are between 0 and 10
+      if (resultType.config?.values) {
+        this.validatePivotValues(resultType.config.values)
+      }
+
       const { data, error } = await supabase
         .from('result_type_configs')
         .update({
@@ -90,7 +106,7 @@ export class SupabaseResultTypesService {
         id: data.id,
         name: data.name,
         type: data.type,
-        config: data.config as { values: string[]; labels: Record<string, string> }
+        config: data.config as { values: ResultTypeConfigValue[] }
       }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du type de résultat:', error)

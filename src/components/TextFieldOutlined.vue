@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, nextTick } from 'vue'
+import { computed, ref } from 'vue'
 
 interface Props {
   modelValue: string | number
@@ -204,26 +204,45 @@ defineExpose({
 </script>
 
 <style scoped>
+/* Material Design 3 Outlined Text Field */
+/* Based on https://github.com/material-components/material-web/blob/main/docs/components/text-field.md */
+
 /* MD3 Design Tokens */
 :root {
   --md-sys-color-primary: #6750a4;
-  --md-sys-color-on-surface: #1d1b20;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #eaddff;
+  --md-sys-color-on-primary-container: #21005d;
+  --md-sys-color-surface: #fffbfe;
+  --md-sys-color-on-surface: #1c1b1f;
   --md-sys-color-on-surface-variant: #49454f;
   --md-sys-color-outline: #79747e;
   --md-sys-color-outline-variant: #cac4d0;
   --md-sys-color-error: #ba1a1a;
-  --md-sys-color-surface: #ffffff;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  /* Material 3 Text Field Tokens */
   --md-outlined-text-field-container-height: 56px;
   --md-outlined-text-field-container-shape: 4px;
-  --md-outlined-text-field-input-text-size: 16px;
-  --md-outlined-text-field-input-text-line-height: 24px;
-  --md-outlined-text-field-label-text-size: 16px;
-  --md-outlined-text-field-label-text-line-height: 24px;
-  --md-outlined-text-field-supporting-text-size: 12px;
-  --md-outlined-text-field-supporting-text-line-height: 16px;
+  --md-outlined-text-field-outline-width: 1px;
+  --md-outlined-text-field-focus-outline-width: 2px;
+  --md-outlined-text-field-disabled-outline-opacity: 0.12;
+
+  /* Typography tokens */
+  --md-sys-typescale-body-large-font: 'Roboto';
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-line-height: 24px;
+
+  --md-sys-typescale-body-small-font: 'Roboto';
+  --md-sys-typescale-body-small-size: 12px;
+  --md-sys-typescale-body-small-weight: 400;
+  --md-sys-typescale-body-small-line-height: 16px;
 }
 
-/* Base Container */
+/* Base Container - Material 3 Outlined Text Field */
 .md-outlined-text-field {
   position: relative;
   display: inline-flex;
@@ -234,10 +253,13 @@ defineExpose({
   border-radius: var(--md-outlined-text-field-container-shape);
   background-color: transparent;
   vertical-align: top;
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--md-sys-typescale-body-large-font);
+
+  /* Ensure proper stacking context */
+  isolation: isolate;
 }
 
-/* Input Element */
+/* Input Element - Material 3 Specifications */
 .md-outlined-text-field__input {
   flex: 1;
   min-width: 0;
@@ -251,11 +273,24 @@ defineExpose({
   outline: none;
   padding: 16px;
   z-index: 1;
-  font-family: inherit;
-  font-size: var(--md-outlined-text-field-input-text-size);
-  line-height: var(--md-outlined-text-field-input-text-line-height);
+
+  /* Material 3 Typography - Body Large */
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  font-weight: var(--md-sys-typescale-body-large-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+
+  /* Material 3 Colors */
   color: var(--md-sys-color-on-surface);
   caret-color: var(--md-sys-color-primary);
+
+  /* Remove autofill styling */
+  -webkit-autofill,
+  -webkit-autofill:hover,
+  -webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--md-sys-color-surface) inset;
+    -webkit-text-fill-color: var(--md-sys-color-on-surface);
+  }
 }
 
 .md-outlined-text-field--textarea .md-outlined-text-field__input {
@@ -292,22 +327,29 @@ defineExpose({
   margin-right: 0;
 }
 
-/* Label */
+/* Label - Material 3 Floating Label */
 .md-outlined-text-field__label {
   position: absolute;
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: inherit;
-  font-size: var(--md-outlined-text-field-label-text-size);
-  line-height: var(--md-outlined-text-field-label-text-line-height);
+
+  /* Material 3 Typography - Body Large for resting state */
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  font-weight: var(--md-sys-typescale-body-large-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+
+  /* Material 3 Colors */
   color: var(--md-sys-color-on-surface-variant);
-  background: #ffffff;
-  padding: 0 8px;
+  background: var(--md-sys-color-surface);
+
+  /* Layout and interaction */
+  padding: 0 4px;
   pointer-events: none;
   transition: all 150ms cubic-bezier(0.2, 0, 0, 1);
   transform-origin: left center;
-  z-index: 2;
+  z-index: 1;
   max-width: calc(100% - 32px);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -321,16 +363,25 @@ defineExpose({
 
 .md-outlined-text-field__label.floating {
   top: 0;
-  font-size: 12px;
-  line-height: 16px;
-  transform: translateY(-50%) scale(0.75);
-  color: var(--md-sys-color-primary);
-  max-width: calc(133% - 32px);
-  padding: 0 8px;
-  margin: 0 -4px;
+
+  /* Material 3 Typography - Body Small for floating state */
+  font-size: var(--md-sys-typescale-body-small-size);
+  font-weight: var(--md-sys-typescale-body-small-weight);
+  line-height: var(--md-sys-typescale-body-small-line-height);
+
+  /* Transform to floating position */
+  transform: translateY(-50%) scale(1);
+
+  /* Maintain outline variant color in resting floating state */
+  color: var(--md-sys-color-on-surface-variant);
+
+  /* Adjust layout for smaller text */
+  max-width: calc(100% - 32px);
+  padding: 0 4px;
+  margin: 0;
 }
 
-/* Outline */
+/* Outline - Material 3 Outline System */
 .md-outlined-text-field__outline {
   position: absolute;
   top: 0;
@@ -340,11 +391,14 @@ defineExpose({
   pointer-events: none;
   border-radius: inherit;
   display: flex;
+
+  /* Ensure outline is behind content but above background */
+  z-index: 0;
 }
 
 .md-outlined-text-field__outline-start {
   width: 12px;
-  border: 1px solid var(--md-sys-color-outline);
+  border: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
   border-right: none;
   border-top-left-radius: inherit;
   border-bottom-left-radius: inherit;
@@ -354,15 +408,15 @@ defineExpose({
 .md-outlined-text-field__outline-notch {
   flex: 1;
   display: flex;
-  border-top: 1px solid var(--md-sys-color-outline);
-  border-bottom: 1px solid var(--md-sys-color-outline);
+  border-top: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
+  border-bottom: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
   transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1), border-width 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .md-outlined-text-field__outline-leading {
   width: 12px;
-  border-top: 1px solid var(--md-sys-color-outline);
-  border-bottom: 1px solid var(--md-sys-color-outline);
+  border-top: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
+  border-bottom: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
   transition: all 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -374,29 +428,34 @@ defineExpose({
 
 .md-outlined-text-field__outline-trailing {
   flex: 1;
-  border-top: 1px solid var(--md-sys-color-outline);
-  border-bottom: 1px solid var(--md-sys-color-outline);
+  border-top: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
+  border-bottom: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
   transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1), border-width 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .md-outlined-text-field__outline-end {
   width: 12px;
-  border: 1px solid var(--md-sys-color-outline);
+  border: var(--md-outlined-text-field-outline-width) solid var(--md-sys-color-outline);
   border-left: none;
   border-top-right-radius: inherit;
   border-bottom-right-radius: inherit;
   transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1), border-width 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* Supporting Text */
+/* Supporting Text - Material 3 Typography */
 .md-outlined-text-field__supporting-text {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-top: 4px;
   padding: 0 16px;
-  font-size: var(--md-outlined-text-field-supporting-text-size);
-  line-height: var(--md-outlined-text-field-supporting-text-line-height);
+
+  /* Material 3 Typography - Body Small */
+  font-family: var(--md-sys-typescale-body-small-font);
+  font-size: var(--md-sys-typescale-body-small-size);
+  font-weight: var(--md-sys-typescale-body-small-weight);
+  line-height: var(--md-sys-typescale-body-small-line-height);
+
   color: var(--md-sys-color-on-surface-variant);
   min-height: 16px;
 }
@@ -416,16 +475,23 @@ defineExpose({
 
 /* States */
 
-/* Focused */
+/* Focused State - Material 3 Focus Indicators */
 .md-outlined-text-field--focused .md-outlined-text-field__outline-start,
 .md-outlined-text-field--focused .md-outlined-text-field__outline-end,
 .md-outlined-text-field--focused .md-outlined-text-field__outline-trailing {
   border-color: var(--md-sys-color-primary);
-  border-width: 2px;
+  border-width: var(--md-outlined-text-field-focus-outline-width);
 }
 
+/* Focused label color only when floating and focused */
 .md-outlined-text-field--focused .md-outlined-text-field__label.floating {
   color: var(--md-sys-color-primary);
+}
+
+/* Leading section adjustments for focus */
+.md-outlined-text-field--focused .md-outlined-text-field__outline-leading {
+  border-top-width: var(--md-outlined-text-field-focus-outline-width);
+  border-bottom-width: var(--md-outlined-text-field-focus-outline-width);
 }
 
 /* Hover */
@@ -457,31 +523,37 @@ defineExpose({
   caret-color: var(--md-sys-color-error);
 }
 
-/* Disabled */
+/* Disabled State - Material 3 Disabled Opacity */
 .md-outlined-text-field--disabled {
   pointer-events: none;
 }
 
 .md-outlined-text-field--disabled .md-outlined-text-field__input {
-  color: rgba(29, 27, 32, 0.38);
+  color: var(--md-sys-color-on-surface);
+  opacity: 0.38;
 }
 
 .md-outlined-text-field--disabled .md-outlined-text-field__label {
-  color: rgba(73, 69, 79, 0.38);
+  color: var(--md-sys-color-on-surface);
+  opacity: 0.38;
 }
 
 .md-outlined-text-field--disabled .md-outlined-text-field__outline-start,
 .md-outlined-text-field--disabled .md-outlined-text-field__outline-end,
-.md-outlined-text-field--disabled .md-outlined-text-field__outline-trailing {
-  border-color: rgba(121, 116, 126, 0.38);
+.md-outlined-text-field--disabled .md-outlined-text-field__outline-trailing,
+.md-outlined-text-field--disabled .md-outlined-text-field__outline-leading {
+  border-color: var(--md-sys-color-on-surface);
+  opacity: var(--md-outlined-text-field-disabled-outline-opacity);
 }
 
 .md-outlined-text-field--disabled .md-outlined-text-field__supporting-text {
-  color: rgba(73, 69, 79, 0.38);
+  color: var(--md-sys-color-on-surface);
+  opacity: 0.38;
 }
 
 .md-outlined-text-field--disabled .md-outlined-text-field__leading-icon,
 .md-outlined-text-field--disabled .md-outlined-text-field__trailing-icon {
-  color: rgba(73, 69, 79, 0.38);
+  color: var(--md-sys-color-on-surface);
+  opacity: 0.38;
 }
 </style>

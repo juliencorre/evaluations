@@ -1,36 +1,19 @@
 <template>
   <div class="competencies-page">
-    <!-- Navigation Rail -->
-    <nav class="navigation-rail">
-      <div class="rail-items">
-        <button
-          class="rail-item"
-          :class="{ active: activeView === 'tree' }"
-          @click="activeView = 'tree'"
-        >
-          <span class="material-symbols-outlined rail-icon">account_tree</span>
-          <span class="rail-label">Référentiels</span>
-        </button>
-
-        <button
-          class="rail-item"
-          :class="{ active: activeView === 'types' }"
-          @click="activeView = 'types'"
-        >
-          <span class="material-symbols-outlined rail-icon">category</span>
-          <span class="rail-label">Types de résultats</span>
-        </button>
-
-        <button
-          class="rail-item"
-          :class="{ active: activeView === 'import' }"
-          @click="activeView = 'import'"
-        >
-          <span class="material-symbols-outlined rail-icon">upload</span>
-          <span class="rail-label">Import/Export</span>
-        </button>
-      </div>
-    </nav>
+    <!-- Top App Bar -->
+    <TopAppBar
+      :title="currentPageTitle"
+      :subtitle="currentPageDescription"
+      variant="medium"
+    >
+      <template #trailing>
+        <ThreeDotMenu
+          v-model="activeView"
+          :items="menuItems"
+          @item-selected="handleMenuSelection"
+        />
+      </template>
+    </TopAppBar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -359,7 +342,7 @@
           <h1 class="app-bar-title">{{ getModalTitle() }}</h1>
         </div>
         <div class="app-bar-trailing">
-          <button class="text-button app-bar-action" @click="saveCompetency" :disabled="!currentCompetency.name.trim() || !currentCompetency.description.trim()">
+          <button class="text-button app-bar-action" :disabled="!currentCompetency.name.trim() || !currentCompetency.description.trim()" @click="saveCompetency">
             {{ showEditModal ? 'Modifier' : 'Ajouter' }}
           </button>
         </div>
@@ -517,7 +500,7 @@
           <h1 class="app-bar-title">{{ showEditResultTypeModal ? 'Modifier le type' : 'Nouveau type' }}</h1>
         </div>
         <div class="app-bar-trailing">
-          <button class="text-button app-bar-action" @click="saveResultType" :disabled="!currentResultType.name.trim()">
+          <button class="text-button app-bar-action" :disabled="!currentResultType.name.trim()" @click="saveResultType">
             {{ showEditResultTypeModal ? 'Modifier' : 'Créer' }}
           </button>
         </div>
@@ -553,26 +536,61 @@
                 </div>
               </div>
 
-              <div class="text-field-outlined">
-                <textarea
-                  id="resultTypeValues"
-                  v-model="valuesInput"
-                  required
-                  class="text-field-textarea-outlined"
-                  placeholder=" "
-                  rows="3"
-                  @input="updateResultTypeValues"
-                ></textarea>
-                <label for="resultTypeValues" class="text-field-label-outlined">Valeurs possibles *</label>
-                <div class="text-field-outline">
-                  <div class="text-field-outline-start"></div>
-                  <div class="text-field-outline-notch">
-                    <div class="text-field-outline-leading"></div>
-                    <div class="text-field-outline-trailing"></div>
+              <div class="result-values-section">
+                <h3 class="section-subtitle">Valeurs possibles *</h3>
+                <div class="values-input-list">
+                  <div v-for="(value, index) in currentResultType.config.values" :key="index" class="value-input-row">
+                    <div class="text-field-outlined value-label-field">
+                      <input
+                        :id="`valueLabel-${index}`"
+                        v-model="value.label"
+                        type="text"
+                        required
+                        class="text-field-input-outlined"
+                        placeholder=" "
+                      >
+                      <label :for="`valueLabel-${index}`" class="text-field-label-outlined">Libellé</label>
+                      <div class="text-field-outline">
+                        <div class="text-field-outline-start"></div>
+                        <div class="text-field-outline-notch">
+                          <div class="text-field-outline-leading"></div>
+                          <div class="text-field-outline-trailing"></div>
+                        </div>
+                        <div class="text-field-outline-end"></div>
+                      </div>
+                    </div>
+                    <div class="text-field-outlined pivot-value-field">
+                      <input
+                        :id="`pivotValue-${index}`"
+                        v-model.number="value.pivot_value"
+                        type="number"
+                        min="0"
+                        max="10"
+                        step="0.5"
+                        required
+                        class="text-field-input-outlined"
+                        placeholder=" "
+                      >
+                      <label :for="`pivotValue-${index}`" class="text-field-label-outlined">Note /10</label>
+                      <div class="text-field-outline">
+                        <div class="text-field-outline-start"></div>
+                        <div class="text-field-outline-notch">
+                          <div class="text-field-outline-leading"></div>
+                          <div class="text-field-outline-trailing"></div>
+                        </div>
+                        <div class="text-field-outline-end"></div>
+                      </div>
+                    </div>
+                    <button class="icon-btn remove-value-btn" @click="removeValue(index)">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
                   </div>
-                  <div class="text-field-outline-end"></div>
+                  <button class="text-button add-value-btn" @click="addValue">
+                    <span class="material-symbols-outlined">add</span>
+                    Ajouter une valeur
+                  </button>
                 </div>
-                <div class="field-helper-text">Séparez les valeurs par des virgules (ex: Oui, Non, Peut-être)</div>
+                <div class="field-helper-text">Définissez chaque valeur avec son équivalent sur une échelle de 0 à 10</div>
               </div>
             </div>
           </div>
@@ -645,9 +663,14 @@
                   <div class="type-values">
                     <span class="type-label">Valeurs :</span>
                     <div class="values-list">
-                      <span v-for="value in type.config.values" :key="value" class="value-chip">
-                        {{ value }}
-                      </span>
+                      <div v-for="value in type.config.values" :key="value.value" class="value-item">
+                        <span class="value-chip">
+                          {{ value.label || value }}
+                        </span>
+                        <span class="pivot-value">
+                          {{ value.pivot_value !== undefined ? value.pivot_value : '-' }}/10
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -716,10 +739,9 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
 import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
-import type { ResultTypeConfig } from '@/types/evaluation'
-import FullscreenDialog from '@/components/FullscreenDialog.vue'
-import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
-import ContentSection from '@/components/ContentSection.vue'
+import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
+import ThreeDotMenu from '@/components/ThreeDotMenu.vue'
+import TopAppBar from '@/components/TopAppBar.vue'
 
 // Interfaces pour les éléments du framework de compétences
 interface CompetencyItem {
@@ -805,31 +827,56 @@ const isDragging = ref(false)
 const resultTypes = ref<ResultTypeConfig[]>([])
 
 // Functions for page header
-function getPageIcon(): string {
-  switch (activeView.value) {
-    case 'tree': return 'account_tree'
-    case 'types': return 'category'
-    case 'import': return 'upload'
-    default: return 'psychology'
-  }
-}
 
 function getPageTitle(): string {
   switch (activeView.value) {
-    case 'tree': return 'Gestion des Compétences'
-    case 'types': return 'Types de Résultats'
-    case 'import': return 'Import / Export'
-    default: return 'Gestion des Compétences'
+    case 'tree': return 'Gestion des Compétences';
+    case 'types': return 'Types de Résultats';
+    case 'import': return 'Import / Export';
+    default: return 'Gestion des Compétences';
   }
 }
 
 function getPageDescription(): string {
   switch (activeView.value) {
-    case 'tree': return 'Organisez et structurez le référentiel de compétences'
-    case 'types': return 'Gérez les différents types de résultats pour l’évaluation'
-    case 'import': return 'Importez ou exportez votre référentiel de compétences'
-    default: return ''
+    case 'tree': return 'Organisez et structurez le référentiel de compétences';
+    case 'types': return 'Gérez les différents types de résultats pour l\'évaluation';
+    case 'import': return 'Importez ou exportez votre référentiel de compétences';
+    default: return '';
   }
+}
+
+// Computed properties for the page
+const currentPageTitle = computed(() => getPageTitle())
+const currentPageDescription = computed(() => getPageDescription())
+
+const menuItems = computed(() => [
+  {
+    id: 'tree',
+    label: 'Référentiels',
+    icon: 'account_tree',
+    value: 'tree',
+    selected: activeView.value === 'tree'
+  },
+  {
+    id: 'types',
+    label: 'Types de résultats',
+    icon: 'category',
+    value: 'types',
+    selected: activeView.value === 'types'
+  },
+  {
+    id: 'import',
+    label: 'Import/Export',
+    icon: 'upload',
+    value: 'import',
+    selected: activeView.value === 'import'
+  }
+])
+
+// Menu handling
+const handleMenuSelection = (item: any) => {
+  activeView.value = item.value
 }
 const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | { isGhost: true } | null>(null)
 const ghostPosition = ref<number>(-1)
@@ -1106,7 +1153,7 @@ const toggleCompetency = (competencyId: string) => {
  
  
 const handleDragStart = (
-  // eslint-disable-next-line no-undef
+   
   event: Event,
   item: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
   type: string,
@@ -1129,7 +1176,7 @@ const handleDragStart = (
   dragEvent.dataTransfer.setData('text/plain', item.id)
 }
 
-// eslint-disable-next-line no-undef
+ 
 const handleDragEnd = (_event: Event) => {
   isDragging.value = false
 
@@ -1143,7 +1190,7 @@ const handleDragEnd = (_event: Event) => {
   ghostContext.value = null
 }
 
-// eslint-disable-next-line no-undef
+ 
 const handleDragOver = (event: Event) => {
   event.preventDefault()
   event.stopPropagation()
@@ -1157,7 +1204,7 @@ const handleDragOver = (event: Event) => {
  
  
 const handleDragEnter = (
-  // eslint-disable-next-line no-undef
+   
   event: Event,
   targetItem: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
   targetType: string,
@@ -1210,7 +1257,7 @@ const handleDragEnter = (
  
  
 const handleDrop = (
-  // eslint-disable-next-line no-undef
+   
   event: Event,
   targetItem: DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem,
   targetType: string,
@@ -1608,11 +1655,16 @@ const saveCompetency = async () => {
       }
     } else if (type === 'specificCompetency') {
       if (isEdit) {
-        await competenciesStore.updateSpecificCompetency(currentContext.value.specificCompetency!.id, {
+        const result = await competenciesStore.updateSpecificCompetency(currentContext.value.specificCompetency!.id, {
           name: currentCompetency.value.name,
           description: currentCompetency.value.description,
           resultTypeConfigId: currentCompetency.value.resultTypeConfigId
         })
+
+        if (!result) {
+          console.error('❌ [Vue] Échec de la mise à jour de la sous-compétence en base')
+          return
+        }
       } else {
         await competenciesStore.addSpecificCompetency(currentContext.value.competency!.id, {
           name: currentCompetency.value.name,
@@ -1694,14 +1746,13 @@ const currentResultType = ref<{
   id?: string
   name: string
   type: string
-  config: { values: string[]; labels: Record<string, string> }
+  config: { values: ResultTypeConfigValue[] }
 }>({
   name: '',
   type: 'custom',
-  config: { values: [], labels: {} }
+  config: { values: [] }
 })
 const resultTypeToDelete = ref<ResultTypeConfig | null>(null)
-const valuesInput = ref('')
 
 // Functions for result types management
 function openAddResultTypeModal() {
@@ -1709,16 +1760,41 @@ function openAddResultTypeModal() {
   currentResultType.value = {
     name: '',
     type: 'custom',
-    config: { values: [], labels: {} }
+    config: {
+      values: [
+        { label: '', value: '', pivot_value: 5 }
+      ]
+    }
   }
-  valuesInput.value = ''
   showResultTypeModal.value = true
 }
 
 function editResultType(type: ResultTypeConfig) {
   console.log('Editing result type:', type)
-  currentResultType.value = { ...type }
-  valuesInput.value = type.config.values.join(', ')
+  // Ensure values have the new structure
+  const values = type.config.values.map(v => {
+    if (typeof v === 'string') {
+      // Backward compatibility: convert string to object
+      return { label: v, value: v, pivot_value: 5 }
+    }
+    return {
+      label: v.label || '',
+      value: v.value || '',
+      pivot_value: v.pivot_value !== undefined ? v.pivot_value : 5
+    }
+  })
+
+  // Ensure at least one value exists
+  if (values.length === 0) {
+    values.push({ label: '', value: '', pivot_value: 5 })
+  }
+
+  currentResultType.value = {
+    id: type.id,
+    name: type.name,
+    type: type.type,
+    config: { values }
+  }
   showEditResultTypeModal.value = true
 }
 
@@ -1728,17 +1804,16 @@ function deleteResultType(type: ResultTypeConfig) {
   showDeleteResultTypeModal.value = true
 }
 
-function updateResultTypeValues() {
-  const values = valuesInput.value
-    .split(',')
-    .map(v => v.trim())
-    .filter(v => v.length > 0)
+function addValue() {
+  currentResultType.value.config.values.push({
+    label: '',
+    value: '',
+    pivot_value: 5
+  })
+}
 
-  currentResultType.value.config.values = values
-  currentResultType.value.config.labels = values.reduce((acc, val) => {
-    acc[val] = val
-    return acc
-  }, {} as Record<string, string>)
+function removeValue(index: number) {
+  currentResultType.value.config.values.splice(index, 1)
 }
 
 function closeResultTypeModal() {
@@ -1748,21 +1823,47 @@ function closeResultTypeModal() {
   currentResultType.value = {
     name: '',
     type: 'custom',
-    config: { values: [], labels: {} }
+    config: { values: [] }
   }
-  valuesInput.value = ''
   resultTypeToDelete.value = null
 }
 
 async function saveResultType() {
-  if (!currentResultType.value.name.trim()) return
+  if (!currentResultType.value.name.trim()) {
+    alert('Le nom du type de résultat est requis')
+    return
+  }
+
+  // Clean and validate the data structure
+  const cleanedValues = currentResultType.value.config.values
+    .filter(v => v.label && v.label.trim()) // Only keep values with labels
+    .map(v => ({
+      label: v.label.trim(),
+      value: v.value || v.label.toLowerCase().replace(/\s+/g, '_'),
+      pivot_value: Number(v.pivot_value) || 5 // Ensure it's a number
+    }))
+
+  if (cleanedValues.length === 0) {
+    alert('Au moins une valeur est requise')
+    return
+  }
+
+  // Create a clean object to send to the API
+  const resultTypeData = {
+    id: currentResultType.value.id,
+    name: currentResultType.value.name.trim(),
+    type: currentResultType.value.type,
+    config: { values: cleanedValues }
+  }
+
+  console.log('Saving result type data:', resultTypeData)
 
   try {
     if (showEditResultTypeModal.value && currentResultType.value.id) {
       // Modifier un type existant
       const updated = await supabaseResultTypesService.updateResultType(
         currentResultType.value.id,
-        currentResultType.value
+        resultTypeData
       )
       if (updated) {
         const index = resultTypes.value.findIndex(t => t.id === updated.id)
@@ -1772,7 +1873,7 @@ async function saveResultType() {
       }
     } else {
       // Créer un nouveau type
-      const created = await supabaseResultTypesService.createResultType(currentResultType.value)
+      const created = await supabaseResultTypesService.createResultType(resultTypeData)
       if (created) {
         resultTypes.value.push(created)
       }
@@ -1834,66 +1935,10 @@ function exportFramework() {
 /* Réutilisation des styles de la page des élèves avec adaptations */
 .competencies-page {
   display: flex;
+  flex-direction: column;
   height: 100vh;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   position: relative;
-}
-
-/* Navigation Rail */
-.navigation-rail {
-  width: 88px;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 0;
-  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
-}
-
-.rail-items {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0 12px;
-}
-
-.rail-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 12px;
-  background: none;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #6b7280;
-  text-decoration: none;
-  position: relative;
-}
-
-.rail-item:hover {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.rail-item.active {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.rail-icon {
-  font-size: 24px;
-  margin-bottom: 4px;
-}
-
-.rail-label {
-  font-size: 12px;
-  font-weight: 500;
-  text-align: center;
-  line-height: 1.2;
-  max-width: 56px;
 }
 
 /* Main Content */
@@ -1904,19 +1949,30 @@ function exportFramework() {
   overflow: hidden;
 }
 
-.page-header {
-  padding: 24px 32px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+
+.page-title {
+  flex: 1;
+}
+
+.page-title h1 {
+  font-family: var(--md-sys-typescale-headline-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-medium-size, 28px);
+  font-weight: var(--md-sys-typescale-headline-medium-weight, 400);
+  line-height: var(--md-sys-typescale-headline-medium-line-height, 36px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  margin: 0 0 4px 0;
 }
 
 .page-description {
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 4px;
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  font-weight: var(--md-sys-typescale-body-large-weight, 400);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  margin: 0;
 }
 
-.page-title {
+.old-page-title {
   font-size: 2rem;
   font-weight: 700;
   color: #2c3e50;
@@ -1935,22 +1991,23 @@ function exportFramework() {
   flex: 1;
   overflow-y: auto;
   padding: 24px 32px;
-  background-color: #f9fafb;
+  background-color: #ffffff;
 }
 
 /* Unified Card Styles for all views */
 .content-card {
   background: #ffffff;
-  margin: 24px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin: 0 0 8px 0; /* 8dp max padding between cards */
+  border-radius: 12px; /* 12dp corner radius */
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   position: relative;
 }
 
 .card-header {
-  padding: 24px 24px 16px 24px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 24px 16px 16px 16px; /* 16dp left/right padding */
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1958,14 +2015,15 @@ function exportFramework() {
 
 .card-title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-small-size, 24px);
+  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
+  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
 .card-content {
-  padding: 24px;
+  padding: 24px 16px; /* 16dp left/right padding */
 }
 
 .card-actions {
@@ -2226,7 +2284,7 @@ function exportFramework() {
 /* Material 3 Extended FAB - Same as students page */
 .extended-fab {
   position: fixed !important;
-  bottom: 24px;
+  bottom: 104px; /* 64px menu height + 40px margin */
   right: 24px;
   z-index: 1001;
   pointer-events: auto;
@@ -2656,7 +2714,7 @@ function exportFramework() {
 /* Material 3 Extended FAB Specifications */
 .extended-fab {
   position: fixed !important;
-  bottom: 24px;
+  bottom: 104px; /* 64px menu height + 40px margin */
   right: 24px;
   z-index: 1001;
   pointer-events: auto;
@@ -2768,13 +2826,24 @@ function exportFramework() {
   }
 }
 
+/* Large Screen with Navigation Rail */
+@media (min-width: 1440px) {
+  .extended-fab {
+    position: fixed !important;
+    bottom: 24px; /* Back to original position */
+    right: 24px;
+    z-index: 1001;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-  .rail-label {
-    display: none;
-  }
 
   .competencies-page {
+    padding: 0;
+  }
+
+  .main-content {
     padding: 1rem;
   }
 
@@ -2828,7 +2897,7 @@ function exportFramework() {
 
   .extended-fab {
     position: fixed !important;
-    bottom: 16px;
+    bottom: 96px; /* 64px menu height + 32px margin for mobile */
     right: 16px;
     height: 56px;
     padding: 0 16px;
@@ -2870,6 +2939,7 @@ function exportFramework() {
 }
 
 @media (max-width: 480px) {
+
   /* Réductions supplémentaires pour très petits écrans */
   .field-node {
     padding-left: 8px;
@@ -2901,7 +2971,7 @@ function exportFramework() {
 
   .extended-fab {
     position: fixed !important;
-    bottom: 12px;
+    bottom: 88px; /* 64px menu height + 24px margin for small mobile */
     right: 12px;
     height: 52px;
     padding: 0 12px;
@@ -3035,6 +3105,74 @@ function exportFramework() {
   border: 1px solid rgba(103, 80, 164, 0.12);
 }
 
+.value-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pivot-value {
+  font-size: 12px;
+  color: #49454f;
+  font-weight: 500;
+  background: #f7f2fa;
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Result Values Section */
+.result-values-section {
+  margin-top: 24px;
+}
+
+.section-subtitle {
+  font-family: var(--md-sys-typescale-title-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-medium-size, 16px);
+  font-weight: var(--md-sys-typescale-title-medium-weight, 500);
+  line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  margin: 0 0 16px 0;
+}
+
+.values-input-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.value-input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.value-label-field {
+  flex: 1;
+}
+
+.pivot-value-field {
+  width: 120px;
+}
+
+.remove-value-btn {
+  margin-top: 8px;
+  color: var(--md-sys-color-error, #ba1a1a);
+}
+
+.remove-value-btn:hover {
+  background-color: var(--md-sys-color-error-container, #ffdad6);
+}
+
+.add-value-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
 /* Import/Export Section Spacing */
 .import-section,
 .export-section {
@@ -3055,7 +3193,7 @@ function exportFramework() {
 
 .import-zone:hover {
   border-color: #9ca3af;
-  background-color: #f9fafb;
+  background-color: #f8f9fa;
 }
 
 .import-zone input[type="file"] {
@@ -3372,6 +3510,7 @@ function exportFramework() {
   pointer-events: none;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   transform-origin: left top;
+  z-index: 1;
 }
 
 .text-field-input-outlined:focus + .text-field-label-outlined,

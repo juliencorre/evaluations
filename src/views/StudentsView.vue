@@ -1,49 +1,59 @@
 <template>
   <div class="students-page">
-    <header class="page-header">
-      <h1 class="page-title">
-        <span class="material-symbols-outlined">groups</span>
-        Gestion des Élèves
-      </h1>
-    </header>
+    <!-- Top App Bar -->
+    <TopAppBar
+      title="Élèves"
+      subtitle="Gérer la liste des élèves de la classe"
+      variant="center-aligned"
+    />
 
     <div class="page-content">
-      <div class="search-bar">
-        <span class="material-symbols-outlined search-icon">search</span>
-        <input
-          v-model="searchTerm"
-          type="text"
-          placeholder="Rechercher un élève..."
-          class="search-input"
-        />
-      </div>
+      <div class="content-card">
+        <div class="card-header">
+          <h2 class="card-title">Liste des élèves</h2>
+        </div>
 
-      <div class="students-list">
-        <div v-for="student in filteredStudents" :key="student.id" class="student-item">
-          <div class="student-content">
-            <div class="student-name-grid">
-              <span class="first-name">{{ student.firstName }}</span>
-              <span class="last-name">{{ student.lastName }}</span>
+        <div class="search-bar">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input
+            v-model="searchTerm"
+            type="text"
+            placeholder="Rechercher un élève..."
+            class="search-input"
+          />
+        </div>
+
+        <div class="students-list">
+          <div v-for="student in filteredStudents" :key="student.id" class="student-item">
+            <div class="student-content">
+              <div class="student-name-grid">
+                <span class="first-name">{{ student.firstName }}</span>
+                <span class="last-name">{{ student.lastName }}</span>
+              </div>
             </div>
-          </div>
-          <div class="student-trailing">
-            <button class="action-btn edit-action" title="Modifier" @click="editStudent(student)">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button
-              class="action-btn delete-action"
-              title="Supprimer"
-              @click="deleteStudent(student)"
-            >
-              <span class="material-symbols-outlined">delete</span>
-            </button>
+            <div class="student-trailing">
+              <button class="action-btn edit-action" title="Modifier" @click="editStudent(student)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button
+                class="action-btn delete-action"
+                title="Supprimer"
+                @click="deleteStudent(student)"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Material 3 Extended FAB -->
-    <button class="extended-fab" @click="showAddModal = true">
+    <button
+      v-if="!showAddModal && !showEditModal"
+      class="extended-fab"
+      @click="showAddModal = true"
+    >
       <span class="material-symbols-outlined fab-icon">add</span>
       <span class="fab-label">Ajouter un élève</span>
     </button>
@@ -66,25 +76,49 @@
           : 'Saisissez les informations du nouvel élève à ajouter à la classe.'"
       >
         <div class="form-fields">
-          <TextFieldOutlined
-            id="firstName"
-            v-model="currentStudent.firstName"
-            label="Prénom"
-            :required="true"
-            type="text"
-            :max-length="50"
-            supporting-text="Entrez le prénom de l'élève"
-          />
+          <div class="text-field-outlined">
+            <input
+              id="firstName"
+              v-model="currentStudent.firstName"
+              type="text"
+              required
+              class="text-field-input-outlined"
+              placeholder=" "
+              maxlength="50"
+            />
+            <label for="firstName" class="text-field-label-outlined">Prénom *</label>
+            <div class="text-field-outline">
+              <div class="text-field-outline-start"></div>
+              <div class="text-field-outline-notch">
+                <div class="text-field-outline-leading"></div>
+                <div class="text-field-outline-trailing"></div>
+              </div>
+              <div class="text-field-outline-end"></div>
+            </div>
+            <div class="field-helper-text">Entrez le prénom de l'élève</div>
+          </div>
 
-          <TextFieldOutlined
-            id="lastName"
-            v-model="currentStudent.lastName"
-            label="Nom de famille"
-            :required="true"
-            type="text"
-            :max-length="50"
-            supporting-text="Entrez le nom de famille de l'élève"
-          />
+          <div class="text-field-outlined">
+            <input
+              id="lastName"
+              v-model="currentStudent.lastName"
+              type="text"
+              required
+              class="text-field-input-outlined"
+              placeholder=" "
+              maxlength="50"
+            />
+            <label for="lastName" class="text-field-label-outlined">Nom de famille *</label>
+            <div class="text-field-outline">
+              <div class="text-field-outline-start"></div>
+              <div class="text-field-outline-notch">
+                <div class="text-field-outline-leading"></div>
+                <div class="text-field-outline-trailing"></div>
+              </div>
+              <div class="text-field-outline-end"></div>
+            </div>
+            <div class="field-helper-text">Entrez le nom de famille de l'élève</div>
+          </div>
         </div>
       </ContentSection>
 
@@ -154,8 +188,8 @@ import { ref, computed } from 'vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
 import FullscreenDialog from '@/components/FullscreenDialog.vue'
-import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
 import ContentSection from '@/components/ContentSection.vue'
+import TopAppBar from '@/components/TopAppBar.vue'
 
 // Utiliser directement le store réactif global
 const studentsStore = useStudentsStore()
@@ -272,36 +306,15 @@ const closeModal = () => {
 
 <style scoped>
 .students-page {
-  padding: 2rem;
+  padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.page-title .material-symbols-outlined {
-  color: #2563eb;
-  font-size: 2rem;
 }
 
 .page-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 24px;
 }
 
 .search-bar {
@@ -311,26 +324,31 @@ const closeModal = () => {
 
 .search-icon {
   position: absolute;
-  left: 1rem;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   font-size: 20px;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  padding: 12px 16px 12px 40px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-radius: var(--md-sys-shape-corner-small, 4px);
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  background-color: #ffffff;
+  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--md-sys-color-primary, #6750a4);
+  border-width: 2px;
+  padding: 11px 15px 11px 39px;
 }
 
 /* Material 3 List Specifications - Sans conteneur */
@@ -657,6 +675,8 @@ const closeModal = () => {
   color: #49454f;
   margin-bottom: 8px;
   transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  z-index: 1;
+  position: relative;
 }
 
 .text-field-input {
@@ -846,7 +866,7 @@ const closeModal = () => {
 /* Material 3 Extended FAB Specifications */
 .extended-fab {
   position: fixed !important;
-  bottom: 24px;
+  bottom: 104px; /* 64px menu height + 40px margin */
   right: 24px;
   z-index: 1001;
   pointer-events: auto;
@@ -958,20 +978,20 @@ const closeModal = () => {
   }
 }
 
+/* Large Screen with Navigation Rail */
+@media (min-width: 1440px) {
+  .extended-fab {
+    position: fixed !important;
+    bottom: 24px; /* Back to original position */
+    right: 24px;
+    z-index: 1001;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .students-page {
-    padding: 1rem;
-  }
-
-  .page-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
+    padding: 16px;
   }
 
   /* Mobile: Maintain Material 3 list specifications */
@@ -1036,7 +1056,7 @@ const closeModal = () => {
   /* Mobile Extended FAB */
   .extended-fab {
     position: fixed !important;
-    bottom: 16px;
+    bottom: 96px; /* 64px menu height + 32px margin for tablet */
     right: 16px;
     height: 56px;
     padding: 0 16px;
@@ -1052,7 +1072,7 @@ const closeModal = () => {
   /* Small Mobile Extended FAB */
   .extended-fab {
     position: fixed !important;
-    bottom: 12px;
+    bottom: 92px; /* 64px menu height + 28px margin for mobile */
     right: 12px;
     height: 52px;
     padding: 0 12px;
@@ -1079,8 +1099,8 @@ const closeModal = () => {
 /* Preview Container */
 .preview-container {
   background: #ffffff;
-  border: 1px solid #e7e0ec;
-  border-radius: 12px;
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
   padding: 24px;
 }
 
@@ -1090,16 +1110,16 @@ const closeModal = () => {
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  background: var(--md-sys-color-surface-variant, #e7e0ec);
+  border-radius: var(--md-sys-shape-corner-small, 8px);
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
 }
 
 .student-preview-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #e8def8;
+  background: var(--md-sys-color-primary-container, #eaddff);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1107,7 +1127,7 @@ const closeModal = () => {
 }
 
 .student-preview-avatar .material-symbols-outlined {
-  color: #6750a4;
+  color: var(--md-sys-color-on-primary-container, #21005d);
   font-size: 24px;
 }
 
@@ -1125,10 +1145,11 @@ const closeModal = () => {
 
 .student-preview-name .first-name,
 .student-preview-name .last-name {
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  color: #1d1b20;
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  font-weight: var(--md-sys-typescale-body-large-weight, 400);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1136,15 +1157,15 @@ const closeModal = () => {
 }
 
 .student-preview-name .last-name {
-  font-weight: 500;
+  font-weight: var(--md-sys-typescale-body-large-weight-prominent, 500);
 }
 
 .student-preview-meta {
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: #49454f;
+  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-medium-size, 14px);
+  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
+  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 /* Responsive pour student preview */
@@ -1161,6 +1182,213 @@ const closeModal = () => {
 
   .student-preview-avatar .material-symbols-outlined {
     font-size: 20px;
+  }
+}
+
+/* Outlined Text Fields - Compatible avec CompetenciesView */
+.text-field-outlined {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-field-input-outlined,
+.text-field-textarea-outlined {
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  font-weight: var(--md-sys-typescale-body-large-weight, 400);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 16px;
+  min-height: 56px;
+  box-sizing: border-box;
+  width: 100%;
+  resize: none;
+  caret-color: var(--md-sys-color-primary, #6750a4);
+}
+
+.text-field-textarea-outlined {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.text-field-label-outlined {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  font-weight: var(--md-sys-typescale-body-large-weight, 400);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  background: #ffffff;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transform-origin: left top;
+  z-index: 1;
+}
+
+.text-field-input-outlined:focus + .text-field-label-outlined,
+.text-field-textarea-outlined:focus + .text-field-label-outlined,
+.text-field-input-outlined:not(:placeholder-shown) + .text-field-label-outlined,
+.text-field-textarea-outlined:not(:placeholder-shown) + .text-field-label-outlined {
+  top: 0;
+  font-size: var(--md-sys-typescale-body-small-size, 12px);
+  font-weight: var(--md-sys-typescale-body-small-weight, 400);
+  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
+  color: var(--md-sys-color-primary, #6750a4);
+  transform: translateY(-50%);
+}
+
+.text-field-outline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+  z-index: 0;
+}
+
+.text-field-outline-start {
+  width: 12px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-right: none;
+  border-radius: var(--md-sys-shape-corner-small, 4px) 0 0 var(--md-sys-shape-corner-small, 4px);
+  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1), border-width 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-field-outline-notch {
+  flex: 1;
+  display: flex;
+  border-top: 1px solid var(--md-sys-color-outline, #79747e);
+  border-bottom: 1px solid var(--md-sys-color-outline, #79747e);
+  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1), border-width 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-field-outline-leading {
+  width: 12px;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-field-outline-trailing {
+  flex: 1;
+  border-top: 1px solid var(--md-sys-color-outline, #79747e);
+  border-bottom: 1px solid var(--md-sys-color-outline, #79747e);
+  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1), border-width 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-field-outline-end {
+  width: 12px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-left: none;
+  border-radius: 0 var(--md-sys-shape-corner-small, 4px) var(--md-sys-shape-corner-small, 4px) 0;
+  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1), border-width 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Focus States */
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-start,
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-end,
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-trailing,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-start,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-end,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-trailing {
+  border-color: var(--md-sys-color-primary, #6750a4);
+  border-width: 2px;
+}
+
+.text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-leading,
+.text-field-textarea-outlined:focus ~ .text-field-outline .text-field-outline-leading {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+}
+
+.text-field-input-outlined:not(:placeholder-shown) ~ .text-field-outline .text-field-outline-leading,
+.text-field-textarea-outlined:not(:placeholder-shown) ~ .text-field-outline .text-field-outline-leading {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+}
+
+/* Supporting Text */
+.field-helper-text {
+  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-small-size, 12px);
+  font-weight: var(--md-sys-typescale-body-small-weight, 400);
+  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  margin-top: 4px;
+  padding: 0 16px;
+}
+
+/* Hover States */
+.text-field-outlined:hover:not(:focus-within) .text-field-outline-start,
+.text-field-outlined:hover:not(:focus-within) .text-field-outline-end,
+.text-field-outlined:hover:not(:focus-within) .text-field-outline-trailing {
+  border-color: var(--md-sys-color-on-surface, #1d1b20);
+}
+
+/* Content Card - Design unifié avec spécifications */
+.content-card {
+  background: #ffffff;
+  border-radius: 12px; /* 12dp corner radius */
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  overflow: hidden;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  margin-bottom: 8px; /* 8dp max padding between cards */
+}
+
+.card-header {
+  padding: 24px 16px 16px 16px; /* 16dp left/right padding */
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  background: #ffffff;
+}
+
+.card-title {
+  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-small-size, 24px);
+  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
+  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  margin: 0;
+}
+
+/* Ajustements pour la barre de recherche dans la card */
+.content-card .search-bar {
+  margin: 24px 16px 0 16px; /* 16dp left/right padding */
+  max-width: none;
+}
+
+/* Ajustements pour la liste dans la card */
+.content-card .students-list {
+  padding: 0 8px 8px 8px;
+  margin-top: 16px;
+}
+
+/* Responsive pour la card */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 16px 16px 12px 16px; /* Maintenir 16dp left/right padding */
+  }
+
+  .card-title {
+    font-size: var(--md-sys-typescale-headline-small-size, 20px);
+    line-height: var(--md-sys-typescale-headline-small-line-height, 28px);
+  }
+
+  .content-card .search-bar {
+    margin: 16px 16px 0 16px; /* Maintenir 16dp left/right padding */
+  }
+
+  .content-card .students-list {
+    padding: 0 8px 8px 8px;
+    margin-top: 12px;
   }
 }
 </style>

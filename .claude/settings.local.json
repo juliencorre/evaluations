@@ -44,7 +44,9 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "WebFetch(domain:m3.material.io)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__supabase__list_migrations",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

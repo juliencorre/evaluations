@@ -50,7 +50,20 @@ export default [
         DragEvent: 'readonly',
         localStorage: 'readonly',
         Blob: 'readonly',
-        confirm: 'readonly'
+        confirm: 'readonly',
+        Event: 'readonly',
+        Element: 'readonly',
+        Node: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
+        KeyboardEvent: 'readonly',
+        FocusEvent: 'readonly',
+        FileReader: 'readonly',
+        alert: 'readonly'
       }
     },
     plugins: {
@@ -62,7 +75,8 @@ export default [
       ...typescript.configs.recommended.rules,
       'vue/multi-word-component-names': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/explicit-module-boundary-types': 'off'
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn'
     }
   }
 ]

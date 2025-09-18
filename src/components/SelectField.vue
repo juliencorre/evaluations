@@ -14,7 +14,7 @@
       @blur="onBlur"
       @change="onChange"
     >
-      <option value="" disabled v-if="placeholder">{{ placeholder }}</option>
+      <option v-if="placeholder" value="" disabled>{{ placeholder }}</option>
       <slot />
     </select>
 
@@ -219,7 +219,7 @@ defineExpose({
   pointer-events: none;
   transition: all 150ms cubic-bezier(0.2, 0, 0, 1);
   transform-origin: left center;
-  z-index: 2;
+  z-index: 1;
   max-width: calc(100% - 64px);
   overflow: hidden;
   text-overflow: ellipsis;

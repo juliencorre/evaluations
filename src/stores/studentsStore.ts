@@ -412,24 +412,39 @@ export const useCompetencyFrameworkStore = () => {
     return null
   }
 
-  const updateSpecificCompetency = (
+  const updateSpecificCompetency = async (
     specificCompetencyId: string,
     updates: { name?: string; description?: string; resultTypeConfigId?: string }
   ) => {
-    for (const domain of competencyFramework.value.domains) {
-      for (const field of domain.fields) {
-        for (const competency of field.competencies) {
-          const specificCompetency = competency.specificCompetencies.find(
-            (s) => s.id === specificCompetencyId
-          )
-          if (specificCompetency) {
-            Object.assign(specificCompetency, updates)
-            return specificCompetency
+    try {
+      // Sauvegarder en base via Supabase
+      const updatedSpecificCompetency = await supabaseCompetenciesService.updateSpecificCompetency(
+        specificCompetencyId,
+        updates
+      )
+
+      if (updatedSpecificCompetency) {
+        // Mettre à jour localement
+        for (const domain of competencyFramework.value.domains) {
+          for (const field of domain.fields) {
+            for (const competency of field.competencies) {
+              const specificCompetency = competency.specificCompetencies.find(
+                (s) => s.id === specificCompetencyId
+              )
+              if (specificCompetency) {
+                Object.assign(specificCompetency, updates)
+                return specificCompetency
+              }
+            }
           }
         }
       }
+
+      return updatedSpecificCompetency
+    } catch (error) {
+      console.error('❌ [Store] Erreur lors de la mise à jour de la sous-compétence:', error)
+      return null
     }
-    return null
   }
 
   const deleteSpecificCompetency = (specificCompetencyId: string) => {

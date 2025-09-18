@@ -1,11 +1,23 @@
 <template>
-  <header class="app-header">
+  <header class="app-header" :class="{ 'expanded': isExpanded }">
     <!-- Top App Bar -->
     <nav class="top-app-bar" role="navigation" aria-label="Navigation principale">
       <!-- Navigation Rail (Desktop) -->
-      <div class="navigation-rail">
+      <div class="navigation-rail" :class="{ 'expanded': isExpanded }">
         <div class="brand-section">
-          <h1 class="brand-title">Évaluations</h1>
+          <!-- Menu toggle button -->
+          <button
+            class="rail-menu-button"
+            aria-label="Toggle navigation menu"
+            @click="toggleExpanded"
+          >
+            <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+            </svg>
+            <svg class="chevron-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
+            </svg>
+          </button>
         </div>
 
         <div class="nav-destinations">
@@ -74,169 +86,39 @@
         </div>
 
         <div class="user-actions">
-          <button class="icon-button" type="button" aria-label="Paramètres">
-            <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
-              />
-            </svg>
-          </button>
-
-          <button class="user-avatar" type="button" aria-label="Profil utilisateur">
-            <svg class="avatar-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"
-              />
-            </svg>
-          </button>
         </div>
       </div>
 
-      <!-- Mobile Header -->
-      <div class="mobile-header">
-        <button
-          class="nav-drawer-button"
-          type="button"
-          aria-label="Ouvrir le menu de navigation"
-          @click="toggleMobileMenu"
-        >
-          <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
-          </svg>
-        </button>
-
-        <h1 class="mobile-title">Évaluations</h1>
-
-        <button class="mobile-user-avatar" type="button" aria-label="Profil">
-          <svg class="avatar-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"
-            />
-          </svg>
-        </button>
+      <!-- Mobile Header - Hidden -->
+      <div class="mobile-header" style="display: none;">
       </div>
     </nav>
 
-    <!-- Navigation Drawer (Mobile) -->
-    <div
-      class="navigation-drawer"
-      :class="{ 'is-open': isMobileMenuOpen }"
-      @click="closeMobileMenu"
-    >
-      <div class="drawer-content" @click.stop>
-        <div class="drawer-header">
-          <h2 class="drawer-title">Navigation</h2>
-          <button class="close-button" aria-label="Fermer le menu" @click="closeMobileMenu">
-            <svg class="close-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <nav class="drawer-nav">
-          <router-link
-            to="/"
-            class="drawer-destination"
-            :class="{ active: $route.name === 'home' }"
-            @click="closeMobileMenu"
-          >
-            <div class="drawer-icon-container">
-              <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
-                />
-              </svg>
-            </div>
-            <span class="drawer-label">Tableaux d'évaluation</span>
-          </router-link>
-
-          <router-link
-            to="/students"
-            class="drawer-destination"
-            :class="{ active: $route.name === 'students' }"
-            @click="closeMobileMenu"
-          >
-            <div class="drawer-icon-container">
-              <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                />
-              </svg>
-            </div>
-            <span class="drawer-label">Élèves</span>
-          </router-link>
-
-          <router-link
-            to="/competencies"
-            class="drawer-destination"
-            :class="{ active: $route.name === 'competencies' }"
-            @click="closeMobileMenu"
-          >
-            <div class="drawer-icon-container">
-              <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                />
-              </svg>
-            </div>
-            <span class="drawer-label">Compétences</span>
-          </router-link>
-
-          <router-link
-            to="/analysis"
-            class="drawer-destination"
-            :class="{ active: $route.name === 'analysis' }"
-            @click="closeMobileMenu"
-          >
-            <div class="drawer-icon-container">
-              <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-              </svg>
-            </div>
-            <span class="drawer-label">Analyses</span>
-          </router-link>
-        </nav>
-
-        <div class="drawer-divider"></div>
-
-        <div class="drawer-actions">
-          <button class="drawer-action" @click="closeMobileMenu">
-            <div class="drawer-icon-container">
-              <svg class="drawer-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
-                />
-              </svg>
-            </div>
-            <span class="drawer-label">Paramètres</span>
-          </button>
-        </div>
-      </div>
+    <!-- Navigation Drawer (Mobile) - Hidden -->
+    <div style="display: none;">
     </div>
-
-    <!-- Scrim (Mobile overlay) -->
-    <div
-      class="drawer-scrim"
-      :class="{ 'is-visible': isMobileMenuOpen }"
-      @click="closeMobileMenu"
-    ></div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const isMobileMenuOpen = ref(false)
+// State for expanded navigation rail
+const isExpanded = ref(false)
 
-function toggleMobileMenu() {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
+// Emit events
+const emit = defineEmits<{
+  'rail-expanded': [expanded: boolean]
+}>()
+
+function toggleExpanded() {
+  isExpanded.value = !isExpanded.value
 }
 
-function closeMobileMenu() {
-  isMobileMenuOpen.value = false
-}
+// Watch for changes and emit events
+watch(isExpanded, (expanded) => {
+  emit('rail-expanded', expanded)
+}, { immediate: true })
 </script>
 
 <style scoped>
@@ -263,18 +145,201 @@ function closeMobileMenu() {
 
 /* App Header */
 .app-header {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   background: #ffffff;
 }
 
-/* Top App Bar */
+/* Large Screen Navigation Rail (Left Side) */
+@media (min-width: 1440px) {
+  .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: 80px;
+    background: #ffffff;
+    box-shadow:
+      1px 0px 3px 1px rgba(0, 0, 0, 0.15),
+      1px 0px 2px 0px rgba(0, 0, 0, 0.3);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .app-header.expanded {
+    width: 220px; /* Expanded width */
+  }
+
+  .top-app-bar {
+    height: 100%;
+    width: 100%;
+    background: #ffffff;
+    box-shadow: none;
+  }
+
+  .navigation-rail {
+    flex-direction: column;
+    padding: 24px 12px;
+    height: 100%;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .navigation-rail.expanded {
+    align-items: flex-start;
+    padding: 24px 16px;
+  }
+
+  .brand-section {
+    margin-bottom: 24px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .navigation-rail.expanded .brand-section {
+    justify-content: flex-start;
+  }
+
+  .user-actions {
+    margin-top: auto;
+  }
+}
+
+/* Menu Button - Only visible on large screens with rail */
+.rail-menu-button {
+  display: none !important; /* Force hidden by default */
+}
+
+@media (min-width: 1440px) {
+  .rail-menu-button {
+    display: flex !important; /* Force visible only on large screens */
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: none;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    color: var(--md-sys-color-on-surface-variant, #49454f);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rail-menu-button:hover {
+    background-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+  }
+
+  .rail-menu-button .menu-icon,
+  .rail-menu-button .chevron-icon {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rail-menu-button .chevron-icon {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+
+  .navigation-rail.expanded .rail-menu-button .menu-icon {
+    opacity: 0;
+  }
+
+  .navigation-rail.expanded .rail-menu-button .chevron-icon {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
+
+  .nav-destinations {
+    flex-direction: column;
+    gap: 12px;
+    flex: 0 !important;
+    width: auto;
+    justify-content: flex-start !important;
+    align-items: center;
+  }
+
+  .nav-destination {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    padding: 0;
+    border-radius: 16px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 auto;
+  }
+
+  .navigation-rail.expanded .nav-destination {
+    width: 100%;
+    padding: 0 16px;
+    justify-content: flex-start;
+    gap: 12px;
+    margin: 0;
+    flex-direction: row;
+  }
+
+  .nav-label {
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: currentColor;
+    white-space: nowrap;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .navigation-rail.expanded .nav-label {
+    display: block;
+    opacity: 1;
+  }
+
+  .nav-indicator {
+    width: 56px;
+    height: 32px;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 16px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .navigation-rail.expanded .nav-indicator {
+    width: 100%;
+    left: 0;
+    transform: none;
+  }
+
+  .nav-icon-container {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .user-actions {
+    margin-top: auto;
+  }
+}
+
+/* Bottom App Bar */
 .top-app-bar {
   background: #ffffff;
   box-shadow:
-    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+    0px -1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px -1px 2px 0px rgba(0, 0, 0, 0.3);
   width: 100%;
   position: relative;
 }
@@ -784,7 +849,7 @@ function closeMobileMenu() {
   }
 
   .nav-destinations {
-    gap: 2px;
+    gap: 32px;
   }
 
   .nav-destination {
@@ -795,66 +860,67 @@ function closeMobileMenu() {
 
 @media (max-width: 768px) {
   .navigation-rail {
-    display: none;
+    display: flex;
+    padding: 0 8px;
   }
 
   .mobile-header {
-    display: flex;
-    background: #ffffff;
+    display: none;
   }
 
-  .top-app-bar {
-    min-height: 64px;
-    background: #ffffff;
+  .nav-destinations {
+    gap: 0;
   }
 
-  .navigation-drawer {
-    background: #ffffff !important;
+  .nav-destination {
+    min-width: 48px;
+    padding: 4px 6px;
+    font-size: 0.625rem;
   }
 
-  .drawer-content {
-    background: #ffffff !important;
+  .nav-label {
+    font-size: 0.625rem;
   }
 }
 
 @media (max-width: 480px) {
+  .navigation-rail {
+    display: flex;
+    padding: 0 4px;
+  }
+
   .mobile-header {
-    padding: 0 12px;
-    min-height: 56px;
-    background: #ffffff !important;
+    display: none;
   }
 
-  .mobile-title {
-    font-size: 1.25rem;
-    line-height: 1.5rem;
+  .nav-destinations {
+    gap: 0;
   }
 
-  .navigation-drawer {
-    width: 320px;
-    background: #ffffff !important;
+  .nav-destination {
+    min-width: 44px;
+    padding: 2px 4px;
+    font-size: 0.5rem;
   }
 
-  .drawer-content {
-    background: #ffffff !important;
+  .nav-label {
+    font-size: 0.5rem;
+    line-height: 0.75rem;
   }
 
-  .drawer-header {
-    padding: 12px 20px;
-    background: #ffffff !important;
+  .nav-icon {
+    width: 20px;
+    height: 20px;
   }
 
-  .drawer-nav {
-    background: #ffffff !important;
+  .nav-icon-container {
+    width: 28px;
+    height: 28px;
   }
 
-  .drawer-actions {
-    background: #ffffff !important;
-  }
-
-  .drawer-destination,
-  .drawer-action {
-    padding: 10px 20px;
-    min-height: 48px;
+  .nav-indicator {
+    width: 56px;
+    height: 28px;
   }
 }
 

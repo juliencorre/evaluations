@@ -606,11 +606,17 @@ export class SupabaseCompetenciesService {
   /**
    * Met à jour une sous-compétence
    */
-  static async updateSpecificCompetency(specificCompetencyId: string, updates: { name?: string; description?: string }): Promise<SpecificCompetency | null> {
+  static async updateSpecificCompetency(specificCompetencyId: string, updates: { name?: string; description?: string; resultTypeConfigId?: string }): Promise<SpecificCompetency | null> {
     try {
+      // Convertir resultTypeConfigId en result_type_config_id pour Supabase
+      const dbUpdates: any = {}
+      if (updates.name !== undefined) dbUpdates.name = updates.name
+      if (updates.description !== undefined) dbUpdates.description = updates.description
+      if (updates.resultTypeConfigId !== undefined) dbUpdates.result_type_config_id = updates.resultTypeConfigId
+
       const { data, error } = await supabase
         .from('specific_competencies')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', specificCompetencyId)
         .select()
         .single()
@@ -784,7 +790,8 @@ export class SupabaseCompetenciesService {
     return {
       id: supabaseSpecificCompetency.id,
       name: supabaseSpecificCompetency.name,
-      description: supabaseSpecificCompetency.description || ''
+      description: supabaseSpecificCompetency.description || '',
+      resultTypeConfigId: supabaseSpecificCompetency.result_type_config_id
     }
   }
 }

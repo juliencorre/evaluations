@@ -1,81 +1,30 @@
 <template>
   <div class="analysis-page">
-    <!-- Navigation Rail -->
-    <nav class="navigation-rail">
-      <div class="rail-items">
-        <button
-          class="rail-item"
-          :class="{ active: activeView === 'dashboard' }"
-          @click="activeView = 'dashboard'"
-        >
-          <svg class="rail-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3,13H11V3H3M3,21H11V15H3M13,21H21V11H13M13,3V9H21V3" />
-          </svg>
-          <span class="rail-label">Dashboard</span>
-        </button>
+    <!-- Top App Bar -->
+    <TopAppBar
+      :title="currentPageTitle"
+      :subtitle="currentPageDescription"
+      variant="medium"
+    />
 
+    <!-- Material 3 Tabs -->
+    <div class="tabs-container">
+      <div class="tabs-bar">
         <button
-          class="rail-item"
-          :class="{ active: activeView === 'class-analysis' }"
-          @click="activeView = 'class-analysis'"
+          v-for="tab in tabItems"
+          :key="tab.id"
+          class="tab"
+          :class="{ active: activeView === tab.value }"
+          @click="activeView = tab.value"
         >
-          <svg class="rail-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"
-            />
-          </svg>
-          <span class="rail-label">Analyse classe</span>
-        </button>
-
-        <button
-          class="rail-item"
-          :class="{ active: activeView === 'student-analysis' }"
-          @click="activeView = 'student-analysis'"
-        >
-          <svg class="rail-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-            />
-          </svg>
-          <span class="rail-label">Analyse élèves</span>
+          <span class="tab-label">{{ tab.label }}</span>
+          <div class="tab-indicator"></div>
         </button>
       </div>
-    </nav>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content">
-      <header class="page-header">
-        <div class="header-content">
-          <div class="header-text">
-            <h1 class="page-title">
-              <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-              </svg>
-              {{ getPageTitle() }}
-            </h1>
-            <p class="page-description">
-              {{ getPageDescription() }}
-            </p>
-          </div>
-
-          <!-- Global Export Button -->
-          <div v-if="activeView === 'student-analysis'" class="header-actions">
-            <button
-              class="export-button export-all"
-              title="Exporter tous les élèves en PDF"
-              @click="exportAllStudents"
-            >
-              <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
-                />
-                <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
-              </svg>
-              Exporter tous les élèves
-            </button>
-          </div>
-        </div>
-      </header>
 
       <!-- Dashboard View -->
       <div v-if="activeView === 'dashboard'" class="page-content">
@@ -306,7 +255,7 @@
                           class="bar-fill"
                           :style="{
                             width: (evaluation.score / 4) * 100 + '%',
-                            backgroundColor: evaluationPeriods[index].color
+                            backgroundColor: evaluationPeriods.value?.[index]?.color || evaluationPeriods[index]?.color || '#6750a4'
                           }"
                         ></div>
                       </div>
@@ -338,32 +287,113 @@
           </div>
         </section>
       </div>
+
+      <!-- Bottom Header -->
+      <footer class="page-footer">
+        <div class="footer-content">
+          <div class="footer-text">
+            <h1 class="footer-title">
+              <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
+              </svg>
+              {{ getPageTitle() }}
+            </h1>
+            <p class="footer-description">
+              {{ getPageDescription() }}
+            </p>
+          </div>
+
+          <!-- Global Export Button -->
+          <div v-if="activeView === 'student-analysis'" class="footer-actions">
+            <button
+              class="export-button export-all"
+              title="Exporter tous les élèves en PDF"
+              @click="exportAllStudents"
+            >
+              <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+                />
+                <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
+              </svg>
+              Exporter tous les élèves
+            </button>
+          </div>
+        </div>
+      </footer>
     </main>
+
   </div>
 </template>
 
 /* eslint-disable no-alert */
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useStudentsStore, useCompetencyFrameworkStore } from '../stores/studentsStore'
+import { useEvaluationResultsStore } from '../stores/evaluationResultsStore'
+import { useEvaluationStore } from '../stores/evaluationStore'
+import { SupabaseResultTypesService } from '../services/supabaseResultTypesService'
+import type { EvaluationResult, ResultTypeConfig } from '../types/evaluation'
+import TopAppBar from '@/components/TopAppBar.vue'
 
 // Type definitions
-interface EvaluationScore {
-  score: number
-}
 
-interface MetricData {
-  name: string
-  evaluations: EvaluationScore[]
-}
 
-interface StudentData {
-  [studentId: string]: {
-    [metricType: string]: MetricData[]
-  }
-}
 
 // Active view state
 const activeView = ref('dashboard')
+
+// Functions for page header
+function getPageTitle(): string {
+  switch (activeView.value) {
+    case 'dashboard': return 'Tableau de bord';
+    case 'class-analysis': return 'Analyse de classe';
+    case 'student-analysis': return 'Analyse des élèves';
+    default: return 'Tableau de bord';
+  }
+}
+
+function getPageDescription(): string {
+  switch (activeView.value) {
+    case 'dashboard': return 'Vue d\'ensemble des métriques et performances';
+    case 'class-analysis': return 'Analyse comparative des résultats de classe';
+    case 'student-analysis': return 'Analyse détaillée des performances individuelles';
+    default: return '';
+  }
+}
+
+// Computed properties for the page
+const currentPageTitle = computed(() => getPageTitle())
+const currentPageDescription = computed(() => getPageDescription())
+
+const tabItems = computed(() => [
+  {
+    id: 'dashboard',
+    label: 'Tableau de bord',
+    value: 'dashboard'
+  },
+  {
+    id: 'class-analysis',
+    label: 'Analyse de classe',
+    value: 'class-analysis'
+  },
+  {
+    id: 'student-analysis',
+    label: 'Analyse des élèves',
+    value: 'student-analysis'
+  }
+])
+
+// Use stores
+const studentsStore = useStudentsStore()
+const evaluationResultsStore = useEvaluationResultsStore()
+const evaluationStore = useEvaluationStore()
+
+// Services
+const resultTypesService = new SupabaseResultTypesService()
+
+// Result types configuration
+const resultTypes = ref<ResultTypeConfig[]>([])
 
 // Données calculées
 const averageScore = ref(2.8)
@@ -401,33 +431,267 @@ const selectedStudent = ref('')
 const selectedMetricType = ref('domains')
 
 // Students list
-const students = ref([
-  { id: 'student1', name: 'Marie Dubois' },
-  { id: 'student2', name: 'Pierre Martin' },
-  { id: 'student3', name: 'Sophie Bernard' },
-  { id: 'student4', name: 'Lucas Petit' },
-  { id: 'student5', name: 'Emma Moreau' },
-  { id: 'student6', name: 'Thomas Leroy' },
-  { id: 'student7', name: 'Léa Roux' },
-  { id: 'student8', name: 'Hugo Fournier' }
-])
+// Computed property to get students from the store
+const students = computed(() => {
+  return studentsStore.allStudents.value.map(student => ({
+    id: student.id,
+    name: `${student.firstName} ${student.lastName}`
+  }))
+});
 
 // Metric types
 const metricTypes = ref([
   { value: 'domains', label: 'Domaines' },
   { value: 'fields', label: 'Champs' },
   { value: 'competencies', label: 'Compétences' }
-])
+]);
 
-// Evaluation periods
-const evaluationPeriods = ref([
-  { id: 1, name: 'Évaluation 1 (Sept-Oct)', color: '#6750a4' },
-  { id: 2, name: 'Évaluation 2 (Nov-Déc)', color: '#0F62FE' },
-  { id: 3, name: 'Évaluation 3 (Jan-Fév)', color: '#198038' }
-])
+// Evaluation periods - generate colors for evaluations
+const colorPalette = ['#6750a4', '#0F62FE', '#198038', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
 
-// Mock student data with multiple evaluations
-const studentData = ref<StudentData>({
+const evaluationPeriods = computed(() => {
+  return evaluationStore.allEvaluations.value.map((evaluation, index) => ({
+    id: evaluation.id,
+    name: evaluation.name,
+    color: colorPalette[index % colorPalette.length]
+  }))
+});
+
+// Helper function to get result type config ID from specific competency ID
+const getResultTypeConfigId = (specificCompetencyId?: string): string | undefined => {
+  if (!specificCompetencyId) return undefined
+
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  for (const domain of framework.domains) {
+    for (const field of domain.fields) {
+      for (const competency of field.competencies) {
+        const specificComp = competency.specificCompetencies.find(sc => sc.id === specificCompetencyId)
+        if (specificComp) {
+          return specificComp.resultTypeConfigId
+        }
+      }
+    }
+  }
+  return undefined
+}
+
+// Function to convert evaluation result value to score using pivot_value
+const getScoreFromValue = (value: string, resultTypeConfigId?: string): number => {
+  console.log('🔍 getScoreFromValue called with:', { value, resultTypeConfigId })
+
+  if (!value || !resultTypeConfigId) {
+    console.log('❌ Missing value or resultTypeConfigId:', { value, resultTypeConfigId })
+    return 0
+  }
+
+  const resultType = resultTypes.value.find(rt => rt.id === resultTypeConfigId)
+  console.log('📋 Found result type:', resultType)
+
+  if (!resultType) {
+    console.log('❌ No result type found for ID:', resultTypeConfigId)
+    console.log('📋 Available result types:', resultTypes.value.map(rt => ({ id: rt.id, name: rt.name })))
+    return 0
+  }
+
+  const configValue = resultType.config.values.find(v => v.value === value)
+  console.log('🎯 Found config value:', configValue)
+
+  if (!configValue) {
+    console.log('❌ No config value found for:', value)
+    console.log('📋 Available values:', resultType.config.values)
+    return 0
+  }
+
+  // Convert pivot_value (0-10) to score (0-4)
+  const score = (configValue.pivot_value / 10) * 4
+  console.log('✅ Calculated score:', score)
+  return score
+}
+
+// Function to calculate averages by level (domains, fields, competencies) across multiple evaluations
+const calculateAveragesByLevel = (studentId: string, metricType: string) => {
+  console.log('🎯 calculateAveragesByLevel called for:', { studentId, metricType })
+
+  const results = evaluationResultsStore.results.value
+  const evaluations = evaluationStore.allEvaluations.value
+
+  console.log('📊 Raw data:', {
+    resultsCount: results?.length || 0,
+    evaluationsCount: evaluations?.length || 0,
+    results: results,
+    evaluations: evaluations
+  })
+
+  if (!Array.isArray(results) || results.length === 0 || evaluations.length === 0) {
+    console.log('❌ Missing data:', {
+      hasResults: Array.isArray(results) && results.length > 0,
+      hasEvaluations: evaluations.length > 0
+    })
+    return []
+  }
+
+  // Filter results for the selected student
+  const studentResults = results.filter(result => result.studentId === studentId)
+  console.log('👤 Student results:', {
+    studentId,
+    totalResults: results.length,
+    studentResultsCount: studentResults.length,
+    studentResults: studentResults
+  })
+
+  if (studentResults.length === 0) {
+    console.log('❌ No results found for student:', studentId)
+    console.log('📋 Available student IDs:', [...new Set(results.map(r => r.studentId))])
+    return []
+  }
+
+  // Group results by evaluation ID, then by the metric type
+  const resultsByEvaluation = studentResults.reduce((acc, result) => {
+    // Use the evaluation ID from the result or default to current evaluation
+    const evaluationId = result.evaluatedAt ?
+      evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+      evaluationResultsStore.evaluation.value?.id || 'current'
+
+    console.log('📝 Processing result:', {
+      result,
+      evaluationId,
+      evaluatedAt: result.evaluatedAt,
+      currentEvaluation: evaluationResultsStore.evaluation.value?.id
+    })
+
+    if (!acc[evaluationId]) {
+      acc[evaluationId] = []
+    }
+    acc[evaluationId].push(result)
+    return acc
+  }, {} as Record<string, EvaluationResult[]>)
+
+  console.log('📊 Results grouped by evaluation:', resultsByEvaluation)
+
+  // Calculate averages for each metric level
+  const calculateByMetricType = (allResults: EvaluationResult[]) => {
+    switch (metricType) {
+      case 'domains': {
+        // Group by domains (simplified - assume one domain for now)
+        console.log('🏗️ Calculating domains average')
+        const domainsResult = [{
+          name: 'Moyenne générale',
+          evaluations: evaluations.map(evaluation => {
+            const evalResults = resultsByEvaluation[evaluation.id] || []
+            console.log(`📊 Evaluation ${evaluation.name} (${evaluation.id}):`, {
+              resultsCount: evalResults.length,
+              results: evalResults
+            })
+
+            if (evalResults.length === 0) {
+              console.log(`❌ No results for evaluation ${evaluation.name}`)
+              return { score: 0 }
+            }
+
+            const scores = evalResults.map(result => {
+              console.log(`🔍 Full result object:`, result)
+              console.log(`🔍 Result properties:`, {
+                specificCompetencyId: result.specificCompetencyId,
+                competencyId: result.competencyId,
+                studentId: result.studentId,
+                value: result.value,
+                allKeys: Object.keys(result)
+              })
+
+              const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              console.log(`📊 Score for result:`, {
+                result,
+                specificCompetencyId: result.specificCompetencyId,
+                resultTypeConfigId,
+                value: result.value,
+                score
+              })
+              return score
+            })
+
+            const totalScore = scores.reduce((sum, score) => sum + score, 0)
+            const avgScore = totalScore / evalResults.length
+
+            console.log(`✅ Average for ${evaluation.name}:`, {
+              totalScore,
+              resultCount: evalResults.length,
+              avgScore
+            })
+
+            return { score: avgScore }
+          })
+        }]
+        console.log('🏗️ Final domains result:', domainsResult)
+        return domainsResult
+      }
+
+      case 'fields':
+        // Group by fields (simplified)
+        return [{
+          name: 'Moyenne par champ',
+          evaluations: evaluations.map(evaluation => {
+            const evalResults = resultsByEvaluation[evaluation.id] || []
+            if (evalResults.length === 0) return { score: 0 }
+
+            const totalScore = evalResults.reduce((sum, result) => {
+              const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              return sum + score
+            }, 0)
+
+            return { score: totalScore / evalResults.length }
+          })
+        }]
+
+      case 'competencies': {
+        // Group by competency ID
+        const competencyGroups = allResults.reduce((acc, result) => {
+          const key = result.competencyId || 'unknown'
+          if (!acc[key]) {
+            acc[key] = []
+          }
+          acc[key].push(result)
+          return acc
+        }, {} as Record<string, EvaluationResult[]>)
+
+        return Object.entries(competencyGroups).map(([competencyId, competencyResults]) => ({
+          name: `Compétence ${competencyId.slice(-8)}`,
+          evaluations: evaluations.map(evaluation => {
+            // Find results for this competency in this evaluation
+            const evalCompetencyResults = competencyResults.filter(result => {
+              const resultEvaluationId = result.evaluatedAt ?
+                evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                evaluationResultsStore.evaluation.value?.id || 'current'
+              return resultEvaluationId === evaluation.id
+            })
+
+            if (evalCompetencyResults.length === 0) return { score: 0 }
+
+            const totalScore = evalCompetencyResults.reduce((sum, result) => {
+              const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              return sum + score
+            }, 0)
+
+            return { score: totalScore / evalCompetencyResults.length }
+          })
+        }))
+      }
+
+      default:
+        return []
+    }
+  }
+
+  return calculateByMetricType(studentResults)
+}
+
+
+// Temporary fallback with static data if no real data is available
+const fallbackStudentData = {
   student1: {
     domains: [
       {
@@ -564,34 +828,8 @@ const studentData = ref<StudentData>({
       }
     ]
   }
-})
+};
 
-// Page title and description based on active view
-const getPageTitle = () => {
-  switch (activeView.value) {
-    case 'dashboard':
-      return 'Dashboard'
-    case 'class-analysis':
-      return 'Analyse par classe'
-    case 'student-analysis':
-      return 'Analyse des élèves'
-    default:
-      return 'Analyses et Statistiques'
-  }
-}
-
-const getPageDescription = () => {
-  switch (activeView.value) {
-    case 'dashboard':
-      return "Vue d'ensemble des performances et tendances des évaluations"
-    case 'class-analysis':
-      return 'Analyse détaillée des performances par classe'
-    case 'student-analysis':
-      return 'Analyse individuelle des performances des élèves'
-    default:
-      return "Vue d'ensemble des performances et tendances des évaluations"
-  }
-}
 
 // Student analysis helper functions
 const getSelectedStudentName = () => {
@@ -605,10 +843,44 @@ const getMetricTypeLabel = () => {
 }
 
 const getStudentData = () => {
-  if (!selectedStudent.value || !studentData.value[selectedStudent.value]) {
+  console.log('🎯 getStudentData called with:', {
+    selectedStudent: selectedStudent.value,
+    selectedMetricType: selectedMetricType.value
+  })
+
+  if (!selectedStudent.value) {
+    console.log('❌ No student selected')
     return []
   }
-  return studentData.value[selectedStudent.value][selectedMetricType.value] || []
+
+  try {
+    // Use the new calculation function for dynamic data
+    console.log('🔍 Calling calculateAveragesByLevel...')
+    const dynamicData = calculateAveragesByLevel(selectedStudent.value, selectedMetricType.value)
+    console.log('📊 Dynamic data result:', dynamicData)
+
+    if (dynamicData.length > 0) {
+      console.log('✅ Using dynamic data')
+      return dynamicData
+    }
+
+    // Fallback to static data if no dynamic data is available
+    console.log('🔄 Falling back to static data')
+    const fallbackData = fallbackStudentData?.[selectedStudent.value]
+    console.log('📋 Fallback data:', fallbackData)
+
+    if (fallbackData) {
+      const result = fallbackData[selectedMetricType.value] || []
+      console.log('✅ Using fallback data:', result)
+      return result
+    }
+
+    console.log('❌ No data available')
+    return []
+  } catch (error) {
+    console.error('❌ Error getting student data:', error)
+    return []
+  }
 }
 
 // Export functions
@@ -647,89 +919,85 @@ const exportAllStudents = () => {
    
    
    
-  window.alert('Export en cours pour tous les élèves')  
+  window.alert('Export en cours pour tous les élèves')
 }
+
+// Initialize data on component mount
+onMounted(async () => {
+  try {
+    // Load students from the database if not already loaded
+    if (studentsStore.allStudents.value.length === 0) {
+      await studentsStore.refreshFromSupabase()
+    }
+
+    // Load evaluations from the database
+    await evaluationStore.loadEvaluations()
+
+    // Load result types configuration for pivot value calculations
+    resultTypes.value = await resultTypesService.getResultTypes()
+    console.log('✅ Result types loaded:', resultTypes.value.length)
+
+    // Initialize evaluation results if we have evaluations
+    if (evaluationStore.allEvaluations.value.length > 0) {
+      const firstEvaluation = evaluationStore.allEvaluations.value[0]
+      console.log('🔄 Initializing evaluation results for:', firstEvaluation.name)
+
+      await evaluationResultsStore.initializeEvaluation({
+        id: firstEvaluation.id,
+        name: firstEvaluation.name,
+        description: firstEvaluation.description,
+        frameworkId: firstEvaluation.frameworkId,
+        classId: firstEvaluation.classId,
+        createdAt: firstEvaluation.createdAt
+      })
+
+      console.log('✅ Evaluation results initialized:', {
+        evaluationId: firstEvaluation.id,
+        resultsCount: evaluationResultsStore.results.value.length
+      })
+    } else {
+      console.log('⚠️ No evaluations available to load results from')
+    }
+  } catch (error) {
+    console.error('❌ Error loading analysis data:', error)
+  }
+})
 </script>
 
 <style scoped>
 .analysis-page {
   display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #ffffff;
+  position: relative;
+}
+
+
+.page-title {
+  flex: 1;
+}
+
+.page-title h1 {
+  font-family: var(--md-sys-typescale-headline-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-medium-size, 28px);
+  font-weight: var(--md-sys-typescale-headline-medium-weight, 400);
+  line-height: var(--md-sys-typescale-headline-medium-line-height, 36px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  margin: 0 0 4px 0;
+}
+
+.page-description {
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  font-weight: var(--md-sys-typescale-body-large-weight, 400);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   margin: 0;
-  background: #ffffff;
-  width: 100%;
-  min-height: 100vh;
 }
 
-/* Navigation Rail */
-.navigation-rail {
-  width: 88px;
-  background: #ffffff;
-  border-right: 1px solid #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 0;
-  flex-shrink: 0;
-}
 
-.rail-items {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
 
-.rail-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 16px 12px;
-  border-radius: 16px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-  width: 56px;
-  min-height: 56px;
-}
-
-.rail-item:hover {
-  background: #f3edf7;
-}
-
-.rail-item.active {
-  background: #eaddff;
-}
-
-.rail-icon {
-  width: 24px;
-  height: 24px;
-  color: #49454f;
-  transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.rail-item.active .rail-icon {
-  color: #6750a4;
-}
-
-.rail-label {
-  font-family:
-    'Roboto',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1rem;
-  color: #49454f;
-  text-align: center;
-  transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.rail-item.active .rail-label {
-  color: #6750a4;
-}
 
 /* Main Content */
 .main-content {
@@ -737,25 +1005,25 @@ const exportAllStudents = () => {
   padding: 24px;
 }
 
-/* Page Header */
-.page-header {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e0e0e0;
+/* Page Footer */
+.page-footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
 }
 
-.header-content {
+.footer-content {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 24px;
 }
 
-.header-text {
+.footer-text {
   flex: 1;
 }
 
-.page-title {
+.footer-title {
   font-family:
     'Roboto',
     -apple-system,
@@ -778,7 +1046,7 @@ const exportAllStudents = () => {
   color: #6750a4;
 }
 
-.page-description {
+.footer-description {
   font-family:
     'Roboto',
     -apple-system,
@@ -792,7 +1060,7 @@ const exportAllStudents = () => {
   margin: 0;
 }
 
-.header-actions {
+.footer-actions {
   display: flex;
   align-items: center;
 }
@@ -861,9 +1129,10 @@ const exportAllStudents = () => {
 
 .metric-card {
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
-  padding: 24px;
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  border-radius: 12px; /* 12dp corner radius */
+  padding: 24px 16px; /* 16dp left/right padding */
+  margin-bottom: 8px; /* 8dp max padding between cards */
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -951,9 +1220,10 @@ const exportAllStudents = () => {
 
 .chart-card {
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
-  padding: 24px;
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  border-radius: 12px; /* 12dp corner radius */
+  padding: 24px 16px; /* 16dp left/right padding */
+  margin-bottom: 8px; /* 8dp max padding between cards */
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -1114,9 +1384,10 @@ const exportAllStudents = () => {
 
 .control-card {
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
-  padding: 24px;
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  border-radius: 12px; /* 12dp corner radius */
+  padding: 24px 16px; /* 16dp left/right padding */
+  margin-bottom: 8px; /* 8dp max padding between cards */
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -1352,9 +1623,6 @@ const exportAllStudents = () => {
 }
 
 @media (max-width: 768px) {
-  .navigation-rail {
-    width: 60px;
-  }
 
   .main-content {
     padding: 16px;
@@ -1376,7 +1644,7 @@ const exportAllStudents = () => {
     gap: 16px;
   }
 
-  .header-actions {
+  .footer-actions {
     justify-content: flex-end;
   }
 
@@ -1448,9 +1716,6 @@ const exportAllStudents = () => {
 }
 
 @media (max-width: 480px) {
-  .navigation-rail {
-    width: 56px;
-  }
 
   .main-content {
     padding: 12px;
@@ -1503,6 +1768,118 @@ const exportAllStudents = () => {
   .chart-legend {
     flex-wrap: wrap;
     gap: 16px;
+  }
+}
+
+/* Material 3 Tabs */
+.tabs-container {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  z-index: 10;
+}
+
+.tabs-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  outline: none;
+  overflow: hidden;
+}
+
+.tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--md-sys-color-on-surface, #1d1b20);
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tab:hover::before {
+  opacity: 0.08;
+}
+
+.tab:focus::before {
+  opacity: 0.12;
+}
+
+.tab:active::before {
+  opacity: 0.12;
+}
+
+.tab.active {
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
+.tab-label {
+  position: relative;
+  z-index: 1;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--md-sys-color-primary, #6750a4);
+  border-radius: 3px 3px 0 0;
+  transform: scaleX(0);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab.active .tab-indicator {
+  transform: scaleX(1);
+}
+
+/* Responsive tabs */
+@media (max-width: 768px) {
+  .tabs-container {
+    padding: 0 16px;
+  }
+
+  .tabs-bar {
+    padding: 0;
+  }
+
+  .tab {
+    min-width: 120px;
+    padding: 12px 8px;
+    font-size: 13px;
   }
 }
 </style>

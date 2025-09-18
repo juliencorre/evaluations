@@ -1,5 +1,5 @@
 <template>
-  <div class="fullscreen-dialog" v-if="modelValue">
+  <div v-if="modelValue" class="fullscreen-dialog">
     <!-- App Bar -->
     <div class="fullscreen-app-bar">
       <div class="app-bar-leading">
@@ -13,8 +13,8 @@
       <div class="app-bar-trailing">
         <button
           class="text-button app-bar-action"
-          @click="$emit('save')"
           :disabled="saveDisabled"
+          @click="$emit('save')"
         >
           <span v-if="!isSaving">{{ saveButtonText }}</span>
           <span v-else>{{ savingText }}</span>
@@ -28,6 +28,9 @@
         <slot />
       </div>
     </div>
+
+    <!-- Bottom Handle Bar -->
+    <div class="fullscreen-handle-bar"></div>
   </div>
 </template>
 
@@ -63,8 +66,8 @@ defineEmits<{
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff;
-  z-index: 1000;
+  background: var(--md-sys-color-surface, #fef7ff);
+  z-index: 1100; /* Au-dessus du menu bottom (z-index: 1000) */
   display: flex;
   flex-direction: column;
   animation: fullscreenSlideIn 0.3s cubic-bezier(0.2, 0, 0, 1);
@@ -84,8 +87,8 @@ defineEmits<{
 /* App Bar */
 .fullscreen-app-bar {
   height: 64px;
-  background: #ffffff;
-  border-bottom: 1px solid #e7e0ec;
+  background: var(--md-sys-color-surface, #fef7ff);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   display: flex;
   align-items: center;
   padding: 0 4px;
@@ -238,6 +241,26 @@ defineEmits<{
   cursor: not-allowed;
 }
 
+/* Bottom Handle Bar */
+.fullscreen-handle-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 4px;
+  background: var(--md-sys-color-outline-variant, #c4c7c5);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Large Screen with Navigation Rail */
+@media (min-width: 1440px) {
+  .fullscreen-dialog {
+    left: 0; /* Recouvre entièrement l'écran, y compris la navigation rail */
+  }
+}
+
 /* Responsive */
 @media (max-width: 840px) {
   .fullscreen-body {
@@ -246,6 +269,10 @@ defineEmits<{
 
   .app-bar-title {
     font-size: 20px;
+  }
+
+  .fullscreen-handle-bar {
+    width: 240px; /* Plus petit sur mobile */
   }
 }
 </style>

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/supabase'
-import type { Evaluation, EvaluationResult, EvaluationValue } from '@/types/evaluation'
+import type { Evaluation, EvaluationResult, EvaluationValue, EvaluationLevel } from '@/types/evaluation'
 
 type SupabaseEvaluation = Database['public']['Tables']['evaluations']['Row']
 type SupabaseEvaluationInsert = Database['public']['Tables']['evaluations']['Insert']

@@ -7,13 +7,18 @@ export interface Student {
 
 export type ResultType = 'scale' | 'boolean' | 'custom'
 
+export interface ResultTypeConfigValue {
+  label: string
+  value: string
+  pivot_value: number  // Value on 0-10 scale for cross-type analysis
+}
+
 export interface ResultTypeConfig {
   id: string
   name: string
   type: ResultType
   config: {
-    values: string[]
-    labels: Record<string, string>
+    values: ResultTypeConfigValue[]
   }
 }
 

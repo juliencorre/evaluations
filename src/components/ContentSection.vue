@@ -1,7 +1,7 @@
 <template>
   <div class="content-section">
     <h2 class="section-headline">{{ title }}</h2>
-    <p class="section-supporting-text" v-if="description">
+    <p v-if="description" class="section-supporting-text">
       {{ description }}
     </p>
     <slot />
@@ -27,20 +27,20 @@ defineProps<Props>()
 }
 
 .section-headline {
-  font-family: 'Roboto', sans-serif;
-  font-size: 24px;
-  font-weight: 400;
-  line-height: 32px;
-  color: #1d1b20;
+  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-small-size, 24px);
+  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
+  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
   margin: 0 0 8px 0;
 }
 
 .section-supporting-text {
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  color: #49454f;
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  font-weight: var(--md-sys-typescale-body-large-weight, 400);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   margin: 0 0 24px 0;
 }
 

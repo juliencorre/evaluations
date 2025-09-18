@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { Student, CompetencyFramework } from '@/types/evaluation'
+import type { Student, CompetencyFramework, SpecificCompetency } from '@/types/evaluation'
 import { STUDENTS } from '@/data/staticData'
 import { supabaseStudentsService } from '@/services/supabaseStudentsService'
 

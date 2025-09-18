@@ -8,15 +8,32 @@
       :title="currentEvaluation.name"
       :subtitle="currentEvaluation.description"
       variant="medium"
+    />
+
+    <div
+      v-if="!isLoading && framework.domains.length > 0 && allEvaluations.length > 0"
+      class="evaluation-tabs-container"
     >
-      <template #trailing>
-        <select v-model="selectedEvaluationId" class="evaluation-selector" @change="switchEvaluation">
-          <option v-for="evaluation in allEvaluations" :key="evaluation.id" :value="evaluation.id">
-            {{ evaluation.name }}
-          </option>
-        </select>
-      </template>
-    </TopAppBar>
+      <div
+        class="evaluation-tabs-bar"
+        role="tablist"
+        aria-label="Sélection de l'évaluation"
+      >
+        <button
+          v-for="evaluation in allEvaluations"
+          :key="evaluation.id"
+          type="button"
+          class="evaluation-tab"
+          :class="{ active: selectedEvaluationId === evaluation.id }"
+          role="tab"
+          :aria-selected="selectedEvaluationId === evaluation.id"
+          @click="switchEvaluation(evaluation.id)"
+        >
+          <span class="evaluation-tab-label">{{ evaluation.name }}</span>
+          <div class="evaluation-tab-indicator"></div>
+        </button>
+      </div>
+    </div>
 
 
     <!-- Affichage conditionnel : attendre que les données soient chargées -->
@@ -208,10 +225,17 @@ const isFormValid = computed(() => {
 // Evaluation selection
 const selectedEvaluationId = ref(currentEvaluation.value.id)
 
-// Computed properties and helper functions removed - were unused
+const switchEvaluation = (evaluationId: string) => {
+  if (selectedEvaluationId.value === evaluationId) {
+    return
+  }
 
-const switchEvaluation = () => {
-  const evaluation = getEvaluationById(selectedEvaluationId.value)
+  selectedEvaluationId.value = evaluationId
+
+  const evaluation =
+    getEvaluationById(evaluationId) ||
+    allEvaluations.value.find(item => item.id === evaluationId)
+
   if (evaluation) {
     setCurrentEvaluation(evaluation)
   }
@@ -350,22 +374,101 @@ watch(isLoading, (newLoading) => {
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
-
-.evaluation-selector {
-  min-width: 200px;
-  padding: 12px 16px;
-  border: 1px solid var(--md-sys-color-outline, #79747e);
-  border-radius: 4px;
-  background: #ffffff;
-  color: var(--md-sys-color-on-surface, #1d1b20);
-  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-large-size, 16px);
-  cursor: pointer;
+/* Evaluation tabs */
+.evaluation-tabs-container {
+  margin: 16px 0 24px;
+  background: var(--md-sys-color-surface, #ffffff);
+  border-radius: 16px;
+  border: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+  box-shadow: var(
+    --md-sys-elevation-level1,
+    0px 1px 3px rgba(0, 0, 0, 0.14),
+    0px 1px 2px rgba(0, 0, 0, 0.12)
+  );
 }
 
-.evaluation-selector:focus {
-  outline: 2px solid var(--md-sys-color-primary, #6750a4);
-  outline-offset: 2px;
+.evaluation-tabs-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.evaluation-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.evaluation-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--md-sys-typescale-title-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-small-size, 14px);
+  font-weight: var(--md-sys-typescale-title-small-weight, 500);
+  line-height: var(--md-sys-typescale-title-small-line-height, 20px);
+  letter-spacing: 0.1px;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  outline: none;
+  overflow: hidden;
+}
+
+.evaluation-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--md-sys-color-on-surface, #1d1b20);
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.evaluation-tab:hover::before {
+  opacity: 0.08;
+}
+
+.evaluation-tab:focus::before {
+  opacity: 0.12;
+}
+
+.evaluation-tab:active::before {
+  opacity: 0.12;
+}
+
+.evaluation-tab.active {
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
+.evaluation-tab-label {
+  position: relative;
+  z-index: 1;
+}
+
+.evaluation-tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 3px;
+  background: var(--md-sys-color-primary, #6750a4);
+  border-radius: 3px 3px 0 0;
+  transform: scaleX(0);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.evaluation-tab.active .evaluation-tab-indicator {
+  transform: scaleX(1);
 }
 
 /* States */
@@ -679,8 +782,13 @@ watch(isLoading, (newLoading) => {
     gap: 8px;
   }
 
-  .evaluation-selector {
-    min-width: 100%;
+  .evaluation-tabs-container {
+    margin: 12px 0 20px;
+  }
+
+  .evaluation-tab {
+    min-width: 120px;
+    padding: 12px 12px;
   }
 
   .extended-fab {

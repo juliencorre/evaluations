@@ -53,6 +53,15 @@ withDefaults(defineProps<Props>(), {
   100% { transform: rotate(360deg); }
 }
 
+html[data-theme='dark'] .spinner {
+  border-color: var(--color-surface-variant, #424242);
+  border-top-color: var(--color-primary, #90caf9);
+}
+
+html[data-theme='dark'] .loading-text {
+  color: var(--color-on-surface-variant, #aaa);
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .spinner {

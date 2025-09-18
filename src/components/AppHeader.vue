@@ -152,7 +152,8 @@ watch(isExpanded, (expanded) => {
 
 <style scoped>
 /* Material Design 3 Variables */
-:root {
+:root,
+:root[data-theme='light'] {
   --md-sys-color-primary: #006a6b;
   --md-sys-color-on-primary: #ffffff;
   --md-sys-color-primary-container: #6ff7f5;
@@ -170,6 +171,25 @@ watch(isExpanded, (expanded) => {
   --md-elevation-level-0: none;
   --md-elevation-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
   --md-elevation-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --md-sys-color-primary: #4dd6d4;
+  --md-sys-color-on-primary: #003738;
+  --md-sys-color-primary-container: #004f50;
+  --md-sys-color-on-primary-container: #6ff7f5;
+  --md-sys-color-secondary-container: #1e3535;
+  --md-sys-color-on-secondary-container: #cce8e7;
+  --md-sys-color-surface: #0e1515;
+  --md-sys-color-on-surface: #e1e3e2;
+  --md-sys-color-surface-container: #1a2020;
+  --md-sys-color-surface-container-low: #161b1b;
+  --md-sys-color-surface-variant: #3f4948;
+  --md-sys-color-on-surface-variant: #bfc8c7;
+  --md-sys-color-outline: #899392;
+  --md-sys-color-outline-variant: #3f4948;
+  color-scheme: dark;
 }
 
 /* App Header */
@@ -960,8 +980,13 @@ watch(isExpanded, (expanded) => {
 }
 
 /* Dark Theme */
+html[data-theme='dark'] .navigation-drawer,
+html[data-theme='dark'] .drawer-content {
+  background: #1a1c1c;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --md-sys-color-primary: #4dd6d4;
     --md-sys-color-on-primary: #003738;
     --md-sys-color-primary-container: #004f50;
@@ -976,13 +1001,11 @@ watch(isExpanded, (expanded) => {
     --md-sys-color-on-surface-variant: #bfc8c7;
     --md-sys-color-outline: #899392;
     --md-sys-color-outline-variant: #3f4948;
+    color-scheme: dark;
   }
 
-  .navigation-drawer {
-    background: #1a1c1c;
-  }
-
-  .drawer-content {
+  html:not([data-theme]) .navigation-drawer,
+  html:not([data-theme]) .drawer-content {
     background: #1a1c1c;
   }
 }

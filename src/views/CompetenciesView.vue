@@ -1874,9 +1874,10 @@ async function saveResultType() {
   console.log('Saving result type data:', resultTypeData)
 
   try {
+    const service = await loadSupabaseService()
     if (showEditResultTypeModal.value && currentResultType.value.id) {
       // Modifier un type existant
-      const updated = await supabaseResultTypesService.updateResultType(
+      const updated = await service.updateResultType(
         currentResultType.value.id,
         resultTypeData
       )
@@ -1888,7 +1889,7 @@ async function saveResultType() {
       }
     } else {
       // Créer un nouveau type
-      const created = await supabaseResultTypesService.createResultType(resultTypeData)
+      const created = await service.createResultType(resultTypeData)
       if (created) {
         resultTypes.value.push(created)
       }
@@ -1903,7 +1904,8 @@ async function confirmDeleteResultType() {
   if (!resultTypeToDelete.value) return
 
   try {
-    const success = await supabaseResultTypesService.deleteResultType(resultTypeToDelete.value.id)
+    const service = await loadSupabaseService()
+    const success = await service.deleteResultType(resultTypeToDelete.value.id)
     if (success) {
       resultTypes.value = resultTypes.value.filter(t => t.id !== resultTypeToDelete.value!.id)
     }

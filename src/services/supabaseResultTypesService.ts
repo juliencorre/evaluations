@@ -77,7 +77,7 @@ export class SupabaseResultTypesService {
         .insert({
           name: resultType.name,
           type: resultType.type,
-          config: resultType.config as Json
+          config: resultType.config as unknown as Json
         })
         .select()
         .single()
@@ -108,7 +108,7 @@ export class SupabaseResultTypesService {
         .update({
           name: resultType.name,
           type: resultType.type,
-          config: resultType.config as Json
+          config: resultType.config as unknown as Json
         })
         .eq('id', id)
         .select()

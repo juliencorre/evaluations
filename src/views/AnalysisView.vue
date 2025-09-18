@@ -871,7 +871,7 @@ const getStudentData = () => {
     console.log('📋 Fallback data:', fallbackData)
 
     if (fallbackData) {
-      const result = (fallbackData as Record<string, unknown[]>)[selectedMetricType.value] || []
+      const result = (fallbackData as Record<string, Array<{ name: string; evaluations: Array<{ score: number }> }>>)[selectedMetricType.value] || []
       console.log('✅ Using fallback data:', result)
       return result
     }

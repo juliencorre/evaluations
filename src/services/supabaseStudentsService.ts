@@ -13,12 +13,7 @@ export class SupabaseStudentsService {
   /**
    * Convertit un élève Supabase en Student local
    */
-  private mapSupabaseToStudent(supabaseStudent: Partial<SupabaseStudent> & {
-    id: string;
-    first_name: string;
-    last_name: string;
-    display_name: string;
-  }): Student {
+  private mapSupabaseToStudent(supabaseStudent: SupabaseStudent): Student {
     return {
       id: supabaseStudent.id,
       firstName: supabaseStudent.first_name,
@@ -50,7 +45,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map((student: SupabaseStudent) => this.mapSupabaseToStudent(student))
+      return (data || []).map((student) => this.mapSupabaseToStudent(student as SupabaseStudent))
     } catch (error) {
       console.error('Erreur lors de la récupération des élèves:', error)
       throw error
@@ -209,7 +204,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map((student: SupabaseStudent) => this.mapSupabaseToStudent(student))
+      return (data || []).map((student) => this.mapSupabaseToStudent(student as SupabaseStudent))
     } catch (error) {
       console.error('Erreur lors de la recherche d\'élèves:', error)
       throw error
@@ -237,7 +232,7 @@ export class SupabaseStudentsService {
         throw error
       }
 
-      return (data || []).map((student: SupabaseStudent) => this.mapSupabaseToStudent(student))
+      return (data || []).map((student) => this.mapSupabaseToStudent(student as SupabaseStudent))
     } catch (error) {
       console.error('Erreur lors de l\'import en masse:', error)
       throw error

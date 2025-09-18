@@ -15,13 +15,10 @@ const performanceOptimizations = async () => {
 
   // Lazy load service worker registration and handler
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    const [{ default: registerSW }, { initializeServiceWorkerHandler }] = await Promise.all([
-      import('./registerSW'),
+    const [, { initializeServiceWorkerHandler }] = await Promise.all([
+      import('./registerSW'),  // This executes the registration
       import('./utils/serviceWorkerHandler')
     ])
-
-    // Register service worker
-    registerSW()
 
     // Initialize service worker message handler
     initializeServiceWorkerHandler()

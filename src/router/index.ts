@@ -5,7 +5,8 @@ const ROUTE_NAMES = {
   HOME: 'home',
   STUDENTS: 'students',
   COMPETENCIES: 'competencies',
-  ANALYSIS: 'analysis'
+  ANALYSIS: 'analysis',
+  SETTINGS: 'settings'
 } as const
 
 const router = createRouter({
@@ -46,6 +47,15 @@ const router = createRouter({
       meta: {
         title: 'Analyse',
         description: 'Analyse des résultats'
+      }
+    },
+    {
+      path: '/settings',
+      name: ROUTE_NAMES.SETTINGS,
+      component: () => import(/* webpackChunkName: "settings" */ '../views/SettingsView.vue'),
+      meta: {
+        title: 'Paramètres',
+        description: 'Personnalisez votre expérience de navigation'
       }
     }
   ]

@@ -212,41 +212,6 @@ defineExpose({
 /* Material Design 3 Outlined Text Field */
 /* Based on https://github.com/material-components/material-web/blob/main/docs/components/text-field.md */
 
-/* MD3 Design Tokens */
-:root {
-  --md-sys-color-primary: #6750a4;
-  --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-primary-container: #eaddff;
-  --md-sys-color-on-primary-container: #21005d;
-  --md-sys-color-surface: #fffbfe;
-  --md-sys-color-on-surface: #1c1b1f;
-  --md-sys-color-on-surface-variant: #49454f;
-  --md-sys-color-outline: #79747e;
-  --md-sys-color-outline-variant: #cac4d0;
-  --md-sys-color-error: #ba1a1a;
-  --md-sys-color-on-error: #ffffff;
-  --md-sys-color-error-container: #ffdad6;
-  --md-sys-color-on-error-container: #410002;
-
-  /* Material 3 Text Field Tokens */
-  --md-outlined-text-field-container-height: 56px;
-  --md-outlined-text-field-container-shape: 4px;
-  --md-outlined-text-field-outline-width: 1px;
-  --md-outlined-text-field-focus-outline-width: 2px;
-  --md-outlined-text-field-disabled-outline-opacity: 0.12;
-
-  /* Typography tokens */
-  --md-sys-typescale-body-large-font: 'Roboto';
-  --md-sys-typescale-body-large-size: 16px;
-  --md-sys-typescale-body-large-weight: 400;
-  --md-sys-typescale-body-large-line-height: 24px;
-
-  --md-sys-typescale-body-small-font: 'Roboto';
-  --md-sys-typescale-body-small-size: 12px;
-  --md-sys-typescale-body-small-weight: 400;
-  --md-sys-typescale-body-small-line-height: 16px;
-}
-
 /* Base Container - Material 3 Outlined Text Field */
 .md-outlined-text-field {
   position: relative;

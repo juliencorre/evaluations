@@ -1,3 +1,324 @@
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --md-sys-color-primary: #006a6b;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #6ff7f5;
+  --md-sys-color-on-primary-container: #002020;
+  --md-sys-color-secondary-container: #cce8e7;
+  --md-sys-color-on-secondary-container: #041f1f;
+  --md-sys-color-surface: #fefefe;
+  --md-sys-color-on-surface: #1b1c1c;
+  --md-sys-color-surface-container: #f0f4f3;
+  --md-sys-color-surface-container-low: #f5f9f8;
+  --md-sys-color-surface-container-high: #ece6f0;
+  --md-sys-color-surface-variant: #dbe4e4;
+  --md-sys-color-on-surface-variant: #3f4948;
+  --md-sys-color-outline: #6f7978;
+  --md-sys-color-outline-variant: #bfc8c7;
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-on-error-container: #410002;
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --md-sys-elevation-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --md-sys-elevation-level3: 0px 6px 10px rgba(0, 0, 0, 0.14),
+    0px 1px 18px rgba(0, 0, 0, 0.12),
+    0px 3px 5px rgba(0, 0, 0, 0.2);
+  --md-sys-elevation-level4: 0px 8px 12px rgba(0, 0, 0, 0.14),
+    0px 4px 20px rgba(0, 0, 0, 0.12),
+    0px 3px 6px rgba(0, 0, 0, 0.2);
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-small: 4px;
+  --md-sys-typescale-body-large-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-weight-prominent: 500;
+  --md-sys-typescale-body-large-line-height: 24px;
+  --md-sys-typescale-body-medium-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-medium-weight: 400;
+  --md-sys-typescale-body-medium-line-height: 20px;
+  --md-sys-typescale-body-small-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-body-small-size: 12px;
+  --md-sys-typescale-body-small-weight: 400;
+  --md-sys-typescale-body-small-line-height: 16px;
+  --md-sys-typescale-headline-medium-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-headline-medium-weight: 400;
+  --md-sys-typescale-headline-medium-line-height: 36px;
+  --md-sys-typescale-headline-small-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-headline-small-size: 24px;
+  --md-sys-typescale-headline-small-weight: 400;
+  --md-sys-typescale-headline-small-line-height: 32px;
+  --md-sys-typescale-label-large-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-label-large-weight: 500;
+  --md-sys-typescale-label-large-line-height: 20px;
+  --md-sys-typescale-title-large-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-title-large-weight: 400;
+  --md-sys-typescale-title-large-line-height: 28px;
+  --md-sys-typescale-title-medium-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-medium-weight: 500;
+  --md-sys-typescale-title-medium-line-height: 24px;
+  --md-sys-typescale-title-small-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-title-small-size: 14px;
+  --md-sys-typescale-title-small-weight: 500;
+  --md-sys-typescale-title-small-line-height: 20px;
+  --md-outlined-text-field-container-height: 56px;
+  --md-outlined-text-field-container-shape: 4px;
+  --md-outlined-text-field-outline-width: 1px;
+  --md-outlined-text-field-focus-outline-width: 2px;
+  --md-outlined-text-field-disabled-outline-opacity: 0.12;
+  --md-outlined-select-field-container-height: 56px;
+  --md-outlined-select-field-container-shape: 4px;
+  --color-primary: var(--md-sys-color-primary);
+  --color-on-surface-variant: var(--md-sys-color-on-surface-variant);
+  --color-surface-variant: var(--md-sys-color-surface-variant);
+  --app-border-subtle: #dee2e6;
+  --app-border-strong: #ced4da;
+  --app-divider: #e9ecef;
+  --app-focus-ring: rgba(0, 106, 107, 0.2);
+  --app-icon-muted: var(--md-sys-color-on-surface-variant);
+  --app-icon-danger: var(--md-sys-color-error);
+  --app-tonal-button-bg: var(--md-sys-color-primary-container);
+  --app-tonal-button-border: var(--md-sys-color-outline-variant);
+  --app-tonal-button-text: var(--md-sys-color-on-primary-container);
+  --app-tonal-button-hover-bg: var(--md-sys-color-primary);
+  --app-tonal-button-hover-text: var(--md-sys-color-on-primary);
+  --app-table-header-bg: #f5f7f6;
+  --app-table-header-text: var(--md-sys-color-on-surface);
+  --app-table-subhead-text: var(--md-sys-color-on-surface-variant);
+  --app-table-sticky-bg: var(--md-sys-color-surface);
+  --app-table-row-hover: #eef2f1;
+  --app-table-result-hover: rgba(0, 106, 107, 0.12);
+  --app-table-no-eval-bg: #f5f7f6;
+  --app-table-hierarchy-domain-bg: #e5f3f4;
+  --app-table-hierarchy-field-bg: #f3e9f7;
+  --app-table-hierarchy-competency-bg: #f9f0e6;
+  --app-table-hierarchy-specific-bg: var(--md-sys-color-surface);
+  --app-table-search-border: #ced4da;
+  --app-table-search-focus-border: var(--md-sys-color-primary);
+  --app-select-dropdown-bg: var(--md-sys-color-surface);
+  --app-select-option-text: var(--md-sys-color-on-surface);
+  --app-select-option-hover-bg: #ede9ff;
+  --app-select-option-selected-bg: var(--md-sys-color-primary);
+  --app-select-option-selected-text: var(--md-sys-color-on-primary);
+  --app-status-success-container: #d4edda;
+  --app-status-success-border: #c3e6cb;
+  --app-status-success-on: #155724;
+  --app-status-success-soft: rgba(212, 237, 218, 0.25);
+  --app-status-info-container: #d1ecf1;
+  --app-status-info-border: #bee5eb;
+  --app-status-info-on: #0c5460;
+  --app-status-info-soft: rgba(209, 236, 241, 0.25);
+  --app-status-warning-container: #fff3cd;
+  --app-status-warning-border: #ffeaa7;
+  --app-status-warning-on: #856404;
+  --app-status-warning-soft: rgba(255, 243, 205, 0.25);
+  --app-status-danger-container: #f8d7da;
+  --app-status-danger-border: #f5c6cb;
+  --app-status-danger-on: #721c24;
+  --app-status-danger-soft: rgba(248, 215, 218, 0.25);
+  --app-status-neutral-container: #e2e3e5;
+  --app-status-neutral-border: #d6d8db;
+  --app-status-neutral-on: #383d41;
+  --app-status-neutral-soft: rgba(226, 227, 229, 0.2);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --md-sys-color-primary: #4dd6d4;
+  --md-sys-color-on-primary: #003738;
+  --md-sys-color-primary-container: #004f50;
+  --md-sys-color-on-primary-container: #6ff7f5;
+  --md-sys-color-secondary-container: #1e3535;
+  --md-sys-color-on-secondary-container: #cce8e7;
+  --md-sys-color-surface: #0e1515;
+  --md-sys-color-on-surface: #e1e3e2;
+  --md-sys-color-surface-container: #1a2020;
+  --md-sys-color-surface-container-low: #161b1b;
+  --md-sys-color-surface-container-high: #252b2b;
+  --md-sys-color-surface-variant: #3f4948;
+  --md-sys-color-on-surface-variant: #bfc8c7;
+  --md-sys-color-outline: #899392;
+  --md-sys-color-outline-variant: #3f4948;
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-on-error-container: #ffdad6;
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.4),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --md-sys-elevation-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.45),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.35);
+  --md-sys-elevation-level3: 0px 6px 10px rgba(0, 0, 0, 0.5),
+    0px 1px 18px rgba(0, 0, 0, 0.4),
+    0px 3px 5px rgba(0, 0, 0, 0.6);
+  --md-sys-elevation-level4: 0px 8px 12px rgba(0, 0, 0, 0.55),
+    0px 4px 20px rgba(0, 0, 0, 0.45),
+    0px 3px 6px rgba(0, 0, 0, 0.65);
+  --md-sys-typescale-body-large-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-body-medium-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-body-small-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-headline-medium-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-headline-small-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-label-large-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-title-large-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-title-medium-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --md-sys-typescale-title-small-font: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --app-border-subtle: #2b3131;
+  --app-border-strong: #3a4141;
+  --app-divider: #262c2c;
+  --app-focus-ring: rgba(77, 214, 212, 0.28);
+  --app-icon-muted: var(--md-sys-color-on-surface-variant);
+  --app-icon-danger: var(--md-sys-color-error);
+  --app-tonal-button-bg: var(--md-sys-color-primary-container);
+  --app-tonal-button-border: var(--md-sys-color-primary);
+  --app-tonal-button-text: var(--md-sys-color-on-primary-container);
+  --app-tonal-button-hover-bg: var(--md-sys-color-primary);
+  --app-tonal-button-hover-text: var(--md-sys-color-on-primary);
+  --app-table-header-bg: #1a2020;
+  --app-table-header-text: var(--md-sys-color-on-surface);
+  --app-table-subhead-text: var(--md-sys-color-on-surface-variant);
+  --app-table-sticky-bg: var(--md-sys-color-surface-container-low);
+  --app-table-row-hover: #232a2a;
+  --app-table-result-hover: rgba(77, 214, 212, 0.16);
+  --app-table-no-eval-bg: #1d2222;
+  --app-table-hierarchy-domain-bg: #123233;
+  --app-table-hierarchy-field-bg: #252035;
+  --app-table-hierarchy-competency-bg: #34261b;
+  --app-table-hierarchy-specific-bg: var(--md-sys-color-surface-container-low);
+  --app-table-search-border: #3a4444;
+  --app-table-search-focus-border: var(--md-sys-color-primary);
+  --app-select-dropdown-bg: var(--md-sys-color-surface-container-high);
+  --app-select-option-text: var(--md-sys-color-on-surface);
+  --app-select-option-hover-bg: #2f2a40;
+  --app-select-option-selected-bg: var(--md-sys-color-primary);
+  --app-select-option-selected-text: var(--md-sys-color-on-primary);
+  --app-status-success-container: #1d3a2b;
+  --app-status-success-border: #2f5f45;
+  --app-status-success-on: #9ddbc0;
+  --app-status-success-soft: rgba(157, 219, 192, 0.12);
+  --app-status-info-container: #12323d;
+  --app-status-info-border: #1f5464;
+  --app-status-info-on: #9cd7eb;
+  --app-status-info-soft: rgba(156, 215, 235, 0.12);
+  --app-status-warning-container: #3d2f12;
+  --app-status-warning-border: #5c4518;
+  --app-status-warning-on: #f2d58a;
+  --app-status-warning-soft: rgba(242, 213, 138, 0.12);
+  --app-status-danger-container: #3f1a1f;
+  --app-status-danger-border: #6b2a33;
+  --app-status-danger-on: #f7b4bd;
+  --app-status-danger-soft: rgba(247, 180, 189, 0.16);
+  --app-status-neutral-container: #2f3033;
+  --app-status-neutral-border: #45464a;
+  --app-status-neutral-on: #dadbe0;
+  --app-status-neutral-soft: rgba(218, 219, 224, 0.08);
+}
+
+:root:not([data-theme]) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --md-sys-color-primary: #4dd6d4;
+    --md-sys-color-on-primary: #003738;
+    --md-sys-color-primary-container: #004f50;
+    --md-sys-color-on-primary-container: #6ff7f5;
+    --md-sys-color-secondary-container: #1e3535;
+    --md-sys-color-on-secondary-container: #cce8e7;
+    --md-sys-color-surface: #0e1515;
+    --md-sys-color-on-surface: #e1e3e2;
+    --md-sys-color-surface-container: #1a2020;
+    --md-sys-color-surface-container-low: #161b1b;
+    --md-sys-color-surface-container-high: #252b2b;
+    --md-sys-color-surface-variant: #3f4948;
+    --md-sys-color-on-surface-variant: #bfc8c7;
+    --md-sys-color-outline: #899392;
+    --md-sys-color-outline-variant: #3f4948;
+    --md-sys-color-error: #ffb4ab;
+    --md-sys-color-error-container: #93000a;
+    --md-sys-color-on-error: #690005;
+    --md-sys-color-on-error-container: #ffdad6;
+    --app-border-subtle: #2b3131;
+    --app-border-strong: #3a4141;
+    --app-divider: #262c2c;
+    --app-focus-ring: rgba(77, 214, 212, 0.28);
+    --app-icon-muted: var(--md-sys-color-on-surface-variant);
+    --app-icon-danger: var(--md-sys-color-error);
+    --app-tonal-button-bg: var(--md-sys-color-primary-container);
+    --app-tonal-button-border: var(--md-sys-color-primary);
+    --app-tonal-button-text: var(--md-sys-color-on-primary-container);
+    --app-tonal-button-hover-bg: var(--md-sys-color-primary);
+    --app-tonal-button-hover-text: var(--md-sys-color-on-primary);
+    --app-table-header-bg: #1a2020;
+    --app-table-header-text: var(--md-sys-color-on-surface);
+    --app-table-subhead-text: var(--md-sys-color-on-surface-variant);
+    --app-table-sticky-bg: var(--md-sys-color-surface-container-low);
+    --app-table-row-hover: #232a2a;
+    --app-table-result-hover: rgba(77, 214, 212, 0.16);
+    --app-table-no-eval-bg: #1d2222;
+    --app-table-hierarchy-domain-bg: #123233;
+    --app-table-hierarchy-field-bg: #252035;
+    --app-table-hierarchy-competency-bg: #34261b;
+    --app-table-hierarchy-specific-bg: var(--md-sys-color-surface-container-low);
+    --app-table-search-border: #3a4444;
+    --app-table-search-focus-border: var(--md-sys-color-primary);
+    --app-select-dropdown-bg: var(--md-sys-color-surface-container-high);
+    --app-select-option-text: var(--md-sys-color-on-surface);
+    --app-select-option-hover-bg: #2f2a40;
+    --app-select-option-selected-bg: var(--md-sys-color-primary);
+    --app-select-option-selected-text: var(--md-sys-color-on-primary);
+    --app-status-success-container: #1d3a2b;
+    --app-status-success-border: #2f5f45;
+    --app-status-success-on: #9ddbc0;
+    --app-status-success-soft: rgba(157, 219, 192, 0.12);
+    --app-status-info-container: #12323d;
+    --app-status-info-border: #1f5464;
+    --app-status-info-on: #9cd7eb;
+    --app-status-info-soft: rgba(156, 215, 235, 0.12);
+    --app-status-warning-container: #3d2f12;
+    --app-status-warning-border: #5c4518;
+    --app-status-warning-on: #f2d58a;
+    --app-status-warning-soft: rgba(242, 213, 138, 0.12);
+    --app-status-danger-container: #3f1a1f;
+    --app-status-danger-border: #6b2a33;
+    --app-status-danger-on: #f7b4bd;
+    --app-status-danger-soft: rgba(247, 180, 189, 0.16);
+    --app-status-neutral-container: #2f3033;
+    --app-status-neutral-border: #45464a;
+    --app-status-neutral-on: #dadbe0;
+    --app-status-neutral-soft: rgba(218, 219, 224, 0.08);
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -17,11 +338,15 @@ html {
     'Open Sans',
     'Helvetica Neue',
     sans-serif;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  background: inherit;
+  color: inherit;
 }
 
 .visually-hidden {

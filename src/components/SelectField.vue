@@ -143,18 +143,6 @@ defineExpose({
 </script>
 
 <style scoped>
-/* MD3 Design Tokens */
-:root {
-  --md-sys-color-primary: #6750a4;
-  --md-sys-color-on-surface: #1d1b20;
-  --md-sys-color-on-surface-variant: #49454f;
-  --md-sys-color-outline: #79747e;
-  --md-sys-color-error: #ba1a1a;
-  --md-sys-color-surface: #ffffff;
-  --md-outlined-select-field-container-height: 56px;
-  --md-outlined-select-field-container-shape: 4px;
-}
-
 /* Base Container */
 .md-outlined-select-field {
   position: relative;
@@ -214,7 +202,7 @@ defineExpose({
   font-size: 16px;
   line-height: 24px;
   color: var(--md-sys-color-on-surface-variant);
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   padding: 0 8px;
   pointer-events: none;
   transition: all 150ms cubic-bezier(0.2, 0, 0, 1);

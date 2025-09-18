@@ -154,12 +154,13 @@ const formatBytes = (bytes: number): string => {
 
 <style scoped>
 .persistence-status-container {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background: var(--app-table-no-eval-bg);
+  border: 1px solid var(--app-border-subtle);
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
   font-size: 0.9rem;
+  color: var(--md-sys-color-on-surface);
 }
 
 .status-header {
@@ -171,7 +172,7 @@ const formatBytes = (bytes: number): string => {
 
 .status-header h4 {
   margin: 0;
-  color: #495057;
+  color: var(--md-sys-color-on-surface);
   font-size: 1rem;
 }
 
@@ -181,56 +182,59 @@ const formatBytes = (bytes: number): string => {
   gap: 0.5rem;
 }
 
-.status-badge {
+.status-badge,
+.source-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.8rem;
   font-weight: 600;
+  border: 1px solid transparent;
 }
 
 .status-badge.loading {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--app-status-warning-container);
+  color: var(--app-status-warning-on);
+  border-color: var(--app-status-warning-border);
 }
 
 .status-badge.error {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--app-status-danger-container);
+  color: var(--app-status-danger-on);
+  border-color: var(--app-status-danger-border);
 }
 
 .status-badge.success {
-  background: #d4edda;
-  color: #155724;
+  background: var(--app-status-success-container);
+  color: var(--app-status-success-on);
+  border-color: var(--app-status-success-border);
 }
 
 .status-badge.idle {
-  background: #e2e3e5;
-  color: #6c757d;
+  background: var(--app-status-neutral-container);
+  color: var(--app-status-neutral-on);
+  border-color: var(--app-status-neutral-border);
 }
 
 .source-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
   font-size: 0.75rem;
-  font-weight: 600;
 }
 
 .source-badge.supabase {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: var(--app-status-success-container);
+  color: var(--app-status-success-on);
+  border-color: var(--app-status-success-border);
 }
 
 .source-badge.local {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
+  background: var(--app-status-warning-container);
+  color: var(--app-status-warning-on);
+  border-color: var(--app-status-warning-border);
 }
 
 .clear-error-btn {
   background: none;
   border: none;
-  color: #dc3545;
+  color: var(--app-icon-danger);
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0.25rem;
@@ -238,8 +242,8 @@ const formatBytes = (bytes: number): string => {
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--app-status-danger-container);
+  color: var(--app-status-danger-on);
   padding: 0.5rem;
   border-radius: 0.25rem;
   margin-bottom: 0.75rem;
@@ -257,19 +261,19 @@ const formatBytes = (bytes: number): string => {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem;
-  background: white;
+  background: var(--md-sys-color-surface);
   border-radius: 0.25rem;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--app-divider);
 }
 
 .stat-label {
-  color: #6c757d;
+  color: var(--app-table-subhead-text);
   font-size: 0.85rem;
 }
 
 .stat-value {
   font-weight: 600;
-  color: #495057;
+  color: var(--md-sys-color-on-surface);
 }
 
 .actions {
@@ -281,18 +285,18 @@ const formatBytes = (bytes: number): string => {
 
 .action-btn {
   padding: 0.375rem 0.75rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--app-border-subtle);
   border-radius: 0.25rem;
-  background: white;
-  color: #495057;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   cursor: pointer;
   font-size: 0.85rem;
   transition: all 0.2s ease;
 }
 
 .action-btn:hover:not(:disabled) {
-  background: #e9ecef;
-  border-color: #adb5bd;
+  background: var(--app-table-row-hover);
+  border-color: var(--app-border-strong);
 }
 
 .action-btn:disabled {
@@ -301,23 +305,26 @@ const formatBytes = (bytes: number): string => {
 }
 
 .refresh-btn:hover:not(:disabled) {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: var(--app-status-info-container);
+  color: var(--app-status-info-on);
+  border-color: var(--app-status-info-border);
 }
 
 .export-btn:hover:not(:disabled) {
-  background: #e8f5e8;
-  color: #28a745;
+  background: var(--app-status-success-container);
+  color: var(--app-status-success-on);
+  border-color: var(--app-status-success-border);
 }
 
 .reset-btn:hover:not(:disabled) {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--app-status-warning-container);
+  color: var(--app-status-warning-on);
+  border-color: var(--app-status-warning-border);
 }
 
 .evaluation-stats h5 {
   margin: 0 0 0.5rem 0;
-  color: #495057;
+  color: var(--md-sys-color-on-surface);
   font-size: 0.9rem;
 }
 
@@ -343,39 +350,35 @@ const formatBytes = (bytes: number): string => {
 }
 
 .level-a {
-  background: #d4edda;
-  color: #155724;
+  background: var(--app-status-success-container);
+  color: var(--app-status-success-on);
 }
 
 .level-b {
-  background: #d1ecf1;
-  color: #0c5460;
+  background: var(--app-status-info-container);
+  color: var(--app-status-info-on);
 }
 
 .level-c {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--app-status-warning-container);
+  color: var(--app-status-warning-on);
 }
 
-.level-d {
-  background: #f8d7da;
-  color: #721c24;
-}
-
+.level-d,
 .level-e {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--app-status-danger-container);
+  color: var(--app-status-danger-on);
 }
 
 .level-n-a {
-  background: #e2e3e5;
-  color: #6c757d;
+  background: var(--app-status-neutral-container);
+  color: var(--app-status-neutral-on);
 }
 
 .count {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #495057;
+  color: var(--md-sys-color-on-surface);
 }
 
 @media (max-width: 768px) {

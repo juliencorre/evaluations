@@ -98,7 +98,7 @@
                           <path
                             d="M 40 0 L 0 0 0 25"
                             fill="none"
-                            stroke="#e0e0e0"
+                            stroke="var(--md-sys-color-outline-variant, #c4c7c5)"
                             stroke-width="1"
                           />
                         </pattern>
@@ -109,20 +109,20 @@
                       <path
                         d="M 50 150 L 90 140 L 130 130 L 170 125 L 210 120 L 250 110 L 290 100 L 330 95 L 370 90"
                         fill="none"
-                        stroke="#6750a4"
+                        stroke="var(--md-sys-color-primary, #6750a4)"
                         stroke-width="3"
                       />
 
                       <!-- Points de données -->
-                      <circle cx="50" cy="150" r="4" fill="#6750a4" />
-                      <circle cx="90" cy="140" r="4" fill="#6750a4" />
-                      <circle cx="130" cy="130" r="4" fill="#6750a4" />
-                      <circle cx="170" cy="125" r="4" fill="#6750a4" />
-                      <circle cx="210" cy="120" r="4" fill="#6750a4" />
-                      <circle cx="250" cy="110" r="4" fill="#6750a4" />
-                      <circle cx="290" cy="100" r="4" fill="#6750a4" />
-                      <circle cx="330" cy="95" r="4" fill="#6750a4" />
-                      <circle cx="370" cy="90" r="4" fill="#6750a4" />
+                      <circle cx="50" cy="150" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="90" cy="140" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="130" cy="130" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="170" cy="125" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="210" cy="120" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="250" cy="110" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="290" cy="100" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="330" cy="95" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
+                      <circle cx="370" cy="90" r="4" fill="var(--md-sys-color-primary, #6750a4)" />
                     </svg>
                   </div>
                   <div class="chart-labels">
@@ -149,7 +149,9 @@
               <p class="card-subtitle">Performance des différentes classes</p>
             </div>
             <div class="chart-content">
-              <p style="text-align: center; color: #49454f; padding: 40px">
+              <p
+                style="text-align: center; color: var(--md-sys-color-on-surface-variant, #49454f); padding: 40px"
+              >
                 Contenu de l'analyse par classe à développer
               </p>
             </div>
@@ -255,7 +257,8 @@
                           class="bar-fill"
                           :style="{
                             width: (evaluation.score / 4) * 100 + '%',
-                            backgroundColor: evaluationPeriods[index]?.color || '#6750a4'
+                            backgroundColor: evaluationPeriods[index]?.color ||
+                              'var(--md-sys-color-primary, #6750a4)'
                           }"
                         ></div>
                       </div>
@@ -970,7 +973,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--md-sys-color-surface, #ffffff);
   position: relative;
 }
 
@@ -1010,7 +1013,7 @@ onMounted(async () => {
 .page-footer {
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--md-sys-color-outline-variant, #e0e0e0);
 }
 
 .footer-content {
@@ -1034,7 +1037,7 @@ onMounted(async () => {
   font-size: 2rem;
   font-weight: 400;
   line-height: 2.5rem;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -1044,7 +1047,7 @@ onMounted(async () => {
 .title-icon {
   width: 32px;
   height: 32px;
-  color: #6750a4;
+  color: var(--md-sys-color-primary, #6750a4);
 }
 
 .footer-description {
@@ -1057,7 +1060,7 @@ onMounted(async () => {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   margin: 0;
 }
 
@@ -1072,10 +1075,10 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  border: 1px solid #79747e;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
   border-radius: 20px;
-  background: #ffffff;
-  color: #49454f;
+  background: var(--md-sys-color-surface-container-low, #ffffff);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   font-family:
     'Roboto',
     -apple-system,
@@ -1089,12 +1092,12 @@ onMounted(async () => {
 }
 
 .export-button:hover {
-  background: #f3edf7;
-  border-color: #6750a4;
+  background: var(--md-sys-color-surface-container-high, #f3edf7);
+  border-color: var(--md-sys-color-primary, #6750a4);
 }
 
 .export-button:active {
-  background: #e8def8;
+  background: var(--md-sys-color-primary-container, #e8def8);
 }
 
 .export-single {
@@ -1129,7 +1132,7 @@ onMounted(async () => {
 }
 
 .metric-card {
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container-low, #ffffff);
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   border-radius: 12px; /* 12dp corner radius */
   padding: 24px 16px; /* 16dp left/right padding */
@@ -1153,7 +1156,7 @@ onMounted(async () => {
 .metric-icon {
   width: 24px;
   height: 24px;
-  color: #6750a4;
+  color: var(--md-sys-color-primary, #6750a4);
   flex-shrink: 0;
   margin-top: 4px;
 }
@@ -1175,7 +1178,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 .metric-value {
@@ -1188,7 +1191,7 @@ onMounted(async () => {
   font-size: 2rem;
   font-weight: 400;
   line-height: 2.5rem;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
 }
 
 .metric-trend {
@@ -1204,7 +1207,7 @@ onMounted(async () => {
 }
 
 .metric-trend.neutral {
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 .trend-icon {
@@ -1220,7 +1223,7 @@ onMounted(async () => {
 }
 
 .chart-card {
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container-low, #ffffff);
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   border-radius: 12px; /* 12dp corner radius */
   padding: 24px 16px; /* 16dp left/right padding */
@@ -1237,7 +1240,7 @@ onMounted(async () => {
 .card-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #f0f0f0);
 }
 
 .card-header-content {
@@ -1261,7 +1264,7 @@ onMounted(async () => {
   font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.75rem;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
   margin: 0 0 8px 0;
 }
 
@@ -1275,7 +1278,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   margin: 0;
 }
 
@@ -1302,18 +1305,18 @@ onMounted(async () => {
 .level-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
 }
 
 .level-count {
   font-size: 0.75rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 .level-bar {
   width: 120px;
   height: 8px;
-  background: #f0f0f0;
+  background: var(--md-sys-color-surface-variant, #f0f0f0);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -1337,13 +1340,13 @@ onMounted(async () => {
 }
 
 .level-expert {
-  background: #6750a4;
+  background: var(--md-sys-color-primary, #6750a4);
 }
 
 .level-percentage {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
   text-align: right;
 }
 
@@ -1369,7 +1372,7 @@ onMounted(async () => {
   justify-content: space-between;
   padding: 0 50px;
   font-size: 0.75rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 /* Controls Section */
@@ -1384,7 +1387,7 @@ onMounted(async () => {
 }
 
 .control-card {
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container-low, #ffffff);
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   border-radius: 12px; /* 12dp corner radius */
   padding: 24px 16px; /* 16dp left/right padding */
@@ -1406,16 +1409,16 @@ onMounted(async () => {
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5rem;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
   margin: 0;
 }
 
 .student-select {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #79747e;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container, #f0f4f3);
   font-family:
     'Roboto',
     -apple-system,
@@ -1423,14 +1426,14 @@ onMounted(async () => {
     'Segoe UI',
     sans-serif;
   font-size: 1rem;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
   cursor: pointer;
 }
 
 .student-select:focus {
   outline: none;
-  border-color: #6750a4;
-  box-shadow: 0 0 0 2px rgba(103, 80, 164, 0.2);
+  border-color: var(--md-sys-color-primary, #6750a4);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary, #6750a4) 20%, transparent);
 }
 
 .metric-type-buttons {
@@ -1440,10 +1443,10 @@ onMounted(async () => {
 
 .metric-type-button {
   padding: 10px 16px;
-  border: 1px solid #79747e;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
   border-radius: 20px;
-  background: #ffffff;
-  color: #49454f;
+  background: var(--md-sys-color-surface-container-low, #ffffff);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   font-family:
     'Roboto',
     -apple-system,
@@ -1457,13 +1460,13 @@ onMounted(async () => {
 }
 
 .metric-type-button:hover {
-  background: #f3edf7;
+  background: var(--md-sys-color-surface-container-high, #f3edf7);
 }
 
 .metric-type-button.active {
-  background: #6750a4;
-  color: #ffffff;
-  border-color: #6750a4;
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #ffffff);
+  border-color: var(--md-sys-color-primary, #6750a4);
 }
 
 /* Chart Legend */
@@ -1472,7 +1475,7 @@ onMounted(async () => {
   gap: 24px;
   margin-bottom: 24px;
   padding: 16px;
-  background: #f8f9fa;
+  background: var(--md-sys-color-surface-container-low, #f8f9fa);
   border-radius: 8px;
 }
 
@@ -1497,7 +1500,7 @@ onMounted(async () => {
     sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
 }
 
 /* Horizontal Bar Chart */
@@ -1530,7 +1533,7 @@ onMounted(async () => {
     sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
 }
 
 .bar-group {
@@ -1549,7 +1552,7 @@ onMounted(async () => {
 .bar-container {
   flex: 1;
   height: 20px;
-  background: #f0f0f0;
+  background: var(--md-sys-color-surface-variant, #f0f0f0);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -1569,7 +1572,7 @@ onMounted(async () => {
     'Segoe UI',
     sans-serif;
   font-size: 0.75rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   min-width: 40px;
   text-align: right;
 }
@@ -1587,7 +1590,7 @@ onMounted(async () => {
 .empty-icon {
   width: 64px;
   height: 64px;
-  color: #79747e;
+  color: var(--md-sys-color-on-surface-variant, #79747e);
   margin-bottom: 16px;
 }
 
@@ -1600,7 +1603,7 @@ onMounted(async () => {
     sans-serif;
   font-size: 1.25rem;
   font-weight: 500;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
   margin: 0 0 8px 0;
 }
 
@@ -1612,7 +1615,7 @@ onMounted(async () => {
     'Segoe UI',
     sans-serif;
   font-size: 0.875rem;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
   margin: 0;
 }
 
@@ -1776,7 +1779,7 @@ onMounted(async () => {
 .tabs-container {
   position: sticky;
   top: 0;
-  background: #ffffff;
+  background: var(--md-sys-color-surface, #ffffff);
   border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   z-index: 10;
 }

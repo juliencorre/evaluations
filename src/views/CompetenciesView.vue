@@ -815,7 +815,15 @@ interface DragContext {
 
 // État réactif local
 // const searchTerm = ref('') // Fonction de recherche temporairement désactivée
-const activeView = ref<'tree' | 'types' | 'import'>('tree')
+type ActiveView = 'tree' | 'types' | 'import'
+
+interface TabItem {
+  id: ActiveView
+  label: string
+  value: ActiveView
+}
+
+const activeView = ref<ActiveView>('tree')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
@@ -869,7 +877,7 @@ function getPageDescription(): string {
 const currentPageTitle = computed(() => getPageTitle())
 const currentPageDescription = computed(() => getPageDescription())
 
-const tabItems = computed(() => [
+const tabItems = computed<TabItem[]>(() => [
   {
     id: 'tree',
     label: 'Référentiels',

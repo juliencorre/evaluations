@@ -98,29 +98,18 @@
 
               <!-- Description -->
               <div class="field-group">
-                <div class="text-field-outlined" :class="{ 'error': descriptionError, 'filled': currentEvaluationForm.description }">
-                  <textarea
-                    id="evaluationDescription"
-                    v-model="currentEvaluationForm.description"
-                    class="text-field-textarea-outlined"
-                    placeholder=" "
-                    rows="4"
-                    maxlength="500"
-                  ></textarea>
-                  <label for="evaluationDescription" class="text-field-label-outlined">Description (optionnel)</label>
-                  <div class="text-field-outline">
-                    <div class="text-field-outline-start"></div>
-                    <div class="text-field-outline-notch">
-                      <div class="text-field-outline-leading"></div>
-                      <div class="text-field-outline-trailing"></div>
-                    </div>
-                    <div class="text-field-outline-end"></div>
-                  </div>
-                  <div class="text-field-supporting-text">
-                    <span class="helper-text">Décrivez l'objectif et le contexte de cette évaluation</span>
-                    <span class="character-count">{{ currentEvaluationForm.description.length }}/500</span>
-                  </div>
-                </div>
+                <TextFieldOutlined
+                  id="evaluationDescription"
+                  v-model="currentEvaluationForm.description"
+                  label="Description (optionnel)"
+                  textarea
+                  :rows="4"
+                  :max-length="500"
+                  :show-character-count="true"
+                  :error="!!descriptionError"
+                  :error-text="descriptionError"
+                  supporting-text="Décrivez l'objectif et le contexte de cette évaluation"
+                />
               </div>
             </div>
           </div>
@@ -197,20 +186,16 @@ const descriptionError = computed(() => {
 // Simplified form validation - only name is required
 const isFormValid = computed(() => {
   const name = currentEvaluationForm.value.name.trim()
-  const description = currentEvaluationForm.value.description
+  const descriptionLength = currentEvaluationForm.value.description.length
 
-  // Only check that name has at least 3 characters and description isn't too long
-  const nameIsValid = name.length >= 3
-  const descriptionIsValid = description.length <= 500
-
-  const isValid = nameIsValid && descriptionIsValid
+  const isValid = !nameError.value && !descriptionError.value
 
   console.log('🔍 Form validation:', {
     name,
     nameLength: name.length,
-    nameIsValid,
-    descriptionLength: description.length,
-    descriptionIsValid,
+    nameError: nameError.value,
+    descriptionLength,
+    descriptionError: descriptionError.value,
     isValid,
     isSaving: isSaving.value,
     buttonDisabled: isSaving.value || !isValid
@@ -533,42 +518,6 @@ watch(isLoading, (newLoading) => {
   gap: 8px;
 }
 
-/* Character count and supporting text */
-.text-field-supporting-text {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 16px 0;
-  gap: 16px;
-}
-
-.helper-text {
-  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  font-weight: var(--md-sys-typescale-body-small-weight, 400);
-  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
-}
-
-.character-count {
-  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  font-weight: var(--md-sys-typescale-body-small-weight, 400);
-  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
-  white-space: nowrap;
-}
-
-.field-supporting-text {
-  padding: 4px 16px 0;
-}
-
-.field-supporting-text .helper-text {
-  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
-}
-
 /* Select Field Outlined */
 .select-field-outlined {
   position: relative;
@@ -698,21 +647,11 @@ watch(isLoading, (newLoading) => {
   z-index: 1;
 }
 
-/* Enhanced textarea styling */
-.text-field-outlined.filled .text-field-label-outlined {
-  top: 0;
-  left: 12px;
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  color: var(--md-sys-color-primary, #6750a4);
-}
-
 /* Error states */
-.text-field-outlined.error .text-field-outline,
 .select-field-outlined.error .select-outline {
   border-color: var(--md-sys-color-error, #ba1a1a);
 }
 
-.text-field-outlined.error .text-field-label-outlined,
 .select-field-outlined.error .select-label-outlined {
   color: var(--md-sys-color-error, #ba1a1a);
 }

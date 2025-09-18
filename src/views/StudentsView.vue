@@ -4,49 +4,61 @@
     <TopAppBar
       title="Élèves"
       subtitle="Gérer la liste des élèves de la classe"
-      variant="center-aligned"
-    />
-
-    <div class="page-content">
-      <div class="content-card">
-        <div class="card-header">
-          <h2 class="card-title">Liste des élèves</h2>
-        </div>
-
-        <div class="search-bar">
-          <span class="material-symbols-outlined search-icon">search</span>
+      variant="medium"
+    >
+      <template #trailing>
+        <div class="app-bar-search">
+          <span class="material-symbols-outlined app-bar-search-icon" aria-hidden="true">search</span>
           <input
             v-model="searchTerm"
-            type="text"
+            type="search"
             placeholder="Rechercher un élève..."
-            class="search-input"
+            class="app-bar-search-input"
+            aria-label="Rechercher un élève"
           />
         </div>
+      </template>
+    </TopAppBar>
 
-        <div class="students-list">
-          <div v-for="student in filteredStudents" :key="student.id" class="student-item">
-            <div class="student-content">
-              <div class="student-name-grid">
-                <span class="first-name">{{ student.firstName }}</span>
-                <span class="last-name">{{ student.lastName }}</span>
-              </div>
+    <main class="students-content" role="main">
+      <h1 class="visually-hidden">Gestion des élèves</h1>
+
+      <section class="students-header" aria-labelledby="students-list-title">
+        <h2 id="students-list-title" class="students-title">Liste des élèves</h2>
+        <p class="students-subtitle">
+          Consulter, ajouter et modifier les élèves de la classe.
+        </p>
+      </section>
+
+      <div v-if="filteredStudents.length > 0" class="students-list" role="list">
+        <div
+          v-for="student in filteredStudents"
+          :key="student.id"
+          class="student-item"
+          role="listitem"
+        >
+          <div class="student-content">
+            <div class="student-name-grid">
+              <span class="first-name">{{ student.firstName }}</span>
+              <span class="last-name">{{ student.lastName }}</span>
             </div>
-            <div class="student-trailing">
-              <button class="action-btn edit-action" title="Modifier" @click="editStudent(student)">
-                <span class="material-symbols-outlined">edit</span>
-              </button>
-              <button
-                class="action-btn delete-action"
-                title="Supprimer"
-                @click="deleteStudent(student)"
-              >
-                <span class="material-symbols-outlined">delete</span>
-              </button>
-            </div>
+          </div>
+          <div class="student-trailing">
+            <button class="action-btn edit-action" title="Modifier" @click="editStudent(student)">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button
+              class="action-btn delete-action"
+              title="Supprimer"
+              @click="deleteStudent(student)"
+            >
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
         </div>
       </div>
-    </div>
+      <p v-else class="empty-state">Aucun élève ne correspond à votre recherche.</p>
+    </main>
 
     <!-- Material 3 Extended FAB -->
     <button
@@ -310,99 +322,126 @@ const closeModal = () => {
 
 <style scoped>
 .students-page {
-  padding: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #ffffff;
 }
 
-.page-content {
+.students-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 120px;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.search-bar {
-  position: relative;
-  max-width: 400px;
+.students-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.search-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+.students-title {
+  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-small-size, 24px);
+  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
+  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  margin: 0;
+}
+
+.students-subtitle {
+  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-medium-size, 14px);
+  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
+  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  margin: 0;
+  max-width: 640px;
+}
+
+.app-bar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 48px;
+  border-radius: 24px;
+  background: var(--md-sys-color-surface-container-high, #ece6f0);
+  border: 1px solid var(--md-sys-color-outline-variant, #dbe4e4);
+  box-shadow: var(--md-sys-elevation-level1, 0 1px 2px rgba(0, 0, 0, 0.12));
+  width: clamp(220px, 40vw, 360px);
+}
+
+.app-bar-search:focus-within {
+  border-color: var(--md-sys-color-primary, #6750a4);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent);
+}
+
+.app-bar-search-icon {
   color: var(--md-sys-color-on-surface-variant, #49454f);
   font-size: 20px;
 }
 
-.search-input {
-  width: 100%;
-  padding: 12px 16px 12px 40px;
-  border: 1px solid var(--md-sys-color-outline, #79747e);
-  border-radius: var(--md-sys-shape-corner-small, 4px);
+.app-bar-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
   font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
   font-size: var(--md-sys-typescale-body-large-size, 16px);
   line-height: var(--md-sys-typescale-body-large-line-height, 24px);
-  color: var(--md-sys-color-on-surface, #1d1b20);
-  background-color: #ffffff;
-  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  color: var(--md-sys-color-on-surface, #1c1b1f);
 }
 
-.search-input:focus {
+.app-bar-search-input:focus {
   outline: none;
-  border-color: var(--md-sys-color-primary, #6750a4);
-  border-width: 2px;
-  padding: 11px 15px 11px 39px;
 }
 
-/* Material 3 List Specifications - Sans conteneur */
+.app-bar-search-input::placeholder {
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  opacity: 0.7;
+}
+
 .students-list {
-  background: transparent;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-/* Material 3 List Item - 56dp height, pas de bordures */
 .student-item {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  min-height: 56px;
+  gap: 16px;
+  padding: 16px 20px;
+  min-height: 72px;
+  border-radius: 20px;
+  background: var(--md-sys-color-surface, #ffffff);
   transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
-  cursor: pointer;
-  position: relative;
-  border-radius: 0;
+  overflow: hidden;
 }
 
-/* Material 3 State Layer */
 .student-item::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: transparent;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
   pointer-events: none;
-  border-radius: 0;
 }
 
 .student-item:hover::before {
   background: rgba(103, 80, 164, 0.08);
 }
 
-.student-item:focus::before {
+.student-item:focus-within::before {
   background: rgba(103, 80, 164, 0.12);
 }
 
-.student-item:active::before {
-  background: rgba(103, 80, 164, 0.12);
-}
-
-.student-item:focus {
-  outline: none;
-}
-
-/* Content area - now takes full width */
 .student-content {
   flex: 1;
   min-width: 0;
@@ -410,11 +449,10 @@ const closeModal = () => {
   align-items: center;
 }
 
-/* Name grid layout */
 .student-name-grid {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
   align-items: baseline;
   width: 100%;
 }
@@ -432,13 +470,69 @@ const closeModal = () => {
   white-space: nowrap;
 }
 
-.first-name {
-  text-align: left;
+.last-name {
+  font-weight: 500;
 }
 
-.last-name {
-  text-align: left;
-  font-weight: 500;
+.empty-state {
+  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-large-size, 16px);
+  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  text-align: center;
+  margin-top: 24px;
+}
+
+.students-page :deep(.md-top-app-bar__trailing) {
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .students-content {
+    padding: 24px 16px 112px;
+  }
+
+  .students-list {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .students-page :deep(.md-top-app-bar) {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+
+  .students-page :deep(.md-top-app-bar__title) {
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+
+  .students-page :deep(.md-top-app-bar__trailing) {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .app-bar-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .students-content {
+    padding: 16px 16px 104px;
+  }
+
+  .student-name-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .student-trailing {
+    margin-left: 0;
+  }
 }
 
 /* Material 3 Icons */
@@ -1338,61 +1432,4 @@ const closeModal = () => {
   border-color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
-/* Content Card - Design unifié avec spécifications */
-.content-card {
-  background: #ffffff;
-  border-radius: 12px; /* 12dp corner radius */
-  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
-  overflow: hidden;
-  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-  margin-bottom: 8px; /* 8dp max padding between cards */
-}
-
-.card-header {
-  padding: 24px 16px 16px 16px; /* 16dp left/right padding */
-  border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
-  background: #ffffff;
-}
-
-.card-title {
-  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-headline-small-size, 24px);
-  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
-  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
-  color: var(--md-sys-color-on-surface, #1d1b20);
-  margin: 0;
-}
-
-/* Ajustements pour la barre de recherche dans la card */
-.content-card .search-bar {
-  margin: 24px 16px 0 16px; /* 16dp left/right padding */
-  max-width: none;
-}
-
-/* Ajustements pour la liste dans la card */
-.content-card .students-list {
-  padding: 0 8px 8px 8px;
-  margin-top: 16px;
-}
-
-/* Responsive pour la card */
-@media (max-width: 768px) {
-  .card-header {
-    padding: 16px 16px 12px 16px; /* Maintenir 16dp left/right padding */
-  }
-
-  .card-title {
-    font-size: var(--md-sys-typescale-headline-small-size, 20px);
-    line-height: var(--md-sys-typescale-headline-small-line-height, 28px);
-  }
-
-  .content-card .search-bar {
-    margin: 16px 16px 0 16px; /* Maintenir 16dp left/right padding */
-  }
-
-  .content-card .students-list {
-    padding: 0 8px 8px 8px;
-    margin-top: 12px;
-  }
-}
 </style>

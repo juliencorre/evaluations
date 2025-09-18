@@ -27,7 +27,7 @@
             :class="{ active: $route.name === 'home' }"
             aria-current="page"
           >
-            <div class="nav-indicator"></div>
+            <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path
@@ -43,7 +43,7 @@
             class="nav-destination"
             :class="{ active: $route.name === 'students' }"
           >
-            <div class="nav-indicator"></div>
+            <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path
@@ -59,7 +59,7 @@
             class="nav-destination"
             :class="{ active: $route.name === 'competencies' }"
           >
-            <div class="nav-indicator"></div>
+            <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path
@@ -75,7 +75,7 @@
             class="nav-destination"
             :class="{ active: $route.name === 'analysis' }"
           >
-            <div class="nav-indicator"></div>
+            <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
@@ -150,7 +150,7 @@ watch(isExpanded, (expanded) => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container, #f0f4f3);
 }
 
 /* Large Screen Navigation Rail (Left Side) */
@@ -162,7 +162,7 @@ watch(isExpanded, (expanded) => {
     bottom: 0;
     right: auto;
     width: 80px;
-    background: #ffffff;
+    background: var(--md-sys-color-surface-container, #f0f4f3);
     box-shadow:
       1px 0px 3px 1px rgba(0, 0, 0, 0.15),
       1px 0px 2px 0px rgba(0, 0, 0, 0.3);
@@ -176,7 +176,7 @@ watch(isExpanded, (expanded) => {
   .top-app-bar {
     height: 100%;
     width: 100%;
-    background: #ffffff;
+    background: var(--md-sys-color-surface-container, #f0f4f3);
     box-shadow: none;
   }
 
@@ -274,23 +274,36 @@ watch(isExpanded, (expanded) => {
     height: 56px;
     min-width: 56px;
     min-height: 56px;
-    padding: 0;
     border-radius: 16px;
     position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    justify-content: center;
+    gap: 0;
     margin: 0 auto;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --nav-item-padding-inline: 0px;
+    --nav-item-padding-block: 12px;
+    --nav-indicator-width: 56px;
+    --nav-indicator-height: 32px;
+    --nav-indicator-left: 50%;
+    --nav-indicator-translate-x: -50%;
   }
 
   .navigation-rail.expanded .nav-destination {
     width: 100%;
-    padding: 0 16px;
-    justify-content: flex-start;
-    gap: 12px;
     margin: 0;
     flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    --nav-item-padding-inline: 16px;
+    --nav-item-padding-block: 12px;
+    --nav-indicator-width: 100%;
+    --nav-indicator-height: 48px;
+    --nav-indicator-left: 50%;
+    --nav-indicator-translate-x: -50%;
   }
 
   .nav-label {
@@ -307,20 +320,8 @@ watch(isExpanded, (expanded) => {
     opacity: 1;
   }
 
-  .nav-indicator {
-    width: 56px;
-    height: 32px;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 16px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
   .navigation-rail.expanded .nav-indicator {
-    width: 100%;
-    left: 0;
-    transform: none;
+    border-radius: 24px;
   }
 
   .nav-icon-container {
@@ -336,7 +337,7 @@ watch(isExpanded, (expanded) => {
 
 /* Bottom App Bar */
 .top-app-bar {
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container, #f0f4f3);
   box-shadow:
     0px -1px 3px 1px rgba(0, 0, 0, 0.15),
     0px -1px 2px 0px rgba(0, 0, 0, 0.3);
@@ -352,7 +353,7 @@ watch(isExpanded, (expanded) => {
   padding: 0 24px;
   min-height: 64px;
   width: 100%;
-  background: #ffffff;
+  background: var(--md-sys-color-surface-container, #f0f4f3);
 }
 
 .brand-section {
@@ -376,16 +377,27 @@ watch(isExpanded, (expanded) => {
 .nav-destinations {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex: 1;
   justify-content: center;
+  gap: 8px;
+  flex: 1;
 }
 
 .nav-destination {
+  --nav-icon-size: 32px;
+  --nav-item-padding-inline: 12px;
+  --nav-item-padding-block: 6px;
+  --nav-indicator-width: 56px;
+  --nav-indicator-height: 32px;
+  --nav-indicator-left: 50%;
+  --nav-indicator-translate-x: -50%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px 12px;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--nav-item-padding-block) var(--nav-item-padding-inline);
+  min-width: 64px;
+  min-height: 56px;
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
   border-radius: 16px;
@@ -399,11 +411,10 @@ watch(isExpanded, (expanded) => {
   font-size: 0.75rem;
   line-height: 1rem;
   letter-spacing: 0.5px;
-  gap: 4px;
-  min-width: 64px;
-  min-height: 56px;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
+  transition:
+    color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .nav-destination:hover {
@@ -430,36 +441,41 @@ watch(isExpanded, (expanded) => {
 
 .nav-indicator {
   position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 64px;
-  height: 32px;
+  top: calc(var(--nav-item-padding-block) + (var(--nav-icon-size) / 2));
+  left: var(--nav-indicator-left);
+  width: var(--nav-indicator-width);
+  height: var(--nav-indicator-height);
   background: var(--md-sys-color-secondary-container);
   border-radius: 16px;
   opacity: 0;
-  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(0);
+  transform-origin: center;
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
 }
 
 .nav-destination.active .nav-indicator {
   opacity: 1;
+  transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(1);
 }
 
 .nav-icon-container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  z-index: 2;
-  position: relative;
+  width: var(--nav-icon-size);
+  height: var(--nav-icon-size);
+  z-index: 1;
 }
 
 .nav-icon {
   width: 24px;
   height: 24px;
   color: currentColor;
+  transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .nav-label {
@@ -468,7 +484,7 @@ watch(isExpanded, (expanded) => {
   font-weight: 500;
   letter-spacing: 0.5px;
   text-align: center;
-  z-index: 2;
+  z-index: 1;
   position: relative;
 }
 
@@ -843,39 +859,42 @@ watch(isExpanded, (expanded) => {
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
+@media (min-width: 600px) and (max-width: 1439px) {
+  .nav-destinations {
+    gap: 16px;
+  }
+
+  .nav-destination {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    min-width: 104px;
+    --nav-item-padding-inline: 16px;
+    --nav-item-padding-block: 8px;
+    --nav-indicator-left: calc(var(--nav-item-padding-inline) + (var(--nav-icon-size) / 2));
+    --nav-indicator-width: 64px;
+  }
+
+  .nav-label {
+    text-align: left;
+  }
+}
+
+@media (max-width: 599px) {
   .navigation-rail {
     padding: 0 16px;
   }
 
   .nav-destinations {
-    gap: 32px;
+    gap: 12px;
   }
 
   .nav-destination {
     min-width: 56px;
-    padding: 4px 8px;
-  }
-}
-
-@media (max-width: 768px) {
-  .navigation-rail {
-    display: flex;
-    padding: 0 8px;
-  }
-
-  .mobile-header {
-    display: none;
-  }
-
-  .nav-destinations {
-    gap: 0;
-  }
-
-  .nav-destination {
-    min-width: 48px;
-    padding: 4px 6px;
-    font-size: 0.625rem;
+    --nav-item-padding-inline: 8px;
+    --nav-item-padding-block: 4px;
+    --nav-indicator-width: 56px;
   }
 
   .nav-label {
@@ -885,22 +904,19 @@ watch(isExpanded, (expanded) => {
 
 @media (max-width: 480px) {
   .navigation-rail {
-    display: flex;
-    padding: 0 4px;
-  }
-
-  .mobile-header {
-    display: none;
+    padding: 0 8px;
   }
 
   .nav-destinations {
-    gap: 0;
+    gap: 8px;
   }
 
   .nav-destination {
-    min-width: 44px;
-    padding: 2px 4px;
-    font-size: 0.5rem;
+    min-width: 48px;
+    --nav-item-padding-inline: 6px;
+    --nav-icon-size: 28px;
+    --nav-indicator-width: 48px;
+    --nav-indicator-height: 28px;
   }
 
   .nav-label {
@@ -911,16 +927,6 @@ watch(isExpanded, (expanded) => {
   .nav-icon {
     width: 20px;
     height: 20px;
-  }
-
-  .nav-icon-container {
-    width: 28px;
-    height: 28px;
-  }
-
-  .nav-indicator {
-    width: 56px;
-    height: 28px;
   }
 }
 

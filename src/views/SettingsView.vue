@@ -1,53 +1,62 @@
 <template>
-  <main class="settings-page" role="main">
-    <section class="settings-header">
-      <h1 class="settings-title">Paramètres</h1>
-      <p class="settings-subtitle">
-        Personnalisez votre expérience et contrôlez les options de l'application.
-      </p>
-    </section>
+  <div class="settings-page">
+    <TopAppBar
+      title="Paramètres"
+      subtitle="Personnalisez votre expérience et contrôlez les options de l'application."
+      variant="medium"
+    />
 
-    <section class="settings-section" aria-labelledby="console-settings-title">
-      <div class="section-header">
-        <h2 id="console-settings-title" class="section-title">Console</h2>
-        <p class="section-description">
-          Gérez l'affichage des éléments décoratifs présents dans les journaux de l'application.
+    <main class="settings-content" role="main">
+      <section class="settings-header">
+        <h1 class="settings-title">Paramètres</h1>
+        <p class="settings-subtitle">
+          Personnalisez votre expérience et contrôlez les options de l'application.
         </p>
-      </div>
+      </section>
 
-      <article class="setting-card" aria-live="polite">
-        <div class="setting-card__content">
-          <h3 class="setting-card__title">Afficher les logos dans la console</h3>
-          <p class="setting-card__description">
-            Activez cette option pour conserver les icônes et les indicateurs visuels dans les messages de journalisation.
-            Lorsqu'elle est désactivée, seuls les messages textuels sont affichés pour une lecture plus sobre.
-          </p>
-          <p class="setting-card__status" :class="{ 'is-enabled': isConsoleLogoEnabled }">
-            {{ isConsoleLogoEnabled ? 'Activé' : 'Désactivé' }}
+      <section class="settings-section" aria-labelledby="console-settings-title">
+        <div class="section-header">
+          <h2 id="console-settings-title" class="section-title">Console</h2>
+          <p class="section-description">
+            Gérez l'affichage des éléments décoratifs présents dans les journaux de l'application.
           </p>
         </div>
 
-        <label class="md3-switch">
-          <input
-            id="console-logos-switch"
-            type="checkbox"
-            role="switch"
-            :checked="isConsoleLogoEnabled"
-            :aria-checked="consoleLogoAriaChecked"
-            aria-describedby="console-settings-title"
-            @change="handleConsoleLogoToggle"
-          />
-          <span class="md3-switch__track">
-            <span class="md3-switch__handle"></span>
-          </span>
-        </label>
-      </article>
-    </section>
-  </main>
+        <article class="setting-card" aria-live="polite">
+          <div class="setting-card__content">
+            <h3 class="setting-card__title">Afficher les logos dans la console</h3>
+            <p class="setting-card__description">
+              Activez cette option pour conserver les icônes et les indicateurs visuels dans les messages de journalisation.
+              Lorsqu'elle est désactivée, seuls les messages textuels sont affichés pour une lecture plus sobre.
+            </p>
+            <p class="setting-card__status" :class="{ 'is-enabled': isConsoleLogoEnabled }">
+              {{ isConsoleLogoEnabled ? 'Activé' : 'Désactivé' }}
+            </p>
+          </div>
+
+          <label class="md3-switch">
+            <input
+              id="console-logos-switch"
+              type="checkbox"
+              role="switch"
+              :checked="isConsoleLogoEnabled"
+              :aria-checked="consoleLogoAriaChecked"
+              aria-describedby="console-settings-title"
+              @change="handleConsoleLogoToggle"
+            />
+            <span class="md3-switch__track">
+              <span class="md3-switch__handle"></span>
+            </span>
+          </label>
+        </article>
+      </section>
+    </main>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import TopAppBar from '@/components/TopAppBar.vue'
 import { useSettingsStore } from '@/stores/settingsStore'
 
 const { showConsoleLogos, setShowConsoleLogos } = useSettingsStore()
@@ -70,8 +79,17 @@ const handleConsoleLogoToggle = (event: Event) => {
 
 <style scoped>
 .settings-page {
-  padding: 104px 24px 120px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 32px 24px 120px;
   max-width: 960px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -233,8 +251,8 @@ const handleConsoleLogoToggle = (event: Event) => {
 }
 
 @media (max-width: 768px) {
-  .settings-page {
-    padding: 88px 16px 112px;
+  .settings-content {
+    padding: 24px 16px 112px;
   }
 
   .setting-card {
@@ -246,6 +264,10 @@ const handleConsoleLogoToggle = (event: Event) => {
 }
 
 @media (max-width: 480px) {
+  .settings-content {
+    padding: 24px 12px 112px;
+  }
+
   .settings-title {
     font-size: 1.75rem;
   }

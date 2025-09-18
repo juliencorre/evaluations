@@ -66,7 +66,7 @@ interface MenuItem {
   id?: string
   label: string
   icon?: string
-  value: any
+  value: string | number | boolean
   selected?: boolean
 }
 
@@ -74,15 +74,15 @@ interface Props {
   label: string
   icon: string
   items: MenuItem[]
-  modelValue?: any
+  modelValue?: string | number | boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: null
+  modelValue: undefined
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: any]
+  'update:modelValue': [value: string | number | boolean]
   'item-selected': [item: MenuItem]
 }>()
 

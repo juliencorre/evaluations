@@ -1,5 +1,10 @@
 import { supabase } from '@/lib/supabase'
 import type { Evaluation } from '@/types/evaluation'
+import type { Database } from '@/types/database.types'
+
+type EvaluationRow = Database['public']['Tables']['evaluations']['Row']
+type EvaluationInsert = Database['public']['Tables']['evaluations']['Insert']
+type EvaluationUpdate = Database['public']['Tables']['evaluations']['Update']
 
 export class SupabaseEvaluationsService {
   async getEvaluations(): Promise<Evaluation[]> {
@@ -10,14 +15,15 @@ export class SupabaseEvaluationsService {
         .order('created_at', { ascending: false })
 
       if (error) throw error
+      if (!data) return []
 
-      return data.map(item => ({
+      return data.map((item: EvaluationRow) => ({
         id: item.id,
         name: item.name,
         description: item.description || '',
         frameworkId: item.framework_id,
         classId: item.class_id || '',
-        createdAt: item.created_at,
+        createdAt: item.created_at || new Date().toISOString(),
         results: [] // Results are loaded separately
       }))
     } catch (error) {
@@ -35,14 +41,16 @@ export class SupabaseEvaluationsService {
         .single()
 
       if (error) throw error
+      if (!data) return null
 
+      const evaluationData = data as EvaluationRow
       return {
-        id: data.id,
-        name: data.name,
-        description: data.description || '',
-        frameworkId: data.framework_id,
-        classId: data.class_id || '',
-        createdAt: data.created_at,
+        id: evaluationData.id,
+        name: evaluationData.name,
+        description: evaluationData.description || '',
+        frameworkId: evaluationData.framework_id,
+        classId: evaluationData.class_id || '',
+        createdAt: evaluationData.created_at || new Date().toISOString(),
         results: [] // Results are loaded separately
       }
     } catch (error) {
@@ -53,26 +61,30 @@ export class SupabaseEvaluationsService {
 
   async createEvaluation(evaluation: Omit<Evaluation, 'id' | 'createdAt' | 'results'>): Promise<Evaluation | null> {
     try {
+      const insertData: EvaluationInsert = {
+        name: evaluation.name,
+        description: evaluation.description,
+        framework_id: evaluation.frameworkId,
+        class_id: evaluation.classId
+      }
+
       const { data, error } = await supabase
         .from('evaluations')
-        .insert({
-          name: evaluation.name,
-          description: evaluation.description,
-          framework_id: evaluation.frameworkId,
-          class_id: evaluation.classId
-        })
+        .insert(insertData)
         .select()
         .single()
 
       if (error) throw error
+      if (!data) return null
 
+      const evaluationData = data as EvaluationRow
       return {
-        id: data.id,
-        name: data.name,
-        description: data.description || '',
-        frameworkId: data.framework_id,
-        classId: data.class_id || '',
-        createdAt: data.created_at,
+        id: evaluationData.id,
+        name: evaluationData.name,
+        description: evaluationData.description || '',
+        frameworkId: evaluationData.framework_id,
+        classId: evaluationData.class_id || '',
+        createdAt: evaluationData.created_at || new Date().toISOString(),
         results: []
       }
     } catch (error) {
@@ -83,27 +95,31 @@ export class SupabaseEvaluationsService {
 
   async updateEvaluation(id: string, updates: Partial<Evaluation>): Promise<Evaluation | null> {
     try {
+      const updateData: EvaluationUpdate = {
+        name: updates.name,
+        description: updates.description,
+        framework_id: updates.frameworkId,
+        class_id: updates.classId
+      }
+
       const { data, error } = await supabase
         .from('evaluations')
-        .update({
-          name: updates.name,
-          description: updates.description,
-          framework_id: updates.frameworkId,
-          class_id: updates.classId
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single()
 
       if (error) throw error
+      if (!data) return null
 
+      const evaluationData = data as EvaluationRow
       return {
-        id: data.id,
-        name: data.name,
-        description: data.description || '',
-        frameworkId: data.framework_id,
-        classId: data.class_id || '',
-        createdAt: data.created_at,
+        id: evaluationData.id,
+        name: evaluationData.name,
+        description: evaluationData.description || '',
+        frameworkId: evaluationData.framework_id,
+        classId: evaluationData.class_id || '',
+        createdAt: evaluationData.created_at || new Date().toISOString(),
         results: [] // Results are loaded separately
       }
     } catch (error) {

@@ -409,7 +409,7 @@ function getResultTypeConfig(node: TreeNode): ResultTypeConfig | null {
   if (node.type !== 'specificCompetency') return null
 
   // Get the specific competency from the original item
-  const specificComp = node.originalItem as any
+  const specificComp = node.originalItem as { resultTypeConfigId?: string }
   if (!specificComp.resultTypeConfigId) {
     // Default to 'Échelle A-E' if not specified
     return resultTypes.value.find(rt => rt.name === 'Échelle A-E') || null

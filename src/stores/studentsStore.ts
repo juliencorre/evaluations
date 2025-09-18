@@ -398,7 +398,7 @@ export const useCompetencyFrameworkStore = () => {
       for (const field of domain.fields) {
         const competency = field.competencies.find((c) => c.id === competencyId)
         if (competency) {
-          const newSpecificCompetency: any = {
+          const newSpecificCompetency: SpecificCompetency = {
             id: `spec-${Date.now()}`,
             name: specificCompetencyData.name,
             description: specificCompetencyData.description,

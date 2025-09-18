@@ -875,7 +875,7 @@ const menuItems = computed(() => [
 ])
 
 // Menu handling
-const handleMenuSelection = (item: any) => {
+const handleMenuSelection = (item: { value: string }) => {
   activeView.value = item.value
 }
 const ghostElement = ref<DomainItem | FieldItem | CompetencyItemDetailed | SpecificCompetencyItem | { isGhost: true } | null>(null)

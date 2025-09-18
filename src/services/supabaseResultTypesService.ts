@@ -1,5 +1,10 @@
 import { supabase } from '@/lib/supabase'
 import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
+import type { Database } from '@/types/database.types'
+
+type ResultTypeConfigRow = Database['public']['Tables']['result_type_configs']['Row']
+type ResultTypeConfigInsert = Database['public']['Tables']['result_type_configs']['Insert']
+type ResultTypeConfigUpdate = Database['public']['Tables']['result_type_configs']['Update']
 
 export class SupabaseResultTypesService {
   private validatePivotValues(values: ResultTypeConfigValue[]) {

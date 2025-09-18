@@ -161,7 +161,7 @@ export class PivotAnalysisService {
     targetResultTypeConfig: ResultTypeConfig
   ): string | null {
     // Find the closest value in the target result type
-    let closestValue: any = null
+    let closestValue: string | { label: string; value: string; pivot_value: number } | null = null
     let closestDistance = Infinity
 
     for (const configValue of targetResultTypeConfig.config.values) {

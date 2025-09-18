@@ -609,7 +609,7 @@ export class SupabaseCompetenciesService {
   static async updateSpecificCompetency(specificCompetencyId: string, updates: { name?: string; description?: string; resultTypeConfigId?: string }): Promise<SpecificCompetency | null> {
     try {
       // Convertir resultTypeConfigId en result_type_config_id pour Supabase
-      const dbUpdates: any = {}
+      const dbUpdates: { name?: string; description?: string; result_type_config_id?: string } = {}
       if (updates.name !== undefined) dbUpdates.name = updates.name
       if (updates.description !== undefined) dbUpdates.description = updates.description
       if (updates.resultTypeConfigId !== undefined) dbUpdates.result_type_config_id = updates.resultTypeConfigId

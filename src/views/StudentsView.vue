@@ -38,9 +38,15 @@
           role="listitem"
         >
           <div class="student-content">
-            <div class="student-name-grid">
-              <span class="first-name">{{ student.firstName }}</span>
-              <span class="last-name">{{ student.lastName }}</span>
+            <div class="student-avatar" aria-hidden="true">
+              <span class="material-symbols-outlined">person</span>
+            </div>
+            <div class="student-details">
+              <div class="student-name">
+                <span class="first-name">{{ student.firstName }}</span>
+                <span class="last-name">{{ student.lastName }}</span>
+              </div>
+              <div class="student-meta">Élève</div>
             </div>
           </div>
           <div class="student-trailing">
@@ -141,15 +147,15 @@
       >
         <div class="preview-container">
           <div class="student-preview">
-            <div class="student-preview-avatar">
+            <div class="student-avatar" aria-hidden="true">
               <span class="material-symbols-outlined">person</span>
             </div>
-            <div class="student-preview-details">
-              <div class="student-preview-name">
+            <div class="student-details">
+              <div class="student-name">
                 <span class="first-name">{{ currentStudent.firstName }}</span>
                 <span class="last-name">{{ currentStudent.lastName }}</span>
               </div>
-              <div class="student-preview-meta">Élève</div>
+              <div class="student-meta">Élève</div>
             </div>
           </div>
         </div>
@@ -418,10 +424,13 @@ const closeModal = () => {
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  min-height: 72px;
+  min-height: 76px;
   border-radius: 20px;
-  background: var(--md-sys-color-surface, #ffffff);
-  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  background: var(--md-sys-color-surface-variant, #e7e0ec);
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  transition:
+    background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.2s cubic-bezier(0.2, 0, 0, 1);
   overflow: hidden;
 }
 
@@ -442,36 +451,75 @@ const closeModal = () => {
   background: rgba(103, 80, 164, 0.12);
 }
 
+.student-item:hover,
+.student-item:focus-within {
+  border-color: rgba(103, 80, 164, 0.45);
+}
+
 .student-content {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
 }
 
-.student-name-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 12px;
+.student-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--md-sys-color-primary-container, #eaddff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-avatar .material-symbols-outlined {
+  color: var(--md-sys-color-on-primary-container, #21005d);
+  font-size: 24px;
+}
+
+.student-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.student-name {
+  display: flex;
+  gap: 8px;
   align-items: baseline;
-  width: 100%;
+  min-width: 0;
 }
 
-.first-name,
-.last-name {
+.student-name .first-name,
+.student-name .last-name {
   font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
   font-size: var(--md-sys-typescale-body-large-size, 16px);
   font-weight: var(--md-sys-typescale-body-large-weight, 400);
   line-height: var(--md-sys-typescale-body-large-line-height, 24px);
-  color: var(--md-sys-color-on-surface, #1c1b1f);
+  color: var(--md-sys-color-on-surface, #1d1b20);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.last-name {
-  font-weight: 500;
+.student-name .last-name {
+  font-weight: var(--md-sys-typescale-body-large-weight-prominent, 500);
+}
+
+.student-meta {
+  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-medium-size, 14px);
+  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
+  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 .empty-state {
@@ -525,13 +573,39 @@ const closeModal = () => {
     padding: 16px 16px 104px;
   }
 
-  .student-name-grid {
-    grid-template-columns: 1fr;
+  .student-item {
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .student-content {
+    width: 100%;
+  }
+
+  .student-name {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
+  }
+
+  .student-preview {
+    padding: 12px 14px;
+  }
+
+  .student-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .student-avatar .material-symbols-outlined {
+    font-size: 20px;
   }
 
   .student-trailing {
     margin-left: 0;
+    align-self: flex-end;
   }
 }
 
@@ -558,6 +632,8 @@ const closeModal = () => {
   gap: 8px;
   margin-left: 16px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* Material 3 Icon Button - Standard (40x40dp) */
@@ -1092,29 +1168,23 @@ const closeModal = () => {
     padding: 16px;
   }
 
-  /* Mobile: Maintain Material 3 list specifications */
+  /* Mobile adjustments for the student list visuals */
   .student-item {
-    padding: 8px 16px;
-    min-height: 56px; /* Keep Material 3 standard height */
+    padding: 12px 16px;
+    min-height: 64px;
   }
 
-  .student-name-grid {
-    grid-template-columns: 100px 1fr;
-    gap: 6px;
-  }
-
-  .first-name,
-  .last-name {
-    font-size: var(--md-sys-typescale-body-large-size, 16px);
+  .student-content {
+    gap: 12px;
   }
 
   .student-trailing {
-    margin-left: 16px; /* Keep standard margin */
+    margin-left: 12px;
   }
 
   .action-btn {
-    width: 40px; /* Keep standard icon button size */
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
   .action-btn .material-symbols-outlined {
@@ -1207,79 +1277,34 @@ const closeModal = () => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 16px 20px;
   background: var(--md-sys-color-surface-variant, #e7e0ec);
-  border-radius: var(--md-sys-shape-corner-small, 8px);
+  border-radius: 20px;
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
-}
-
-.student-preview-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--md-sys-color-primary-container, #eaddff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.student-preview-avatar .material-symbols-outlined {
-  color: var(--md-sys-color-on-primary-container, #21005d);
-  font-size: 24px;
-}
-
-.student-preview-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.student-preview-name {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  margin-bottom: 4px;
-}
-
-.student-preview-name .first-name,
-.student-preview-name .last-name {
-  font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-large-size, 16px);
-  font-weight: var(--md-sys-typescale-body-large-weight, 400);
-  line-height: var(--md-sys-typescale-body-large-line-height, 24px);
-  color: var(--md-sys-color-on-surface, #1d1b20);
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.student-preview-name .last-name {
-  font-weight: var(--md-sys-typescale-body-large-weight-prominent, 500);
-}
-
-.student-preview-meta {
-  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-medium-size, 14px);
-  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
-  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
 /* Responsive pour student preview */
 @media (max-width: 840px) {
+  .student-item {
+    padding: 16px 16px;
+  }
+
+  .student-content,
   .student-preview {
     gap: 12px;
-    padding: 12px;
   }
 
-  .student-preview-avatar {
-    width: 36px;
-    height: 36px;
+  .student-preview {
+    padding: 14px 16px;
   }
 
-  .student-preview-avatar .material-symbols-outlined {
-    font-size: 20px;
+  .student-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .student-avatar .material-symbols-outlined {
+    font-size: 22px;
   }
 }
 

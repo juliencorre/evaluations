@@ -736,12 +736,25 @@
 
 /* eslint-disable no-undef */
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
-import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
-import ThreeDotMenu from '@/components/ThreeDotMenu.vue'
+
+// Lazy load heavy services and components
+const ThreeDotMenu = defineAsyncComponent(() => import('@/components/ThreeDotMenu.vue'))
+
+// Import lightweight components normally
 import TopAppBar from '@/components/TopAppBar.vue'
+
+// Lazy load Supabase service only when needed
+let supabaseResultTypesService: any = null
+const loadSupabaseService = async () => {
+  if (!supabaseResultTypesService) {
+    const module = await import('@/services/supabaseResultTypesService')
+    supabaseResultTypesService = module.supabaseResultTypesService
+  }
+  return supabaseResultTypesService
+}
 
 // Interfaces pour les éléments du framework de compétences
 interface CompetencyItem {
@@ -900,7 +913,8 @@ onMounted(async () => {
     frameworkName: competenciesStore.framework.value.name
   })
   // Charger les types de résultats disponibles
-  resultTypes.value = await supabaseResultTypesService.getResultTypes()
+  const service = await loadSupabaseService()
+    resultTypes.value = await service.getResultTypes()
 })
 
 // Watcher pour détecter les changements du framework

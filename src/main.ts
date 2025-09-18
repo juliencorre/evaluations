@@ -1,76 +1,32 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
+import { router, preloadCriticalRoutes } from './router'
 import './style.css'
-import './registerSW'
-import { studentsService } from './services/studentsService'
-import type { StudentsServiceMessage, StudentsServiceResponse } from './services/studentsService'
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: () => import('./views/HomeView.vue')
-    },
-    {
-      path: '/students',
-      name: 'students',
-      component: () => import('./views/StudentsView.vue')
-    },
-    {
-      path: '/competencies',
-      name: 'competencies',
-      component: () => import('./views/CompetenciesView.vue')
-    },
-    {
-      path: '/analysis',
-      name: 'analysis',
-      component: () => import('./views/AnalysisView.vue')
-    }
-  ]
-})
-
+// Create and mount the app
 const app = createApp(App)
 app.use(router)
 app.mount('#app')
 
-// Gestionnaire pour les messages du service worker vers le service des élèves
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', async (event) => {
-    const { data } = event
+// Performance optimizations
+const performanceOptimizations = async () => {
+  // Preload critical routes
+  preloadCriticalRoutes()
 
-    // Traiter les messages du service worker pour les élèves
-    if (data?.type === 'SW_TO_MAIN_STUDENTS_REQUEST') {
-      const message: StudentsServiceMessage = data.payload
+  // Lazy load service worker registration and handler
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    const [{ default: registerSW }, { initializeServiceWorkerHandler }] = await Promise.all([
+      import('./registerSW'),
+      import('./utils/serviceWorkerHandler')
+    ])
 
-      try {
-        // Traiter le message avec le service des élèves
-        const response = await studentsService.handleMessage(message)
+    // Register service worker
+    registerSW()
 
-        // Renvoyer la réponse au service worker
-        if (event.source) {
-          (event.source as ServiceWorker).postMessage(response)
-        }
-      } catch (error) {
-        console.error('Erreur lors du traitement du message du service worker:', error)
-
-        // Envoyer une réponse d'erreur
-        const errorResponse: StudentsServiceResponse = {
-          type: 'STUDENTS_RESPONSE',
-          payload: {
-            data: null,
-            success: false,
-            error: error instanceof Error ? error.message : 'Erreur inconnue'
-          },
-          requestId: message.requestId || ''
-        }
-
-        if (event.source) {
-          (event.source as ServiceWorker).postMessage(errorResponse)
-        }
-      }
-    }
-  })
+    // Initialize service worker message handler
+    initializeServiceWorkerHandler()
+  }
 }
+
+// Run optimizations after initial app load
+requestIdleCallback(performanceOptimizations, { timeout: 2000 })

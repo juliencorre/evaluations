@@ -184,11 +184,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
-import FullscreenDialog from '@/components/FullscreenDialog.vue'
-import ContentSection from '@/components/ContentSection.vue'
+
+// Lazy load FullscreenDialog as it's only shown on user action
+const FullscreenDialog = defineAsyncComponent(() => import('@/components/FullscreenDialog.vue'))
+const ContentSection = defineAsyncComponent(() => import('@/components/ContentSection.vue'))
+
+// Import lightweight components normally
 import TopAppBar from '@/components/TopAppBar.vue'
 
 // Utiliser directement le store réactif global

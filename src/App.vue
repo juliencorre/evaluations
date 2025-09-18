@@ -8,9 +8,15 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { onMounted, ref } from 'vue'
-import AppHeader from './components/AppHeader.vue'
-import PwaInstallPrompt from './components/PwaInstallPrompt.vue'
+import { onMounted, ref, defineAsyncComponent } from 'vue'
+
+// Lazy load components that are not immediately visible
+const AppHeader = defineAsyncComponent(() => import('./components/AppHeader.vue'))
+const PwaInstallPrompt = defineAsyncComponent({
+  loader: () => import('./components/PwaInstallPrompt.vue'),
+  delay: 200, // Show loading after 200ms
+  timeout: 3000 // Timeout after 3s
+})
 
 const isRailExpanded = ref(false)
 

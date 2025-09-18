@@ -131,9 +131,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import EvaluationTable from '@/components/EvaluationTable.vue'
-import FullscreenDialog from '@/components/FullscreenDialog.vue'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
+
+// Lazy load heavy components
+const EvaluationTable = defineAsyncComponent({
+  loader: () => import('@/components/EvaluationTable.vue'),
+  loadingComponent: {
+    template: '<div class="loading-placeholder">Chargement du tableau...</div>',
+    style: 'padding: 2rem; text-align: center; color: #666;'
+  },
+  delay: 200,
+  timeout: 5000
+})
+
+const FullscreenDialog = defineAsyncComponent(() => import('@/components/FullscreenDialog.vue'))
+
+// Import lighter components normally as they're needed immediately
 import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
 import TopAppBar from '@/components/TopAppBar.vue'
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'

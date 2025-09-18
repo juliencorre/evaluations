@@ -14,6 +14,42 @@
         </p>
       </section>
 
+      <section class="settings-section" aria-labelledby="appearance-settings-title">
+        <div class="section-header">
+          <h2 id="appearance-settings-title" class="section-title">Apparence</h2>
+          <p class="section-description">
+            Choisissez entre le mode clair et le mode sombre pour adapter l'interface à votre environnement.
+          </p>
+        </div>
+
+        <article class="setting-card" aria-live="polite">
+          <div class="setting-card__content">
+            <h3 class="setting-card__title">Activer le mode sombre</h3>
+            <p class="setting-card__description">
+              Utilisez ce paramètre pour basculer l'application vers un thème sombre plus confortable dans les environnements peu lumineux.
+            </p>
+            <p class="setting-card__status" :class="{ 'is-enabled': isDarkModeEnabled }">
+              {{ isDarkModeEnabled ? 'Activé' : 'Désactivé' }}
+            </p>
+          </div>
+
+          <label class="md3-switch">
+            <input
+              id="dark-mode-switch"
+              type="checkbox"
+              role="switch"
+              :checked="isDarkModeEnabled"
+              :aria-checked="darkModeAriaChecked"
+              aria-describedby="appearance-settings-title"
+              @change="handleDarkModeToggle"
+            />
+            <span class="md3-switch__track">
+              <span class="md3-switch__handle"></span>
+            </span>
+          </label>
+        </article>
+      </section>
+
       <section class="settings-section" aria-labelledby="console-settings-title">
         <div class="section-header">
           <h2 id="console-settings-title" class="section-title">Console</h2>
@@ -59,13 +95,27 @@ import { computed } from 'vue'
 import TopAppBar from '@/components/TopAppBar.vue'
 import { useSettingsStore } from '@/stores/settingsStore'
 
-const { showConsoleLogos, setShowConsoleLogos } = useSettingsStore()
+const { showConsoleLogos, setShowConsoleLogos, isDarkThemeEnabled, setThemePreference } = useSettingsStore()
 
 const isConsoleLogoEnabled = computed(() => showConsoleLogos.value)
+const isDarkModeEnabled = computed(() => isDarkThemeEnabled.value)
 
 const consoleLogoAriaChecked = computed<'true' | 'false'>(() =>
   isConsoleLogoEnabled.value ? 'true' : 'false'
 )
+
+const darkModeAriaChecked = computed<'true' | 'false'>(() =>
+  isDarkModeEnabled.value ? 'true' : 'false'
+)
+
+const handleDarkModeToggle = (event: Event) => {
+  const target = event.target as HTMLInputElement | null
+  if (!target) {
+    return
+  }
+
+  setThemePreference(target.checked ? 'dark' : 'light')
+}
 
 const handleConsoleLogoToggle = (event: Event) => {
   const target = event.target as HTMLInputElement | null

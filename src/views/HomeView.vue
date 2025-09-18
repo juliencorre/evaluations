@@ -377,23 +377,17 @@ watch(isLoading, (newLoading) => {
 /* Evaluation tabs */
 .evaluation-tabs-container {
   margin: 16px 0 24px;
-  background: var(--md-sys-color-surface, #ffffff);
-  border-radius: 16px;
-  border: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
-  box-shadow: var(
-    --md-sys-elevation-level1,
-    0px 1px 3px rgba(0, 0, 0, 0.14),
-    0px 1px 2px rgba(0, 0, 0, 0.12)
-  );
 }
 
 .evaluation-tabs-bar {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  gap: 4px;
+  padding: 0 8px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
 }
 
 .evaluation-tabs-bar::-webkit-scrollbar {

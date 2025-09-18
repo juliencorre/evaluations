@@ -35,7 +35,7 @@
                 />
               </svg>
             </div>
-            <span class="nav-label">Tableaux</span>
+            <span class="nav-label">Évaluations</span>
           </router-link>
 
           <router-link

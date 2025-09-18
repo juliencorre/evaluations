@@ -111,7 +111,7 @@ defineEmits<{
   font-size: 22px;
   font-weight: 400;
   line-height: 28px;
-  color: #1d1b20;
+  color: var(--md-sys-color-on-surface);
   margin: 0;
 }
 
@@ -135,7 +135,7 @@ defineEmits<{
 .fullscreen-content {
   flex: 1;
   overflow-y: auto;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .fullscreen-body {
@@ -156,7 +156,7 @@ defineEmits<{
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant);
   position: relative;
 }
 
@@ -174,17 +174,17 @@ defineEmits<{
 }
 
 .icon-btn:hover::before {
-  background: #49454f;
+  background: var(--md-sys-color-on-surface-variant);
   opacity: 0.08;
 }
 
 .icon-btn:focus::before {
-  background: #49454f;
+  background: var(--md-sys-color-on-surface-variant);
   opacity: 0.12;
 }
 
 .icon-btn:active::before {
-  background: #49454f;
+  background: var(--md-sys-color-on-surface-variant);
   opacity: 0.12;
 }
 
@@ -198,7 +198,7 @@ defineEmits<{
   align-items: center;
   gap: 8px;
   background: transparent;
-  color: #6750a4;
+  color: var(--md-sys-color-primary);
   border: none;
   border-radius: 20px;
   padding: 10px 24px;
@@ -219,7 +219,7 @@ defineEmits<{
   left: 0;
   right: 0;
   bottom: 0;
-  background: #6750a4;
+  background: var(--md-sys-color-primary);
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
 }

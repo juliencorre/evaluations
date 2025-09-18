@@ -532,13 +532,13 @@ watch(searchTerm, (newTerm) => {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: var(--md-sys-color-surface);
 }
 
 .table-header {
   padding: 1rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--app-table-header-bg);
+  border-bottom: 1px solid var(--app-divider);
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
@@ -552,13 +552,13 @@ watch(searchTerm, (newTerm) => {
 
 .header-main h2 {
   margin: 0 0 0.5rem 0;
-  color: #2c3e50;
+  color: var(--md-sys-color-on-surface);
   font-size: 1.5rem;
 }
 
 .table-description {
   margin: 0;
-  color: #6c757d;
+  color: var(--app-table-subhead-text);
   font-size: 0.95rem;
 }
 
@@ -571,14 +571,14 @@ watch(searchTerm, (newTerm) => {
 
 .controls-label {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--app-table-subhead-text);
   font-weight: 500;
 }
 
 .restore-column-btn {
-  background: #e3f2fd;
-  color: #1976d2;
-  border: 1px solid #bbdefb;
+  background: var(--app-tonal-button-bg);
+  color: var(--app-tonal-button-text);
+  border: 1px solid var(--app-tonal-button-border);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.8rem;
@@ -587,8 +587,9 @@ watch(searchTerm, (newTerm) => {
 }
 
 .restore-column-btn:hover {
-  background: #bbdefb;
-  color: #0d47a1;
+  background: var(--app-tonal-button-hover-bg);
+  color: var(--app-tonal-button-hover-text);
+  border-color: var(--app-tonal-button-hover-bg);
 }
 
 .table-wrapper {
@@ -614,26 +615,17 @@ watch(searchTerm, (newTerm) => {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #fff;
+  background: var(--app-table-sticky-bg);
 }
 
-.evaluation-table th {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  padding: 0.75rem 0.5rem;
-  text-align: left;
-  font-weight: 600;
-  color: #495057;
-  vertical-align: top;
-}
-
+.evaluation-table th,
 .hierarchy-header {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background: var(--app-table-header-bg);
+  border: 1px solid var(--app-border-subtle);
   padding: 0.75rem 0.5rem;
   text-align: left;
   font-weight: 600;
-  color: #495057;
+  color: var(--app-table-header-text);
   vertical-align: top;
 }
 
@@ -641,30 +633,28 @@ watch(searchTerm, (newTerm) => {
   min-width: 150px;
   max-width: 150px;
   width: 150px;
-  background: #f0f8ff !important;
-  background-color: #f0f8ff !important;
+  background: var(--app-table-hierarchy-domain-bg) !important;
 }
 
 .field-col {
   min-width: 200px;
   max-width: 200px;
   width: 200px;
-  background: #faf0ff !important;
-  background-color: #faf0ff !important;
+  background: var(--app-table-hierarchy-field-bg) !important;
 }
 
 .competency-col {
   min-width: 250px;
   max-width: 250px;
   width: 250px;
-  background: #fff8f0 !important;
-  background-color: #fff8f0 !important;
+  background: var(--app-table-hierarchy-competency-bg) !important;
 }
 
 .specific-competency-col {
   min-width: 300px;
   max-width: 300px;
   width: 300px;
+  background: var(--app-table-hierarchy-specific-bg) !important;
 }
 
 .hierarchy-header .header-content {
@@ -689,10 +679,11 @@ watch(searchTerm, (newTerm) => {
   border-radius: 0.25rem;
   transition: all 0.2s ease;
   opacity: 0.7;
+  color: var(--app-icon-muted);
 }
 
 .visibility-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--app-table-row-hover);
   opacity: 1;
 }
 
@@ -701,7 +692,7 @@ watch(searchTerm, (newTerm) => {
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
-  color: #6c757d;
+  color: var(--app-icon-muted);
   padding: 0;
   width: 20px;
   height: 20px;
@@ -711,7 +702,7 @@ watch(searchTerm, (newTerm) => {
 }
 
 .clear-search-btn:hover {
-  color: #dc3545;
+  color: var(--app-icon-danger);
 }
 
 .search-container {
@@ -721,15 +712,17 @@ watch(searchTerm, (newTerm) => {
 .search-input {
   width: 100%;
   padding: 0.375rem 0.5rem;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--app-table-search-border);
   border-radius: 0.25rem;
   font-size: 0.875rem;
+  background: var(--app-table-sticky-bg);
+  color: var(--md-sys-color-on-surface);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: var(--app-table-search-focus-border);
+  box-shadow: 0 0 0 0.2rem var(--app-focus-ring);
 }
 
 .student-header {
@@ -738,6 +731,7 @@ watch(searchTerm, (newTerm) => {
   width: 90px;
   text-align: center;
   writing-mode: horizontal-tb;
+  color: var(--md-sys-color-on-surface);
 }
 
 .student-name {
@@ -755,13 +749,13 @@ watch(searchTerm, (newTerm) => {
 .sticky-left {
   position: sticky;
   z-index: 10;
-  background: #fff;
+  background: var(--app-table-sticky-bg);
 }
 
 .domain-col,
 .domain-cell {
   left: 0;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--app-border-subtle);
   z-index: 14;
   opacity: 1;
   backdrop-filter: none;
@@ -770,7 +764,7 @@ watch(searchTerm, (newTerm) => {
 .field-col,
 .field-cell {
   left: 150px;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--app-border-subtle);
   z-index: 13;
   opacity: 1;
   backdrop-filter: none;
@@ -779,7 +773,7 @@ watch(searchTerm, (newTerm) => {
 .competency-col,
 .competency-cell {
   left: 350px;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--app-border-subtle);
   z-index: 12;
   opacity: 1;
   backdrop-filter: none;
@@ -788,28 +782,30 @@ watch(searchTerm, (newTerm) => {
 .specific-competency-col,
 .specific-competency-cell {
   left: 600px;
-  border-right: 2px solid #dee2e6;
+  border-right: 2px solid var(--app-border-strong);
   z-index: 11;
 }
 
 /* Row styles */
 .competency-row {
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--app-divider);
+  background: var(--md-sys-color-surface);
 }
 
 .competency-row:hover {
-  background-color: #f8f9fa;
+  background-color: var(--app-table-row-hover);
 }
 
 .competency-row.type-specificCompetency {
-  background-color: #ffffff;
+  background-color: var(--md-sys-color-surface);
 }
 
 /* Cell styles */
 .evaluation-table td {
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--app-border-subtle);
   padding: 0.5rem;
   vertical-align: top;
+  background: var(--md-sys-color-surface);
 }
 
 .hierarchy-cell {
@@ -817,7 +813,7 @@ watch(searchTerm, (newTerm) => {
   font-size: 0.9rem;
   line-height: 1.4;
   position: sticky;
-  background: #fff;
+  background: var(--app-table-sticky-bg);
 }
 
 .domain-cell {
@@ -825,8 +821,7 @@ watch(searchTerm, (newTerm) => {
   max-width: 150px;
   width: 150px;
   font-weight: 600;
-  background: #f0f8ff !important;
-  background-color: #f0f8ff !important;
+  background: var(--app-table-hierarchy-domain-bg) !important;
 }
 
 .field-cell {
@@ -834,24 +829,21 @@ watch(searchTerm, (newTerm) => {
   max-width: 200px;
   width: 200px;
   font-weight: 500;
-  background: #faf0ff !important;
-  background-color: #faf0ff !important;
+  background: var(--app-table-hierarchy-field-bg) !important;
 }
 
 .competency-cell {
   min-width: 250px;
   max-width: 250px;
   width: 250px;
-  background: #fff8f0 !important;
-  background-color: #fff8f0 !important;
+  background: var(--app-table-hierarchy-competency-bg) !important;
 }
 
 .specific-competency-cell {
   min-width: 300px;
   max-width: 300px;
   width: 300px;
-  background: #ffffff;
-  background-color: #ffffff;
+  background: var(--app-table-hierarchy-specific-bg);
 }
 
 .cell-content {
@@ -882,7 +874,7 @@ watch(searchTerm, (newTerm) => {
 }
 
 .result-cell:hover {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: var(--app-table-result-hover);
 }
 
 .result-content {
@@ -904,73 +896,65 @@ watch(searchTerm, (newTerm) => {
 
 /* Result level colors */
 .level-a {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: var(--app-status-success-container);
+  color: var(--app-status-success-on);
+  border: 1px solid var(--app-status-success-border);
 }
 
 .level-b {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
+  background-color: var(--app-status-info-container);
+  color: var(--app-status-info-on);
+  border: 1px solid var(--app-status-info-border);
 }
 
 .level-c {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
+  background-color: var(--app-status-warning-container);
+  color: var(--app-status-warning-on);
+  border: 1px solid var(--app-status-warning-border);
 }
 
-.level-d {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
+.level-d,
 .level-e {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: var(--app-status-danger-container);
+  color: var(--app-status-danger-on);
+  border: 1px solid var(--app-status-danger-border);
 }
 
 .level-n-a {
-  background-color: #e2e3e5;
-  color: #383d41;
-  border: 1px solid #d6d8db;
+  background-color: var(--app-status-neutral-container);
+  color: var(--app-status-neutral-on);
+  border: 1px solid var(--app-status-neutral-border);
 }
 
 /* Result cell background colors (subtle) */
 .has-result-a {
-  background-color: rgba(212, 237, 218, 0.1);
+  background-color: var(--app-status-success-soft);
 }
 
 .has-result-b {
-  background-color: rgba(209, 236, 241, 0.1);
+  background-color: var(--app-status-info-soft);
 }
 
 .has-result-c {
-  background-color: rgba(255, 243, 205, 0.1);
+  background-color: var(--app-status-warning-soft);
 }
 
-.has-result-d {
-  background-color: rgba(248, 215, 218, 0.1);
-}
-
+.has-result-d,
 .has-result-e {
-  background-color: rgba(248, 215, 218, 0.1);
+  background-color: var(--app-status-danger-soft);
 }
 
 .no-result {
-  background-color: rgba(226, 227, 229, 0.05);
+  background-color: var(--app-status-neutral-soft);
 }
 
 .no-evaluation {
-  background-color: #f8f9fa;
+  background-color: var(--app-table-no-eval-bg);
   cursor: default;
 }
 
 .no-evaluation:hover {
-  background-color: #f8f9fa;
+  background-color: var(--app-table-no-eval-bg);
 }
 
 /* Inline editing styles */
@@ -983,19 +967,19 @@ watch(searchTerm, (newTerm) => {
 .result-select {
   width: 60px;
   padding: 0.25rem;
-  border: 2px solid #007bff;
+  border: 2px solid var(--md-sys-color-primary);
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
-  background: white;
-  color: #495057;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   outline: none;
 }
 
 .result-select:focus {
-  border-color: #0056b3;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: var(--app-table-search-focus-border);
+  box-shadow: 0 0 0 0.2rem var(--app-focus-ring);
 }
 
 /* Custom select dropdown styles */
@@ -1009,8 +993,8 @@ watch(searchTerm, (newTerm) => {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
-  border: 2px solid #6750a4;
+  background: var(--app-select-dropdown-bg);
+  border: 2px solid var(--md-sys-color-primary);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   z-index: 1000;
@@ -1024,20 +1008,21 @@ watch(searchTerm, (newTerm) => {
   width: 100%;
   padding: 8px 12px;
   border: none;
-  background: #ffffff;
+  background: var(--app-select-dropdown-bg);
   text-align: center;
   font-size: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
+  color: var(--app-select-option-text);
 }
 
 .select-option:hover {
-  background-color: #f3f0ff;
+  background-color: var(--app-select-option-hover-bg);
 }
 
 .select-option.selected {
-  background-color: #6750a4;
-  color: white;
+  background-color: var(--app-select-option-selected-bg);
+  color: var(--app-select-option-selected-text);
 }
 
 .select-option:first-child {
@@ -1051,7 +1036,6 @@ watch(searchTerm, (newTerm) => {
 .select-option:only-child {
   border-radius: 6px;
 }
-
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -1116,7 +1100,6 @@ watch(searchTerm, (newTerm) => {
     font-size: 0.75rem;
     padding: 0.125rem 0.25rem;
   }
-
 
   .table-header {
     flex-direction: column;
@@ -1198,3 +1181,4 @@ watch(searchTerm, (newTerm) => {
   }
 }
 </style>
+

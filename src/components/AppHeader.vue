@@ -151,47 +151,6 @@ watch(isExpanded, (expanded) => {
 </script>
 
 <style scoped>
-/* Material Design 3 Variables */
-:root,
-:root[data-theme='light'] {
-  --md-sys-color-primary: #006a6b;
-  --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-primary-container: #6ff7f5;
-  --md-sys-color-on-primary-container: #002020;
-  --md-sys-color-secondary-container: #cce8e7;
-  --md-sys-color-on-secondary-container: #041f1f;
-  --md-sys-color-surface: #fefefe;
-  --md-sys-color-on-surface: #1b1c1c;
-  --md-sys-color-surface-container: #f0f4f3;
-  --md-sys-color-surface-container-low: #f5f9f8;
-  --md-sys-color-surface-variant: #dbe4e4;
-  --md-sys-color-on-surface-variant: #3f4948;
-  --md-sys-color-outline: #6f7978;
-  --md-sys-color-outline-variant: #bfc8c7;
-  --md-elevation-level-0: none;
-  --md-elevation-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-  --md-elevation-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-  color-scheme: light;
-}
-
-:root[data-theme='dark'] {
-  --md-sys-color-primary: #4dd6d4;
-  --md-sys-color-on-primary: #003738;
-  --md-sys-color-primary-container: #004f50;
-  --md-sys-color-on-primary-container: #6ff7f5;
-  --md-sys-color-secondary-container: #1e3535;
-  --md-sys-color-on-secondary-container: #cce8e7;
-  --md-sys-color-surface: #0e1515;
-  --md-sys-color-on-surface: #e1e3e2;
-  --md-sys-color-surface-container: #1a2020;
-  --md-sys-color-surface-container-low: #161b1b;
-  --md-sys-color-surface-variant: #3f4948;
-  --md-sys-color-on-surface-variant: #bfc8c7;
-  --md-sys-color-outline: #899392;
-  --md-sys-color-outline-variant: #3f4948;
-  color-scheme: dark;
-}
-
 /* App Header */
 .app-header {
   position: fixed;
@@ -613,7 +572,7 @@ watch(isExpanded, (expanded) => {
   padding: 0 16px;
   min-height: 64px;
   width: 100%;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .nav-drawer-button {
@@ -693,8 +652,8 @@ watch(isExpanded, (expanded) => {
   bottom: 0;
   width: 360px;
   max-width: 80vw;
-  background: #ffffff !important;
-  background-color: #ffffff !important;
+  background: var(--md-sys-color-surface) !important;
+  background-color: var(--md-sys-color-surface) !important;
   box-shadow:
     0px 1px 3px 1px rgba(0, 0, 0, 0.15),
     0px 1px 2px 0px rgba(0, 0, 0, 0.3);
@@ -714,7 +673,7 @@ watch(isExpanded, (expanded) => {
   flex-direction: column;
   height: 100%;
   padding: 0;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .drawer-header {
@@ -722,8 +681,8 @@ watch(isExpanded, (expanded) => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #ffffff;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
 }
 
 .drawer-title {
@@ -772,7 +731,7 @@ watch(isExpanded, (expanded) => {
 .drawer-nav {
   flex: 1;
   padding: 12px 0;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .drawer-destination {
@@ -849,7 +808,7 @@ watch(isExpanded, (expanded) => {
 
 .drawer-actions {
   padding: 12px 0 24px 0;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .drawer-action {
@@ -982,32 +941,12 @@ watch(isExpanded, (expanded) => {
 /* Dark Theme */
 html[data-theme='dark'] .navigation-drawer,
 html[data-theme='dark'] .drawer-content {
-  background: #1a1c1c;
+  background: var(--md-sys-color-surface-container);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --md-sys-color-primary: #4dd6d4;
-    --md-sys-color-on-primary: #003738;
-    --md-sys-color-primary-container: #004f50;
-    --md-sys-color-on-primary-container: #6ff7f5;
-    --md-sys-color-secondary-container: #1e3535;
-    --md-sys-color-on-secondary-container: #cce8e7;
-    --md-sys-color-surface: #0e1515;
-    --md-sys-color-on-surface: #e1e3e2;
-    --md-sys-color-surface-container: #1a2020;
-    --md-sys-color-surface-container-low: #161b1b;
-    --md-sys-color-surface-variant: #3f4948;
-    --md-sys-color-on-surface-variant: #bfc8c7;
-    --md-sys-color-outline: #899392;
-    --md-sys-color-outline-variant: #3f4948;
-    color-scheme: dark;
-  }
-
-  html:not([data-theme]) .navigation-drawer,
-  html:not([data-theme]) .drawer-content {
-    background: #1a1c1c;
-  }
+html:not([data-theme]) .navigation-drawer,
+html:not([data-theme]) .drawer-content {
+  background: var(--md-sys-color-surface-container);
 }
 
 /* Focus States for Accessibility */

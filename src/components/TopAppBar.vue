@@ -69,7 +69,7 @@ const appBarClasses = computed(() => ({
   align-items: center;
   position: relative;
   width: 100%;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface, #1d1b20);
   min-height: 64px;
   padding: 0 4px;

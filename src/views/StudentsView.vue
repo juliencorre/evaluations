@@ -331,7 +331,7 @@ const closeModal = () => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .students-content {
@@ -729,7 +729,7 @@ const closeModal = () => {
 
 /* Basic Dialog - 280dp minimum width, 560dp maximum */
 .dialog-container {
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   border-radius: 28px;
   box-shadow:
     0px 3px 1px -2px rgba(0, 0, 0, 0.2),
@@ -770,13 +770,13 @@ const closeModal = () => {
 .dialog-icon {
   width: 24px;
   height: 24px;
-  color: #625b71;
+  color: var(--md-sys-color-on-surface-variant);
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .alert-icon {
-  color: #ba1a1a;
+  color: var(--md-sys-color-error);
 }
 
 .dialog-headline {
@@ -971,8 +971,8 @@ const closeModal = () => {
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
-  color: #ffffff;
-  background: #6750a4;
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
   border: none;
   border-radius: 20px;
   padding: 10px 24px;
@@ -993,7 +993,7 @@ const closeModal = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff;
+  background: var(--md-sys-color-on-primary);
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -1011,12 +1011,12 @@ const closeModal = () => {
 }
 
 .filled-button.destructive {
-  background: #ba1a1a;
-  color: #ffffff;
+  background: var(--md-sys-color-error);
+  color: var(--md-sys-color-on-error);
 }
 
 .filled-button.destructive::before {
-  background: #ffffff;
+  background: var(--md-sys-color-on-error);
 }
 
 /* Styles pour les boutons disabled */
@@ -1266,7 +1266,7 @@ const closeModal = () => {
 
 /* Preview Container */
 .preview-container {
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   border-radius: var(--md-sys-shape-corner-medium, 12px);
   padding: 24px;
@@ -1347,7 +1347,7 @@ const closeModal = () => {
   font-weight: var(--md-sys-typescale-body-large-weight, 400);
   line-height: var(--md-sys-typescale-body-large-line-height, 24px);
   color: var(--md-sys-color-on-surface-variant, #49454f);
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   padding: 0 4px;
   pointer-events: none;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);

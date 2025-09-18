@@ -132,7 +132,7 @@ const handleConsoleLogoToggle = (event: Event) => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .settings-content {
@@ -272,7 +272,7 @@ const handleConsoleLogoToggle = (event: Event) => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   box-shadow:
     0px 1px 3px rgba(0, 0, 0, 0.15),
     0px 1px 2px rgba(0, 0, 0, 0.3);
@@ -287,7 +287,7 @@ const handleConsoleLogoToggle = (event: Event) => {
 
 .md3-switch input:checked + .md3-switch__track .md3-switch__handle {
   transform: translateX(20px);
-  background: #ffffff;
+  background: var(--md-sys-color-on-primary);
 }
 
 .md3-switch input:focus-visible + .md3-switch__track {

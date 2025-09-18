@@ -353,7 +353,7 @@ watch(isLoading, (newLoading) => {
 /* Evaluation Meta Section */
 .evaluation-meta-section {
   padding: 16px 24px;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   border-radius: 0 0 12px 12px;
   margin-bottom: 24px;
 }
@@ -650,7 +650,7 @@ watch(isLoading, (newLoading) => {
   color: var(--md-sys-color-on-surface-variant, #49454f);
   pointer-events: none;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   padding: 0 4px;
   z-index: 2;
 }
@@ -662,7 +662,7 @@ watch(isLoading, (newLoading) => {
   left: 12px;
   font-size: var(--md-sys-typescale-body-small-size, 12px);
   color: var(--md-sys-color-primary, #6750a4);
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   padding: 0 4px;
 }
 

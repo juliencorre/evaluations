@@ -10,7 +10,7 @@
       :is="textarea ? 'textarea' : 'input'"
       :id="id"
       ref="inputElement"
-      v-model="inputValue"
+      :value="displayValue"
       :type="type"
       :required="required"
       :disabled="disabled"
@@ -116,9 +116,8 @@ const emit = defineEmits<{
 const isFocused = ref(false)
 const inputElement = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
 
-const inputValue = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const displayValue = computed(() => {
+  return props.modelValue
 })
 
 const hasValue = computed(() => {
@@ -162,6 +161,12 @@ const onBlur = (event: FocusEvent) => {
 }
 
 const onInput = (event: Event) => {
+  const target = event.target as HTMLInputElement | HTMLTextAreaElement | null
+  if (!target) {
+    return
+  }
+
+  emit('update:modelValue', target.value)
   emit('input', event)
 }
 

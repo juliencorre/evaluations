@@ -115,11 +115,11 @@ const trendIconPath = computed(() => {
 }
 
 .metric-trend.positive {
-  color: #2e7d31;
+  color: var(--md-sys-color-success, #2d5a3d);
 }
 
 .metric-trend.negative {
-  color: #d32f2f;
+  color: var(--md-sys-color-error, #8a3030);
 }
 
 .metric-trend.neutral {

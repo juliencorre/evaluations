@@ -24,7 +24,6 @@
             </div>
             <div class="text-field-outline-end"></div>
           </div>
-          <div class="field-helper-text">Entrez le prénom de l'élève</div>
         </div>
 
         <div class="text-field-outlined">
@@ -46,7 +45,6 @@
             </div>
             <div class="text-field-outline-end"></div>
           </div>
-          <div class="field-helper-text">Entrez le nom de famille de l'élève</div>
         </div>
       </div>
     </ContentSection>
@@ -178,15 +176,13 @@ watch(localStudent, (newValue) => {
 .text-field-outline-notch {
   flex: 1;
   display: flex;
-  border-top: 1px solid var(--md-sys-color-outline, #79747e);
-  border-bottom: 1px solid var(--md-sys-color-outline, #79747e);
   transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1), border-width 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .text-field-outline-leading {
   width: 12px;
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid transparent;
+  border-top: 1px solid var(--md-sys-color-outline, #79747e);
+  border-bottom: 1px solid var(--md-sys-color-outline, #79747e);
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -215,24 +211,14 @@ watch(localStudent, (newValue) => {
 
 .text-field-input-outlined:focus ~ .text-field-outline .text-field-outline-leading {
   border-top-color: transparent;
-  border-bottom-color: transparent;
+  border-bottom-width: 2px;
+  border-bottom-color: var(--md-sys-color-primary, #6750a4);
 }
 
 .text-field-input-outlined:not(:placeholder-shown) ~ .text-field-outline .text-field-outline-leading {
   border-top-color: transparent;
-  border-bottom-color: transparent;
 }
 
-/* Supporting Text */
-.field-helper-text {
-  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-small-size, 12px);
-  font-weight: var(--md-sys-typescale-body-small-weight, 400);
-  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
-  margin-top: 4px;
-  padding: 0 16px;
-}
 
 /* Hover States */
 .text-field-outlined:hover:not(:focus-within) .text-field-outline-start,

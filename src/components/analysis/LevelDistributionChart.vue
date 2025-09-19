@@ -78,19 +78,19 @@ defineProps<Props>()
 }
 
 .level-not-acquired {
-  background: #ba1a1a;
+  background: var(--md-sys-color-error, #8a3030);
 }
 
 .level-in-progress {
-  background: #f57c00;
+  background: var(--md-sys-color-warning, #8a5a00);
 }
 
 .level-acquired {
-  background: #2e7d31;
+  background: var(--md-sys-color-success, #2d5a3d);
 }
 
 .level-expert {
-  background: var(--md-sys-color-primary, #6750a4);
+  background: var(--md-sys-color-primary, #405268);
 }
 
 .level-percentage {

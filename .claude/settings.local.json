@@ -51,7 +51,9 @@
       "Bash(npm run lint:*)",
       "Bash(find:*)",
       "Bash(dir \"C:\\Users\\julien\\Documents\\00_github\\evaluations\\public\")",
-      "Bash(dir C:UsersjulienDocuments00_githubevaluationssrcviews)"
+      "Bash(dir C:UsersjulienDocuments00_githubevaluationssrcviews)",
+      "Bash(npx vite:*)",
+      "Bash(del /s node_modules.vite-temp)"
     ],
     "deny": [],
     "ask": []

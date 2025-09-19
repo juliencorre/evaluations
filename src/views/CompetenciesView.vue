@@ -6,6 +6,8 @@
       :is-scrolled="isScrolled"
       :show-search="false"
       @user-menu-click="handleUserMenuClick"
+      @help="handleHelp"
+      @logout="handleLogout"
     />
 
     <!-- Competency Tabs -->
@@ -324,6 +326,16 @@ onUnmounted(() => {
 const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }
+
+const handleHelp = () => {
+  console.log('Help requested')
+  window.alert('Aide - Fonctionnalité à venir')
+}
+
+const handleLogout = () => {
+  console.log('Logout requested')
+  window.alert('Déconnexion - Fonctionnalité à venir')
+}
 </script>
 
 <style scoped>
@@ -338,7 +350,7 @@ const handleUserMenuClick = () => {
 .page-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 32px;
+  padding: 24px 32px 80px;
   background-color: transparent;
 }
 
@@ -354,13 +366,13 @@ const handleUserMenuClick = () => {
 /* Responsive */
 @media (max-width: 768px) {
   .page-content {
-    padding: 16px;
+    padding: 16px 16px 80px;
   }
 }
 
 @media (min-width: 1440px) {
   .page-content {
-    padding-left: 80px;
+    padding: 24px 32px 80px 80px;
   }
 }
 </style>

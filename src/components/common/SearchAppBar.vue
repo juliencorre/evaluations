@@ -32,14 +32,17 @@
 
     <!-- Trailing Actions -->
     <div class="search-app-bar__trailing">
-      <button class="icon-button user-menu-button" aria-label="Menu utilisateur" @click="$emit('user-menu-click')">
-        <span class="material-symbols-outlined">account_circle</span>
-      </button>
+      <UserMenu
+        @help="$emit('help')"
+        @logout="$emit('logout')"
+      />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import UserMenu from './UserMenu.vue'
+
 interface Props {
   searchValue: string
   placeholder?: string
@@ -52,7 +55,8 @@ interface Emits {
   (e: 'update:search-value', value: string): void
   (e: 'clear-search'): void
   (e: 'logo-click'): void
-  (e: 'user-menu-click'): void
+  (e: 'help'): void
+  (e: 'logout'): void
 }
 
 withDefaults(defineProps<Props>(), {
@@ -288,13 +292,6 @@ defineEmits<Emits>()
   z-index: 1;
 }
 
-.user-menu-button {
-  color: var(--md-sys-color-primary);
-}
-
-.user-menu-button .material-symbols-outlined {
-  font-size: 32px;
-}
 
 /* Large screens - show all trailing icons */
 @media (min-width: 1280px) {

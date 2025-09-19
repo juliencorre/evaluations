@@ -8,8 +8,9 @@
       logo-icon="school"
       :is-scrolled="isScrolled"
       @clear-search="searchTerm = ''"
-      @logo-click="$router.push('/')"
-      @user-menu-click="handleUserMenuClick"
+      @logo-click="$router.push('/evaluations')"
+      @help="handleHelp"
+      @logout="handleLogout"
     />
 
     <main class="students-content" role="main">
@@ -98,8 +99,14 @@ const filteredStudents = computed(() => {
 })
 
 // Event handlers
-const handleUserMenuClick = () => {
-  console.log('User menu clicked')
+const handleHelp = () => {
+  console.log('Help requested')
+  window.alert('Aide - Fonctionnalité à venir')
+}
+
+const handleLogout = () => {
+  console.log('Logout requested')
+  window.alert('Déconnexion - Fonctionnalité à venir')
 }
 
 const handleAddStudent = () => {
@@ -179,7 +186,7 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 24px 32px;
+  padding: 24px 24px 80px;
   display: flex;
   flex-direction: column;
 }
@@ -198,13 +205,13 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
 
 @media (max-width: 900px) {
   .students-content {
-    padding: 24px 16px 32px;
+    padding: 24px 16px 80px;
   }
 }
 
 @media (max-width: 480px) {
   .students-content {
-    padding: 16px 16px 32px;
+    padding: 16px 16px 80px;
   }
 }
 </style>

@@ -22,10 +22,10 @@
 
         <div class="nav-destinations">
           <router-link
-            to="/"
+            to="/evaluations"
             class="nav-destination"
-            :class="{ active: currentRouteName === ROUTE_NAMES.HOME }"
-            :aria-current="currentRouteName === ROUTE_NAMES.HOME ? 'page' : undefined"
+            :class="{ active: currentRouteName === ROUTE_NAMES.EVALUATIONS || currentRouteName === ROUTE_NAMES.EVALUATION_DETAIL }"
+            :aria-current="(currentRouteName === ROUTE_NAMES.EVALUATIONS || currentRouteName === ROUTE_NAMES.EVALUATION_DETAIL) ? 'page' : undefined"
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
@@ -85,23 +85,6 @@
               </svg>
             </div>
             <span class="nav-label">Analyses</span>
-          </router-link>
-
-          <router-link
-            to="/settings"
-            class="nav-destination"
-            :class="{ active: currentRouteName === ROUTE_NAMES.SETTINGS }"
-            :aria-current="currentRouteName === ROUTE_NAMES.SETTINGS ? 'page' : undefined"
-          >
-            <div class="nav-indicator" aria-hidden="true"></div>
-            <div class="nav-icon-container">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58c.18-.14.23-.41.12-.62l-1.92-3.32c-.11-.21-.36-.3-.58-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.14A.57.57 0 0 0 14.4 2h-4.8a.57.57 0 0 0-.56.5l-.36 2.14c-.59.24-1.12.56-1.62.94l-2.39-.96a.54.54 0 0 0-.58.22l-1.92 3.32c-.11.21-.06.48.12.62l2.03 1.58c-.05.31-.08.63-.08.94s.03.63.08.94l-2.03 1.58c-.18.14-.23.41-.12.62l1.92 3.32c.11.21.36.3.58.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.14c.04.28.28.5.56.5h4.8c.29 0 .53-.22.56-.5l.36-2.14c.59-.24 1.12-.56 1.62-.94l2.39.96c.22.09.47-.01.58-.22l1.92-3.32c.11-.21.06-.48-.12-.62zm-7.14 2.56a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"
-                />
-              </svg>
-            </div>
-            <span class="nav-label">Paramètres</span>
           </router-link>
         </div>
 

@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Define route constants for better maintainability
 const ROUTE_NAMES = {
   HOME: 'home',
+  EVALUATIONS: 'evaluations',
+  EVALUATION_DETAIL: 'evaluation-detail',
   STUDENTS: 'students',
   COMPETENCIES: 'competencies',
   ANALYSIS: 'analysis',
@@ -15,11 +17,26 @@ const router = createRouter({
     {
       path: '/',
       name: ROUTE_NAMES.HOME,
-      component: () => import(/* webpackChunkName: "home" */ '../views/HomeView.vue'),
+      redirect: '/evaluations'
+    },
+    {
+      path: '/evaluations',
+      name: ROUTE_NAMES.EVALUATIONS,
+      component: () => import(/* webpackChunkName: "evaluations" */ '../views/EvaluationListView.vue'),
       meta: {
-        title: 'Accueil',
-        description: 'Tableau d\'évaluation des compétences',
+        title: 'Évaluations',
+        description: 'Liste des évaluations disponibles',
         preload: true
+      }
+    },
+    {
+      path: '/evaluation/:id',
+      name: ROUTE_NAMES.EVALUATION_DETAIL,
+      component: () => import(/* webpackChunkName: "evaluation-detail" */ '../views/HomeView.vue'),
+      props: true,
+      meta: {
+        title: 'Évaluation',
+        description: 'Tableau d\'évaluation des compétences'
       }
     },
     {

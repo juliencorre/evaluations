@@ -1,13 +1,22 @@
 <template>
-  <div class="settings-page">
-    <CenterAppBar
-      title="Paramètres"
-      :is-scrolled="isScrolled"
-      :show-search="false"
-      @user-menu-click="handleUserMenuClick"
-    />
+  <div class="settings-dialog">
+    <!-- Dialog Header -->
+    <header class="dialog-header">
+      <button
+        class="dialog-close-button"
+        aria-label="Fermer les paramètres"
+        @click="handleClose"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
 
-    <main class="settings-content" role="main">
+      <h1 class="dialog-title">Paramètres</h1>
+
+      <div class="dialog-spacer"></div>
+    </header>
+
+    <!-- Dialog Content -->
+    <main class="dialog-content" role="main">
       <SettingsSection
         id="appearance-settings"
         title="Apparence"
@@ -52,16 +61,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSettingsStore } from '@/stores/settingsStore'
-import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import SettingsSection from '@/components/settings/SettingsSection.vue'
 import SettingsSwitch from '@/components/settings/SettingsSwitch.vue'
 
+const router = useRouter()
 const { showConsoleLogos, setShowConsoleLogos, isDarkThemeEnabled, setThemePreference } = useSettingsStore()
-
-// State
-const isScrolled = ref(false)
 
 const isConsoleLogoEnabled = computed(() => showConsoleLogos.value)
 const isDarkModeEnabled = computed(() => isDarkThemeEnabled.value)
@@ -76,40 +83,89 @@ const consoleLogoModel = computed({
   set: (value: boolean) => setShowConsoleLogos(value)
 })
 
-// Scroll handling
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 0
-}
-
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-  handleScroll()
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
 // Event handlers
-const handleUserMenuClick = () => {
-  console.log('User menu clicked')
+const handleClose = () => {
+  router.back()
 }
 </script>
 
 <style scoped>
-/* Page container */
-.settings-page {
+/* Full Dialog Container */
+.settings-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  background: var(--md-sys-color-surface);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: var(--md-sys-color-surface);
-  /* Add top padding to account for fixed app bar */
-  padding-top: 64px;
+  overflow: hidden;
 }
 
-.settings-content {
+/* Dialog Header */
+.dialog-header {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  padding: 0 4px;
+  background: var(--md-sys-color-surface);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  flex-shrink: 0;
+}
+
+.dialog-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  margin: 8px;
+}
+
+.dialog-close-button:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+  color: var(--md-sys-color-on-surface);
+}
+
+.dialog-close-button:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+}
+
+.dialog-close-button .material-symbols-outlined {
+  font-size: 24px;
+}
+
+.dialog-title {
   flex: 1;
-  padding: 32px 24px 24px;
+  text-align: center;
+  font-family: var(--md-sys-typescale-title-large-font);
+  font-size: var(--md-sys-typescale-title-large-size);
+  font-weight: var(--md-sys-typescale-title-large-weight);
+  line-height: var(--md-sys-typescale-title-large-line-height);
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+}
+
+.dialog-spacer {
+  width: 48px;
+  height: 48px;
+  margin: 8px;
+}
+
+/* Dialog Content */
+.dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 24px 80px;
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
@@ -119,14 +175,19 @@ const handleUserMenuClick = () => {
 }
 
 @media (max-width: 768px) {
-  .settings-content {
-    padding: 24px 16px 24px;
+  .dialog-content {
+    padding: 24px 16px 80px;
   }
 }
 
 @media (max-width: 480px) {
-  .settings-content {
-    padding: 24px 12px 24px;
+  .dialog-content {
+    padding: 24px 12px 80px;
+  }
+
+  .dialog-title {
+    font-size: var(--md-sys-typescale-title-medium-size);
+    line-height: var(--md-sys-typescale-title-medium-line-height);
   }
 }
 

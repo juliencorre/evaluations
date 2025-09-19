@@ -5,27 +5,32 @@
     <!-- Center-aligned App Bar -->
     <CenterAppBar
       v-if="!isLoading && framework.domains.length > 0"
-      title="Évaluations"
+      :title="currentEvaluation.name || 'Évaluation'"
       :is-scrolled="isScrolled"
       :show-search="false"
-      @user-menu-click="handleUserMenuClick"
+      :show-back-button="true"
+      @back="goBackToList"
+      @help="handleHelp"
+      @logout="handleLogout"
     />
 
-    <!-- Evaluation Tabs -->
-    <EvaluationTabs
-      v-if="!isLoading && framework.domains.length > 0 && allEvaluations.length > 0"
-      v-model="selectedEvaluationId"
-      :evaluations="allEvaluations"
-    />
 
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-state">
       <p>Chargement des compétences...</p>
     </div>
 
-    <!-- Evaluation Table -->
+    <!-- Desktop Evaluation Table -->
     <EvaluationTable
-      v-else-if="framework.domains.length > 0"
+      v-else-if="framework.domains.length > 0 && !isMobileView"
+      :evaluation="currentEvaluation"
+      :students="allStudents"
+      :framework="framework"
+    />
+
+    <!-- Mobile Evaluation View -->
+    <EvaluationMobileView
+      v-else-if="framework.domains.length > 0 && isMobileView"
       :evaluation="currentEvaluation"
       :students="allStudents"
       :framework="framework"
@@ -36,30 +41,22 @@
       <p>Aucune compétence disponible</p>
     </div>
 
-    <!-- Extended FAB -->
-    <ExtendedFAB
-      v-if="!showModal && !isLoading"
-      icon="add"
-      :visible="true"
-      aria-label="Nouvelle évaluation"
-      @click="openAddModal"
-    />
 
-    <!-- Evaluation Modals -->
-    <EvaluationModals
-      :visible="showModal"
-      :is-editing="isEditMode"
-      :initial-data="currentEvaluationForm"
-      :is-saving="isSaving"
-      :framework-id="framework.id"
-      @close="closeModal"
-      @save="saveEvaluation"
-    />
   </main>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+// Define props for the evaluation ID
+interface Props {
+  id: string
+}
+
+const props = defineProps<Props>()
+const route = useRoute()
+const router = useRouter()
 
 // Components
 const EvaluationTable = defineAsyncComponent({
@@ -73,9 +70,7 @@ const EvaluationTable = defineAsyncComponent({
 })
 
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
-import ExtendedFAB from '@/components/common/ExtendedFAB.vue'
-import EvaluationTabs from '@/components/evaluations/EvaluationTabs.vue'
-import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
+import EvaluationMobileView from '@/components/EvaluationMobileView.vue'
 
 // Stores
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
@@ -86,44 +81,52 @@ const competenciesStore = useCompetencyFrameworkStore()
 const { framework, isCompetenciesLoading } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
-const { allEvaluations, currentEvaluation, addEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
+const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
 
 // State
 const isLoading = isCompetenciesLoading
 const isScrolled = ref(false)
-const showModal = ref(false)
-const isEditMode = ref(false)
-const isSaving = ref(false)
-const selectedEvaluationId = ref(currentEvaluation.value.id)
-
-// Form data
-const currentEvaluationForm = ref({
-  name: '',
-  description: '',
-  frameworkId: framework.value.id
-})
+const isMobileView = ref(false)
 
 // Scroll handling
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
 }
 
+// Mobile detection
+const checkMobileView = () => {
+  isMobileView.value = window.innerWidth <= 768
+}
+
+const handleResize = () => {
+  checkMobileView()
+}
+
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  window.addEventListener('resize', handleResize, { passive: true })
   handleScroll()
+  checkMobileView()
 
   // Load evaluations from database
   await loadEvaluations()
 
-  // Ensure selectedEvaluationId is properly set after loading
-  if (currentEvaluation.value && currentEvaluation.value.id !== selectedEvaluationId.value) {
-    console.log('🔧 [HomeView] Synchronisation selectedEvaluationId après chargement:', currentEvaluation.value.id)
-    selectedEvaluationId.value = currentEvaluation.value.id
+  // Load the specific evaluation based on the route parameter
+  const evaluationId = props.id || route.params.id as string
+  if (evaluationId) {
+    const evaluation = getEvaluationById(evaluationId)
+    if (evaluation) {
+      console.log('📋 [HomeView] Loading evaluation:', evaluation.name)
+      setCurrentEvaluation(evaluation)
+    } else {
+      console.error('❌ [HomeView] Evaluation not found:', evaluationId)
+    }
   }
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('resize', handleResize)
 })
 
 // Event handlers
@@ -131,85 +134,19 @@ const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }
 
-const openAddModal = () => {
-  isEditMode.value = false
-  currentEvaluationForm.value = {
-    name: '',
-    description: '',
-    frameworkId: framework.value.id
-  }
-  showModal.value = true
+const handleHelp = () => {
+  console.log('Help requested')
+  window.alert('Aide - Fonctionnalité à venir')
 }
 
-const closeModal = () => {
-  showModal.value = false
-  isEditMode.value = false
-  resetForm()
+const handleLogout = () => {
+  console.log('Logout requested')
+  window.alert('Déconnexion - Fonctionnalité à venir')
 }
 
-const resetForm = () => {
-  currentEvaluationForm.value = {
-    name: '',
-    description: '',
-    frameworkId: framework.value.id
-  }
+const goBackToList = () => {
+  router.push('/evaluations')
 }
-
-const saveEvaluation = async (formData: { name: string; description: string; frameworkId: string }) => {
-  isSaving.value = true
-
-  try {
-    if (isEditMode.value) {
-      // TODO: Implement edit functionality when needed
-      console.log('Edit evaluation not implemented yet')
-    } else {
-      // Add new evaluation
-      const evaluationData = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        classId: 'default-class',
-        frameworkId: formData.frameworkId
-      }
-
-      const newEvaluation = await addEvaluation(evaluationData)
-
-      if (newEvaluation) {
-        selectedEvaluationId.value = newEvaluation.id
-        console.log('➕ Nouvelle évaluation créée:', newEvaluation.name)
-        closeModal()
-      } else {
-        console.error('Erreur: Impossible de créer l\'évaluation')
-      }
-    }
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde de l\'évaluation:', error)
-  } finally {
-    isSaving.value = false
-  }
-}
-
-// Watch for evaluation selection changes
-watch(selectedEvaluationId, (newId) => {
-  console.log('📋 [HomeView] Changement de sélection d\'évaluation:', newId)
-  const evaluation = getEvaluationById(newId) || allEvaluations.value.find(item => item.id === newId)
-  if (evaluation) {
-    console.log('📋 [HomeView] Évaluation trouvée:', evaluation.name)
-    setCurrentEvaluation(evaluation)
-  } else {
-    console.log('⚠️ [HomeView] Évaluation non trouvée pour l\'ID:', newId)
-  }
-})
-
-// Watch for current evaluation changes to update selector
-watch(currentEvaluation, (newEvaluation) => {
-  console.log('🔄 [HomeView] Changement de currentEvaluation:', newEvaluation.name, 'ID:', newEvaluation.id)
-  selectedEvaluationId.value = newEvaluation.id
-})
-
-// Watch for framework changes to update form
-watch(framework, (newFramework) => {
-  currentEvaluationForm.value.frameworkId = newFramework.id
-}, { deep: true })
 
 // Debug logs
 console.log('🏠 [HomeView] Initialisation avec framework:', {
@@ -254,7 +191,7 @@ console.log('🏠 [HomeView] Initialisation avec framework:', {
 main {
   height: calc(100vh - 60px);
   overflow: hidden;
-  padding: 20px;
+  padding: 20px 20px 80px;
   box-sizing: border-box;
 }
 </style>

@@ -453,7 +453,7 @@ watch(isExpanded, (expanded) => {
   left: var(--nav-indicator-left);
   width: var(--nav-indicator-width);
   height: var(--nav-indicator-height);
-  background: var(--md-sys-color-secondary-container);
+  background: var(--md-sys-color-primary-container);
   border-radius: 16px;
   opacity: 0;
   transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(0);
@@ -900,15 +900,15 @@ watch(isExpanded, (expanded) => {
 
   /* Active state colors for icon and text on medium screens */
   .nav-destination.active {
-    color: var(--md-sys-color-on-secondary-container);
+    color: var(--md-sys-color-on-primary-container);
   }
 
   .nav-destination.active .nav-icon {
-    color: var(--md-sys-color-on-secondary-container);
+    color: var(--md-sys-color-on-primary-container);
   }
 
   .nav-destination.active .nav-label {
-    color: var(--md-sys-color-on-secondary-container);
+    color: var(--md-sys-color-on-primary-container);
     font-weight: 700;
   }
 

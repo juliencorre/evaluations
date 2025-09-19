@@ -111,7 +111,10 @@ export class SupabaseCompetenciesService {
             *,
             competencies (
               *,
-              specific_competencies (*)
+              specific_competencies (
+                *,
+                result_type_configs (*)
+              )
             )
           )
         `)
@@ -786,12 +789,18 @@ export class SupabaseCompetenciesService {
   /**
    * Transforme une sous-compétence Supabase en objet SpecificCompetency
    */
-  private static transformSpecificCompetency(supabaseSpecificCompetency: SupabaseSpecificCompetency): SpecificCompetency {
+  private static transformSpecificCompetency(supabaseSpecificCompetency: any): SpecificCompetency {
     return {
       id: supabaseSpecificCompetency.id,
       name: supabaseSpecificCompetency.name,
       description: supabaseSpecificCompetency.description || '',
-      resultTypeConfigId: supabaseSpecificCompetency.result_type_config_id
+      resultTypeConfigId: supabaseSpecificCompetency.result_type_config_id,
+      resultTypeConfig: supabaseSpecificCompetency.result_type_configs ? {
+        id: supabaseSpecificCompetency.result_type_configs.id,
+        name: supabaseSpecificCompetency.result_type_configs.name,
+        type: supabaseSpecificCompetency.result_type_configs.type,
+        config: supabaseSpecificCompetency.result_type_configs.config
+      } : undefined
     }
   }
 }

@@ -12,7 +12,7 @@ export class SupabaseEvaluationsService {
       const { data, error } = await supabase
         .from('evaluations')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: true })
 
       if (error) throw error
       if (!data) return []

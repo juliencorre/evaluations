@@ -1,101 +1,27 @@
 <template>
   <div class="evaluation-table-container">
-    <div class="table-wrapper">
-      <div class="table-scroll-container">
-        <table class="evaluation-table">
-          <!-- Fixed header -->
-          <thead>
+    <table class="evaluation-table">
+      <!-- Fixed header -->
+      <thead>
             <tr>
               <th class="hierarchy-header sticky-left domain-col">
                 <div class="header-content">
                   <span>Domaine</span>
-                  <button
-                    v-if="domainSearch"
-                    class="clear-search-btn"
-                    type="button"
-                    aria-label="Effacer la recherche domaine"
-                    @click="clearDomainSearch"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div class="search-container">
-                  <input
-                    v-model="domainSearch"
-                    type="text"
-                    placeholder="Rechercher..."
-                    class="search-input"
-                    aria-label="Rechercher un domaine"
-                  />
                 </div>
               </th>
               <th class="hierarchy-header sticky-left field-col">
                 <div class="header-content">
                   <span>Champ</span>
-                  <button
-                    v-if="fieldSearch"
-                    class="clear-search-btn"
-                    type="button"
-                    aria-label="Effacer la recherche champ"
-                    @click="clearFieldSearch"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div class="search-container">
-                  <input
-                    v-model="fieldSearch"
-                    type="text"
-                    placeholder="Rechercher..."
-                    class="search-input"
-                    aria-label="Rechercher un champ"
-                  />
                 </div>
               </th>
               <th class="hierarchy-header sticky-left competency-col">
                 <div class="header-content">
                   <span>Compétence</span>
-                  <button
-                    v-if="competencySearch"
-                    class="clear-search-btn"
-                    type="button"
-                    aria-label="Effacer la recherche compétence"
-                    @click="clearCompetencySearch"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div class="search-container">
-                  <input
-                    v-model="competencySearch"
-                    type="text"
-                    placeholder="Rechercher..."
-                    class="search-input"
-                    aria-label="Rechercher une compétence"
-                  />
                 </div>
               </th>
               <th class="hierarchy-header sticky-left specific-competency-col">
                 <div class="header-content">
                   <span>Sous-compétence</span>
-                  <button
-                    v-if="searchTerm"
-                    class="clear-search-btn"
-                    type="button"
-                    aria-label="Effacer la recherche"
-                    @click="clearSearch"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div class="search-container">
-                  <input
-                    v-model="searchTerm"
-                    type="text"
-                    placeholder="Rechercher..."
-                    class="search-input"
-                    aria-label="Rechercher une compétence"
-                  />
                 </div>
               </th>
               <th
@@ -144,12 +70,13 @@
               <td
                 v-for="student in students"
                 :key="`${node.id}-${student.id}`"
+                :ref="(el) => setCellRef(el, node.id, student.id)"
                 class="result-cell"
                 :class="[
                   ...getResultCellClass(node, student.id),
                   { editing: isEditing(node.id, student.id) }
                 ]"
-                @click.stop="startEditing(node, student.id)"
+                @click.stop="startEditing(node, student.id, $event)"
               >
                 <div class="result-content">
                   <!-- Editing mode -->
@@ -157,43 +84,35 @@
                     v-if="canShowResult(node) && isEditing(node.id, student.id)"
                     class="edit-mode"
                   >
-                    <div class="custom-select" :class="{ 'open': true }">
-                      <div class="select-dropdown" @click.stop>
-                        <button
-                          v-for="valueObj in getResultValues(node)"
-                          :key="valueObj.value"
-                          :class="{ 'selected': valueObj.value === editingValue }"
-                          class="select-option"
-                          @click.stop="selectValue(valueObj.value, node.id, student.id)"
-                        >
-                          {{ valueObj.label }}
-                        </button>
-                      </div>
-                    </div>
+                    <InlineResultSelector
+                      :options="getResultValues(node)"
+                      :selected-value="editingValue"
+                      :trigger-element="currentTriggerElement || undefined"
+                      @select="(option) => selectValue(option.value, node.id, student.id)"
+                      @close="stopEditing"
+                    />
                   </div>
 
                   <!-- Display mode -->
                   <span
                     v-else-if="canShowResult(node)"
                     class="result-badge"
-                    :class="`level-${getStudentResult(node.id, student.id)?.level?.toLowerCase()}`"
+                    :class="`level-${(getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || 'N/A').toLowerCase().replace('/', '-')}`"
                     :title="getResultTitle(node.id, student.id)"
                   >
-                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || getResultValues(node)[getResultValues(node).length - 1]?.label }}
+                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || 'N/A' }}
                   </span>
                 </div>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      </tbody>
+    </table>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, type ComponentPublicInstance } from 'vue'
 import type {
   Student,
   Evaluation,
@@ -206,6 +125,7 @@ import type {
 import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/competencyTree'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
+import InlineResultSelector from '@/components/evaluation/InlineResultSelector.vue'
 
 interface Props {
   evaluation: Evaluation
@@ -215,16 +135,14 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const searchTerm = ref('')
-const domainSearch = ref('')
-const fieldSearch = ref('')
-const competencySearch = ref('')
 const competencyTree = ref<TreeNode[]>([])
 
 // Inline editing state
 const editingCell = ref<{ competencyId: string; studentId: string } | null>(null)
 const editingValue = ref<string>('')
 const ignoreNextGlobalClick = ref(false)
+const cellRefs = ref<Map<string, HTMLElement>>(new Map())
+const currentTriggerElement = ref<HTMLElement | null>(null)
 
 // Initialize evaluation results store
 const evaluationStore = useEvaluationResultsStore()
@@ -248,7 +166,7 @@ function handleClickOutside(event: Event) {
     console.log('🖱️ [Global] Clic détecté sur:', target?.className)
 
     // Ne fermer que si le clic n'est pas sur le dropdown ou ses éléments
-    if (target && !target.closest('.select-dropdown') && !target.closest('.select-option') && !target.closest('.custom-select')) {
+    if (target && !target.closest('.inline-result-selector') && !target.closest('.edit-mode')) {
       console.log('🚪 [Global] Fermeture du dropdown')
       cancelEditing()
     } else {
@@ -276,48 +194,29 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
 })
 
+// Watch for evaluation changes to reload results
+watch(() => props.evaluation, async (newEvaluation, oldEvaluation) => {
+  if (newEvaluation.id !== oldEvaluation?.id) {
+    console.log('🔄 [EvaluationTable] Changement d\'évaluation détecté:', newEvaluation.id, newEvaluation.name)
+    await evaluationStore.initializeEvaluation({
+      id: newEvaluation.id,
+      name: newEvaluation.name,
+      description: newEvaluation.description,
+      frameworkId: newEvaluation.frameworkId,
+      classId: newEvaluation.classId,
+      createdAt: newEvaluation.createdAt
+    })
+  }
+}, { deep: true })
+
 onUnmounted(() => {
   // Clean up event listener
   document.removeEventListener('click', handleClickOutside)
 })
 
-// Computed for filtered tree based on multiple searches
+// Computed for tree without filtering
 const filteredTree = computed(() => {
-  let filtered = competencyTree.value
-
-  // Filter by domain
-  if (domainSearch.value.trim()) {
-    filtered = filtered.filter((node) =>
-      node.hierarchyData?.domain.toLowerCase().includes(domainSearch.value.toLowerCase())
-    )
-  }
-
-  // Filter by field
-  if (fieldSearch.value.trim()) {
-    filtered = filtered.filter((node) =>
-      node.hierarchyData?.field.toLowerCase().includes(fieldSearch.value.toLowerCase())
-    )
-  }
-
-  // Filter by competency
-  if (competencySearch.value.trim()) {
-    filtered = filtered.filter((node) =>
-      node.hierarchyData?.competency.toLowerCase().includes(competencySearch.value.toLowerCase())
-    )
-  }
-
-  // Filter by specific competency
-  if (searchTerm.value.trim()) {
-    filtered = filtered.filter(
-      (node) =>
-        node.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-        node.hierarchyData?.specificCompetency
-          .toLowerCase()
-          .includes(searchTerm.value.toLowerCase())
-    )
-  }
-
-  return filtered
+  return competencyTree.value
 })
 
 // Computed for flattened visible nodes
@@ -325,22 +224,6 @@ const visibleNodes = computed(() => {
   return flattenTree(filteredTree.value)
 })
 
-// Methods
-function clearSearch() {
-  searchTerm.value = ''
-}
-
-function clearDomainSearch() {
-  domainSearch.value = ''
-}
-
-function clearFieldSearch() {
-  fieldSearch.value = ''
-}
-
-function clearCompetencySearch() {
-  competencySearch.value = ''
-}
 
 // Column visibility functions removed (columns are now always visible)
 
@@ -443,13 +326,26 @@ function isEditing(competencyId: string, studentId: string): boolean {
   return editingCell.value?.competencyId === competencyId && editingCell.value?.studentId === studentId
 }
 
-function startEditing(node: TreeNode, studentId: string) {
+function setCellRef(el: Element | ComponentPublicInstance | null, competencyId: string, studentId: string) {
+  const key = `${competencyId}-${studentId}`
+  if (el && 'nodeType' in el) {
+    cellRefs.value.set(key, el as HTMLElement)
+  }
+}
+
+
+function startEditing(node: TreeNode, studentId: string, event?: Event) {
   if (!canShowResult(node)) return
 
   console.log('🖊️ [Edition] Début d\'édition:', { competencyId: node.id, studentId })
 
   // Set flag to ignore the global click that triggered this function
   ignoreNextGlobalClick.value = true
+
+  // Store the trigger element
+  if (event && event.currentTarget) {
+    currentTriggerElement.value = event.currentTarget as HTMLElement
+  }
 
   const currentResult = getStudentResult(node.id, studentId)
   editingCell.value = { competencyId: node.id, studentId }
@@ -460,6 +356,12 @@ function startEditing(node: TreeNode, studentId: string) {
 function selectValue(value: string, competencyId: string, studentId: string) {
   editingValue.value = value
   saveResult(competencyId, studentId)
+}
+
+function stopEditing() {
+  editingCell.value = null
+  editingValue.value = ''
+  currentTriggerElement.value = null
 }
 
 async function saveResult(competencyId: string, studentId: string) {
@@ -512,21 +414,13 @@ function cancelEditing() {
   editingValue.value = ''
 }
 
-// Watch for search term changes to expand all nodes when searching
-watch(searchTerm, (newTerm) => {
-  if (newTerm.trim()) {
-    // When searching, the searchTree function already expands matching nodes
-    // No additional action needed
-  }
-})
 </script>
 
 <style scoped>
 .evaluation-table-container {
-  display: flex;
-  flex-direction: column;
+  width: 100%;
   height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   background-color: var(--md-sys-color-surface);
 }
 
@@ -561,145 +455,67 @@ watch(searchTerm, (newTerm) => {
   border-color: var(--app-tonal-button-hover-bg);
 }
 
-.table-wrapper {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-}
-
-.table-scroll-container {
-  overflow: auto;
-  height: 100%;
-  position: relative;
-}
 
 .evaluation-table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   font-size: 0.9rem;
+  table-layout: auto;
 }
 
 /* Header styles */
 .evaluation-table thead {
   position: sticky;
   top: 0;
-  z-index: 20;
-  background: var(--app-table-sticky-bg);
+  z-index: 10;
+  background: white;
 }
 
-.evaluation-table th,
-.hierarchy-header {
-  background: var(--app-table-header-bg);
-  border: 1px solid var(--app-border-subtle);
+.evaluation-table th {
+  border: 1px solid #e0e0e0;
   padding: 0.75rem 0.5rem;
   text-align: left;
   font-weight: 600;
-  color: var(--app-table-header-text);
+  color: #333;
   vertical-align: top;
 }
 
 .domain-col {
-  min-width: 150px;
-  max-width: 150px;
-  width: 150px;
-  background: var(--app-table-hierarchy-domain-bg) !important;
+  width: 15%;
+  min-width: 120px;
+  background: #f8f9fa !important;
 }
 
 .field-col {
-  min-width: 200px;
-  max-width: 200px;
-  width: 200px;
-  background: var(--app-table-hierarchy-field-bg) !important;
+  width: 20%;
+  min-width: 150px;
+  background: #f1f3f4 !important;
 }
 
 .competency-col {
-  min-width: 250px;
-  max-width: 250px;
-  width: 250px;
-  background: var(--app-table-hierarchy-competency-bg) !important;
+  width: 25%;
+  min-width: 180px;
+  background: #e8eaed !important;
 }
 
 .specific-competency-col {
-  min-width: 300px;
-  max-width: 300px;
-  width: 300px;
-  background: var(--app-table-hierarchy-specific-bg) !important;
+  width: 25%;
+  min-width: 200px;
+  background: #e1e3e6 !important;
 }
 
 .hierarchy-header .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
 }
 
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.visibility-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  font-size: 0.8rem;
-  border-radius: 0.25rem;
-  transition: all 0.2s ease;
-  opacity: 0.7;
-  color: var(--app-icon-muted);
-}
-
-.visibility-btn:hover {
-  background: var(--app-table-row-hover);
-  opacity: 1;
-}
-
-.clear-search-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: var(--app-icon-muted);
-  padding: 0;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.clear-search-btn:hover {
-  color: var(--app-icon-danger);
-}
-
-.search-container {
-  margin-top: 0.5rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.375rem 0.5rem;
-  border: 1px solid var(--app-table-search-border);
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  background: var(--app-table-sticky-bg);
-  color: var(--md-sys-color-on-surface);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--app-table-search-focus-border);
-  box-shadow: 0 0 0 0.2rem var(--app-focus-ring);
-}
 
 .student-header {
-  min-width: 80px;
-  max-width: 100px;
-  width: 90px;
+  width: 80px;
+  min-width: 60px;
   text-align: center;
-  writing-mode: horizontal-tb;
   color: var(--md-sys-color-on-surface);
 }
 
@@ -714,117 +530,44 @@ watch(searchTerm, (newTerm) => {
   font-size: 0.85rem;
 }
 
-/* Sticky positioning */
-.sticky-left {
-  position: sticky;
-  z-index: 10;
-  background: var(--app-table-sticky-bg);
+
+/* Row and cell styles */
+.evaluation-table tr:hover {
+  background-color: #f5f5f5;
 }
 
-.domain-col,
-.domain-cell {
-  left: 0;
-  border-right: 1px solid var(--app-border-subtle);
-  z-index: 14;
-  opacity: 1;
-  backdrop-filter: none;
-}
-
-.field-col,
-.field-cell {
-  left: 150px;
-  border-right: 1px solid var(--app-border-subtle);
-  z-index: 13;
-  opacity: 1;
-  backdrop-filter: none;
-}
-
-.competency-col,
-.competency-cell {
-  left: 350px;
-  border-right: 1px solid var(--app-border-subtle);
-  z-index: 12;
-  opacity: 1;
-  backdrop-filter: none;
-}
-
-.specific-competency-col,
-.specific-competency-cell {
-  left: 600px;
-  border-right: 2px solid var(--app-border-strong);
-  z-index: 11;
-}
-
-/* Row styles */
-.competency-row {
-  border-bottom: 1px solid var(--app-divider);
-  background: var(--md-sys-color-surface);
-}
-
-.competency-row:hover {
-  background-color: var(--app-table-row-hover);
-}
-
-.competency-row.type-specificCompetency {
-  background-color: var(--md-sys-color-surface);
-}
-
-/* Cell styles */
 .evaluation-table td {
-  border: 1px solid var(--app-border-subtle);
+  border: 1px solid #e0e0e0;
   padding: 0.5rem;
   vertical-align: top;
-  background: var(--md-sys-color-surface);
-}
-
-.hierarchy-cell {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  position: sticky;
-  background: var(--app-table-sticky-bg);
+  background: white;
 }
 
 .domain-cell {
-  min-width: 150px;
-  max-width: 150px;
-  width: 150px;
   font-weight: 600;
-  background: var(--app-table-hierarchy-domain-bg) !important;
+  background: #f8f9fa !important;
+  color: #5f6368;
 }
 
 .field-cell {
-  min-width: 200px;
-  max-width: 200px;
-  width: 200px;
   font-weight: 500;
-  background: var(--app-table-hierarchy-field-bg) !important;
+  background: #f1f3f4 !important;
+  color: #5f6368;
 }
 
 .competency-cell {
-  min-width: 250px;
-  max-width: 250px;
-  width: 250px;
-  background: var(--app-table-hierarchy-competency-bg) !important;
+  background: #e8eaed !important;
+  color: #5f6368;
 }
 
 .specific-competency-cell {
-  min-width: 300px;
-  max-width: 300px;
-  width: 300px;
-  background: var(--app-table-hierarchy-specific-bg);
+  background: #e1e3e6 !important;
+  color: #5f6368;
 }
 
-.cell-content {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
 
 .result-cell {
   text-align: center;
-  min-width: 80px;
-  max-width: 100px;
-  width: 90px;
   padding: 0.25rem;
   position: relative;
   z-index: 1;
@@ -951,59 +694,14 @@ watch(searchTerm, (newTerm) => {
   box-shadow: 0 0 0 0.2rem var(--app-focus-ring);
 }
 
-/* Custom select dropdown styles */
-.custom-select {
-  position: relative;
-  width: 80px;
-}
-
-.select-dropdown {
+/* Edit mode styles */
+.edit-mode {
   position: absolute;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--app-select-dropdown-bg);
-  border: 2px solid var(--md-sys-color-primary);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  z-index: 1000;
-  min-width: 100px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.select-option {
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: var(--app-select-dropdown-bg);
-  text-align: center;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  color: var(--app-select-option-text);
-}
-
-.select-option:hover {
-  background-color: var(--app-select-option-hover-bg);
-}
-
-.select-option.selected {
-  background-color: var(--app-select-option-selected-bg);
-  color: var(--app-select-option-selected-text);
-}
-
-.select-option:first-child {
-  border-radius: 6px 6px 0 0;
-}
-
-.select-option:last-child {
-  border-radius: 0 0 6px 6px;
-}
-
-.select-option:only-child {
-  border-radius: 6px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
 }
 
 /* Responsive design */
@@ -1055,20 +753,6 @@ watch(searchTerm, (newTerm) => {
     width: 65px;
   }
 
-  /* Optimize search inputs for mobile */
-  .search-input {
-    padding: 0.25rem 0.375rem;
-    font-size: 0.75rem;
-  }
-
-  .search-container {
-    margin-top: 0.25rem;
-  }
-
-  .clear-search-btn {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.25rem;
-  }
 
 
   .column-controls {
@@ -1121,14 +805,6 @@ watch(searchTerm, (newTerm) => {
     width: 50px;
   }
 
-  /* Hide search functionality on very small screens to save space */
-  .search-container {
-    display: none;
-  }
-
-  .clear-search-btn {
-    display: none;
-  }
 
   /* Reduce font sizes */
   .hierarchy-header,

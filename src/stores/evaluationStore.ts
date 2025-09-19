@@ -14,7 +14,9 @@ export function useEvaluationStore() {
     return evaluations.value.length > 0 ? evaluations.value : [SAMPLE_EVALUATION]
   })
   const getCurrentEvaluation = computed(() => {
-    return currentEvaluation.value || SAMPLE_EVALUATION
+    const result = currentEvaluation.value || SAMPLE_EVALUATION
+    console.log('🔍 [EvaluationStore] getCurrentEvaluation computed:', result.name, 'ID:', result.id)
+    return result
   })
 
   // Actions
@@ -90,6 +92,7 @@ export function useEvaluationStore() {
   }
 
   const setCurrentEvaluation = (evaluation: Evaluation) => {
+    console.log('🗂️ [EvaluationStore] setCurrentEvaluation appelé avec:', evaluation.name, 'ID:', evaluation.id)
     currentEvaluation.value = evaluation
   }
 

@@ -102,10 +102,9 @@ import ResultTypesGrid from '@/components/competencies/ResultTypesGrid.vue'
 import CompetencyModals from '@/components/competencies/CompetencyModals.vue'
 import ResultTypeModal from '@/components/competencies/ResultTypeModal.vue'
 import type {
-  TabItem,
-  ResultTypeConfig
+  TabItem
 } from '@/types/competency'
-import type { Domain } from '@/types/evaluation'
+import type { Domain, ResultTypeConfig } from '@/types/evaluation'
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 

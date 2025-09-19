@@ -97,10 +97,10 @@
                   <span
                     v-else-if="canShowResult(node)"
                     class="result-badge"
-                    :class="`level-${getStudentResult(node.id, student.id)?.level?.toLowerCase()}`"
+                    :class="`level-${(getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || 'N/A').toLowerCase().replace('/', '-')}`"
                     :title="getResultTitle(node.id, student.id)"
                   >
-                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || getResultValues(node)[getResultValues(node).length - 1]?.label }}
+                    {{ getStudentResult(node.id, student.id)?.value || getStudentResult(node.id, student.id)?.level || 'N/A' }}
                   </span>
                 </div>
               </td>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, type ComponentPublicInstance } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, type ComponentPublicInstance } from 'vue'
 import type {
   Student,
   Evaluation,
@@ -193,6 +193,21 @@ onMounted(async () => {
   // Add global click listener to close dropdown when clicking outside
   document.addEventListener('click', handleClickOutside)
 })
+
+// Watch for evaluation changes to reload results
+watch(() => props.evaluation, async (newEvaluation, oldEvaluation) => {
+  if (newEvaluation.id !== oldEvaluation?.id) {
+    console.log('🔄 [EvaluationTable] Changement d\'évaluation détecté:', newEvaluation.id, newEvaluation.name)
+    await evaluationStore.initializeEvaluation({
+      id: newEvaluation.id,
+      name: newEvaluation.name,
+      description: newEvaluation.description,
+      frameworkId: newEvaluation.frameworkId,
+      classId: newEvaluation.classId,
+      createdAt: newEvaluation.createdAt
+    })
+  }
+}, { deep: true })
 
 onUnmounted(() => {
   // Clean up event listener

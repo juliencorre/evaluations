@@ -73,6 +73,7 @@ import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/students
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
+import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
 
 import StudentSelector from '@/components/analysis/StudentSelector.vue'
@@ -97,6 +98,9 @@ const resultTypesService = new SupabaseResultTypesService()
 
 // Result types configuration
 const resultTypes = ref<ResultTypeConfig[]>([])
+
+// All results from all evaluations for analysis
+const allEvaluationResults = ref<EvaluationResult[]>([])
 
 // Student analysis data
 const selectedStudent = ref('')
@@ -294,7 +298,7 @@ const getScoreFromValue = (value: string, resultTypeConfigId?: string): number =
 const calculateAveragesByLevel = (studentId: string, metricType: string) => {
   console.log('📊 [calculateAveragesByLevel] Starting calculation:', { studentId, metricType })
 
-  const results = evaluationResultsStore.results.value
+  const results = allEvaluationResults.value
   const evaluations = evaluationStore.allEvaluations.value
 
   console.log('📊 [calculateAveragesByLevel] Data sources:', {
@@ -337,9 +341,11 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
   if (studentResults.length === 0) return []
 
   const resultsByEvaluation = studentResults.reduce((acc, result) => {
-    const evaluationId = result.evaluatedAt ?
-      evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-      evaluationResultsStore.evaluation.value?.id || 'current'
+    // Use the evaluationId we added to each result, fallback to old logic if not available
+    const evaluationId = (result as any).evaluationId ||
+      (result.evaluatedAt ?
+        evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+        evaluationResultsStore.evaluation.value?.id || 'current')
 
     const safeEvaluationId = evaluationId || 'unknown'
     if (!acc[safeEvaluationId]) {
@@ -395,9 +401,10 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalDomainResults = domainResults.filter(result => {
-              const resultEvaluationId = result.evaluatedAt ?
-                evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                evaluationResultsStore.evaluation.value?.id || 'current'
+              const resultEvaluationId = (result as any).evaluationId ||
+                (result.evaluatedAt ?
+                  evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -475,9 +482,10 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalFieldResults = fieldResults.filter(result => {
-              const resultEvaluationId = result.evaluatedAt ?
-                evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                evaluationResultsStore.evaluation.value?.id || 'current'
+              const resultEvaluationId = (result as any).evaluationId ||
+                (result.evaluatedAt ?
+                  evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -549,9 +557,10 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalCompetencyResults = competencyResults.filter(result => {
-              const resultEvaluationId = result.evaluatedAt ?
-                evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                evaluationResultsStore.evaluation.value?.id || 'current'
+              const resultEvaluationId = (result as any).evaluationId ||
+                (result.evaluatedAt ?
+                  evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -717,9 +726,36 @@ onMounted(async () => {
 
     resultTypes.value = await resultTypesService.getResultTypes()
 
+    // Load results from ALL evaluations for analysis
     if (evaluationStore.allEvaluations.value.length > 0) {
-      const firstEvaluation = evaluationStore.allEvaluations.value[0]
+      console.log('📊 [StudentAnalysisView] Loading results from all evaluations:', evaluationStore.allEvaluations.value.length)
 
+      // Load results from all evaluations and aggregate them
+      const allResults: EvaluationResult[] = []
+
+      for (const evaluation of evaluationStore.allEvaluations.value) {
+        console.log('📊 [StudentAnalysisView] Loading results for evaluation:', evaluation.name)
+        try {
+          const evaluationResults = await supabaseEvaluationResultsService.getAllResults(evaluation.id)
+          console.log('📊 [StudentAnalysisView] Loaded', evaluationResults.length, 'results for', evaluation.name)
+
+          // Add evaluation ID to each result for proper grouping
+          const resultsWithEvaluationId = evaluationResults.map(result => ({
+            ...result,
+            evaluationId: evaluation.id
+          }))
+
+          allResults.push(...resultsWithEvaluationId)
+        } catch (error) {
+          console.error('❌ [StudentAnalysisView] Error loading results for', evaluation.name, ':', error)
+        }
+      }
+
+      allEvaluationResults.value = allResults
+      console.log('📊 [StudentAnalysisView] Total results loaded:', allResults.length)
+
+      // Still initialize the store with the first evaluation for compatibility
+      const firstEvaluation = evaluationStore.allEvaluations.value[0]
       await evaluationResultsStore.initializeEvaluation({
         id: firstEvaluation.id,
         name: firstEvaluation.name,

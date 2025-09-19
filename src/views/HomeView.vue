@@ -114,6 +114,12 @@ onMounted(async () => {
 
   // Load evaluations from database
   await loadEvaluations()
+
+  // Ensure selectedEvaluationId is properly set after loading
+  if (currentEvaluation.value && currentEvaluation.value.id !== selectedEvaluationId.value) {
+    console.log('🔧 [HomeView] Synchronisation selectedEvaluationId après chargement:', currentEvaluation.value.id)
+    selectedEvaluationId.value = currentEvaluation.value.id
+  }
 })
 
 onUnmounted(() => {
@@ -184,14 +190,19 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
 
 // Watch for evaluation selection changes
 watch(selectedEvaluationId, (newId) => {
+  console.log('📋 [HomeView] Changement de sélection d\'évaluation:', newId)
   const evaluation = getEvaluationById(newId) || allEvaluations.value.find(item => item.id === newId)
   if (evaluation) {
+    console.log('📋 [HomeView] Évaluation trouvée:', evaluation.name)
     setCurrentEvaluation(evaluation)
+  } else {
+    console.log('⚠️ [HomeView] Évaluation non trouvée pour l\'ID:', newId)
   }
 })
 
 // Watch for current evaluation changes to update selector
 watch(currentEvaluation, (newEvaluation) => {
+  console.log('🔄 [HomeView] Changement de currentEvaluation:', newEvaluation.name, 'ID:', newEvaluation.id)
   selectedEvaluationId.value = newEvaluation.id
 })
 

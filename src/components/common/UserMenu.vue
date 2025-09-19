@@ -54,7 +54,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 
 interface Emits {
   (e: 'help'): void
@@ -62,7 +61,6 @@ interface Emits {
 }
 
 const emit = defineEmits<Emits>()
-const router = useRouter()
 
 const isOpen = ref(false)
 const userMenuRef = ref<HTMLElement>()

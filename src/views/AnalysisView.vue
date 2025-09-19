@@ -42,22 +42,6 @@ import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
 const activeView = ref('dashboard')
 const isScrolled = ref(false)
 
-// Functions for page header
-function getPageTitle(): string {
-  switch (activeView.value) {
-    case 'dashboard': return 'Classe'
-    case 'student-analysis': return 'Analyse des élèves'
-    default: return 'Classe'
-  }
-}
-
-function getPageDescription(): string {
-  switch (activeView.value) {
-    case 'dashboard': return 'Vue d\'ensemble des métriques et performances'
-    case 'student-analysis': return 'Analyse détaillée des performances individuelles'
-    default: return ''
-  }
-}
 
 // Tab configuration
 const tabItems = computed(() => [

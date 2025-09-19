@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Define props for the evaluation ID
@@ -130,10 +130,6 @@ onUnmounted(() => {
 })
 
 // Event handlers
-const handleUserMenuClick = () => {
-  console.log('User menu clicked')
-}
-
 const handleHelp = () => {
   console.log('Help requested')
   window.alert('Aide - Fonctionnalité à venir')

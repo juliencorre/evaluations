@@ -96,11 +96,6 @@ const evaluationPeriods = computed(() => {
   }))
 })
 
-// Get metric type label
-const getMetricTypeLabel = () => {
-  const metricType = metricTypes.value.find(mt => mt.value === selectedMetricType.value)
-  return metricType ? metricType.label : 'Domaines'
-}
 
 // Export function
 const exportClassChart = () => {

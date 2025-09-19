@@ -668,15 +668,6 @@ const fallbackStudentData = {
 }
 
 // Student analysis helper functions
-const getSelectedStudentName = () => {
-  const student = students.value.find((s: { id: string; name: string }) => s.id === selectedStudent.value)
-  return student ? student.name : ''
-}
-
-const getMetricTypeLabel = () => {
-  const type = metricTypes.value.find((t: { value: string; label: string }) => t.value === selectedMetricType.value)
-  return type ? type.label : ''
-}
 
 const getStudentData = () => {
   if (!selectedStudent.value) {

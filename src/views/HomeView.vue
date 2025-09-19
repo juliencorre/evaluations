@@ -112,7 +112,7 @@ onMounted(async () => {
   await loadEvaluations()
 
   // Load the specific evaluation based on the route parameter
-  const evaluationId = props.id || route.params.id as string
+  const evaluationId = props.id || (route?.params?.id as string)
   if (evaluationId) {
     const evaluation = getEvaluationById(evaluationId)
     if (evaluation) {

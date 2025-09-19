@@ -21,6 +21,14 @@ const mockFramework = ref<CompetencyFramework>({
 
 const mockIsLoading = ref(false)
 const mockAllStudents = ref([])
+const mockCurrentEvaluation = ref({
+  id: 'test-evaluation',
+  name: 'Test Evaluation',
+  description: '',
+  classId: 'test-class',
+  frameworkId: 'test-framework',
+  createdAt: new Date().toISOString()
+})
 
 // Mock the store functions
 vi.mock('@/stores/studentsStore', () => ({
@@ -33,13 +41,24 @@ vi.mock('@/stores/studentsStore', () => ({
   }))
 }))
 
-// Mock the static data
-vi.mock('@/data/staticData', () => ({
-  SAMPLE_EVALUATION: {
-    id: 'test-evaluation',
-    name: 'Test Evaluation',
-    students: []
-  }
+// Mock evaluation store
+vi.mock('@/stores/evaluationStore', () => ({
+  useEvaluationStore: vi.fn(() => ({
+    currentEvaluation: mockCurrentEvaluation,
+    setCurrentEvaluation: vi.fn(),
+    getEvaluationById: vi.fn((id) => mockCurrentEvaluation.value),
+    loadEvaluations: vi.fn(() => Promise.resolve())
+  }))
+}))
+
+// Mock router
+vi.mock('vue-router', () => ({
+  useRoute: vi.fn(() => ({
+    params: { id: 'test-evaluation' }
+  })),
+  useRouter: vi.fn(() => ({
+    push: vi.fn()
+  }))
 }))
 
 describe('HomeView', () => {
@@ -64,10 +83,19 @@ describe('HomeView', () => {
 
   it('renders properly', () => {
     const wrapper = mount(HomeView, {
+      props: {
+        id: 'test-evaluation'
+      },
       global: {
         stubs: {
           EvaluationTable: {
             template: '<div data-test="evaluation-table">Mocked EvaluationTable</div>'
+          },
+          CenterAppBar: {
+            template: '<div data-test="center-app-bar">Mocked AppBar</div>'
+          },
+          EvaluationMobileView: {
+            template: '<div data-test="evaluation-mobile">Mocked Mobile View</div>'
           }
         }
       }
@@ -91,10 +119,19 @@ describe('HomeView', () => {
     mockIsLoading.value = true
 
     const wrapper = mount(HomeView, {
+      props: {
+        id: 'test-evaluation'
+      },
       global: {
         stubs: {
           EvaluationTable: {
             template: '<div data-test="evaluation-table">Mocked EvaluationTable</div>'
+          },
+          CenterAppBar: {
+            template: '<div data-test="center-app-bar">Mocked AppBar</div>'
+          },
+          EvaluationMobileView: {
+            template: '<div data-test="evaluation-mobile">Mocked Mobile View</div>'
           }
         }
       }
@@ -110,10 +147,19 @@ describe('HomeView', () => {
     mockIsLoading.value = false
 
     const wrapper = mount(HomeView, {
+      props: {
+        id: 'test-evaluation'
+      },
       global: {
         stubs: {
           EvaluationTable: {
             template: '<div data-test="evaluation-table">Mocked EvaluationTable</div>'
+          },
+          CenterAppBar: {
+            template: '<div data-test="center-app-bar">Mocked AppBar</div>'
+          },
+          EvaluationMobileView: {
+            template: '<div data-test="evaluation-mobile">Mocked Mobile View</div>'
           }
         }
       }

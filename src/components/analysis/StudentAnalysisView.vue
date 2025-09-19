@@ -148,6 +148,77 @@ const getResultTypeConfigId = (specificCompetencyId?: string): string | undefine
   return undefined
 }
 
+// Helper function to get field ID from competency ID
+const getFieldIdFromCompetencyId = (competencyId: string): string | undefined => {
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  for (const domain of framework.domains) {
+    for (const field of domain.fields) {
+      const competency = field.competencies.find(c => c.id === competencyId)
+      if (competency) {
+        return field.id
+      }
+    }
+  }
+  return undefined
+}
+
+// Helper function to get field name by ID
+const getFieldNameById = (fieldId: string): string => {
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  for (const domain of framework.domains) {
+    const field = domain.fields.find(f => f.id === fieldId)
+    if (field) {
+      return field.name
+    }
+  }
+  return `Champ ${fieldId.slice(-8)}`
+}
+
+// Helper function to get competency name by ID
+const getCompetencyNameById = (competencyId: string): string => {
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  for (const domain of framework.domains) {
+    for (const field of domain.fields) {
+      const competency = field.competencies.find(c => c.id === competencyId)
+      if (competency) {
+        return competency.name
+      }
+    }
+  }
+  return `Compétence ${competencyId.slice(-8)}`
+}
+
+// Helper function to get domain ID from competency ID
+const getDomainIdFromCompetencyId = (competencyId: string): string | undefined => {
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  for (const domain of framework.domains) {
+    for (const field of domain.fields) {
+      const competency = field.competencies.find(c => c.id === competencyId)
+      if (competency) {
+        return domain.id
+      }
+    }
+  }
+  return undefined
+}
+
+// Helper function to get domain name by ID
+const getDomainNameById = (domainId: string): string => {
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  const domain = framework.domains.find(d => d.id === domainId)
+  return domain ? domain.name : `Domaine ${domainId.slice(-8)}`
+}
+
 // Function to convert evaluation result value to score using pivot_value
 const getScoreFromValue = (value: string, resultTypeConfigId?: string): number => {
   if (!value || !resultTypeConfigId) return 0
@@ -188,41 +259,77 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
   const calculateByMetricType = (allResults: EvaluationResult[]) => {
     switch (metricType) {
-      case 'domains':
-        return [{
-          name: 'Moyenne générale',
-          evaluations: evaluations.map(evaluation => {
-            const evalResults = resultsByEvaluation[evaluation.id] || []
-            if (evalResults.length === 0) return { score: 0 }
+      case 'domains': {
+        // Group results by domain
+        const domainGroups = allResults.reduce((acc, result) => {
+          const domainId = getDomainIdFromCompetencyId(result.competencyId || '')
+          if (domainId) {
+            if (!acc[domainId]) {
+              acc[domainId] = []
+            }
+            acc[domainId].push(result)
+          }
+          return acc
+        }, {} as Record<string, EvaluationResult[]>)
 
-            const scores = evalResults.map(result => {
-              const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
-              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
-              return score
+        return Object.entries(domainGroups).map(([domainId, domainResults]) => ({
+          name: getDomainNameById(domainId),
+          evaluations: evaluations.map(evaluation => {
+            const evalDomainResults = domainResults.filter(result => {
+              const resultEvaluationId = result.evaluatedAt ?
+                evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                evaluationResultsStore.evaluation.value?.id || 'current'
+              return resultEvaluationId === evaluation.id
             })
 
-            const totalScore = scores.reduce((sum, score) => sum + score, 0)
-            const avgScore = totalScore / evalResults.length
-            return { score: avgScore }
-          })
-        }]
+            if (evalDomainResults.length === 0) return { score: 0 }
 
-      case 'fields':
-        return [{
-          name: 'Moyenne par champ',
-          evaluations: evaluations.map(evaluation => {
-            const evalResults = resultsByEvaluation[evaluation.id] || []
-            if (evalResults.length === 0) return { score: 0 }
-
-            const totalScore = evalResults.reduce((sum, result) => {
+            const totalScore = evalDomainResults.reduce((sum, result) => {
               const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
               const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
               return sum + score
             }, 0)
 
-            return { score: totalScore / evalResults.length }
+            return { score: totalScore / evalDomainResults.length }
           })
-        }]
+        }))
+      }
+
+      case 'fields': {
+        // Group results by field
+        const fieldGroups = allResults.reduce((acc, result) => {
+          const fieldId = getFieldIdFromCompetencyId(result.competencyId || '')
+          if (fieldId) {
+            if (!acc[fieldId]) {
+              acc[fieldId] = []
+            }
+            acc[fieldId].push(result)
+          }
+          return acc
+        }, {} as Record<string, EvaluationResult[]>)
+
+        return Object.entries(fieldGroups).map(([fieldId, fieldResults]) => ({
+          name: getFieldNameById(fieldId),
+          evaluations: evaluations.map(evaluation => {
+            const evalFieldResults = fieldResults.filter(result => {
+              const resultEvaluationId = result.evaluatedAt ?
+                evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                evaluationResultsStore.evaluation.value?.id || 'current'
+              return resultEvaluationId === evaluation.id
+            })
+
+            if (evalFieldResults.length === 0) return { score: 0 }
+
+            const totalScore = evalFieldResults.reduce((sum, result) => {
+              const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              return sum + score
+            }, 0)
+
+            return { score: totalScore / evalFieldResults.length }
+          })
+        }))
+      }
 
       case 'competencies': {
         const competencyGroups = allResults.reduce((acc, result) => {
@@ -235,7 +342,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
         }, {} as Record<string, EvaluationResult[]>)
 
         return Object.entries(competencyGroups).map(([competencyId, competencyResults]) => ({
-          name: `Compétence ${competencyId.slice(-8)}`,
+          name: getCompetencyNameById(competencyId),
           evaluations: evaluations.map(evaluation => {
             const evalCompetencyResults = competencyResults.filter(result => {
               const resultEvaluationId = result.evaluatedAt ?

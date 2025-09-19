@@ -7,7 +7,7 @@
       v-if="!isLoading && framework.domains.length > 0"
       title="Évaluations"
       :is-scrolled="isScrolled"
-      @search-click="handleSearchClick"
+      :show-search="false"
       @user-menu-click="handleUserMenuClick"
     />
 
@@ -118,10 +118,6 @@ onUnmounted(() => {
 })
 
 // Event handlers
-const handleSearchClick = () => {
-  console.log('Search clicked')
-}
-
 const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }

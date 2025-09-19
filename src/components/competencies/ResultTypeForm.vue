@@ -133,8 +133,8 @@ const emit = defineEmits<Emits>()
 const localData = ref<ResultTypeConfig>({
   id: '',
   name: '',
+  type: 'scale',
   config: {
-    type: 'scale',
     values: []
   }
 })

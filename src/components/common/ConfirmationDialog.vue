@@ -1,28 +1,30 @@
 <template>
-  <div v-if="visible" class="dialog-scrim" @click="$emit('close')">
-    <div class="dialog-container alert-dialog" @click.stop>
-      <div class="dialog-header">
-        <span class="dialog-icon alert-icon">
-          <span class="material-symbols-outlined">warning</span>
-        </span>
-        <h2 class="dialog-headline">{{ title }}</h2>
-      </div>
+  <Teleport to="body">
+    <div v-if="visible" class="dialog-scrim" @click="$emit('close')">
+      <div class="dialog-container alert-dialog" @click.stop>
+        <div class="dialog-header">
+          <span class="dialog-icon alert-icon">
+            <span class="material-symbols-outlined">warning</span>
+          </span>
+          <h2 class="dialog-headline">{{ title }}</h2>
+        </div>
 
-      <div class="dialog-content">
-        <p class="dialog-supporting-text">{{ message }}</p>
-        <p v-if="warningText" class="dialog-warning-text">{{ warningText }}</p>
-      </div>
+        <div class="dialog-content">
+          <p class="dialog-supporting-text">{{ message }}</p>
+          <p v-if="warningText" class="dialog-warning-text">{{ warningText }}</p>
+        </div>
 
-      <div class="dialog-actions">
-        <button class="text-button" @click="$emit('close')">
-          {{ cancelText }}
-        </button>
-        <button class="text-button destructive-action" @click="$emit('confirm')">
-          {{ confirmText }}
-        </button>
+        <div class="dialog-actions">
+          <button class="text-button" @click="$emit('close')">
+            {{ cancelText }}
+          </button>
+          <button class="text-button destructive-action" @click="$emit('confirm')">
+            {{ confirmText }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -57,17 +59,19 @@ defineEmits<Emits>()
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 2000;
-  background: rgba(0, 0, 0, 0.32);
+  z-index: 2100;
+  background: rgba(0, 0, 0, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
+  /* Ensure backdrop doesn't affect dialog content */
+  backdrop-filter: none;
 }
 
 /* Dialog Container */
 .dialog-container {
-  background: var(--md-sys-color-surface-container-high);
+  background: #ffffff;
   border-radius: 28px;
   min-width: 280px;
   max-width: 400px;
@@ -78,6 +82,13 @@ defineEmits<Emits>()
     0px 8px 10px -5px rgba(0, 0, 0, 0.2),
     0px 16px 24px 2px rgba(0, 0, 0, 0.14),
     0px 6px 30px 5px rgba(0, 0, 0, 0.12);
+  /* Force light theme for confirmation dialogs to ensure readability */
+  color: #1d1b20;
+}
+
+/* Remove color inheritance from parent themes */
+.dialog-container * {
+  color: inherit;
 }
 
 .alert-dialog {

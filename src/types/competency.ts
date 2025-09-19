@@ -22,6 +22,7 @@ export interface ResultValue {
 
 export interface ResultTypeConfig extends BaseEntity {
   config: {
+    type?: 'scale' | 'boolean' | 'custom'
     values: ResultValue[]
   }
 }

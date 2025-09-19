@@ -13,7 +13,7 @@
     </div>
 
     <div class="horizontal-bar-chart">
-      <div v-for="item in chartData" :key="item.name" class="bar-item">
+      <div v-for="item in chartData" :key="item.id || item.name" class="bar-item">
         <div class="bar-info">
           <span class="bar-label">{{ item.name }}</span>
         </div>
@@ -27,12 +27,12 @@
               <div
                 class="bar-fill"
                 :style="{
-                  width: (evaluation.score / 4) * 100 + '%',
+                  width: (evaluation.score / 10) * 100 + '%',
                   backgroundColor: evaluationPeriods[index]?.color || 'var(--md-sys-color-primary, #6750a4)'
                 }"
               ></div>
             </div>
-            <span class="bar-value">{{ evaluation.score }}/4</span>
+            <span class="bar-value">{{ evaluation.score }}/10</span>
           </div>
         </div>
       </div>
@@ -46,6 +46,7 @@ interface EvaluationResult {
 }
 
 interface ChartDataItem {
+  id?: string // Optional unique identifier
   name: string
   evaluations: EvaluationResult[]
 }

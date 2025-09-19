@@ -70,7 +70,7 @@
       v-if="activeView === 'types'"
       icon="add"
       label="Nouveau type"
-      :visible="!showResultTypeModal && !showEditResultTypeModal && !showDeleteResultTypeModal"
+      :visible="true"
       @click="openAddResultTypeModal"
     />
   </div>
@@ -81,6 +81,13 @@
     :result-types="resultTypes"
     @save="handleModalSave"
     @delete="handleModalDelete"
+  />
+
+  <!-- Result Type Modal -->
+  <ResultTypeModal
+    ref="resultTypeModalRef"
+    @save="handleResultTypeSave"
+    @delete="handleResultTypeDelete"
   />
 </template>
 
@@ -93,6 +100,7 @@ import ImportExportSection from '@/components/common/ImportExportSection.vue'
 import CompetencyTree from '@/components/competencies/CompetencyTree.vue'
 import ResultTypesGrid from '@/components/competencies/ResultTypesGrid.vue'
 import CompetencyModals from '@/components/competencies/CompetencyModals.vue'
+import ResultTypeModal from '@/components/competencies/ResultTypeModal.vue'
 import type {
   TabItem,
   ResultTypeConfig
@@ -140,9 +148,7 @@ const resultTypes = ref<ResultTypeConfig[]>([])
 
 // Modal states
 const modalsRef = ref()
-const showResultTypeModal = ref(false)
-const showEditResultTypeModal = ref(false)
-const showDeleteResultTypeModal = ref(false)
+const resultTypeModalRef = ref()
 
 // TODO: Add editing context when modals are implemented
 
@@ -217,17 +223,17 @@ const openAddDomainModal = () => {
 // Result type operations
 const openAddResultTypeModal = () => {
   console.log('Add result type')
-  showResultTypeModal.value = true
+  resultTypeModalRef.value?.openAddModal()
 }
 
 const editResultType = (type: ResultTypeConfig) => {
   console.log('Edit result type:', type)
-  showEditResultTypeModal.value = true
+  resultTypeModalRef.value?.openEditModal(type)
 }
 
 const deleteResultType = (type: ResultTypeConfig) => {
   console.log('Delete result type:', type)
-  showDeleteResultTypeModal.value = true
+  resultTypeModalRef.value?.openDeleteModal(type)
 }
 
 // Import/Export operations
@@ -254,6 +260,34 @@ const handleModalDelete = async (data: { type: string; item: any; context?: any 
   // TODO: Implement delete logic with competencyStore
   // For now, just refresh data
   await competencyStore.refreshFromSupabase()
+}
+
+// Result type modal event handlers
+const handleResultTypeSave = async (data: { type: ResultTypeConfig; isEditing: boolean }) => {
+  console.log('Result type save:', data)
+  try {
+    if (data.isEditing) {
+      await resultTypesService.updateResultType(data.type.id, data.type)
+    } else {
+      const { id, ...resultTypeWithoutId } = data.type
+      await resultTypesService.createResultType(resultTypeWithoutId)
+    }
+    // Reload result types
+    resultTypes.value = await resultTypesService.getResultTypes()
+  } catch (error) {
+    console.error('Error saving result type:', error)
+  }
+}
+
+const handleResultTypeDelete = async (type: ResultTypeConfig) => {
+  console.log('Result type delete:', type)
+  try {
+    await resultTypesService.deleteResultType(type.id!)
+    // Reload result types
+    resultTypes.value = await resultTypesService.getResultTypes()
+  } catch (error) {
+    console.error('Error deleting result type:', error)
+  }
 }
 
 // Scroll handling

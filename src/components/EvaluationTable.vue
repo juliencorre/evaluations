@@ -70,12 +70,13 @@
               <td
                 v-for="student in students"
                 :key="`${node.id}-${student.id}`"
+                :ref="(el) => setCellRef(el, node.id, student.id)"
                 class="result-cell"
                 :class="[
                   ...getResultCellClass(node, student.id),
                   { editing: isEditing(node.id, student.id) }
                 ]"
-                @click.stop="startEditing(node, student.id)"
+                @click.stop="startEditing(node, student.id, $event)"
               >
                 <div class="result-content">
                   <!-- Editing mode -->
@@ -83,19 +84,13 @@
                     v-if="canShowResult(node) && isEditing(node.id, student.id)"
                     class="edit-mode"
                   >
-                    <div class="custom-select" :class="{ 'open': true }">
-                      <div class="select-dropdown" @click.stop>
-                        <button
-                          v-for="valueObj in getResultValues(node)"
-                          :key="valueObj.value"
-                          :class="{ 'selected': valueObj.value === editingValue }"
-                          class="select-option"
-                          @click.stop="selectValue(valueObj.value, node.id, student.id)"
-                        >
-                          {{ valueObj.label }}
-                        </button>
-                      </div>
-                    </div>
+                    <InlineResultSelector
+                      :options="getResultValues(node)"
+                      :selected-value="editingValue"
+                      :trigger-element="currentTriggerElement || undefined"
+                      @select="(option) => selectValue(option.value, node.id, student.id)"
+                      @close="stopEditing"
+                    />
                   </div>
 
                   <!-- Display mode -->
@@ -117,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, type ComponentPublicInstance } from 'vue'
 import type {
   Student,
   Evaluation,
@@ -130,6 +125,7 @@ import type {
 import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/competencyTree'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
+import InlineResultSelector from '@/components/evaluation/InlineResultSelector.vue'
 
 interface Props {
   evaluation: Evaluation
@@ -145,6 +141,8 @@ const competencyTree = ref<TreeNode[]>([])
 const editingCell = ref<{ competencyId: string; studentId: string } | null>(null)
 const editingValue = ref<string>('')
 const ignoreNextGlobalClick = ref(false)
+const cellRefs = ref<Map<string, HTMLElement>>(new Map())
+const currentTriggerElement = ref<HTMLElement | null>(null)
 
 // Initialize evaluation results store
 const evaluationStore = useEvaluationResultsStore()
@@ -168,7 +166,7 @@ function handleClickOutside(event: Event) {
     console.log('🖱️ [Global] Clic détecté sur:', target?.className)
 
     // Ne fermer que si le clic n'est pas sur le dropdown ou ses éléments
-    if (target && !target.closest('.select-dropdown') && !target.closest('.select-option') && !target.closest('.custom-select')) {
+    if (target && !target.closest('.inline-result-selector') && !target.closest('.edit-mode')) {
       console.log('🚪 [Global] Fermeture du dropdown')
       cancelEditing()
     } else {
@@ -313,13 +311,26 @@ function isEditing(competencyId: string, studentId: string): boolean {
   return editingCell.value?.competencyId === competencyId && editingCell.value?.studentId === studentId
 }
 
-function startEditing(node: TreeNode, studentId: string) {
+function setCellRef(el: Element | ComponentPublicInstance | null, competencyId: string, studentId: string) {
+  const key = `${competencyId}-${studentId}`
+  if (el && 'nodeType' in el) {
+    cellRefs.value.set(key, el as HTMLElement)
+  }
+}
+
+
+function startEditing(node: TreeNode, studentId: string, event?: Event) {
   if (!canShowResult(node)) return
 
   console.log('🖊️ [Edition] Début d\'édition:', { competencyId: node.id, studentId })
 
   // Set flag to ignore the global click that triggered this function
   ignoreNextGlobalClick.value = true
+
+  // Store the trigger element
+  if (event && event.currentTarget) {
+    currentTriggerElement.value = event.currentTarget as HTMLElement
+  }
 
   const currentResult = getStudentResult(node.id, studentId)
   editingCell.value = { competencyId: node.id, studentId }
@@ -330,6 +341,12 @@ function startEditing(node: TreeNode, studentId: string) {
 function selectValue(value: string, competencyId: string, studentId: string) {
   editingValue.value = value
   saveResult(competencyId, studentId)
+}
+
+function stopEditing() {
+  editingCell.value = null
+  editingValue.value = ''
+  currentTriggerElement.value = null
 }
 
 async function saveResult(competencyId: string, studentId: string) {
@@ -662,59 +679,14 @@ function cancelEditing() {
   box-shadow: 0 0 0 0.2rem var(--app-focus-ring);
 }
 
-/* Custom select dropdown styles */
-.custom-select {
-  position: relative;
-  width: 80px;
-}
-
-.select-dropdown {
+/* Edit mode styles */
+.edit-mode {
   position: absolute;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--app-select-dropdown-bg);
-  border: 2px solid var(--md-sys-color-primary);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  z-index: 1000;
-  min-width: 100px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.select-option {
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: var(--app-select-dropdown-bg);
-  text-align: center;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  color: var(--app-select-option-text);
-}
-
-.select-option:hover {
-  background-color: var(--app-select-option-hover-bg);
-}
-
-.select-option.selected {
-  background-color: var(--app-select-option-selected-bg);
-  color: var(--app-select-option-selected-text);
-}
-
-.select-option:first-child {
-  border-radius: 6px 6px 0 0;
-}
-
-.select-option:last-child {
-  border-radius: 0 0 6px 6px;
-}
-
-.select-option:only-child {
-  border-radius: 6px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
 }
 
 /* Responsive design */

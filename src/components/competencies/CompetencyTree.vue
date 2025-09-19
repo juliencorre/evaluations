@@ -163,6 +163,9 @@
                     <span class="node-label specific-competency-label">
                       {{ specificCompetency.name }}
                     </span>
+                    <span v-if="specificCompetency.resultTypeConfig" class="result-type-chip">
+                      {{ specificCompetency.resultTypeConfig.name }}
+                    </span>
                     <div class="node-actions">
                       <button
                         class="action-btn"
@@ -341,6 +344,21 @@ const handleDrop = (event: DragEvent, item: unknown, type: string, index: number
 .specific-competency-label {
   font-weight: var(--md-sys-typescale-body-small-weight, 400);
   color: var(--md-sys-color-outline, #79747e);
+}
+
+.result-type-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  margin-left: 8px;
+  background: var(--md-sys-color-tertiary-container, #ffd8e4);
+  color: var(--md-sys-color-on-tertiary-container, #31111d);
+  border-radius: 12px;
+  font-family: var(--md-sys-typescale-label-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-label-small-size, 11px);
+  font-weight: var(--md-sys-typescale-label-small-weight, 500);
+  line-height: var(--md-sys-typescale-label-small-line-height, 16px);
+  white-space: nowrap;
 }
 
 .node-actions {

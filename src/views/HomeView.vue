@@ -40,8 +40,8 @@
     <ExtendedFAB
       v-if="!showModal && !isLoading"
       icon="add"
-      label="Nouvelle évaluation"
       :visible="true"
+      aria-label="Nouvelle évaluation"
       @click="openAddModal"
     />
 

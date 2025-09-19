@@ -61,16 +61,16 @@
     <ExtendedFAB
       v-if="activeView === 'tree'"
       icon="add"
-      label="Ajouter un domaine"
       :visible="true"
+      aria-label="Ajouter un domaine"
       @click="openAddDomainModal"
     />
 
     <ExtendedFAB
       v-if="activeView === 'types'"
       icon="add"
-      label="Nouveau type"
       :visible="true"
+      aria-label="Nouveau type"
       @click="openAddResultTypeModal"
     />
   </div>

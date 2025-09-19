@@ -22,7 +22,7 @@
         <div class="select-field">
           <label class="field-label">Type de résultat</label>
           <select
-            v-model="localData.config.type"
+            v-model="localData.type"
             class="select-input"
             @change="handleTypeChange"
           >
@@ -167,7 +167,7 @@ const booleanTemplate = [
 const handleTypeChange = () => {
   if (!props.editing) {
     // Only auto-populate for new types
-    switch (localData.value.config?.type) {
+    switch (localData.value.type) {
       case 'scale':
         localData.value.config.values = [...scaleTemplate]
         break
@@ -186,7 +186,7 @@ const handleTypeChange = () => {
 
 const addValue = () => {
   if (!localData.value.config?.values) {
-    localData.value.config = { type: 'custom', values: [] }
+    localData.value.config = { values: [] }
   }
   localData.value.config.values.push({
     label: '',
@@ -209,12 +209,8 @@ const initializeForm = () => {
     localData.value = {
       id: props.modelValue.id || '',
       name: props.modelValue.name || '',
-      description: props.modelValue.description,
-      created_at: props.modelValue.created_at,
-      updated_at: props.modelValue.updated_at,
       type: props.modelValue.type || 'scale',
       config: {
-        type: props.modelValue.config?.type || 'scale',
         values: props.modelValue.config?.values ? [...props.modelValue.config.values] : []
       }
     }

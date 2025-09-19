@@ -67,7 +67,6 @@ const addFormData = ref<Partial<ResultTypeConfig>>({
   name: '',
   type: 'scale',
   config: {
-    type: 'scale',
     values: []
   }
 })
@@ -77,7 +76,6 @@ const editFormData = ref<Partial<ResultTypeConfig>>({
   name: '',
   type: 'scale',
   config: {
-    type: 'scale',
     values: []
   }
 })
@@ -109,7 +107,6 @@ const openAddModal = () => {
     name: '',
     type: 'scale',
     config: {
-      type: 'scale',
       values: []
     }
   }
@@ -122,7 +119,6 @@ const openEditModal = (type: ResultTypeConfig) => {
     name: type.name || '',
     type: type.type || 'scale',
     config: {
-      type: type.config?.type || 'scale',
       values: type.config?.values ? [...type.config.values] : []
     }
   }

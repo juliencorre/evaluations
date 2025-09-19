@@ -27,8 +27,8 @@
     <ExtendedFAB
       v-if="!modalsRef?.showStudentDialog && !modalsRef?.showDeleteDialog"
       icon="add"
-      label="Ajouter un élève"
       :visible="true"
+      aria-label="Ajouter un élève"
       @click="handleAddStudent"
     />
 

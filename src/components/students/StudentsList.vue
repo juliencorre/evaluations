@@ -42,9 +42,12 @@ defineEmits<Emits>()
 }
 
 .students-list {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .empty-state {
@@ -56,9 +59,9 @@ defineEmits<Emits>()
   margin-top: 24px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .students-list {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    /* Liste sans marges sur mobile */
   }
 }
 </style>

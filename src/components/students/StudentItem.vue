@@ -49,14 +49,12 @@ defineEmits<Emits>()
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  min-height: 76px;
-  border-radius: 20px;
+  min-height: 72px;
   background: var(--md-sys-color-surface, #ffffff);
-  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
-  transition:
-    background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-    border-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  border-bottom: 1px solid var(--md-sys-color-outline, #79747E);
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
   overflow: hidden;
+  cursor: pointer;
 }
 
 .student-item::before {
@@ -76,9 +74,8 @@ defineEmits<Emits>()
   background: rgba(103, 80, 164, 0.12);
 }
 
-.student-item:hover,
-.student-item:focus-within {
-  border-color: rgba(103, 80, 164, 0.45);
+.student-item:last-child {
+  border-bottom: none;
 }
 
 .student-content {

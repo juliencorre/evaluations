@@ -293,9 +293,7 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
   list-style: none;
   margin: 0;
   padding: 0;
-  background: var(--md-sys-color-surface);
-  border-radius: 12px;
-  border: 1px solid var(--md-sys-color-outline-variant);
+  background: transparent;
 }
 
 .md3-list-item {
@@ -306,7 +304,8 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
   position: relative;
   cursor: pointer;
   transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  border-bottom: 1px solid var(--md-sys-color-outline, #79747E);
+  background: var(--md-sys-color-surface);
 }
 
 .md3-list-item:last-child {
@@ -429,7 +428,16 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
 /* Responsive Design */
 @media (max-width: 768px) {
   .evaluations-content {
-    padding: 24px 16px 80px;
+    padding: 24px 0 80px;
+    max-width: 100%;
+  }
+
+  .evaluations-container {
+    max-width: 100%;
+  }
+
+  .md3-list {
+    /* Liste sans bordures ni carte sur mobile */
   }
 
   .md3-list-item {
@@ -478,7 +486,7 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
 
 @media (max-width: 480px) {
   .evaluations-content {
-    padding: 16px 12px 80px;
+    padding: 16px 0 80px;
   }
 
   .md3-list-item {

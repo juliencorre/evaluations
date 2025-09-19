@@ -63,7 +63,7 @@ const EvaluationTable = defineAsyncComponent({
   loader: () => import('@/components/EvaluationTable.vue'),
   loadingComponent: {
     template: '<div class="loading-placeholder">Chargement du tableau...</div>',
-    style: 'padding: 2rem; text-align: center; color: #666;'
+    style: 'padding: 2rem; text-align: center; color: var(--md-sys-color-on-surface-variant, #666);'
   },
   delay: 200,
   timeout: 5000

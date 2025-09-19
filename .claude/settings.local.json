@@ -57,7 +57,8 @@
       "Bash(Stop-Process -Name \"node\" -Force)",
       "Bash(del /s node_modules.vite-temp*)",
       "Bash(npm cache clean:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

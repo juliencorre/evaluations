@@ -203,15 +203,16 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   border: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .students-content {
-    padding: 24px 16px 80px;
+    padding: 24px 0 80px;
+    max-width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .students-content {
-    padding: 16px 16px 80px;
+    padding: 16px 0 80px;
   }
 }
 </style>

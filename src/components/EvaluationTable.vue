@@ -469,40 +469,40 @@ function cancelEditing() {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: white;
+  background: var(--md-sys-color-surface, white);
 }
 
 .evaluation-table th {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--md-sys-color-outline-variant, #e0e0e0);
   padding: 0.75rem 0.5rem;
   text-align: left;
   font-weight: 600;
-  color: #333;
+  color: var(--md-sys-color-on-surface, #333);
   vertical-align: top;
 }
 
 .domain-col {
   width: 15%;
   min-width: 120px;
-  background: #f8f9fa !important;
+  background: var(--md-sys-color-surface-container-low, #f8f9fa) !important;
 }
 
 .field-col {
   width: 20%;
   min-width: 150px;
-  background: #f1f3f4 !important;
+  background: var(--md-sys-color-surface-container, #f1f3f4) !important;
 }
 
 .competency-col {
   width: 25%;
   min-width: 180px;
-  background: #e8eaed !important;
+  background: var(--md-sys-color-surface-container-high, #e8eaed) !important;
 }
 
 .specific-competency-col {
   width: 25%;
   min-width: 200px;
-  background: #e1e3e6 !important;
+  background: var(--md-sys-color-surface-container-highest, #e1e3e6) !important;
 }
 
 .hierarchy-header .header-content {
@@ -533,36 +533,36 @@ function cancelEditing() {
 
 /* Row and cell styles */
 .evaluation-table tr:hover {
-  background-color: #f5f5f5;
+  background-color: var(--md-sys-color-surface-variant, #f5f5f5);
 }
 
 .evaluation-table td {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--md-sys-color-outline-variant, #e0e0e0);
   padding: 0.5rem;
   vertical-align: top;
-  background: white;
+  background: var(--md-sys-color-surface, white);
 }
 
 .domain-cell {
   font-weight: 600;
-  background: #f8f9fa !important;
-  color: #5f6368;
+  background: var(--md-sys-color-surface-container-low, #f8f9fa) !important;
+  color: var(--md-sys-color-on-surface-variant, #5f6368);
 }
 
 .field-cell {
   font-weight: 500;
-  background: #f1f3f4 !important;
+  background: var(--md-sys-color-surface-container, #f1f3f4) !important;
   color: #5f6368;
 }
 
 .competency-cell {
-  background: #e8eaed !important;
-  color: #5f6368;
+  background: var(--md-sys-color-surface-container-high, #e8eaed) !important;
+  color: var(--md-sys-color-on-surface-variant, #5f6368);
 }
 
 .specific-competency-cell {
-  background: #e1e3e6 !important;
-  color: #5f6368;
+  background: var(--md-sys-color-surface-container-highest, #e1e3e6) !important;
+  color: var(--md-sys-color-on-surface-variant, #5f6368);
 }
 
 

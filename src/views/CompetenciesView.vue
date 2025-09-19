@@ -14,8 +14,6 @@
     <CompetencyTabs v-model="activeView" :tabs="tabItems" />
     <!-- Tree View -->
     <div v-if="activeView === 'tree'" class="page-content">
-      <h2 class="page-title">Référentiels de compétences</h2>
-
       <CompetencyTree
         :domains="frameworkWithDragDrop.domains"
         @add-field="openAddFieldModal"
@@ -33,9 +31,7 @@
     </div>
 
     <!-- Types View -->
-    <div v-if="activeView === 'types'" class="page-content">
-      <h2 class="page-title">Types de résultats disponibles</h2>
-
+    <div v-if="activeView === 'types'" class="page-content types-content">
       <ResultTypesGrid
         :result-types="resultTypes"
         @edit="editResultType"
@@ -363,10 +359,32 @@ const handleLogout = () => {
   margin: 0 0 24px 0;
 }
 
+.types-content {
+  padding-top: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .page-content {
-    padding: 16px 16px 80px;
+    padding: 16px 8px 80px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    line-height: 28px;
+    margin: 0 0 16px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: 12px 4px 80px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    line-height: 24px;
+    margin: 0 0 12px 0;
   }
 }
 

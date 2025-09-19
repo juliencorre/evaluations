@@ -14,10 +14,6 @@
       </div>
     </div>
 
-    <!-- Selected Student Info -->
-    <div v-if="selectedStudent" class="student-info">
-      <h2 class="student-name">{{ selectedStudent.firstName }} {{ selectedStudent.lastName }}</h2>
-    </div>
 
     <!-- Sub-competencies List -->
     <div class="competencies-list">

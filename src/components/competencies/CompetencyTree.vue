@@ -426,4 +426,103 @@ const handleDrop = (event: DragEvent, item: unknown, type: string, index: number
   font-style: italic;
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
+
+/* Responsive Design - Compact for small screens */
+@media (max-width: 768px) {
+  .tree-children {
+    margin-left: 16px;
+    padding-left: 12px;
+  }
+
+  .node-content {
+    padding: 8px 12px;
+  }
+
+  .node-icon {
+    margin-right: 6px;
+  }
+
+  .node-label {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+  }
+
+  .action-btn .material-symbols-outlined {
+    font-size: 16px;
+  }
+
+  .result-type-chip {
+    padding: 1px 6px;
+    margin-left: 6px;
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .node-actions {
+    gap: 2px;
+  }
+
+  /* Always show actions on mobile for easier interaction */
+  .node-actions {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .tree-children {
+    margin-left: 12px;
+    padding-left: 8px;
+  }
+
+  .node-content {
+    padding: 6px 8px;
+  }
+
+  .node-icon {
+    margin-right: 4px;
+  }
+
+  .node-label {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .action-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+  }
+
+  .action-btn .material-symbols-outlined {
+    font-size: 14px;
+  }
+
+  .result-type-chip {
+    display: none; /* Hide on very small screens to save space */
+  }
+
+  /* Reduce font sizes for labels */
+  .domain-label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .field-label {
+    font-size: 13px;
+  }
+
+  .competency-label {
+    font-size: 12px;
+  }
+
+  .specific-competency-label {
+    font-size: 11px;
+  }
+}
 </style>

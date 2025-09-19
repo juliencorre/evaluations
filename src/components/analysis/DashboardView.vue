@@ -485,7 +485,7 @@ onMounted(async () => {
 
 /* White card background */
 .white-card {
-  background: #ffffff !important;
+  background: var(--md-sys-color-surface-container-low, #ffffff) !important;
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
 }
 

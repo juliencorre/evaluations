@@ -46,7 +46,7 @@ vi.mock('@/stores/evaluationStore', () => ({
   useEvaluationStore: vi.fn(() => ({
     currentEvaluation: mockCurrentEvaluation,
     setCurrentEvaluation: vi.fn(),
-    getEvaluationById: vi.fn((id) => mockCurrentEvaluation.value),
+    getEvaluationById: vi.fn(() => mockCurrentEvaluation.value),
     loadEvaluations: vi.fn(() => Promise.resolve())
   }))
 }))

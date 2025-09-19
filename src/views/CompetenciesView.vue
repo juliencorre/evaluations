@@ -79,7 +79,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import CompetencyTabs from '@/components/competencies/CompetencyTabs.vue'
 import ExtendedFAB from '@/components/common/ExtendedFAB.vue'
-import ImportExportSection from '@/components/common/ImportExportSection.vue'
 import CompetencyTree from '@/components/competencies/CompetencyTree.vue'
 import ResultTypesGrid from '@/components/competencies/ResultTypesGrid.vue'
 import CompetencyModals from '@/components/competencies/CompetencyModals.vue'
@@ -217,15 +216,16 @@ const deleteResultType = (type: ResultTypeConfig) => {
 }
 
 // Import/Export operations
-const handleFileImport = (file: globalThis.File) => {
-  console.log('Import file:', file.name)
-  // Implementation
-}
+// TODO: Implement these functions when Import/Export tab is re-enabled
+// const handleFileImport = (file: globalThis.File) => {
+//   console.log('Import file:', file.name)
+//   // Implementation
+// }
 
-const exportFramework = () => {
-  console.log('Export framework')
-  // Implementation
-}
+// const exportFramework = () => {
+//   console.log('Export framework')
+//   // Implementation
+// }
 
 // Modal event handlers
 const handleModalSave = async (data: { type: string; data: any; context?: any }) => {

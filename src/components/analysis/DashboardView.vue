@@ -128,7 +128,6 @@ const exportClassChart = async () => {
 
     // Dimensions du PDF avec marges réduites
     const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
     const margin = 15
     const imgWidth = pageWidth - (margin * 2) // 267mm au lieu de 280mm
     const imgHeight = (canvas.height * imgWidth) / canvas.width

@@ -12,10 +12,10 @@
         </div>
 
         <div class="md3-list-item__trailing">
-          <button class="icon-btn" @click="$emit('edit', type)" aria-label="Modifier le type">
+          <button class="icon-btn" aria-label="Modifier le type" @click="$emit('edit', type)">
             <span class="material-symbols-outlined">edit</span>
           </button>
-          <button class="icon-btn" @click="$emit('delete', type)" aria-label="Supprimer le type">
+          <button class="icon-btn" aria-label="Supprimer le type" @click="$emit('delete', type)">
             <span class="material-symbols-outlined">delete</span>
           </button>
         </div>

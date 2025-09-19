@@ -2,7 +2,7 @@
   <div class="mobile-evaluation-container">
     <!-- Student Tabs - Horizontal Scrollable -->
     <div class="students-tabs-container">
-      <div class="students-tabs" ref="studentsTabsRef">
+      <div ref="studentsTabsRef" class="students-tabs">
         <button
           v-for="student in students"
           :key="student.id"
@@ -68,7 +68,7 @@
 
         <div class="modal-actions">
           <button class="btn-cancel" @click="closeEditModal">Annuler</button>
-          <button class="btn-save" @click="saveResult" :disabled="!editingValue">Sauvegarder</button>
+          <button class="btn-save" :disabled="!editingValue" @click="saveResult">Sauvegarder</button>
         </div>
       </div>
     </div>

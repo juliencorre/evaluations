@@ -1,10 +1,10 @@
 <template>
-  <div class="user-menu" ref="userMenuRef">
+  <div ref="userMenuRef" class="user-menu">
     <button
       class="icon-button user-menu-button"
       aria-label="Menu utilisateur"
-      @click="toggleMenu"
       :aria-expanded="isOpen"
+      @click="toggleMenu"
     >
       <span class="material-symbols-outlined">account_circle</span>
     </button>

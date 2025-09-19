@@ -86,12 +86,14 @@ const currentDeleteItem = ref<ResultTypeConfig | null>(null)
 // Computed properties
 const isAddFormValid = computed(() => {
   return addFormData.value.name?.trim() &&
-         addFormData.value.config?.values?.length > 0
+         addFormData.value.config?.values &&
+         addFormData.value.config.values.length > 0
 })
 
 const isEditFormValid = computed(() => {
   return editFormData.value.name?.trim() &&
-         editFormData.value.config?.values?.length > 0
+         editFormData.value.config?.values &&
+         editFormData.value.config.values.length > 0
 })
 
 const deleteTitle = computed(() =>

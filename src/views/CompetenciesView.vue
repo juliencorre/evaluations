@@ -271,7 +271,16 @@ const handleResultTypeSave = async (data: { type: Partial<ResultTypeConfig>; isE
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...resultTypeWithoutId } = data.type
-      await resultTypesService.createResultType(resultTypeWithoutId as Omit<ResultTypeConfig, 'id'>)
+      // Ensure type is defined, default to 'scale' if undefined
+      const typeToCreate = {
+        ...resultTypeWithoutId,
+        type: resultTypeWithoutId.type || 'scale',
+        config: {
+          ...resultTypeWithoutId.config,
+          type: resultTypeWithoutId.config?.type || 'scale'
+        }
+      }
+      await resultTypesService.createResultType(typeToCreate as Omit<ResultTypeConfig, 'id'>)
     }
     // Reload result types
     resultTypes.value = await resultTypesService.getResultTypes()

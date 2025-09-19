@@ -86,7 +86,7 @@ const competenciesStore = useCompetencyFrameworkStore()
 const { framework, isCompetenciesLoading } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
-const { allEvaluations, currentEvaluation, addEvaluation, setCurrentEvaluation, getEvaluationById } = evaluationStore
+const { allEvaluations, currentEvaluation, addEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
 
 // State
 const isLoading = isCompetenciesLoading
@@ -108,9 +108,12 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
+
+  // Load evaluations from database
+  await loadEvaluations()
 })
 
 onUnmounted(() => {

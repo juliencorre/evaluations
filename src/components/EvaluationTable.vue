@@ -1,10 +1,5 @@
 <template>
   <div class="evaluation-table-container">
-    <div class="table-header">
-      <h2>{{ evaluation.name }}</h2>
-      <p class="table-description">{{ evaluation.description }}</p>
-    </div>
-
     <div class="table-wrapper">
       <div class="table-scroll-container">
         <table class="evaluation-table">
@@ -535,32 +530,6 @@ watch(searchTerm, (newTerm) => {
   background-color: var(--md-sys-color-surface);
 }
 
-.table-header {
-  padding: 1rem;
-  background: var(--app-table-header-bg);
-  border-bottom: 1px solid var(--app-divider);
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.header-main {
-  flex: 1;
-}
-
-.header-main h2 {
-  margin: 0 0 0.5rem 0;
-  color: var(--md-sys-color-on-surface);
-  font-size: 1.5rem;
-}
-
-.table-description {
-  margin: 0;
-  color: var(--app-table-subhead-text);
-  font-size: 0.95rem;
-}
 
 .column-controls {
   display: flex;
@@ -1101,10 +1070,6 @@ watch(searchTerm, (newTerm) => {
     padding: 0.125rem 0.25rem;
   }
 
-  .table-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
 
   .column-controls {
     justify-content: flex-start;
@@ -1112,14 +1077,6 @@ watch(searchTerm, (newTerm) => {
 }
 
 @media (max-width: 480px) {
-  .table-header {
-    padding: 0.75rem;
-  }
-
-  .table-header h2 {
-    font-size: 1.25rem;
-  }
-
   /* Very aggressive reduction for smallest screens */
   .domain-col,
   .domain-cell {

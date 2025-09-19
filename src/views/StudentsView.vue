@@ -1,34 +1,46 @@
 <template>
   <div class="students-page">
-    <!-- Top App Bar -->
-    <TopAppBar
-      title="Élèves"
-      subtitle="Gérer la liste des élèves de la classe"
-      variant="medium"
-    >
-      <template #trailing>
-        <div class="app-bar-search">
-          <span class="material-symbols-outlined app-bar-search-icon" aria-hidden="true">search</span>
+    <!-- Search App Bar -->
+    <header class="search-app-bar" :class="{ 'search-app-bar--elevated': isScrolled }">
+      <!-- Leading Logo -->
+      <div class="search-app-bar__leading">
+        <button class="app-logo-button" aria-label="Accueil" @click="$router.push('/')">
+          <span class="material-symbols-outlined app-logo-icon">school</span>
+        </button>
+      </div>
+
+      <!-- Center Search Field -->
+      <div class="search-app-bar__center">
+        <div class="search-field">
+          <span class="material-symbols-outlined search-field__icon" aria-hidden="true">search</span>
           <input
             v-model="searchTerm"
             type="search"
             placeholder="Rechercher un élève..."
-            class="app-bar-search-input"
+            class="search-field__input"
             aria-label="Rechercher un élève"
           />
+          <button
+            v-if="searchTerm"
+            class="search-field__clear"
+            aria-label="Effacer la recherche"
+            @click="searchTerm = ''"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
-      </template>
-    </TopAppBar>
+      </div>
+
+      <!-- Trailing Actions -->
+      <div class="search-app-bar__trailing">
+        <button class="icon-button user-menu-button" aria-label="Menu utilisateur">
+          <span class="material-symbols-outlined">account_circle</span>
+        </button>
+      </div>
+    </header>
 
     <main class="students-content" role="main">
       <h1 class="visually-hidden">Gestion des élèves</h1>
-
-      <section class="students-header" aria-labelledby="students-list-title">
-        <h2 id="students-list-title" class="students-title">Liste des élèves</h2>
-        <p class="students-subtitle">
-          Consulter, ajouter et modifier les élèves de la classe.
-        </p>
-      </section>
 
       <div v-if="filteredStudents.length > 0" class="students-list" role="list">
         <div
@@ -46,7 +58,6 @@
                 <span class="first-name">{{ student.firstName }}</span>
                 <span class="last-name">{{ student.lastName }}</span>
               </div>
-              <div class="student-meta">Élève</div>
             </div>
           </div>
           <div class="student-trailing">
@@ -139,27 +150,6 @@
           </div>
         </div>
       </ContentSection>
-
-      <ContentSection
-        v-if="currentStudent.firstName.trim() && currentStudent.lastName.trim()"
-        title="Aperçu"
-        description="Voici comment l'élève apparaîtra dans la liste :"
-      >
-        <div class="preview-container">
-          <div class="student-preview">
-            <div class="student-avatar" aria-hidden="true">
-              <span class="material-symbols-outlined">person</span>
-            </div>
-            <div class="student-details">
-              <div class="student-name">
-                <span class="first-name">{{ currentStudent.firstName }}</span>
-                <span class="last-name">{{ currentStudent.lastName }}</span>
-              </div>
-              <div class="student-meta">Élève</div>
-            </div>
-          </div>
-        </div>
-      </ContentSection>
     </FullscreenDialog>
 
     <!-- Material 3 Dialog - Delete Confirmation -->
@@ -202,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
 
@@ -210,11 +200,32 @@ import { useStudentsStore } from '../stores/studentsStore'
 const FullscreenDialog = defineAsyncComponent(() => import('@/components/FullscreenDialog.vue'))
 const ContentSection = defineAsyncComponent(() => import('@/components/ContentSection.vue'))
 
-// Import lightweight components normally
-import TopAppBar from '@/components/TopAppBar.vue'
+// Import router for navigation
+import { useRouter } from 'vue-router'
+
+// Get router instance
+const $router = useRouter()
 
 // Utiliser directement le store réactif global
 const studentsStore = useStudentsStore()
+
+// Scroll state for app bar elevation
+const isScrolled = ref(false)
+
+// Handle scroll events
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0
+}
+
+// Set up scroll listener
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll() // Check initial scroll position
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 
 // État réactif local
 const searchTerm = ref('')
@@ -332,6 +343,8 @@ const closeModal = () => {
   flex-direction: column;
   min-height: 100vh;
   background: var(--md-sys-color-surface);
+  /* Add top padding to account for fixed app bar */
+  padding-top: 64px;
 }
 
 .students-content {
@@ -339,61 +352,123 @@ const closeModal = () => {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 24px 120px;
+  padding: 24px 24px 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
-.students-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
-.students-title {
-  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
-  font-size: var(--md-sys-typescale-headline-small-size, 24px);
-  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
-  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
-  color: var(--md-sys-color-on-surface, #1c1b1f);
-  margin: 0;
-}
-
-.students-subtitle {
-  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-medium-size, 14px);
-  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
-  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
-  margin: 0;
-  max-width: 640px;
-}
-
-.app-bar-search {
+/* Material 3 Search App Bar */
+.search-app-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
+  min-height: 64px;
+  padding: 8px 4px;
+  /* Initially same color as background */
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  /* No initial shadow/border */
+}
+
+/* Elevated state on scroll - contrasting color and elevation */
+.search-app-bar--elevated {
+  background: var(--md-sys-color-surface-container);
+  box-shadow: var(--md-sys-elevation-level2,
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3)
+  );
+}
+
+/* Leading section with logo */
+.search-app-bar__leading {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.app-logo-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
   height: 48px;
-  border-radius: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-sys-color-primary, #6750a4);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  position: relative;
+}
+
+.app-logo-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--md-sys-color-primary);
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.app-logo-button:hover::before {
+  opacity: 0.08;
+}
+
+.app-logo-button:focus {
+  outline: none;
+}
+
+.app-logo-button:focus::before {
+  opacity: 0.12;
+}
+
+.app-logo-icon {
+  font-size: 28px;
+  z-index: 1;
+}
+
+/* Center search field */
+.search-app-bar__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+  border-radius: 28px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.search-field:focus-within {
   background: var(--md-sys-color-surface-container-high, #ece6f0);
-  border: 1px solid var(--md-sys-color-outline-variant, #dbe4e4);
-  box-shadow: var(--md-sys-elevation-level1, 0 1px 2px rgba(0, 0, 0, 0.12));
-  width: clamp(220px, 40vw, 360px);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
 }
 
-.app-bar-search:focus-within {
-  border-color: var(--md-sys-color-primary, #6750a4);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent);
-}
-
-.app-bar-search-icon {
+.search-field__icon {
   color: var(--md-sys-color-on-surface-variant, #49454f);
-  font-size: 20px;
+  font-size: 24px;
+  flex-shrink: 0;
 }
 
-.app-bar-search-input {
+.search-field__input {
   flex: 1;
   border: none;
   background: transparent;
@@ -401,15 +476,174 @@ const closeModal = () => {
   font-size: var(--md-sys-typescale-body-large-size, 16px);
   line-height: var(--md-sys-typescale-body-large-line-height, 24px);
   color: var(--md-sys-color-on-surface, #1c1b1f);
-}
-
-.app-bar-search-input:focus {
   outline: none;
 }
 
-.app-bar-search-input::placeholder {
+.search-field__input::placeholder {
   color: var(--md-sys-color-on-surface-variant, #49454f);
-  opacity: 0.7;
+}
+
+.search-field__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-field__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  flex-shrink: 0;
+}
+
+.search-field__clear:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.search-field__clear .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* Trailing section with actions */
+.search-app-bar__trailing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  position: relative;
+}
+
+.icon-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--md-sys-color-on-surface-variant);
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.icon-button:hover::before {
+  opacity: 0.08;
+}
+
+.icon-button:focus {
+  outline: none;
+}
+
+.icon-button:focus::before {
+  opacity: 0.12;
+}
+
+.icon-button .material-symbols-outlined {
+  font-size: 24px;
+  z-index: 1;
+}
+
+/* User menu button styling */
+.user-menu-button {
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
+.user-menu-button .material-symbols-outlined {
+  font-size: 32px;
+}
+
+/* Large screens - show all trailing icons */
+@media (min-width: 1280px) {
+  .search-app-bar__trailing {
+    gap: 8px;
+  }
+}
+
+/* Medium screens - limit trailing icons */
+@media (max-width: 1279px) and (min-width: 768px) {
+  .search-app-bar__trailing .icon-button:nth-child(n+3) {
+    display: none;
+  }
+}
+
+/* Small screens - responsive layout */
+@media (max-width: 767px) {
+  .search-app-bar {
+    padding: 8px 0;
+  }
+
+  .search-app-bar__leading {
+    padding: 0 8px;
+  }
+
+  .search-app-bar__center {
+    padding: 0 8px;
+  }
+
+  .search-app-bar__trailing {
+    padding: 0 8px;
+  }
+
+  .search-app-bar__trailing .icon-button:not(:first-child) {
+    display: none;
+  }
+
+  .app-logo-button,
+  .icon-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .app-logo-icon {
+    font-size: 24px;
+  }
+
+  .icon-button .material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  .search-field {
+    height: 40px;
+    padding: 0 12px;
+  }
+
+  .search-field__icon {
+    font-size: 20px;
+  }
+
+  .search-field__input {
+    font-size: 14px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .search-app-bar__center {
+    padding: 0 4px;
+  }
+
+  .search-field {
+    padding: 0 8px;
+    gap: 8px;
+  }
 }
 
 .students-list {
@@ -426,7 +660,7 @@ const closeModal = () => {
   padding: 16px 20px;
   min-height: 76px;
   border-radius: 20px;
-  background: var(--md-sys-color-surface-variant, #e7e0ec);
+  background: var(--md-sys-color-surface, #ffffff);
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   transition:
     background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
@@ -486,8 +720,7 @@ const closeModal = () => {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
 }
 
 .student-name {
@@ -514,14 +747,6 @@ const closeModal = () => {
   font-weight: var(--md-sys-typescale-body-large-weight-prominent, 500);
 }
 
-.student-meta {
-  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
-  font-size: var(--md-sys-typescale-body-medium-size, 14px);
-  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
-  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
-  color: var(--md-sys-color-on-surface-variant, #49454f);
-}
-
 .empty-state {
   font-family: var(--md-sys-typescale-body-large-font, 'Roboto');
   font-size: var(--md-sys-typescale-body-large-size, 16px);
@@ -531,13 +756,10 @@ const closeModal = () => {
   margin-top: 24px;
 }
 
-.students-page :deep(.md-top-app-bar__trailing) {
-  justify-content: flex-end;
-}
 
 @media (max-width: 900px) {
   .students-content {
-    padding: 24px 16px 112px;
+    padding: 24px 16px 32px;
   }
 
   .students-list {
@@ -545,32 +767,10 @@ const closeModal = () => {
   }
 }
 
-@media (max-width: 720px) {
-  .students-page :deep(.md-top-app-bar) {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding-bottom: 16px;
-  }
-
-  .students-page :deep(.md-top-app-bar__title) {
-    align-items: flex-start;
-    text-align: left;
-    width: 100%;
-  }
-
-  .students-page :deep(.md-top-app-bar__trailing) {
-    width: 100%;
-    justify-content: stretch;
-  }
-
-  .app-bar-search {
-    width: 100%;
-  }
-}
 
 @media (max-width: 480px) {
   .students-content {
-    padding: 16px 16px 104px;
+    padding: 16px 16px 32px;
   }
 
   .student-item {
@@ -1264,38 +1464,14 @@ const closeModal = () => {
   gap: 24px;
 }
 
-/* Preview Container */
-.preview-container {
-  background: var(--md-sys-color-surface);
-  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
-  border-radius: var(--md-sys-shape-corner-medium, 12px);
-  padding: 24px;
-}
-
-/* Student Preview */
-.student-preview {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  background: var(--md-sys-color-surface-variant, #e7e0ec);
-  border-radius: 20px;
-  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
-}
-
-/* Responsive pour student preview */
+/* Responsive pour student item */
 @media (max-width: 840px) {
   .student-item {
     padding: 16px 16px;
   }
 
-  .student-content,
-  .student-preview {
+  .student-content {
     gap: 12px;
-  }
-
-  .student-preview {
-    padding: 14px 16px;
   }
 
   .student-avatar {

@@ -33,10 +33,11 @@ onMounted(() => {
 
 <style>
 #app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 80px; /* Space for bottom navigation */
+  padding-bottom: 140px; /* Ensure content is not hidden by bottom navigation */
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
 /* Large Screen Layout - Navigation Rail */
@@ -49,6 +50,19 @@ onMounted(() => {
 
   #app.rail-expanded {
     padding-left: 185px;
+  }
+}
+
+/* Responsive bottom padding for different screen sizes */
+@media (max-width: 599px) {
+  #app {
+    padding-bottom: 120px; /* Smaller padding for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  #app {
+    padding-bottom: 100px; /* Even smaller padding for mobile */
   }
 }
 

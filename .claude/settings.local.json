@@ -46,7 +46,9 @@
       "WebFetch(domain:m3.material.io)",
       "WebFetch(domain:github.com)",
       "mcp__supabase__list_migrations",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

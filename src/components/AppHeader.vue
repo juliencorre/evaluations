@@ -866,7 +866,7 @@ watch(isExpanded, (expanded) => {
   visibility: visible;
 }
 
-/* Responsive Design */
+/* Responsive Design - Medium screens */
 @media (min-width: 600px) and (max-width: 1439px) {
   .nav-destinations {
     gap: 16px;
@@ -880,8 +880,36 @@ watch(isExpanded, (expanded) => {
     min-width: 104px;
     --nav-item-padding-inline: 16px;
     --nav-item-padding-block: 8px;
-    --nav-indicator-left: calc(var(--nav-item-padding-inline) + (var(--nav-icon-size) / 2));
-    --nav-indicator-width: 64px;
+    /* Active indicator covers icon and text */
+    --nav-indicator-left: 50%;
+    --nav-indicator-width: calc(100% - 16px);
+    --nav-indicator-height: 40px;
+    --nav-indicator-translate-x: -50%;
+  }
+
+  /* Active indicator positioned behind icon and text */
+  .nav-indicator {
+    top: 50%;
+    transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(0);
+    border-radius: 20px;
+  }
+
+  .nav-destination.active .nav-indicator {
+    transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(1);
+  }
+
+  /* Active state colors for icon and text on medium screens */
+  .nav-destination.active {
+    color: var(--md-sys-color-on-secondary-container);
+  }
+
+  .nav-destination.active .nav-icon {
+    color: var(--md-sys-color-on-secondary-container);
+  }
+
+  .nav-destination.active .nav-label {
+    color: var(--md-sys-color-on-secondary-container);
+    font-weight: 700;
   }
 
   .nav-label {

@@ -1,11 +1,24 @@
 <template>
   <div class="competencies-page">
-    <!-- Top App Bar -->
-    <TopAppBar
-      :title="currentPageTitle"
-      :subtitle="currentPageDescription"
-      variant="medium"
-    />
+    <!-- Center-aligned App Bar -->
+    <header class="app-bar" :class="{ 'app-bar--elevated': isScrolled }">
+      <div class="app-bar__leading">
+        <!-- Empty leading section for balance -->
+      </div>
+
+      <div class="app-bar__title">
+        <h1 class="app-bar__title-text">Compétences</h1>
+      </div>
+
+      <div class="app-bar__trailing">
+        <button class="icon-button" aria-label="Rechercher">
+          <span class="material-symbols-outlined">search</span>
+        </button>
+        <button class="icon-button user-menu-button" aria-label="Menu utilisateur">
+          <span class="material-symbols-outlined">account_circle</span>
+        </button>
+      </div>
+    </header>
 
     <!-- Material 3 Tabs -->
     <div class="tabs-container">
@@ -28,26 +41,23 @@
 
       <!-- Tree View -->
       <div v-if="activeView === 'tree'" class="page-content">
-        <div class="content-card">
-          <div class="card-header">
-            <h2 class="card-title">Référentiels de compétences</h2>
-          </div>
+        <h2 class="page-title">Référentiels de compétences</h2>
 
-          <!-- Fonction de recherche temporairement désactivée -->
-          <!--
-          <div class="search-bar">
-            <span class="material-symbols-outlined">search</span>
-            <input
-              v-model="searchTerm"
-              type="text"
-              placeholder="Rechercher dans les référentiels..."
-              class="search-input"
-            />
-          </div>
-          -->
+        <!-- Fonction de recherche temporairement désactivée -->
+        <!--
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input
+            v-model="searchTerm"
+            type="text"
+            placeholder="Rechercher dans les référentiels..."
+            class="search-input"
+          />
+        </div>
+        -->
 
-          <div class="competencies-tree">
-        <!-- Domain Level -->
+        <div class="competencies-tree">
+          <!-- Domain Level -->
         <div
           v-for="(domain, domainIndex) in frameworkWithDragDrop.domains"
           :key="domain.id"
@@ -333,11 +343,8 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-
-  <!-- Full-screen Dialog pour les compétences -->
+      <!-- Full-screen Dialog pour les compétences -->
     <div v-if="showAddModal || showEditModal" class="fullscreen-dialog">
       <!-- App Bar -->
       <div class="fullscreen-app-bar">
@@ -494,167 +501,12 @@
         </div>
       </div>
     </div>
-
-    <!-- Full-screen Dialog pour les types de résultats -->
-    <div v-if="showResultTypeModal || showEditResultTypeModal" class="fullscreen-dialog">
-      <!-- App Bar -->
-      <div class="fullscreen-app-bar">
-        <div class="app-bar-leading">
-          <button class="icon-btn" @click="closeResultTypeModal">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <div class="app-bar-headline">
-          <h1 class="app-bar-title">{{ showEditResultTypeModal ? 'Modifier le type' : 'Nouveau type' }}</h1>
-        </div>
-        <div class="app-bar-trailing">
-          <button class="text-button app-bar-action" :disabled="!currentResultType.name.trim()" @click="saveResultType">
-            {{ showEditResultTypeModal ? 'Modifier' : 'Créer' }}
-          </button>
-        </div>
       </div>
-
-      <!-- Content -->
-      <div class="fullscreen-content">
-        <div class="fullscreen-body">
-          <div class="content-section">
-            <h2 class="section-headline">Informations générales</h2>
-            <p class="section-supporting-text">
-              {{ showEditResultTypeModal ? 'Modifiez les informations du type de résultat.' : 'Définissez un nouveau type de résultat pour l\'évaluation des compétences.' }}
-            </p>
-
-            <div class="form-fields">
-              <div class="text-field-outlined">
-                <input
-                  id="resultTypeName"
-                  v-model="currentResultType.name"
-                  type="text"
-                  required
-                  class="text-field-input-outlined"
-                  placeholder=" "
-                />
-                <label for="resultTypeName" class="text-field-label-outlined">Nom du type *</label>
-                <div class="text-field-outline">
-                  <div class="text-field-outline-start"></div>
-                  <div class="text-field-outline-notch">
-                    <div class="text-field-outline-leading"></div>
-                    <div class="text-field-outline-trailing"></div>
-                  </div>
-                  <div class="text-field-outline-end"></div>
-                </div>
-              </div>
-
-              <div class="result-values-section">
-                <h3 class="section-subtitle">Valeurs possibles *</h3>
-                <div class="values-input-list">
-                  <div v-for="(value, index) in currentResultType.config.values" :key="index" class="value-input-row">
-                    <div class="text-field-outlined value-label-field">
-                      <input
-                        :id="`valueLabel-${index}`"
-                        v-model="value.label"
-                        type="text"
-                        required
-                        class="text-field-input-outlined"
-                        placeholder=" "
-                      >
-                      <label :for="`valueLabel-${index}`" class="text-field-label-outlined">Libellé</label>
-                      <div class="text-field-outline">
-                        <div class="text-field-outline-start"></div>
-                        <div class="text-field-outline-notch">
-                          <div class="text-field-outline-leading"></div>
-                          <div class="text-field-outline-trailing"></div>
-                        </div>
-                        <div class="text-field-outline-end"></div>
-                      </div>
-                    </div>
-                    <div class="text-field-outlined pivot-value-field">
-                      <input
-                        :id="`pivotValue-${index}`"
-                        v-model.number="value.pivot_value"
-                        type="number"
-                        min="0"
-                        max="10"
-                        step="0.5"
-                        required
-                        class="text-field-input-outlined"
-                        placeholder=" "
-                      >
-                      <label :for="`pivotValue-${index}`" class="text-field-label-outlined">Note /10</label>
-                      <div class="text-field-outline">
-                        <div class="text-field-outline-start"></div>
-                        <div class="text-field-outline-notch">
-                          <div class="text-field-outline-leading"></div>
-                          <div class="text-field-outline-trailing"></div>
-                        </div>
-                        <div class="text-field-outline-end"></div>
-                      </div>
-                    </div>
-                    <button class="icon-btn remove-value-btn" @click="removeValue(index)">
-                      <span class="material-symbols-outlined">delete</span>
-                    </button>
-                  </div>
-                  <button class="text-button add-value-btn" @click="addValue">
-                    <span class="material-symbols-outlined">add</span>
-                    Ajouter une valeur
-                  </button>
-                </div>
-                <div class="field-helper-text">Définissez chaque valeur avec son équivalent sur une échelle de 0 à 10</div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="currentResultType.config.values.length > 0" class="content-section">
-            <h2 class="section-headline">Aperçu</h2>
-            <p class="section-supporting-text">Voici comment apparaîtront les valeurs dans l'interface d'évaluation :</p>
-
-            <div class="preview-container">
-              <div class="preview-values">
-                <span v-for="value in currentResultType.config.values" :key="value.value || value.label" class="preview-chip">
-                  {{ value.label || value }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de suppression pour les types de résultats -->
-    <div v-if="showDeleteResultTypeModal" class="dialog-scrim" @click="closeResultTypeModal">
-      <div class="dialog-container alert-dialog" @click.stop>
-        <div class="dialog-header">
-          <span class="dialog-icon alert-icon">
-            <span class="material-symbols-outlined">warning</span>
-          </span>
-          <h2 class="dialog-headline">Supprimer le type de résultat</h2>
-        </div>
-
-        <div class="dialog-content">
-          <p class="dialog-supporting-text">
-            Êtes-vous sûr de vouloir supprimer le type de résultat "{{ resultTypeToDelete?.name }}" ?
-          </p>
-          <p class="dialog-supporting-text warning-text">
-            Cette action supprimera définitivement ce type de résultat. Les sous-compétences utilisant ce type devront être mises à jour.
-          </p>
-        </div>
-
-        <div class="dialog-actions">
-          <button type="button" class="text-button" @click="closeResultTypeModal">Annuler</button>
-          <button type="button" class="filled-button destructive" @click="confirmDeleteResultType">
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
 
       <!-- Types View -->
       <div v-if="activeView === 'types'" class="page-content">
-        <div class="content-card">
-          <div class="card-header">
-            <h2 class="card-title">Types de résultats disponibles</h2>
-          </div>
-          <div class="card-content">
-            <div class="types-grid">
+        <h2 class="page-title">Types de résultats disponibles</h2>
+        <div class="types-grid">
               <div v-for="type in resultTypes" :key="type.id" class="type-card">
                 <div class="type-header">
                   <h3>{{ type.name }}</h3>
@@ -684,38 +536,181 @@
                 </div>
               </div>
             </div>
+
+        <!-- Full-screen Dialog pour les types de résultats -->
+        <div v-if="showResultTypeModal || showEditResultTypeModal" class="fullscreen-dialog">
+          <!-- App Bar -->
+          <div class="fullscreen-app-bar">
+            <div class="app-bar-leading">
+              <button class="icon-btn" @click="closeResultTypeModal">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="app-bar-headline">
+              <h1 class="app-bar-title">{{ showEditResultTypeModal ? 'Modifier le type' : 'Nouveau type' }}</h1>
+            </div>
+            <div class="app-bar-trailing">
+              <button class="text-button app-bar-action" :disabled="!currentResultType.name.trim()" @click="saveResultType">
+                {{ showEditResultTypeModal ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="fullscreen-content">
+            <div class="fullscreen-body">
+              <div class="content-section">
+                <h2 class="section-headline">Informations générales</h2>
+                <p class="section-supporting-text">
+                  {{ showEditResultTypeModal ? 'Modifiez les informations du type de résultat.' : 'Définissez un nouveau type de résultat pour l\'évaluation des compétences.' }}
+                </p>
+
+                <div class="form-fields">
+                  <div class="text-field-outlined">
+                    <input
+                      id="resultTypeName"
+                      v-model="currentResultType.name"
+                      type="text"
+                      required
+                      class="text-field-input-outlined"
+                      placeholder=" "
+                    />
+                    <label for="resultTypeName" class="text-field-label-outlined">Nom du type *</label>
+                    <div class="text-field-outline">
+                      <div class="text-field-outline-start"></div>
+                      <div class="text-field-outline-notch">
+                        <div class="text-field-outline-leading"></div>
+                        <div class="text-field-outline-trailing"></div>
+                      </div>
+                      <div class="text-field-outline-end"></div>
+                    </div>
+                  </div>
+
+                  <div class="result-values-section">
+                    <h3 class="section-subtitle">Valeurs possibles *</h3>
+                    <div class="values-input-list">
+                      <div v-for="(value, index) in currentResultType.config.values" :key="index" class="value-input-row">
+                        <div class="text-field-outlined value-label-field">
+                          <input
+                            :id="`valueLabel-${index}`"
+                            v-model="value.label"
+                            type="text"
+                            required
+                            class="text-field-input-outlined"
+                            placeholder=" "
+                          >
+                          <label :for="`valueLabel-${index}`" class="text-field-label-outlined">Libellé</label>
+                          <div class="text-field-outline">
+                            <div class="text-field-outline-start"></div>
+                            <div class="text-field-outline-notch">
+                              <div class="text-field-outline-leading"></div>
+                              <div class="text-field-outline-trailing"></div>
+                            </div>
+                            <div class="text-field-outline-end"></div>
+                          </div>
+                        </div>
+                        <div class="text-field-outlined pivot-value-field">
+                          <input
+                            :id="`pivotValue-${index}`"
+                            v-model.number="value.pivot_value"
+                            type="number"
+                            min="0"
+                            max="10"
+                            step="0.5"
+                            required
+                            class="text-field-input-outlined"
+                            placeholder=" "
+                          >
+                          <label :for="`pivotValue-${index}`" class="text-field-label-outlined">Note /10</label>
+                          <div class="text-field-outline">
+                            <div class="text-field-outline-start"></div>
+                            <div class="text-field-outline-notch">
+                              <div class="text-field-outline-leading"></div>
+                              <div class="text-field-outline-trailing"></div>
+                            </div>
+                            <div class="text-field-outline-end"></div>
+                          </div>
+                        </div>
+                        <button class="icon-btn remove-value-btn" @click="removeValue(index)">
+                          <span class="material-symbols-outlined">delete</span>
+                        </button>
+                      </div>
+                      <button class="text-button add-value-btn" @click="addValue">
+                        <span class="material-symbols-outlined">add</span>
+                        Ajouter une valeur
+                      </button>
+                    </div>
+                    <div class="field-helper-text">Définissez chaque valeur avec son équivalent sur une échelle de 0 à 10</div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="currentResultType.config.values.length > 0" class="content-section">
+                <h2 class="section-headline">Aperçu</h2>
+                <p class="section-supporting-text">Voici comment apparaîtront les valeurs dans l'interface d'évaluation :</p>
+
+                <div class="preview-container">
+                  <div class="preview-values">
+                    <span v-for="value in currentResultType.config.values" :key="value.value || value.label" class="preview-chip">
+                      {{ value.label || value }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- Modal de suppression pour les types de résultats -->
+        <div v-if="showDeleteResultTypeModal" class="dialog-scrim" @click="closeResultTypeModal">
+          <div class="dialog-container alert-dialog" @click.stop>
+            <div class="dialog-header">
+              <span class="dialog-icon alert-icon">
+                <span class="material-symbols-outlined">warning</span>
+              </span>
+              <h2 class="dialog-headline">Supprimer le type de résultat</h2>
+            </div>
+
+            <div class="dialog-content">
+              <p class="dialog-supporting-text">
+                Êtes-vous sûr de vouloir supprimer le type de résultat "{{ resultTypeToDelete?.name }}" ?
+              </p>
+              <p class="dialog-supporting-text warning-text">
+                Cette action supprimera définitivement ce type de résultat. Les sous-compétences utilisant ce type devront être mises à jour.
+              </p>
+            </div>
+
+            <div class="dialog-actions">
+              <button type="button" class="text-button" @click="closeResultTypeModal">Annuler</button>
+              <button type="button" class="filled-button destructive" @click="confirmDeleteResultType">
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Import/Export View -->
       <div v-if="activeView === 'import'" class="page-content">
-        <!-- Import Card -->
-        <div class="content-card">
-          <div class="card-header">
-            <h2 class="card-title">Importer un référentiel</h2>
-          </div>
-          <div class="card-content">
-            <p class="section-description">Importez un fichier JSON contenant un référentiel de compétences</p>
-            <div class="import-zone">
-              <input type="file" accept=".json" @change="handleFileImport" />
-            </div>
+        <!-- Import Section -->
+        <div class="import-section">
+          <h2 class="page-title">Importer un référentiel</h2>
+          <p class="section-description">Importez un fichier JSON contenant un référentiel de compétences</p>
+          <div class="import-zone">
+            <input type="file" accept=".json" @change="handleFileImport" />
           </div>
         </div>
 
-        <!-- Export Card -->
-        <div class="content-card">
-          <div class="card-header">
-            <h2 class="card-title">Exporter le référentiel</h2>
-          </div>
-          <div class="card-content">
-            <p class="section-description">Exportez le référentiel actuel au format JSON</p>
-            <div class="card-actions">
-              <button class="btn-primary" @click="exportFramework">
-                <span class="material-symbols-outlined">download</span>
-                Exporter en JSON
-              </button>
-            </div>
+        <!-- Export Section -->
+        <div class="export-section">
+          <h2 class="page-title">Exporter le référentiel</h2>
+          <p class="section-description">Exportez le référentiel actuel au format JSON</p>
+          <div class="card-actions">
+            <button class="btn-primary" @click="exportFramework">
+              <span class="material-symbols-outlined">download</span>
+              Exporter en JSON
+            </button>
           </div>
         </div>
       </div>
@@ -744,12 +739,9 @@
 
 /* eslint-disable no-undef */
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useCompetencyFrameworkStore } from '../stores/studentsStore'
 import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
-
-// Import lightweight components normally
-import TopAppBar from '@/components/TopAppBar.vue'
 import type { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 
 // Lazy load Supabase service only when needed
@@ -823,6 +815,24 @@ interface TabItem {
   value: ActiveView
 }
 
+// Scroll state for app bar elevation
+const isScrolled = ref(false)
+
+// Handle scroll events
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0
+}
+
+// Set up scroll listener
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll() // Check initial scroll position
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
 const activeView = ref<ActiveView>('tree')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
@@ -853,29 +863,6 @@ const isDragging = ref(false)
 // État pour les types de résultats
 const resultTypes = ref<ResultTypeConfig[]>([])
 
-// Functions for page header
-
-function getPageTitle(): string {
-  switch (activeView.value) {
-    case 'tree': return 'Gestion des Compétences';
-    case 'types': return 'Types de Résultats';
-    case 'import': return 'Import / Export';
-    default: return 'Gestion des Compétences';
-  }
-}
-
-function getPageDescription(): string {
-  switch (activeView.value) {
-    case 'tree': return 'Organisez et structurez le référentiel de compétences';
-    case 'types': return 'Gérez les différents types de résultats pour l\'évaluation';
-    case 'import': return 'Importez ou exportez votre référentiel de compétences';
-    default: return '';
-  }
-}
-
-// Computed properties for the page
-const currentPageTitle = computed(() => getPageTitle())
-const currentPageDescription = computed(() => getPageDescription())
 
 const tabItems = computed<TabItem[]>(() => [
   {
@@ -1951,14 +1938,153 @@ function exportFramework() {
 </script>
 
 <style scoped>
-/* Réutilisation des styles de la page des élèves avec adaptations */
+/* Page container */
 .competencies-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: var(--md-sys-color-surface);
+  min-height: 100vh;
+  background: var(--md-sys-color-surface);
+  /* Add top padding to account for fixed app bar */
+  padding-top: 64px;
+}
+
+/* Material 3 Center-aligned App Bar */
+.app-bar {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  padding: 0 4px;
+  /* Initially same color as background */
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  /* No initial shadow/border */
+}
+
+/* Elevated state on scroll - contrasting color and elevation */
+.app-bar--elevated {
+  background: var(--md-sys-color-surface-container);
+  box-shadow: var(--md-sys-elevation-level2,
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3)
+  );
+}
+
+/* App bar sections */
+.app-bar__leading {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 48px; /* Balance trailing section */
+}
+
+.app-bar__title {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.app-bar__title-text {
+  font-family: var(--md-sys-typescale-title-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-large-size, 22px);
+  font-weight: var(--md-sys-typescale-title-large-weight, 400);
+  line-height: var(--md-sys-typescale-title-large-line-height, 28px);
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+  text-align: center;
+}
+
+.app-bar__trailing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
 }
+
+.icon-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--md-sys-color-on-surface-variant);
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.icon-button:hover::before {
+  opacity: 0.08;
+}
+
+.icon-button:focus {
+  outline: none;
+}
+
+.icon-button:focus::before {
+  opacity: 0.12;
+}
+
+.icon-button .material-symbols-outlined {
+  font-size: 24px;
+  z-index: 1;
+}
+
+/* User menu button styling */
+.user-menu-button {
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
+.user-menu-button .material-symbols-outlined {
+  font-size: 32px;
+}
+
+/* Responsive design */
+@media (max-width: 599px) {
+  .app-bar {
+    padding: 0;
+  }
+
+  .app-bar__title-text {
+    font-size: var(--md-sys-typescale-title-medium-size, 16px);
+    line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
+  }
+
+  .icon-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-button .material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  .user-menu-button .material-symbols-outlined {
+    font-size: 28px;
+  }
+}
+/* Réutilisation des styles de la page des élèves avec adaptations */
 
 /* Main Content */
 .main-content {
@@ -2122,6 +2248,27 @@ function exportFramework() {
   overflow-y: auto;
   padding: 24px 32px;
   background-color: var(--md-sys-color-surface);
+}
+
+/* Page title styles */
+.page-title {
+  font-family: var(--md-sys-typescale-headline-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-headline-small-size, 24px);
+  font-weight: var(--md-sys-typescale-headline-small-weight, 400);
+  line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  margin: 0 0 24px 0;
+}
+
+/* Import/Export sections */
+.import-section,
+.export-section {
+  margin-bottom: 32px;
+}
+
+.import-section:last-child,
+.export-section:last-child {
+  margin-bottom: 0;
 }
 
 /* Unified Card Styles for all views */

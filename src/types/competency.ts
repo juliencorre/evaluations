@@ -14,16 +14,17 @@ export interface DragDropState {
 }
 
 // Result type configuration
-export interface ResultValue {
+export interface ResultTypeConfigValue {
   label: string
-  value?: string
-  pivot_value?: number
+  value: string
+  pivot_value: number
 }
 
 export interface ResultTypeConfig extends BaseEntity {
+  type?: 'scale' | 'boolean' | 'custom'
   config: {
     type?: 'scale' | 'boolean' | 'custom'
-    values: ResultValue[]
+    values: ResultTypeConfigValue[]
   }
 }
 

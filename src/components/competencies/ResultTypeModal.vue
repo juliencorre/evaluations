@@ -50,7 +50,7 @@ import ResultTypeForm from './ResultTypeForm.vue'
 import type { ResultTypeConfig } from '@/types/competency'
 
 interface Emits {
-  (e: 'save', data: { type: ResultTypeConfig; isEditing: boolean }): void
+  (e: 'save', data: { type: Partial<ResultTypeConfig>; isEditing: boolean }): void
   (e: 'delete', type: ResultTypeConfig): void
 }
 
@@ -62,18 +62,20 @@ const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 
 // Form data
-const addFormData = ref<ResultTypeConfig>({
+const addFormData = ref<Partial<ResultTypeConfig>>({
   id: '',
   name: '',
+  type: 'scale',
   config: {
     type: 'scale',
     values: []
   }
 })
 
-const editFormData = ref<ResultTypeConfig>({
+const editFormData = ref<Partial<ResultTypeConfig>>({
   id: '',
   name: '',
+  type: 'scale',
   config: {
     type: 'scale',
     values: []
@@ -103,6 +105,7 @@ const openAddModal = () => {
   addFormData.value = {
     id: '',
     name: '',
+    type: 'scale',
     config: {
       type: 'scale',
       values: []
@@ -115,6 +118,7 @@ const openEditModal = (type: ResultTypeConfig) => {
   editFormData.value = {
     id: type.id || '',
     name: type.name || '',
+    type: type.type || 'scale',
     config: {
       type: type.config?.type || 'scale',
       values: type.config?.values ? [...type.config.values] : []

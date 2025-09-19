@@ -115,7 +115,7 @@ import ContentSection from '@/components/common/ContentSection.vue'
 import type { ResultTypeConfig } from '@/types/competency'
 
 interface Props {
-  modelValue: Partial<ResultTypeConfig>
+  modelValue?: Partial<ResultTypeConfig>
   editing?: boolean
 }
 
@@ -207,9 +207,14 @@ const removeValue = (index: number) => {
 const initializeForm = () => {
   if (props.modelValue) {
     localData.value = {
-      ...props.modelValue,
+      id: props.modelValue.id || '',
+      name: props.modelValue.name || '',
+      description: props.modelValue.description,
+      created_at: props.modelValue.created_at,
+      updated_at: props.modelValue.updated_at,
+      type: props.modelValue.type || 'scale',
       config: {
-        ...props.modelValue.config,
+        type: props.modelValue.config?.type || 'scale',
         values: props.modelValue.config?.values ? [...props.modelValue.config.values] : []
       }
     }
@@ -223,7 +228,19 @@ const initializeForm = () => {
 
 // Emit changes manually when needed
 const emitChange = () => {
-  emit('update:modelValue', { ...localData.value })
+  // Ensure all required fields have valid values
+  const cleanedData = {
+    ...localData.value,
+    config: {
+      ...localData.value.config,
+      values: localData.value.config.values.map(v => ({
+        label: v.label || '',
+        value: v.value || '',
+        pivot_value: v.pivot_value || 0
+      }))
+    }
+  }
+  emit('update:modelValue', cleanedData)
 }
 
 // No watchers to avoid recursion

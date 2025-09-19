@@ -263,15 +263,15 @@ const handleModalDelete = async (data: { type: string; item: any; context?: any 
 }
 
 // Result type modal event handlers
-const handleResultTypeSave = async (data: { type: ResultTypeConfig; isEditing: boolean }) => {
+const handleResultTypeSave = async (data: { type: Partial<ResultTypeConfig>; isEditing: boolean }) => {
   console.log('Result type save:', data)
   try {
-    if (data.isEditing) {
-      await resultTypesService.updateResultType(data.type.id, data.type)
+    if (data.isEditing && data.type.id) {
+      await resultTypesService.updateResultType(data.type.id, data.type as ResultTypeConfig)
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...resultTypeWithoutId } = data.type
-      await resultTypesService.createResultType(resultTypeWithoutId)
+      await resultTypesService.createResultType(resultTypeWithoutId as Omit<ResultTypeConfig, 'id'>)
     }
     // Reload result types
     resultTypes.value = await resultTypesService.getResultTypes()

@@ -269,6 +269,7 @@ const handleResultTypeSave = async (data: { type: ResultTypeConfig; isEditing: b
     if (data.isEditing) {
       await resultTypesService.updateResultType(data.type.id, data.type)
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...resultTypeWithoutId } = data.type
       await resultTypesService.createResultType(resultTypeWithoutId)
     }

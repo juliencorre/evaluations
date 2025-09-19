@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
 import ContentSection from '@/components/common/ContentSection.vue'
 import type { ResultTypeConfig } from '@/types/competency'

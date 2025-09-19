@@ -275,8 +275,7 @@ const handleResultTypeSave = async (data: { type: Partial<ResultTypeConfig>; isE
         ...resultTypeWithoutId,
         type: resultTypeWithoutId.type || 'scale',
         config: {
-          ...resultTypeWithoutId.config,
-          type: resultTypeWithoutId.config?.type || 'scale'
+          values: resultTypeWithoutId.config?.values || []
         }
       }
       await resultTypesService.createResultType(typeToCreate as Omit<ResultTypeConfig, 'id'>)

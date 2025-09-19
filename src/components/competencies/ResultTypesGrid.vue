@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ResultTypeConfig } from '@/types/competency'
+import type { ResultTypeConfig } from '@/types/evaluation'
 
 interface Props {
   resultTypes: ResultTypeConfig[]

@@ -280,24 +280,25 @@ const handleDrop = (event: DragEvent, item: unknown, type: string, index: number
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tree-node:hover {
+/* Apply hover effect to node-content instead of tree-node to avoid propagation */
+.node-content:hover {
   background: var(--md-sys-color-surface-container-highest, #e6e0e9);
 }
 
 .domain-node {
-  border-left: 4px solid var(--md-sys-color-primary, #6750a4);
+  /* Removed border-left for cleaner design */
 }
 
 .field-node {
-  border-left: 4px solid var(--md-sys-color-secondary, #625b71);
+  /* Removed border-left for cleaner design */
 }
 
 .competency-node {
-  border-left: 4px solid var(--md-sys-color-tertiary, #7d5260);
+  /* Removed border-left for cleaner design */
 }
 
 .specific-competency-node {
-  border-left: 4px solid var(--md-sys-color-outline, #79747e);
+  /* Removed border-left for cleaner design */
 }
 
 .node-content {
@@ -349,7 +350,8 @@ const handleDrop = (event: DragEvent, item: unknown, type: string, index: number
   transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tree-node:hover .node-actions {
+/* Show node actions when hovering over node-content */
+.node-content:hover .node-actions {
   opacity: 1;
 }
 

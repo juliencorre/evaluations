@@ -394,8 +394,6 @@ function getPageDescription(): string {
 }
 
 // Computed properties for the page
-const currentPageTitle = computed(() => getPageTitle())
-const currentPageDescription = computed(() => getPageDescription())
 
 const tabItems = computed(() => [
   {

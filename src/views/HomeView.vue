@@ -150,7 +150,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 
 // Lazy load heavy components
 const EvaluationTable = defineAsyncComponent({
@@ -167,7 +166,6 @@ const FullscreenDialog = defineAsyncComponent(() => import('@/components/Fullscr
 
 // Import lighter components normally as they're needed immediately
 import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
-import TopAppBar from '@/components/TopAppBar.vue'
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 
@@ -182,8 +180,6 @@ const { allEvaluations, currentEvaluation, addEvaluation, setCurrentEvaluation, 
 // Utiliser l'état de chargement pour l'affichage conditionnel
 const isLoading = isCompetenciesLoading
 
-// Get router instance
-const $router = useRouter()
 
 // Scroll state for app bar elevation
 const isScrolled = ref(false)

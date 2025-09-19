@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { ResultTypeConfig } from '@/types/competency'
+import type { ResultTypeConfig } from '@/types/evaluation'
 
 interface CompetencyData {
   id?: string

@@ -47,7 +47,7 @@ import { ref, computed } from 'vue'
 import FullscreenDialog from '@/components/common/FullscreenDialog.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
 import ResultTypeForm from './ResultTypeForm.vue'
-import type { ResultTypeConfig } from '@/types/competency'
+import type { ResultTypeConfig } from '@/types/evaluation'
 
 interface Emits {
   (e: 'save', data: { type: Partial<ResultTypeConfig>; isEditing: boolean }): void

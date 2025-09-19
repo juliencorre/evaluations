@@ -32,7 +32,7 @@ import { ref, computed } from 'vue'
 import FullscreenDialog from '@/components/common/FullscreenDialog.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
 import CompetencyForm from './CompetencyForm.vue'
-import type { ResultTypeConfig } from '@/types/competency'
+import type { ResultTypeConfig } from '@/types/evaluation'
 
 interface CompetencyData {
   id?: string

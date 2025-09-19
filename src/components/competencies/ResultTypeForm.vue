@@ -112,7 +112,7 @@
 import { ref, computed, onMounted } from 'vue'
 import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
 import ContentSection from '@/components/common/ContentSection.vue'
-import type { ResultTypeConfig } from '@/types/competency'
+import type { ResultTypeConfig } from '@/types/evaluation'
 
 interface Props {
   modelValue?: Partial<ResultTypeConfig>

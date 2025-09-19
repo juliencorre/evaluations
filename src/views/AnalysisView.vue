@@ -50,14 +50,133 @@ const tabItems = computed(() => [
 ])
 
 // Export functions
-const exportStudentChart = () => {
-  console.log('Exporting student chart')
-  window.alert('Export en cours pour l\'élève sélectionné')
+const exportStudentChart = async () => {
+  try {
+    const { jsPDF } = await import('jspdf')
+    const html2canvas = (await import('html2canvas')).default
+
+    console.log('Exporting student chart')
+
+    // Capture le graphique de l'élève
+    const chartElement = document.querySelector('.chart-container')
+    if (!chartElement) {
+      window.alert('Impossible de trouver le graphique à exporter')
+      return
+    }
+
+    // Générer le canvas
+    const canvas = await html2canvas(chartElement as HTMLElement, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true
+    })
+
+    // Créer le PDF
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    // Dimensions du PDF avec marges réduites
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    const margin = 15
+    const imgWidth = pageWidth - (margin * 2)
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    // Ajouter le titre
+    pdf.setFontSize(16)
+    pdf.text('Analyse individuelle d\'élève', margin, 20)
+
+    // Ajouter la date
+    pdf.setFontSize(10)
+    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 30)
+
+    // Ajouter l'image du graphique
+    const imgData = canvas.toDataURL('image/png')
+    pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
+
+    // Télécharger le PDF
+    pdf.save(`analyse-eleve-${new Date().toISOString().split('T')[0]}.pdf`)
+
+  } catch (error) {
+    console.error('Erreur lors de l\'export:', error)
+    window.alert('Erreur lors de l\'export du graphique')
+  }
 }
 
-const exportAllStudents = () => {
-  console.log('Exporting all students data')
-  window.alert('Export en cours pour tous les élèves')
+const exportAllStudents = async () => {
+  try {
+    const { jsPDF } = await import('jspdf')
+    const html2canvas = (await import('html2canvas')).default
+
+    console.log('Exporting all students data')
+
+    // Capturer tous les graphiques visibles
+    const chartElements = document.querySelectorAll('.chart-container')
+    if (chartElements.length === 0) {
+      window.alert('Aucun graphique à exporter')
+      return
+    }
+
+    // Créer le PDF
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    // Dimensions avec marges
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    const margin = 15
+
+    // Ajouter le titre principal
+    pdf.setFontSize(16)
+    pdf.text('Analyse de tous les élèves', margin, 20)
+
+    // Ajouter la date
+    pdf.setFontSize(10)
+    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 30)
+
+    let yPosition = 50
+
+    // Traiter chaque graphique
+    for (let i = 0; i < chartElements.length; i++) {
+      const chartElement = chartElements[i] as HTMLElement
+
+      // Générer le canvas pour ce graphique
+      const canvas = await html2canvas(chartElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true
+      })
+
+      // Dimensions du graphique avec marges
+      const imgWidth = pageWidth - (margin * 2)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      // Vérifier si on a besoin d'une nouvelle page
+      if (yPosition + imgHeight > pageHeight - margin) {
+        pdf.addPage()
+        yPosition = 20
+      }
+
+      // Ajouter l'image du graphique
+      const imgData = canvas.toDataURL('image/png')
+      pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight)
+
+      yPosition += imgHeight + 20
+    }
+
+    // Télécharger le PDF
+    pdf.save(`analyse-tous-eleves-${new Date().toISOString().split('T')[0]}.pdf`)
+
+  } catch (error) {
+    console.error('Erreur lors de l\'export:', error)
+    window.alert('Erreur lors de l\'export des graphiques')
+  }
 }
 
 // Scroll handling

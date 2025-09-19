@@ -98,9 +98,64 @@ const evaluationPeriods = computed(() => {
 
 
 // Export function
-const exportClassChart = () => {
-  console.log('Exporting class chart')
-  window.alert('Export en cours pour les moyennes de classe')
+const exportClassChart = async () => {
+  try {
+    const { jsPDF } = await import('jspdf')
+    const html2canvas = (await import('html2canvas')).default
+
+    console.log('Exporting class chart')
+
+    // Capture le graphique
+    const chartElement = document.querySelector('.chart-container')
+    if (!chartElement) {
+      window.alert('Impossible de trouver le graphique à exporter')
+      return
+    }
+
+    // Générer le canvas
+    const canvas = await html2canvas(chartElement as HTMLElement, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true
+    })
+
+    // Créer le PDF
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    // Dimensions du PDF avec marges réduites
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    const margin = 15
+    const imgWidth = pageWidth - (margin * 2) // 267mm au lieu de 280mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    // Ajouter le titre
+    pdf.setFontSize(16)
+    pdf.text('Moyennes de la classe', margin, 20)
+
+    // Ajouter la date
+    pdf.setFontSize(10)
+    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 30)
+
+    // Ajouter le type de métrique
+    const metricTypeLabel = metricTypes.value.find(type => type.value === selectedMetricType.value)?.label || ''
+    pdf.text(`Type d'analyse: ${metricTypeLabel}`, margin, 40)
+
+    // Ajouter l'image du graphique
+    const imgData = canvas.toDataURL('image/png')
+    pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
+
+    // Télécharger le PDF
+    pdf.save(`moyennes-classe-${selectedMetricType.value}-${new Date().toISOString().split('T')[0]}.pdf`)
+
+  } catch (error) {
+    console.error('Erreur lors de l\'export:', error)
+    window.alert('Erreur lors de l\'export du graphique')
+  }
 }
 
 // Class data calculation

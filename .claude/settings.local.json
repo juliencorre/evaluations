@@ -58,7 +58,8 @@
       "Bash(del /s node_modules.vite-temp*)",
       "Bash(npm cache clean:*)",
       "Bash(git push:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm run type-fix:*)"
     ],
     "deny": [],
     "ask": []

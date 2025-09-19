@@ -39,21 +39,6 @@
       />
     </div>
 
-    <!-- Import/Export View -->
-    <div v-if="activeView === 'import'" class="page-content">
-      <ImportExportSection
-        import-title="Importer un référentiel"
-        import-description="Importez un fichier JSON contenant un référentiel de compétences"
-        export-title="Exporter le référentiel"
-        export-description="Exportez le référentiel actuel au format JSON"
-        export-button-text="Exporter en JSON"
-        file-accept=".json"
-        :importing="false"
-        :exporting="false"
-        @import="handleFileImport"
-        @export="exportFramework"
-      />
-    </div>
 
     <!-- FABs -->
     <ExtendedFAB
@@ -130,11 +115,6 @@ const tabItems = computed<TabItem[]>(() => [
     id: 'types',
     label: 'Types',
     value: 'types'
-  },
-  {
-    id: 'import',
-    label: 'Import / Export',
-    value: 'import'
   }
 ])
 

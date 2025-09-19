@@ -1,36 +1,32 @@
 <template>
-  <div class="analysis-tabs-container">
+  <div class="competency-tabs-container">
     <div
-      class="analysis-tabs-bar"
+      class="competency-tabs-bar"
       role="tablist"
-      aria-label="Sélection de la section d'analyse"
+      aria-label="Sélection de la section de compétences"
     >
       <button
         v-for="tab in tabs"
         :key="tab.id"
         type="button"
-        class="analysis-tab"
+        class="competency-tab"
         :class="{ active: modelValue === tab.value }"
         role="tab"
         :aria-selected="modelValue === tab.value"
         @click="$emit('update:modelValue', tab.value)"
       >
-        <span class="analysis-tab-label">{{ tab.label }}</span>
-        <div class="analysis-tab-indicator"></div>
+        <span class="competency-tab-label">{{ tab.label }}</span>
+        <div class="competency-tab-indicator"></div>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-interface Tab {
-  id: string
-  label: string
-  value: string
-}
+import type { TabItem } from '@/types/competency'
 
 interface Props {
-  tabs: Tab[]
+  tabs: TabItem[]
   modelValue: string
 }
 
@@ -43,11 +39,11 @@ defineEmits<Emits>()
 </script>
 
 <style scoped>
-.analysis-tabs-container {
+.competency-tabs-container {
   margin: 16px 0 24px;
 }
 
-.analysis-tabs-bar {
+.competency-tabs-bar {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -58,11 +54,11 @@ defineEmits<Emits>()
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
-.analysis-tabs-bar::-webkit-scrollbar {
+.competency-tabs-bar::-webkit-scrollbar {
   display: none;
 }
 
-.analysis-tab {
+.competency-tab {
   position: relative;
   display: flex;
   align-items: center;
@@ -84,7 +80,7 @@ defineEmits<Emits>()
   overflow: hidden;
 }
 
-.analysis-tab::before {
+.competency-tab::before {
   content: '';
   position: absolute;
   top: 0;
@@ -96,28 +92,28 @@ defineEmits<Emits>()
   transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-.analysis-tab:hover::before {
+.competency-tab:hover::before {
   opacity: var(--md-text-button-hover-state-layer-opacity);
 }
 
-.analysis-tab:focus::before {
+.competency-tab:focus::before {
   opacity: var(--md-text-button-focus-state-layer-opacity);
 }
 
-.analysis-tab:active::before {
+.competency-tab:active::before {
   opacity: var(--md-text-button-pressed-state-layer-opacity);
 }
 
-.analysis-tab.active {
+.competency-tab.active {
   color: var(--md-sys-color-primary);
 }
 
-.analysis-tab-label {
+.competency-tab-label {
   position: relative;
   z-index: 1;
 }
 
-.analysis-tab-indicator {
+.competency-tab-indicator {
   position: absolute;
   bottom: 0;
   left: 16px;
@@ -129,16 +125,16 @@ defineEmits<Emits>()
   transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
 }
 
-.analysis-tab.active .analysis-tab-indicator {
+.competency-tab.active .competency-tab-indicator {
   transform: scaleX(1);
 }
 
 @media (max-width: 768px) {
-  .analysis-tabs-container {
+  .competency-tabs-container {
     margin: 12px 0 20px;
   }
 
-  .analysis-tab {
+  .competency-tab {
     min-width: 120px;
     padding: 12px 12px;
   }

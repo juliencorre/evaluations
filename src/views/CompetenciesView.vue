@@ -1,11 +1,15 @@
 <template>
-  <PageLayout
-    title="Compétences"
-    :tabs="tabItems"
-    :active-tab="activeView"
-    tabs-aria-label="Sélection de la section de compétences"
-    @update:active-tab="activeView = $event"
-  >
+  <div class="competencies-page">
+    <!-- Center-aligned App Bar -->
+    <CenterAppBar
+      title="Compétences"
+      :is-scrolled="isScrolled"
+      :show-search="false"
+      @user-menu-click="handleUserMenuClick"
+    />
+
+    <!-- Competency Tabs -->
+    <CompetencyTabs v-model="activeView" :tabs="tabItems" />
     <!-- Tree View -->
     <div v-if="activeView === 'tree'" class="page-content">
       <h2 class="page-title">Référentiels de compétences</h2>
@@ -54,24 +58,22 @@
     </div>
 
     <!-- FABs -->
-    <template #fab>
-      <ExtendedFAB
-        v-if="activeView === 'tree'"
-        icon="add"
-        label="Ajouter un domaine"
-        :visible="true"
-        @click="openAddDomainModal"
-      />
+    <ExtendedFAB
+      v-if="activeView === 'tree'"
+      icon="add"
+      label="Ajouter un domaine"
+      :visible="true"
+      @click="openAddDomainModal"
+    />
 
-      <ExtendedFAB
-        v-if="activeView === 'types'"
-        icon="add"
-        label="Nouveau type"
-        :visible="!showResultTypeModal && !showEditResultTypeModal && !showDeleteResultTypeModal"
-        @click="openAddResultTypeModal"
-      />
-    </template>
-  </PageLayout>
+    <ExtendedFAB
+      v-if="activeView === 'types'"
+      icon="add"
+      label="Nouveau type"
+      :visible="!showResultTypeModal && !showEditResultTypeModal && !showDeleteResultTypeModal"
+      @click="openAddResultTypeModal"
+    />
+  </div>
 
   <!-- Competency Modals -->
   <CompetencyModals
@@ -83,8 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import PageLayout from '@/components/common/PageLayout.vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import CenterAppBar from '@/components/common/CenterAppBar.vue'
+import CompetencyTabs from '@/components/competencies/CompetencyTabs.vue'
 import ExtendedFAB from '@/components/common/ExtendedFAB.vue'
 import ImportExportSection from '@/components/common/ImportExportSection.vue'
 import CompetencyTree from '@/components/competencies/CompetencyTree.vue'
@@ -104,8 +107,9 @@ const competencyStore = useCompetencyFrameworkStore()
 // Services
 const resultTypesService = new SupabaseResultTypesService()
 
-// Active view state
+// State
 const activeView = ref('tree')
+const isScrolled = ref(false)
 
 // Tab configuration
 const tabItems = computed<TabItem[]>(() => [
@@ -252,19 +256,44 @@ const handleModalDelete = async (data: { type: string; item: any; context?: any 
   await competencyStore.refreshFromSupabase()
 }
 
-// Initialize store and load data on component mount
+// Scroll handling
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0
+}
+
 onMounted(async () => {
   await competencyStore.refreshFromSupabase()
   // Load result types
   resultTypes.value = await resultTypesService.getResultTypes()
+
+  // Scroll handling
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
 })
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+// Event handlers
+const handleUserMenuClick = () => {
+  console.log('User menu clicked')
+}
 </script>
 
 <style scoped>
+.competencies-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--md-sys-color-surface);
+  padding-top: 64px;
+}
+
 .page-content {
   flex: 1;
   overflow-y: auto;
-  padding: 0; /* PageLayout handles padding */
+  padding: 24px 32px;
   background-color: transparent;
 }
 
@@ -275,5 +304,18 @@ onMounted(async () => {
   line-height: var(--md-sys-typescale-headline-small-line-height, 32px);
   color: var(--md-sys-color-on-surface, #1d1b20);
   margin: 0 0 24px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .page-content {
+    padding-left: 80px;
+  }
 }
 </style>

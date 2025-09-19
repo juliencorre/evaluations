@@ -1,9 +1,17 @@
 <template>
   <div class="analysis-page">
-    <SettingsAppBar title="Analyses" />
+    <!-- Center-aligned App Bar -->
+    <CenterAppBar
+      title="Analyses"
+      :is-scrolled="isScrolled"
+      :show-search="false"
+      @user-menu-click="handleUserMenuClick"
+    />
 
+    <!-- Analysis Tabs -->
     <AnalysisTabs v-model="activeView" :tabs="tabItems" />
 
+    <!-- Main Content Area -->
     <main class="main-content">
       <!-- Dashboard View -->
       <DashboardView v-if="activeView === 'dashboard'" />
@@ -14,55 +22,56 @@
         @export-student-chart="exportStudentChart"
         @export-all-students="exportAllStudents"
       />
-
-      <!-- Bottom Header -->
-      <footer class="page-footer">
-        <div class="footer-content">
-          <div v-if="getPageTitle()" class="footer-text">
-            <h1 class="footer-title">
-              <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-              </svg>
-              {{ getPageTitle() }}
-            </h1>
-            <p v-if="getPageDescription()" class="footer-description">
-              {{ getPageDescription() }}
-            </p>
-          </div>
-
-          <!-- Global Export Button -->
-          <div v-if="activeView === 'student-analysis'" class="footer-actions">
-            <button
-              class="export-button export-all"
-              title="Exporter tous les élèves en PDF"
-              @click="exportAllStudents"
-            >
-              <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
-                />
-                <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
-              </svg>
-              Exporter tous les élèves
-            </button>
-          </div>
-        </div>
-      </footer>
     </main>
+
+    <!-- Bottom Header -->
+    <footer class="page-footer">
+      <div class="footer-content">
+        <div v-if="getPageTitle()" class="footer-text">
+          <h1 class="footer-title">
+            <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
+            </svg>
+            {{ getPageTitle() }}
+          </h1>
+          <p v-if="getPageDescription()" class="footer-description">
+            {{ getPageDescription() }}
+          </p>
+        </div>
+
+        <!-- Global Export Button -->
+        <div v-if="activeView === 'student-analysis'" class="footer-actions">
+          <button
+            class="export-button export-all"
+            title="Exporter tous les élèves en PDF"
+            @click="exportAllStudents"
+          >
+            <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+              />
+              <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
+            </svg>
+            Exporter tous les élèves
+          </button>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // Components
-import SettingsAppBar from '@/components/settings/SettingsAppBar.vue'
+import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import AnalysisTabs from '@/components/analysis/AnalysisTabs.vue'
 import DashboardView from '@/components/analysis/DashboardView.vue'
 import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
 
-// Active view state
+// State
 const activeView = ref('dashboard')
+const isScrolled = ref(false)
 
 // Functions for page header
 function getPageTitle(): string {
@@ -81,7 +90,7 @@ function getPageDescription(): string {
   }
 }
 
-// Computed properties for the page
+// Tab configuration
 const tabItems = computed(() => [
   { id: 'dashboard', label: 'Classe', value: 'dashboard' },
   { id: 'student-analysis', label: 'Élèves', value: 'student-analysis' }
@@ -97,10 +106,28 @@ const exportAllStudents = () => {
   console.log('Exporting all students data')
   window.alert('Export en cours pour tous les élèves')
 }
+
+// Scroll handling
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+// Event handlers
+const handleUserMenuClick = () => {
+  console.log('User menu clicked')
+}
 </script>
 
 <style scoped>
-/* Page container */
 .analysis-page {
   display: flex;
   flex-direction: column;
@@ -112,7 +139,8 @@ const exportAllStudents = () => {
 /* Main Content */
 .main-content {
   flex: 1;
-  padding: 24px;
+  padding: 24px 32px;
+  background-color: var(--md-sys-color-surface);
 }
 
 /* Page Footer */
@@ -198,10 +226,6 @@ const exportAllStudents = () => {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .main-content {
-    padding: 16px;
-  }
-
   .footer-content {
     flex-direction: column;
     align-items: stretch;
@@ -228,9 +252,16 @@ const exportAllStudents = () => {
   }
 }
 
-@media (max-width: 480px) {
+/* Responsive Design */
+@media (max-width: 768px) {
   .main-content {
-    padding: 12px;
+    padding: 16px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .main-content {
+    padding-left: 80px;
   }
 }
 </style>

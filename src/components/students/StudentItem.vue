@@ -242,19 +242,26 @@ defineEmits<Emits>()
 @media (max-width: 480px) {
   .student-item {
     padding: 16px;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
     gap: 12px;
   }
 
   .student-content {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
   }
 
   .student-name {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 2px;
+  }
+
+  .student-name .first-name,
+  .student-name .last-name {
+    font-size: 14px;
+    line-height: 20px;
   }
 
   .student-avatar {
@@ -267,8 +274,8 @@ defineEmits<Emits>()
   }
 
   .student-trailing {
-    margin-left: 0;
-    align-self: flex-end;
+    margin-left: 8px;
+    gap: 4px;
   }
 }
 

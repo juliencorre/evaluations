@@ -1,6 +1,11 @@
 <template>
   <div class="settings-page">
-    <SettingsAppBar title="Paramètres" />
+    <CenterAppBar
+      title="Paramètres"
+      :is-scrolled="isScrolled"
+      :show-search="false"
+      @user-menu-click="handleUserMenuClick"
+    />
 
     <main class="settings-content" role="main">
       <SettingsSection
@@ -47,13 +52,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useSettingsStore } from '@/stores/settingsStore'
-import SettingsAppBar from '@/components/settings/SettingsAppBar.vue'
+import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import SettingsSection from '@/components/settings/SettingsSection.vue'
 import SettingsSwitch from '@/components/settings/SettingsSwitch.vue'
 
 const { showConsoleLogos, setShowConsoleLogos, isDarkThemeEnabled, setThemePreference } = useSettingsStore()
+
+// State
+const isScrolled = ref(false)
 
 const isConsoleLogoEnabled = computed(() => showConsoleLogos.value)
 const isDarkModeEnabled = computed(() => isDarkThemeEnabled.value)
@@ -67,6 +75,25 @@ const consoleLogoModel = computed({
   get: () => isConsoleLogoEnabled.value,
   set: (value: boolean) => setShowConsoleLogos(value)
 })
+
+// Scroll handling
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+// Event handlers
+const handleUserMenuClick = () => {
+  console.log('User menu clicked')
+}
 </script>
 
 <style scoped>

@@ -48,7 +48,9 @@
       "mcp__supabase__list_migrations",
       "Bash(curl:*)",
       "Bash(grep:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(find:*)",
+      "Bash(dir \"C:\\Users\\julien\\Documents\\00_github\\evaluations\\public\")"
     ],
     "deny": [],
     "ask": []

@@ -108,7 +108,7 @@ export interface CompetencyFormData {
 export interface ResultTypeFormData {
   name: string
   config: {
-    values: ResultValue[]
+    values: ResultTypeConfigValue[]
   }
 }
 

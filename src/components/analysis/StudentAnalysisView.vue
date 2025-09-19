@@ -1,25 +1,49 @@
 <template>
   <div class="page-content">
-    <!-- Student Selection and Filters -->
-    <section class="controls-section">
-      <StudentSelector
-        v-model:selectedStudent="selectedStudent"
-        v-model:selectedMetricType="selectedMetricType"
-        :students="students"
-        :metric-types="metricTypes"
-      />
-    </section>
-
     <!-- Student Analysis Chart -->
-    <section v-if="selectedStudent" class="charts-section">
-      <ChartCard
-        :title="getSelectedStudentName()"
-        :subtitle="getMetricTypeLabel() + ' - Résultats des évaluations de l\'année'"
-      >
-        <template #header-actions>
+    <section class="charts-section">
+      <ChartCard class="white-card">
+        <template #title>
+          <div class="chart-header">
+            <div class="chart-title-with-selector">
+              <select
+                v-model="selectedStudent"
+                class="student-select-in-title"
+                @change="updateStudent"
+              >
+                <option value="">Choisir un élève...</option>
+                <option v-for="student in students" :key="student.id" :value="student.id">
+                  {{ student.name }}
+                </option>
+              </select>
+            </div>
+            <div class="metric-type-selector">
+              <div class="metric-type-buttons">
+                <button
+                  v-for="type in metricTypes"
+                  :key="type.value"
+                  class="metric-type-button"
+                  :class="{ active: selectedMetricType === type.value }"
+                  @click="selectedMetricType = type.value"
+                >
+                  {{ type.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <div v-if="selectedStudent" class="chart-container">
+          <StudentChart
+            :chart-data="getStudentData()"
+            :evaluation-periods="evaluationPeriods"
+          />
+        </div>
+
+        <div v-if="selectedStudent" class="chart-actions">
           <button
-            class="export-button export-single"
-            title="Exporter ce graphique en PDF"
+            class="export-button chart-export"
+            title="Exporter les résultats de l'élève en PDF"
             @click="$emit('export-student-chart')"
           >
             <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -28,42 +52,18 @@
               />
               <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
             </svg>
+            Exporter
           </button>
-        </template>
-
-        <StudentChart
-          :chart-data="getStudentData()"
-          :evaluation-periods="evaluationPeriods"
-        />
-      </ChartCard>
-    </section>
-
-    <!-- No Student Selected State -->
-    <section v-else class="charts-section">
-      <ChartCard>
-        <EmptyState
-          title="Sélectionnez un élève"
-          description="Choisissez un élève dans la liste pour voir ses résultats d'évaluation"
-        />
-      </ChartCard>
-    </section>
-
-    <!-- Export All Students Action -->
-    <div v-if="selectedStudent" class="footer-actions">
-      <button
-        class="export-button export-all"
-        title="Exporter tous les élèves en PDF"
-        @click="$emit('export-all-students')"
-      >
-        <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+        </div>
+        <div v-else class="chart-container">
+          <EmptyState
+            title="Sélectionnez un élève"
+            description="Choisissez un élève dans la liste pour voir ses résultats d'évaluation"
           />
-          <path d="M12,11L16,15H13V19H11V15H8L12,11Z" />
-        </svg>
-        Exporter tous les élèves
-      </button>
-    </div>
+        </div>
+      </ChartCard>
+    </section>
+
   </div>
 </template>
 
@@ -76,7 +76,6 @@ import { SupabaseResultTypesService } from '@/services/supabaseResultTypesServic
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
 
-import StudentSelector from '@/components/analysis/StudentSelector.vue'
 import StudentChart from '@/components/analysis/StudentChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -669,15 +668,6 @@ const fallbackStudentData = {
 }
 
 // Student analysis helper functions
-const getSelectedStudentName = () => {
-  const student = students.value.find((s: { id: string; name: string }) => s.id === selectedStudent.value)
-  return student ? student.name : ''
-}
-
-const getMetricTypeLabel = () => {
-  const type = metricTypes.value.find((t: { value: string; label: string }) => t.value === selectedMetricType.value)
-  return type ? type.label : ''
-}
 
 const getStudentData = () => {
   if (!selectedStudent.value) {
@@ -713,6 +703,10 @@ const getStudentData = () => {
     console.error('❌ [getStudentData] Error getting student data:', error)
     return []
   }
+}
+
+const updateStudent = () => {
+  // La mise à jour se fait automatiquement via v-model
 }
 
 // Initialize data on component mount
@@ -779,9 +773,51 @@ onMounted(async () => {
   gap: 32px;
 }
 
-/* Controls Section */
-.controls-section {
-  margin-bottom: 32px;
+/* White card background */
+.white-card {
+  background: #ffffff !important;
+  border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+}
+
+/* Chart header organization */
+.chart-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.metric-type-selector {
+  margin-top: 8px;
+}
+
+.metric-type-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metric-type-button {
+  padding: 8px 16px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-radius: 20px;
+  background: var(--md-sys-color-surface-container-low, #ffffff);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.metric-type-button:hover {
+  background: var(--md-sys-color-surface-container-high, #f3edf7);
+}
+
+.metric-type-button.active {
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #ffffff);
+  border-color: var(--md-sys-color-primary, #6750a4);
 }
 
 /* Charts Section */
@@ -789,6 +825,86 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 24px;
+}
+
+.chart-container {
+  min-height: 400px;
+}
+
+.chart-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
+  margin-top: 16px;
+}
+
+.chart-export {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #ffffff);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  white-space: nowrap;
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.chart-export:hover {
+  background: var(--md-sys-color-primary-container, #eaddff);
+  color: var(--md-sys-color-on-primary-container, #21005d);
+  box-shadow:
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.chart-export:active {
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #ffffff);
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+/* Student selector in chart title */
+.chart-title-with-selector {
+  display: flex;
+  align-items: center;
+}
+
+.student-select-in-title {
+  padding: 8px 12px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-radius: 8px;
+  background: var(--md-sys-color-surface-container, #f0f4f3);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  cursor: pointer;
+  min-width: 200px;
+  width: 100%;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.student-select-in-title:focus {
+  outline: none;
+  border-color: var(--md-sys-color-primary, #6750a4);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary, #6750a4) 20%, transparent);
+}
+
+.student-select-in-title:hover {
+  background: var(--md-sys-color-surface-container-high, #f3edf7);
+  border-color: var(--md-sys-color-primary, #6750a4);
 }
 
 /* Export Buttons */
@@ -825,8 +941,8 @@ onMounted(async () => {
 }
 
 .export-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .export-all .export-icon {
@@ -834,11 +950,6 @@ onMounted(async () => {
   height: 16px;
 }
 
-.footer-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 24px;
-}
 
 /* Responsive Design */
 @media (max-width: 1200px) {
@@ -848,21 +959,37 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
-  .footer-actions {
-    justify-content: center;
+  .chart-header {
+    gap: 12px;
   }
 
-  .export-all {
-    width: 100%;
-    justify-content: center;
+  .student-select-in-title {
+    font-size: 1rem;
+    min-width: 160px;
   }
+
+  .metric-type-buttons {
+    gap: 6px;
+  }
+
+  .metric-type-button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .chart-actions {
+    padding: 12px 0 0;
+    margin-top: 12px;
+  }
+
+  .chart-export {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
 
   .charts-grid {
     gap: 16px;
-  }
-
-  .export-single {
-    align-self: flex-end;
   }
 }
 </style>

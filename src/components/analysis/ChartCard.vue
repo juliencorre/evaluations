@@ -1,9 +1,12 @@
 <template>
   <div class="chart-card">
     <div class="card-header">
-      <div v-if="hasHeaderSlot || title || subtitle" class="card-header-content">
+      <div v-if="hasHeaderSlot || hasTitleSlot || title || subtitle" class="card-header-content">
         <div class="card-title-group">
-          <h3 v-if="title" class="card-title">{{ title }}</h3>
+          <div v-if="hasTitleSlot" class="card-title">
+            <slot name="title"></slot>
+          </div>
+          <h3 v-else-if="title" class="card-title">{{ title }}</h3>
           <p v-if="subtitle" class="card-subtitle">{{ subtitle }}</p>
         </div>
         <slot name="header-actions"></slot>
@@ -32,6 +35,10 @@ const slots = useSlots()
 
 const hasHeaderSlot = computed(() => {
   return !!slots['header-actions']
+})
+
+const hasTitleSlot = computed(() => {
+  return !!slots['title']
 })
 </script>
 

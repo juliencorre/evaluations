@@ -53,7 +53,11 @@
       "Bash(dir \"C:\\Users\\julien\\Documents\\00_github\\evaluations\\public\")",
       "Bash(dir C:UsersjulienDocuments00_githubevaluationssrcviews)",
       "Bash(npx vite:*)",
-      "Bash(del /s node_modules.vite-temp)"
+      "Bash(del /s node_modules.vite-temp)",
+      "Bash(Stop-Process -Name \"node\" -Force)",
+      "Bash(del /s node_modules.vite-temp*)",
+      "Bash(npm cache clean:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

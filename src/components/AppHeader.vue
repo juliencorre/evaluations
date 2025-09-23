@@ -1,5 +1,5 @@
 <template>
-  <header class="app-header" :class="{ 'expanded': isExpanded }">
+  <header class="app-header" :class="{ 'expanded': isExpanded, 'hidden': isNavHidden }">
     <!-- Top App Bar -->
     <nav class="top-app-bar" role="navigation" aria-label="Navigation principale">
       <!-- Navigation Rail (Desktop) -->
@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ROUTE_NAMES } from '../router'
 
@@ -137,6 +137,11 @@ const currentRouteName = computed<AppRouteName | undefined>(() => {
 // State for expanded navigation rail
 const isExpanded = ref(false)
 
+// Scroll-based navigation bar hiding state
+const isNavHidden = ref(false)
+const lastScrollY = ref(0)
+const scrollThreshold = 5 // Minimum scroll distance to trigger hide/show
+
 // Emit events
 const emit = defineEmits<{
   'rail-expanded': [expanded: boolean]
@@ -146,10 +151,41 @@ function toggleExpanded() {
   isExpanded.value = !isExpanded.value
 }
 
+// Scroll handler for navigation bar hiding
+function handleScroll() {
+  const currentScrollY = window.scrollY
+  
+  // Don't hide navigation bar on very small scroll distances
+  if (Math.abs(currentScrollY - lastScrollY.value) < scrollThreshold) {
+    return
+  }
+
+  // Hide navigation when scrolling down, show when scrolling up
+  if (currentScrollY > lastScrollY.value && currentScrollY > 100) {
+    // Scrolling down & past 100px - hide navigation
+    isNavHidden.value = true
+  } else if (currentScrollY < lastScrollY.value) {
+    // Scrolling up - show navigation
+    isNavHidden.value = false
+  }
+
+  lastScrollY.value = currentScrollY
+}
+
 // Watch for changes and emit events
 watch(isExpanded, (expanded) => {
   emit('rail-expanded', expanded)
 }, { immediate: true })
+
+// Lifecycle hooks
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  lastScrollY.value = window.scrollY
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
@@ -161,6 +197,12 @@ watch(isExpanded, (expanded) => {
   right: 0;
   z-index: 1000;
   background: var(--md-sys-color-surface-container, #F5F5F5);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide navigation on scroll down (mobile) */
+.app-header.hidden {
+  transform: translateY(100%);
 }
 
 /* Large Screen Navigation Rail (Left Side) */
@@ -174,11 +216,16 @@ watch(isExpanded, (expanded) => {
     width: 80px;
     background: var(--md-sys-color-surface-container, #F5F5F5);
     box-shadow: none;
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .app-header.expanded {
     width: 220px; /* Expanded width */
+  }
+
+  /* On large screens, hide the rail by sliding it to the left */
+  .app-header.hidden {
+    transform: translateX(-100%);
   }
 
   .top-app-bar {

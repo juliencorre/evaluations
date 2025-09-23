@@ -361,7 +361,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      result_type: "scale" | "boolean" | "custom"
+      result_type: "scale" | "boolean" | "custom" | "numeric"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -489,7 +489,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      result_type: ["scale", "boolean", "custom"],
+      result_type: ["scale", "boolean", "custom", "numeric"],
     },
   },
 } as const

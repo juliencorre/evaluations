@@ -21,17 +21,41 @@ export class PivotAnalysisService {
     const value = result.value || result.level // Backward compatibility
     if (!value) return null
 
-    // Find the corresponding pivot value in the result type configuration
-    const configValue = resultTypeConfig.config.values.find(v =>
-      (typeof v === 'object' && v.value === value) || (typeof v === 'string' && v === value)
-    )
+    let pivotValue = 0
 
-    if (!configValue) {
-      console.warn(`No pivot value found for result value: ${value}`)
-      return null
+    if (resultTypeConfig.type === 'numeric') {
+      // Handle numeric type - calculate pivot value based on range
+      const numericValue = parseFloat(value)
+      if (isNaN(numericValue)) {
+        console.warn(`Invalid numeric value: ${value}`)
+        return null
+      }
+
+      const minValue = resultTypeConfig.config.minValue ?? 0
+      const maxValue = resultTypeConfig.config.maxValue ?? 10
+
+      // Calculate pivot value: proportional between min and max, capped at 10
+      if (numericValue <= minValue) {
+        pivotValue = 0
+      } else if (numericValue >= maxValue) {
+        pivotValue = 10
+      } else {
+        // Linear interpolation between min and max
+        pivotValue = ((numericValue - minValue) / (maxValue - minValue)) * 10
+      }
+    } else {
+      // Handle other types - find the corresponding pivot value in the configuration
+      const configValue = resultTypeConfig.config.values.find(v =>
+        (typeof v === 'object' && v.value === value) || (typeof v === 'string' && v === value)
+      )
+
+      if (!configValue) {
+        console.warn(`No pivot value found for result value: ${value}`)
+        return null
+      }
+
+      pivotValue = typeof configValue === 'object' ? configValue.pivot_value : 5 // Default to middle value
     }
-
-    const pivotValue = typeof configValue === 'object' ? configValue.pivot_value : 5 // Default to middle value
 
     return {
       studentId: result.studentId,

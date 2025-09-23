@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type ResultType = 'scale' | 'boolean' | 'custom'
+export type ResultType = 'scale' | 'boolean' | 'custom' | 'numeric'
 
 export type Database = {
   public: {

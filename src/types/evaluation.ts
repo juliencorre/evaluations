@@ -5,7 +5,7 @@ export interface Student {
   displayName: string
 }
 
-export type ResultType = 'scale' | 'boolean' | 'custom'
+export type ResultType = 'scale' | 'boolean' | 'custom' | 'numeric'
 
 export interface ResultTypeConfigValue {
   label: string
@@ -19,6 +19,9 @@ export interface ResultTypeConfig {
   type: ResultType
   config: {
     values: ResultTypeConfigValue[]
+    // Numeric type specific configuration
+    minValue?: number
+    maxValue?: number
   }
 }
 

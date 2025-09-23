@@ -126,7 +126,7 @@ const fabMenuItems = [
 ]
 
 // Handle menu item clicks
-const handleMenuItemClick = (item: any) => {
+const handleMenuItemClick = (item: { key: string }) => {
   if (item.key === 'new-student') {
     handleAddStudent()
   }

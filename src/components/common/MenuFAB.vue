@@ -56,7 +56,7 @@ interface Emits {
   (e: 'delete'): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   menuItems: () => [
     { key: 'edit', icon: 'edit', label: 'Éditer', ariaLabel: 'Éditer l\'évaluation', type: 'edit' },
     { key: 'delete', icon: 'delete', label: 'Supprimer', ariaLabel: 'Supprimer l\'évaluation', type: 'delete' }

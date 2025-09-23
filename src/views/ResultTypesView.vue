@@ -82,7 +82,7 @@ const handleScroll = () => {
 }
 
 // FAB Menu Handler
-const handleFabMenuClick = (item: any) => {
+const handleFabMenuClick = (item: { key: string }) => {
   console.log('FAB menu click:', item.key)
   switch (item.key) {
     case 'add-type':

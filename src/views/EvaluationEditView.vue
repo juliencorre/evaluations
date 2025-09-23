@@ -131,7 +131,7 @@ const props = defineProps<Props>()
 
 // Store
 const evaluationStore = useEvaluationStore()
-const { currentEvaluation, updateEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
+const { updateEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
 
 // State
 const isScrolled = ref(false)

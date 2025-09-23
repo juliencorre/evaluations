@@ -54,13 +54,15 @@ interface Context {
   competency?: ContextItem
 }
 
+type CompetencyItem = ContextItem
+
 interface Props {
   resultTypes?: ResultTypeConfig[]
 }
 
 interface Emits {
   (e: 'save', data: { type: string; data: CompetencyData; context?: Context }): void
-  (e: 'delete', data: { type: string; item: any; context?: Context }): void
+  (e: 'delete', data: { type: string; item: CompetencyItem; context?: Context }): void
 }
 
 withDefaults(defineProps<Props>(), {
@@ -75,7 +77,7 @@ const showDeleteDialog = ref(false)
 const isEditing = ref(false)
 const currentType = ref<'domain' | 'field' | 'competency' | 'specificCompetency'>('domain')
 const currentContext = ref<Context>()
-const currentItem = ref<any>()
+const currentItem = ref<CompetencyItem>()
 
 // Form data
 const formData = ref<CompetencyData>({
@@ -138,7 +140,7 @@ const deleteWarning = computed(() => {
 
 // Public methods for opening dialogs
 const openAddDialog = (type: string, context?: Context) => {
-  currentType.value = type as any
+  currentType.value = type as 'domain' | 'field' | 'competency' | 'specificCompetency'
   currentContext.value = context
   isEditing.value = false
   formData.value = {
@@ -149,8 +151,8 @@ const openAddDialog = (type: string, context?: Context) => {
   showEditDialog.value = true
 }
 
-const openEditDialog = (type: string, item: any, context?: Context) => {
-  currentType.value = type as any
+const openEditDialog = (type: string, item: CompetencyItem, context?: Context) => {
+  currentType.value = type as 'domain' | 'field' | 'competency' | 'specificCompetency'
   currentContext.value = context
   currentItem.value = item
   isEditing.value = true
@@ -163,8 +165,8 @@ const openEditDialog = (type: string, item: any, context?: Context) => {
   showEditDialog.value = true
 }
 
-const openDeleteDialog = (type: string, item: any, context?: Context) => {
-  currentType.value = type as any
+const openDeleteDialog = (type: string, item: CompetencyItem, context?: Context) => {
+  currentType.value = type as 'domain' | 'field' | 'competency' | 'specificCompetency'
   currentContext.value = context
   currentItem.value = item
   showDeleteDialog.value = true

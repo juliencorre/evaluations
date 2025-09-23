@@ -5,8 +5,8 @@
       title="Analyses"
       :is-scrolled="isScrolled"
       :show-search="false"
+      :show-school-icon="true"
       @user-menu-click="handleUserMenuClick"
-      @help="handleHelp"
       @logout="handleLogout"
     />
 
@@ -197,10 +197,6 @@ const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }
 
-const handleHelp = () => {
-  console.log('Help requested')
-  window.alert('Aide - Fonctionnalité à venir')
-}
 
 const handleLogout = () => {
   console.log('Logout requested')

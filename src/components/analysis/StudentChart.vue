@@ -28,7 +28,7 @@
                 class="bar-fill"
                 :style="{
                   width: (evaluation.score / 10) * 100 + '%',
-                  backgroundColor: evaluationPeriods[index]?.color || 'var(--md-sys-color-primary, #6750a4)'
+                  backgroundColor: evaluationPeriods[index]?.color || 'var(--md-sys-color-primary, #4A90A4)'
                 }"
               ></div>
             </div>

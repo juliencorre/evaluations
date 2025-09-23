@@ -1,6 +1,35 @@
 <template>
-  <div class="evaluation-table-container">
-    <table class="evaluation-table">
+  <div class="evaluation-wrapper">
+    <!-- Navigation controls -->
+    <div class="table-navigation">
+      <div class="nav-controls">
+        <button
+          class="nav-button nav-button-left"
+          :disabled="!canScrollLeft"
+          title="Faire défiler vers la gauche"
+          @click="scrollLeft"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+        <span class="nav-info">{{ currentStudentRange }}</span>
+        <button
+          class="nav-button nav-button-right"
+          :disabled="!canScrollRight"
+          title="Faire défiler vers la droite"
+          @click="scrollRight"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table container -->
+    <div ref="tableContainer" class="evaluation-table-container" @scroll="handleScroll">
+      <table class="evaluation-table">
       <!-- Fixed header -->
       <thead>
             <tr>
@@ -84,7 +113,17 @@
                     v-if="canShowResult(node) && isEditing(node.id, student.id)"
                     class="edit-mode"
                   >
+                    <!-- Numeric input for numeric result types -->
+                    <InlineNumericInput
+                      v-if="isNumericResultType(node)"
+                      :initial-value="editingValue"
+                      :trigger-element="currentTriggerElement || undefined"
+                      @save="(value) => selectValue(value, node.id, student.id)"
+                      @close="stopEditing"
+                    />
+                    <!-- Standard selector for other result types -->
                     <InlineResultSelector
+                      v-else
                       :options="getResultValues(node)"
                       :selected-value="editingValue"
                       :trigger-element="currentTriggerElement || undefined"
@@ -107,7 +146,7 @@
             </tr>
       </tbody>
     </table>
-
+    </div>
   </div>
 </template>
 
@@ -126,6 +165,7 @@ import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/c
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import InlineResultSelector from '@/components/evaluation/InlineResultSelector.vue'
+import InlineNumericInput from '@/components/evaluation/InlineNumericInput.vue'
 
 interface Props {
   evaluation: Evaluation
@@ -150,6 +190,12 @@ const evaluationStore = useEvaluationResultsStore()
 // Result types management
 const resultTypes = ref<ResultTypeConfig[]>([])
 const resultTypesMap = ref<Map<string, ResultTypeConfig>>(new Map())
+
+// Table navigation state
+const tableContainer = ref<HTMLElement>()
+const scrollPosition = ref(0)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(false)
 
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
@@ -189,6 +235,9 @@ onMounted(async () => {
   // Load result types
   resultTypes.value = await supabaseResultTypesService.getResultTypes()
   resultTypesMap.value = new Map(resultTypes.value.map(rt => [rt.id, rt]))
+
+  // Initialize scroll buttons state
+  updateScrollButtons()
 
   // Add global click listener to close dropdown when clicking outside
   document.addEventListener('click', handleClickOutside)
@@ -320,6 +369,65 @@ function getResultValues(node: TreeNode): ResultTypeConfigValue[] {
   })
 }
 
+// Check if result type is numeric
+function isNumericResultType(node: TreeNode): boolean {
+  const config = getResultTypeConfig(node)
+  return config?.type === 'numeric' || false
+}
+
+
+// Table navigation computed properties
+const currentStudentRange = computed(() => {
+  if (!tableContainer.value) return '1-1 / 1'
+
+  const container = tableContainer.value
+  const firstColumnWidth = 520 // Approximative width of fixed columns
+  const studentColumnWidth = 80 // Approximative width of student columns
+
+  const visibleStart = Math.max(0, Math.floor((scrollPosition.value - firstColumnWidth) / studentColumnWidth))
+  const containerWidth = container.clientWidth
+  const visibleCount = Math.floor((containerWidth - firstColumnWidth) / studentColumnWidth)
+  const visibleEnd = Math.min(props.students.length, visibleStart + visibleCount)
+
+  return `${Math.max(1, visibleStart + 1)}-${Math.max(1, visibleEnd)} / ${props.students.length}`
+})
+
+// Table navigation functions
+function handleScroll(event: Event) {
+  const container = event.target as HTMLElement
+  scrollPosition.value = container.scrollLeft
+  updateScrollButtons()
+}
+
+function updateScrollButtons() {
+  if (!tableContainer.value) return
+
+  const container = tableContainer.value
+  canScrollLeft.value = container.scrollLeft > 0
+  canScrollRight.value = container.scrollLeft < (container.scrollWidth - container.clientWidth)
+}
+
+function scrollLeft() {
+  if (!tableContainer.value) return
+
+  const container = tableContainer.value
+  const scrollAmount = 240 // Scroll by approximately 3 student columns
+  container.scrollBy({
+    left: -scrollAmount,
+    behavior: 'smooth'
+  })
+}
+
+function scrollRight() {
+  if (!tableContainer.value) return
+
+  const container = tableContainer.value
+  const scrollAmount = 240 // Scroll by approximately 3 student columns
+  container.scrollBy({
+    left: scrollAmount,
+    behavior: 'smooth'
+  })
+}
 
 // Inline editing functions
 function isEditing(competencyId: string, studentId: string): boolean {
@@ -417,11 +525,99 @@ function cancelEditing() {
 </script>
 
 <style scoped>
+.evaluation-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Table navigation styles */
+.table-navigation {
+  background: var(--md-sys-color-surface-container);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+
+.nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover:not(:disabled) {
+  background: var(--md-sys-color-surface-container-high);
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-primary);
+}
+
+.nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.nav-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.nav-info {
+  font-family: var(--md-sys-typescale-body-medium-font);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: 500;
+  min-width: 80px;
+  text-align: center;
+}
+
 .evaluation-table-container {
   width: 100%;
-  height: 100vh;
+  flex: 1;
   overflow: auto;
   background-color: var(--md-sys-color-surface);
+  /* Improve horizontal scrolling */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-sys-color-outline-variant) transparent;
+}
+
+.evaluation-table-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.evaluation-table-container::-webkit-scrollbar-track {
+  background: var(--md-sys-color-surface-container);
+  border-radius: 4px;
+}
+
+.evaluation-table-container::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: 4px;
+}
+
+.evaluation-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-outline);
+}
+
+.evaluation-table-container::-webkit-scrollbar-corner {
+  background: var(--md-sys-color-surface-container);
 }
 
 
@@ -706,8 +902,19 @@ function cancelEditing() {
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .evaluation-table-container {
-    height: 100vh;
+  .nav-info {
+    font-size: 0.8rem;
+    min-width: 60px;
+  }
+
+  .nav-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nav-button svg {
+    width: 16px;
+    height: 16px;
   }
 
   .domain-col,

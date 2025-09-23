@@ -33,8 +33,8 @@ defineEmits<Emits>()
 /* Material 3 FAB (regular - no text) */
 .fab {
   position: fixed;
-  bottom: 120px; /* Above bottom navigation */
-  right: 24px;
+  bottom: 81px;
+  right: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,8 +78,8 @@ defineEmits<Emits>()
 /* Material 3 Extended FAB */
 .extended-fab {
   position: fixed;
-  bottom: 120px; /* Above bottom navigation */
-  right: 24px;
+  bottom: 81px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -135,22 +135,22 @@ defineEmits<Emits>()
 @media (max-width: 768px) {
   .fab {
     right: 16px;
-    bottom: 104px;
+    bottom: 81px;
   }
 
   .extended-fab {
     right: 16px;
-    bottom: 104px;
+    bottom: 81px;
   }
 }
 
 @media (min-width: 1440px) {
   .fab {
-    bottom: 24px; /* No bottom navigation on desktop */
+    bottom: 81px;
   }
 
   .extended-fab {
-    bottom: 24px; /* No bottom navigation on desktop */
+    bottom: 81px;
   }
 }
 </style>

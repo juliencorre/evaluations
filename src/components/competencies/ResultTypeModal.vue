@@ -11,7 +11,7 @@
     <ResultTypeForm
       :model-value="addFormData"
       :editing="false"
-      @update:model-value="addFormData = $event"
+      @update:model-value="updateAddFormData"
     />
   </FullscreenDialog>
 
@@ -27,7 +27,7 @@
     <ResultTypeForm
       :model-value="editFormData"
       :editing="true"
-      @update:model-value="editFormData = $event"
+      @update:model-value="updateEditFormData"
     />
   </FullscreenDialog>
 
@@ -83,13 +83,19 @@ const currentDeleteItem = ref<ResultTypeConfig | null>(null)
 
 // Computed properties
 const isAddFormValid = computed(() => {
-  return addFormData.value.name?.trim() &&
+  const hasName = addFormData.value.name?.trim()
+
+  // For all types, check values array (numeric now has predefined values too)
+  return hasName &&
          addFormData.value.config?.values &&
          addFormData.value.config.values.length > 0
 })
 
 const isEditFormValid = computed(() => {
-  return editFormData.value.name?.trim() &&
+  const hasName = editFormData.value.name?.trim()
+
+  // For all types, check values array (numeric now has predefined values too)
+  return hasName &&
          editFormData.value.config?.values &&
          editFormData.value.config.values.length > 0
 })
@@ -168,6 +174,21 @@ const handleDeleteConfirm = () => {
   if (currentDeleteItem.value) {
     emit('delete', currentDeleteItem.value)
     closeDeleteModal()
+  }
+}
+
+// Update methods to prevent recursion
+const updateAddFormData = (data: Partial<ResultTypeConfig>) => {
+  // Only update if there are actual changes
+  if (JSON.stringify(data) !== JSON.stringify(addFormData.value)) {
+    addFormData.value = data
+  }
+}
+
+const updateEditFormData = (data: Partial<ResultTypeConfig>) => {
+  // Only update if there are actual changes
+  if (JSON.stringify(data) !== JSON.stringify(editFormData.value)) {
+    editFormData.value = data
   }
 }
 

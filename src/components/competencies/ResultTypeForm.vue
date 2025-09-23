@@ -41,22 +41,22 @@
         <TextFieldOutlined
           id="numeric-min-value"
           :model-value="localData.config.minValue ?? 0"
-          @update:modelValue="(value) => { localData.config.minValue = Number(value); handleNumericConfigChange() }"
           label="Valeur minimale"
           placeholder="Ex: 0"
           type="number"
           required
           class="half-width"
+          @update:modelValue="(value) => { localData.config.minValue = Number(value); handleNumericConfigChange() }"
         />
         <TextFieldOutlined
           id="numeric-max-value"
           :model-value="localData.config.maxValue ?? 10"
-          @update:modelValue="(value) => { localData.config.maxValue = Number(value); handleNumericConfigChange() }"
           label="Valeur maximale"
           placeholder="Ex: 20"
           type="number"
           required
           class="half-width"
+          @update:modelValue="(value) => { localData.config.maxValue = Number(value); handleNumericConfigChange() }"
         />
       </div>
       <div class="form-row">
@@ -131,26 +131,26 @@
         <div v-if="localData.type === 'numeric'" class="preview-values">
           <div class="preview-numeric">
             <div class="numeric-range">
-              <span class="range-label">Plage de valeurs : {{ localData.config.minValue || 0 }} - {{ localData.config.maxValue || 0 }}</span>
+              <span class="range-label">Saisie libre de nombres entiers (tranches de 1 point)</span>
             </div>
             <div class="scoring-examples">
               <div class="score-example">
-                <span class="example-value">{{ localData.config.minValue || 0 }}</span>
+                <span class="example-value">0</span>
                 <span class="example-arrow">→</span>
                 <span class="example-score">0/10</span>
               </div>
               <div class="score-example">
-                <span class="example-value">{{ ((localData.config.minValue || 0) + (localData.config.maxValue || 0)) / 2 }}</span>
+                <span class="example-value">5</span>
                 <span class="example-arrow">→</span>
                 <span class="example-score">5/10</span>
               </div>
               <div class="score-example">
-                <span class="example-value">{{ localData.config.maxValue || 0 }}</span>
+                <span class="example-value">10</span>
                 <span class="example-arrow">→</span>
                 <span class="example-score">10/10</span>
               </div>
               <div class="score-example">
-                <span class="example-value">{{ (localData.config.maxValue || 0) + 5 }}+</span>
+                <span class="example-value">15+</span>
                 <span class="example-arrow">→</span>
                 <span class="example-score">10/10</span>
               </div>
@@ -243,10 +243,15 @@ const handleTypeChange = () => {
         localData.value.config.values = [...booleanTemplate]
         break
       case 'numeric':
-        // Set default numeric configuration
+        // Set default numeric configuration with 10 tranches of 1 point each
         localData.value.config.minValue = 0
         localData.value.config.maxValue = 10
-        localData.value.config.values = [] // Numeric type doesn't use predefined values
+        // Create 10 tranches: 0, 1, 2, ..., 10 with corresponding scores
+        localData.value.config.values = Array.from({ length: 11 }, (_, i) => ({
+          label: `${i} point${i !== 1 ? 's' : ''}`,
+          value: i.toString(),
+          pivot_value: i
+        }))
         break
       case 'custom':
         localData.value.config.values = [
@@ -304,8 +309,36 @@ const initializeForm = () => {
   }
 
   // Set default values for new types
+  // Don't emit changes during initialization to avoid recursion
   if (!props.editing && (!localData.value.config?.values || localData.value.config.values.length === 0)) {
-    handleTypeChange()
+    // Temporarily store the type to initialize
+    const typeToInit = localData.value.type
+
+    // Initialize values based on type without emitting
+    switch (typeToInit) {
+      case 'scale':
+        localData.value.config.values = [...scaleTemplate]
+        break
+      case 'boolean':
+        localData.value.config.values = [...booleanTemplate]
+        break
+      case 'numeric':
+        // Set default numeric configuration with 10 tranches of 1 point each
+        localData.value.config.minValue = 0
+        localData.value.config.maxValue = 10
+        // Create 10 tranches: 0, 1, 2, ..., 10 with corresponding scores
+        localData.value.config.values = Array.from({ length: 11 }, (_, i) => ({
+          label: `${i} point${i !== 1 ? 's' : ''}`,
+          value: i.toString(),
+          pivot_value: i
+        }))
+        break
+      case 'custom':
+        localData.value.config.values = [
+          { label: '', value: '', pivot_value: 0 }
+        ]
+        break
+    }
   }
 }
 

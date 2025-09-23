@@ -8,8 +8,8 @@
       title="Évaluations"
       :is-scrolled="isScrolled"
       :show-search="false"
+      :show-school-icon="true"
       @user-menu-click="handleUserMenuClick"
-      @help="handleHelp"
       @logout="handleLogout"
     />
 
@@ -72,13 +72,11 @@
       </div>
     </main>
 
-    <!-- Extended FAB -->
-    <ExtendedFAB
+    <!-- Menu FAB -->
+    <MenuFAB
       v-if="!showModal && !isLoading"
-      icon="add"
-      :visible="true"
-      aria-label="Nouvelle évaluation"
-      @click="openAddModal"
+      :menu-items="fabMenuItems"
+      @menu-item-click="handleMenuItemClick"
     />
 
     <!-- Evaluation Modals -->
@@ -100,7 +98,7 @@ import { useRouter } from 'vue-router'
 
 // Components
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
-import ExtendedFAB from '@/components/common/ExtendedFAB.vue'
+import MenuFAB from '@/components/common/MenuFAB.vue'
 import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
 
 // Stores
@@ -166,10 +164,6 @@ const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }
 
-const handleHelp = () => {
-  console.log('Help requested')
-  window.alert('Aide - Fonctionnalité à venir')
-}
 
 const handleLogout = () => {
   console.log('Logout requested')
@@ -197,6 +191,24 @@ const resetForm = () => {
     name: '',
     description: '',
     frameworkId: framework.value.id
+  }
+}
+
+// FAB Menu configuration
+const fabMenuItems = [
+  {
+    key: 'new-evaluation',
+    icon: 'add',
+    label: 'Nouvelle évaluation',
+    ariaLabel: 'Créer une nouvelle évaluation',
+    type: 'primary'
+  }
+]
+
+// Handle menu item clicks
+const handleMenuItemClick = (item: any) => {
+  if (item.key === 'new-evaluation') {
+    openAddModal()
   }
 }
 

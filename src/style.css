@@ -2,19 +2,19 @@
 :root[data-theme='light'] {
   color-scheme: light;
 
-  /* Reference Tokens - Palette (Soft Professional Blue-Grey) */
+  /* Reference Tokens - Palette (Harmonious Teal-Blue) */
   --md-ref-palette-primary0: #000000;
-  --md-ref-palette-primary10: #0a0e1a;
-  --md-ref-palette-primary20: #1c2433;
-  --md-ref-palette-primary30: #2d3b4d;
-  --md-ref-palette-primary40: #405268;
-  --md-ref-palette-primary50: #556a84;
-  --md-ref-palette-primary60: #6b82a0;
-  --md-ref-palette-primary70: #819bbe;
-  --md-ref-palette-primary80: #99b4dc;
-  --md-ref-palette-primary90: #b3cdfb;
-  --md-ref-palette-primary95: #d9e6ff;
-  --md-ref-palette-primary99: #f8faff;
+  --md-ref-palette-primary10: #001f24;
+  --md-ref-palette-primary20: #00363e;
+  --md-ref-palette-primary30: #004d56;
+  --md-ref-palette-primary40: #006570;
+  --md-ref-palette-primary50: #007d8a;
+  --md-ref-palette-primary60: #4A90A4;
+  --md-ref-palette-primary70: #6ba4b8;
+  --md-ref-palette-primary80: #88b8cc;
+  --md-ref-palette-primary90: #a6cde1;
+  --md-ref-palette-primary95: #d3e6f5;
+  --md-ref-palette-primary99: #f5faff;
   --md-ref-palette-primary100: #ffffff;
 
   --md-ref-palette-neutral0: #000000;
@@ -85,7 +85,7 @@
   --md-ref-motion-easing-emphasized-decelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
 
   /* System Tokens - Colors */
-  --md-sys-color-primary: var(--md-ref-palette-primary40);
+  --md-sys-color-primary: var(--md-ref-palette-primary60);
   --md-sys-color-on-primary: var(--md-ref-palette-primary100);
   --md-sys-color-primary-container: var(--md-ref-palette-primary90);
   --md-sys-color-on-primary-container: var(--md-ref-palette-primary10);
@@ -101,15 +101,15 @@
   --md-sys-color-on-error: var(--md-ref-palette-error100);
   --md-sys-color-error-container: var(--md-ref-palette-error90);
   --md-sys-color-on-error-container: var(--md-ref-palette-error10);
-  --md-sys-color-surface: var(--md-ref-palette-neutral99);
+  --md-sys-color-surface: #ffffff;
   --md-sys-color-on-surface: var(--md-ref-palette-neutral10);
-  --md-sys-color-surface-variant: var(--md-ref-palette-neutral90);
+  --md-sys-color-surface-variant: #F5F5F5;
   --md-sys-color-on-surface-variant: var(--md-ref-palette-neutral30);
-  --md-sys-color-surface-container-lowest: var(--md-ref-palette-neutral100);
-  --md-sys-color-surface-container-low: var(--md-ref-palette-neutral95);
-  --md-sys-color-surface-container: var(--md-ref-palette-neutral90);
-  --md-sys-color-surface-container-high: var(--md-ref-palette-neutral85);
-  --md-sys-color-surface-container-highest: var(--md-ref-palette-neutral80);
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #FAFAFA;
+  --md-sys-color-surface-container: #F5F5F5;
+  --md-sys-color-surface-container-high: #F0F0F0;
+  --md-sys-color-surface-container-highest: #EBEBEB;
   --md-sys-color-surface-dim: var(--md-ref-palette-neutral87);
   --md-sys-color-surface-bright: var(--md-ref-palette-neutral98);
   --md-sys-color-surface-tint: var(--md-sys-color-primary);
@@ -135,14 +135,14 @@
   --md-sys-color-on-info-container: var(--md-sys-color-on-primary-container);
 
   /* Soft Surface Variations */
-  --md-sys-color-surface-soft: #f8f9fb;
+  --md-sys-color-surface-soft: #FAFAFA;
   --md-sys-color-surface-elevated: #ffffff;
   --md-sys-color-card: #ffffff;
   --md-sys-color-backdrop: rgba(0, 0, 0, 0.5);
 
   /* Soft Border Colors */
-  --md-sys-color-border-light: #e8eaf0;
-  --md-sys-color-border-medium: #d0d3db;
+  --md-sys-color-border-light: #F0F0F0;
+  --md-sys-color-border-medium: #E0E0E0;
   --md-sys-color-border-strong: var(--md-sys-color-outline);
 
   /* Text Hierarchy */

@@ -55,7 +55,31 @@
           <p class="student-name">{{ selectedStudent?.firstName }} {{ selectedStudent?.lastName }}</p>
         </div>
 
-        <div class="result-options">
+        <!-- Numeric input for numeric result types -->
+        <div v-if="isNumericResultType(editingCompetency)" class="numeric-input-section">
+          <label class="input-label">Saisir une valeur numérique :</label>
+          <div class="numeric-input-wrapper">
+            <input
+              v-model.number="editingValue"
+              type="number"
+              min="0"
+              step="1"
+              class="numeric-input"
+              placeholder="Saisir un nombre entier"
+            />
+            <div class="input-info">
+              <span class="range-text">
+                Saisie libre (nombres entiers positifs)
+              </span>
+              <span v-if="isValidNumericValue" class="score-preview">
+                Note: {{ calculateScore(Number(editingValue)) }}/10
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standard options for other result types -->
+        <div v-else class="result-options">
           <button
             v-for="option in getResultValues(editingCompetency)"
             :key="option.value"
@@ -68,7 +92,13 @@
 
         <div class="modal-actions">
           <button class="btn-cancel" @click="closeEditModal">Annuler</button>
-          <button class="btn-save" :disabled="!editingValue" @click="saveResult">Sauvegarder</button>
+          <button
+            class="btn-save"
+            :disabled="!canSaveResult"
+            @click="saveResult"
+          >
+            Sauvegarder
+          </button>
         </div>
       </div>
     </div>
@@ -121,6 +151,26 @@ const specificCompetencies = computed(() => {
   const tree = buildCompetencyTree(props.framework)
   const flattened = flattenTree(tree)
   return flattened.filter(node => node.type === 'specificCompetency')
+})
+
+// Numeric input validation
+const isValidNumericValue = computed(() => {
+  if (!editingCompetency.value || !isNumericResultType(editingCompetency.value)) return false
+
+  const value = Number(editingValue.value)
+  // For free numeric input, just check if it's a valid integer >= 0
+  return !isNaN(value) && Number.isInteger(value) && value >= 0
+})
+
+// Save button validation
+const canSaveResult = computed(() => {
+  if (!editingValue.value) return false
+
+  if (editingCompetency.value && isNumericResultType(editingCompetency.value)) {
+    return isValidNumericValue.value
+  }
+
+  return true // For non-numeric types, just check if value exists
 })
 
 // Methods
@@ -250,6 +300,20 @@ function getResultValues(node: TreeNode | null): ResultTypeConfigValue[] {
   })
 }
 
+// Check if result type is numeric
+function isNumericResultType(node: TreeNode | null): boolean {
+  const config = getResultTypeConfig(node)
+  return config?.type === 'numeric' || false
+}
+
+
+// Calculate score for numeric values
+function calculateScore(value: number): number {
+  // For free numeric input, score is based on 10-point scale
+  // Each point = 1 point on the scale, max 10
+  return Math.min(value, 10)
+}
+
 // Initialize component
 onMounted(async () => {
   // Initialize evaluation store
@@ -306,13 +370,13 @@ watch(() => props.evaluation, async (newEvaluation) => {
 .students-tabs {
   display: flex;
   gap: 8px;
-  padding: 0 16px;
+  padding: 0 8px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
-  scroll-padding: 16px;
+  scroll-padding: 8px;
   /* Ajout d'un momentum scrolling sur iOS */
   -webkit-overflow-scrolling: touch;
 }
@@ -397,7 +461,7 @@ watch(() => props.evaluation, async (newEvaluation) => {
 
 /* Student Info */
 .student-info {
-  padding: 16px;
+  padding: 12px 8px;
   background: var(--md-sys-color-surface-container-low);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
   flex-shrink: 0;
@@ -421,7 +485,7 @@ watch(() => props.evaluation, async (newEvaluation) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 16px 8px;
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -533,7 +597,7 @@ watch(() => props.evaluation, async (newEvaluation) => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 16px;
+  padding: 8px;
 }
 
 .edit-modal {
@@ -569,6 +633,61 @@ watch(() => props.evaluation, async (newEvaluation) => {
 .competency-details .student-name {
   font-size: 14px;
   color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Numeric input section */
+.numeric-input-section {
+  margin-bottom: 24px;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.numeric-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.numeric-input {
+  padding: 12px 8px;
+  border: 2px solid var(--md-sys-color-outline);
+  border-radius: 8px;
+  font-size: 16px;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface);
+  transition: border-color 0.2s ease;
+}
+
+.numeric-input:focus {
+  outline: none;
+  border-color: var(--md-sys-color-primary);
+}
+
+.numeric-input:invalid {
+  border-color: var(--md-sys-color-error);
+}
+
+.input-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.range-text {
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: 500;
+}
+
+.score-preview {
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
 }
 
 .result-options {
@@ -688,7 +807,7 @@ watch(() => props.evaluation, async (newEvaluation) => {
   }
 
   .student-tab {
-    padding: 9px 16px;
+    padding: 9px 8px;
     font-size: 13px;
     min-width: 75px;
     min-height: 42px;

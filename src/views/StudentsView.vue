@@ -9,7 +9,6 @@
       :is-scrolled="isScrolled"
       @clear-search="searchTerm = ''"
       @logo-click="$router.push('/evaluations')"
-      @help="handleHelp"
       @logout="handleLogout"
     />
 
@@ -24,13 +23,11 @@
       />
     </main>
 
-    <!-- Extended FAB -->
-    <ExtendedFAB
+    <!-- Menu FAB -->
+    <MenuFAB
       v-if="!modalsRef?.showStudentDialog && !modalsRef?.showDeleteDialog"
-      icon="add"
-      :visible="true"
-      aria-label="Ajouter un élève"
-      @click="handleAddStudent"
+      :menu-items="fabMenuItems"
+      @menu-item-click="handleMenuItemClick"
     />
 
     <!-- Student Modals -->
@@ -48,7 +45,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SearchAppBar from '@/components/common/SearchAppBar.vue'
-import ExtendedFAB from '@/components/common/ExtendedFAB.vue'
+import MenuFAB from '@/components/common/MenuFAB.vue'
 import StudentsList from '@/components/students/StudentsList.vue'
 import StudentModals from '@/components/students/StudentModals.vue'
 import type { Student } from '../types/evaluation'
@@ -99,10 +96,6 @@ const filteredStudents = computed(() => {
 })
 
 // Event handlers
-const handleHelp = () => {
-  console.log('Help requested')
-  window.alert('Aide - Fonctionnalité à venir')
-}
 
 const handleLogout = () => {
   console.log('Logout requested')
@@ -119,6 +112,24 @@ const handleEditStudent = (student: Student) => {
 
 const handleDeleteStudent = (student: Student) => {
   modalsRef.value?.openDeleteDialog(student)
+}
+
+// FAB Menu configuration
+const fabMenuItems = [
+  {
+    key: 'new-student',
+    icon: 'person_add',
+    label: 'Nouvel élève',
+    ariaLabel: 'Ajouter un nouvel élève',
+    type: 'primary'
+  }
+]
+
+// Handle menu item clicks
+const handleMenuItemClick = (item: any) => {
+  if (item.key === 'new-student') {
+    handleAddStudent()
+  }
 }
 
 const handleSaveStudent = async (student: Student) => {

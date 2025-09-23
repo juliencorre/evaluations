@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div class="charts-section">
     <!-- Student Analysis Chart -->
     <section class="charts-section">
       <ChartCard class="white-card">
@@ -121,7 +121,18 @@ const metricTypes = ref([
 ])
 
 // Evaluation periods - generate colors for evaluations
-const colorPalette = ['#6750a4', '#0F62FE', '#198038', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8']
+const colorPalette = [
+  '#4A90A4', // Teal-blue principal (couleur site)
+  '#E65100', // Orange vif
+  '#2E7D32', // Vert foncé
+  '#7B1FA2', // Violet
+  '#D32F2F', // Rouge
+  '#F57C00', // Orange doré
+  '#1976D2', // Bleu
+  '#5D4037', // Brun
+  '#455A64', // Bleu-gris
+  '#6A1B9A'  // Violet foncé
+]
 
 const evaluationPeriods = computed(() => {
   return evaluationStore.allEvaluations.value.map((evaluation, index) => ({
@@ -801,11 +812,10 @@ onMounted(async () => {
 
 <style scoped>
 /* Page Content */
-.page-content {
+.charts-section {
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding: 24px;
 }
 
 /* White card background */

@@ -9,10 +9,11 @@
     @save="handleSave"
   >
     <CompetencyForm
-      v-model="formData"
+      :model-value="formData"
       :type="currentType"
       :context="currentContext"
       :result-types="resultTypes"
+      @update:model-value="updateFormData"
     />
   </FullscreenDialog>
 
@@ -194,6 +195,14 @@ const handleDelete = () => {
     context: currentContext.value
   })
   closeDialog()
+}
+
+// Update method to prevent recursion
+const updateFormData = (data: CompetencyData) => {
+  // Only update if there are actual changes
+  if (JSON.stringify(data) !== JSON.stringify(formData.value)) {
+    formData.value = data
+  }
 }
 
 // Expose methods for parent component

@@ -59,7 +59,10 @@
       "Bash(npm cache clean:*)",
       "Bash(git push:*)",
       "Bash(npm run dev:*)",
-      "Bash(npm run type-fix:*)"
+      "Bash(npm run type-fix:*)",
+      "Bash(npx supabase:*)",
+      "Bash(del \"C:\\Users\\julien\\Documents\\00_github\\evaluations\\src\\components\\common\\ActionMenu.vue\")",
+      "Bash(npm run type-check:*)"
     ],
     "deny": [],
     "ask": []

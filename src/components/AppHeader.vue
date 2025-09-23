@@ -12,7 +12,7 @@
             @click="toggleExpanded"
           >
             <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+              <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
             </svg>
             <svg class="chevron-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
@@ -22,6 +22,28 @@
 
         <div class="nav-destinations">
           <router-link
+            to="/welcome"
+            class="nav-destination"
+            :class="{ active: currentRouteName === ROUTE_NAMES.WELCOME || currentRouteName === ROUTE_NAMES.HOME }"
+            :aria-current="(currentRouteName === ROUTE_NAMES.WELCOME || currentRouteName === ROUTE_NAMES.HOME) ? 'page' : undefined"
+          >
+            <div class="nav-indicator" aria-hidden="true"></div>
+            <div class="nav-icon-container">
+              <svg v-if="currentRouteName !== ROUTE_NAMES.WELCOME && currentRouteName !== ROUTE_NAMES.HOME" class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"
+                />
+              </svg>
+              <svg v-else class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"
+                />
+              </svg>
+            </div>
+            <span class="nav-label">Accueil</span>
+          </router-link>
+
+          <router-link
             to="/evaluations"
             class="nav-destination"
             :class="{ active: currentRouteName === ROUTE_NAMES.EVALUATIONS || currentRouteName === ROUTE_NAMES.EVALUATION_DETAIL }"
@@ -29,7 +51,12 @@
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+              <svg v-if="currentRouteName !== ROUTE_NAMES.EVALUATIONS && currentRouteName !== ROUTE_NAMES.EVALUATION_DETAIL" class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 4H7v2h10V7h-5zm0 4H7v2h10v-2h-5zm0 4H7v2h7v-2h-5z"
+                />
+              </svg>
+              <svg v-else class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
                 />
@@ -46,7 +73,12 @@
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+              <svg v-if="currentRouteName !== ROUTE_NAMES.STUDENTS" class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
+                />
+              </svg>
+              <svg v-else class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
                 />
@@ -55,22 +87,6 @@
             <span class="nav-label">Élèves</span>
           </router-link>
 
-          <router-link
-            to="/competencies"
-            class="nav-destination"
-            :class="{ active: currentRouteName === ROUTE_NAMES.COMPETENCIES }"
-            :aria-current="currentRouteName === ROUTE_NAMES.COMPETENCIES ? 'page' : undefined"
-          >
-            <div class="nav-indicator" aria-hidden="true"></div>
-            <div class="nav-icon-container">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                />
-              </svg>
-            </div>
-            <span class="nav-label">Compétences</span>
-          </router-link>
 
           <router-link
             to="/analysis"
@@ -80,7 +96,10 @@
           >
             <div class="nav-indicator" aria-hidden="true"></div>
             <div class="nav-icon-container">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+              <svg v-if="currentRouteName !== ROUTE_NAMES.ANALYSIS" class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z" />
+              </svg>
+              <svg v-else class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
               </svg>
             </div>
@@ -141,7 +160,7 @@ watch(isExpanded, (expanded) => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--md-sys-color-surface-container, #f0f4f3);
+  background: var(--md-sys-color-surface-container, #F5F5F5);
 }
 
 /* Large Screen Navigation Rail (Left Side) */
@@ -153,10 +172,8 @@ watch(isExpanded, (expanded) => {
     bottom: 0;
     right: auto;
     width: 80px;
-    background: var(--md-sys-color-surface-container, #f0f4f3);
-    box-shadow:
-      1px 0px 3px 1px rgba(0, 0, 0, 0.15),
-      1px 0px 2px 0px rgba(0, 0, 0, 0.3);
+    background: var(--md-sys-color-surface-container, #F5F5F5);
+    box-shadow: none;
     transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -167,7 +184,7 @@ watch(isExpanded, (expanded) => {
   .top-app-bar {
     height: 100%;
     width: 100%;
-    background: var(--md-sys-color-surface-container, #f0f4f3);
+    background: var(--md-sys-color-surface-container, #F5F5F5);
     box-shadow: none;
   }
 
@@ -264,7 +281,7 @@ watch(isExpanded, (expanded) => {
     width: 56px;
     height: 56px;
     min-width: 56px;
-    min-height: 56px;
+    min-height: 64px;
     border-radius: 16px;
     position: relative;
     display: flex;
@@ -277,18 +294,20 @@ watch(isExpanded, (expanded) => {
     --nav-item-padding-inline: 0px;
     --nav-item-padding-block: 12px;
     --nav-indicator-width: 56px;
-    --nav-indicator-height: 32px;
+    --nav-indicator-height: 56px;
     --nav-indicator-left: 50%;
     --nav-indicator-translate-x: -50%;
   }
 
   .navigation-rail.expanded .nav-destination {
     width: 100%;
+    height: 48px;
     margin: 0;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     gap: 12px;
+    padding: 0 16px;
     --nav-item-padding-inline: 16px;
     --nav-item-padding-block: 12px;
     --nav-indicator-width: 100%;
@@ -298,21 +317,31 @@ watch(isExpanded, (expanded) => {
   }
 
   .nav-label {
-    display: none;
-    font-size: 14px;
-    font-weight: 500;
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
     color: currentColor;
     white-space: nowrap;
+    text-align: center;
+    margin-top: 4px;
     transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .navigation-rail.expanded .nav-label {
     display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 0;
     opacity: 1;
   }
 
   .navigation-rail.expanded .nav-indicator {
     border-radius: 24px;
+  }
+
+  /* Large screen navigation rail - override indicator positioning */
+  .nav-indicator {
+    top: 50%;
   }
 
   .nav-icon-container {
@@ -328,10 +357,8 @@ watch(isExpanded, (expanded) => {
 
 /* Bottom App Bar */
 .top-app-bar {
-  background: var(--md-sys-color-surface-container, #f0f4f3);
-  box-shadow:
-    0px -1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px -1px 2px 0px rgba(0, 0, 0, 0.3);
+  background: var(--md-sys-color-surface-container, #F5F5F5);
+  box-shadow: none;
   width: 100%;
   position: relative;
 }
@@ -344,7 +371,7 @@ watch(isExpanded, (expanded) => {
   padding: 0 24px;
   min-height: 64px;
   width: 100%;
-  background: var(--md-sys-color-surface-container, #f0f4f3);
+  background: var(--md-sys-color-surface-container, #F5F5F5);
 }
 
 .brand-section {
@@ -388,7 +415,7 @@ watch(isExpanded, (expanded) => {
   gap: 4px;
   padding: var(--nav-item-padding-block) var(--nav-item-padding-inline);
   min-width: 64px;
-  min-height: 56px;
+  min-height: 64px;
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
   border-radius: 16px;
@@ -418,15 +445,15 @@ watch(isExpanded, (expanded) => {
 }
 
 .nav-destination.active {
-  color: var(--md-sys-color-on-secondary-container);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .nav-destination.active .nav-icon {
-  color: var(--md-sys-color-on-secondary-container);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .nav-destination.active .nav-label {
-  color: var(--md-sys-color-on-secondary-container);
+  color: var(--md-sys-color-on-surface-variant);
   font-weight: 700;
 }
 
@@ -436,20 +463,20 @@ watch(isExpanded, (expanded) => {
   left: var(--nav-indicator-left);
   width: var(--nav-indicator-width);
   height: var(--nav-indicator-height);
-  background: var(--md-sys-color-primary-container);
-  border-radius: 16px;
+  background: var(--md-sys-color-primary);
+  border-radius: 20px;
   opacity: 0;
-  transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(0);
+  transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleY(0);
   transform-origin: center;
   transition:
-    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
 }
 
 .nav-destination.active .nav-indicator {
   opacity: 1;
-  transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleX(1);
+  transform: translateX(var(--nav-indicator-translate-x)) translateY(-50%) scaleY(1);
 }
 
 .nav-icon-container {
@@ -637,9 +664,7 @@ watch(isExpanded, (expanded) => {
   max-width: 80vw;
   background: var(--md-sys-color-surface) !important;
   background-color: var(--md-sys-color-surface) !important;
-  box-shadow:
-    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
   z-index: 1100;
   transform: translateX(-100%);
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -733,7 +758,7 @@ watch(isExpanded, (expanded) => {
   font-size: 0.875rem;
   line-height: 1.25rem;
   gap: 12px;
-  min-height: 56px;
+  min-height: 64px;
   border-radius: 0 28px 28px 0;
   margin-right: 12px;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
@@ -811,7 +836,7 @@ watch(isExpanded, (expanded) => {
   font-size: 0.875rem;
   line-height: 1.25rem;
   gap: 12px;
-  min-height: 56px;
+  min-height: 64px;
   width: 100%;
   cursor: pointer;
   text-align: left;
@@ -883,15 +908,15 @@ watch(isExpanded, (expanded) => {
 
   /* Active state colors for icon and text on medium screens */
   .nav-destination.active {
-    color: var(--md-sys-color-on-primary-container);
+    color: var(--md-sys-color-on-surface-variant);
   }
 
   .nav-destination.active .nav-icon {
-    color: var(--md-sys-color-on-primary-container);
+    color: var(--md-sys-color-on-surface-variant);
   }
 
   .nav-destination.active .nav-label {
-    color: var(--md-sys-color-on-primary-container);
+    color: var(--md-sys-color-on-surface-variant);
     font-weight: 700;
   }
 

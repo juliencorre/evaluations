@@ -19,7 +19,7 @@
         <path
           :d="progressPath"
           fill="none"
-          stroke="var(--md-sys-color-primary, #6750a4)"
+          stroke="var(--md-sys-color-primary, #4A90A4)"
           stroke-width="3"
         />
 
@@ -30,7 +30,7 @@
           :cx="point.x"
           :cy="point.y"
           r="4"
-          fill="var(--md-sys-color-primary, #6750a4)"
+          fill="var(--md-sys-color-primary, #4A90A4)"
         />
       </svg>
     </div>

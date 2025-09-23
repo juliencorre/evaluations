@@ -14,7 +14,7 @@
             <span class="material-symbols-outlined">search</span>
           </button>
           <button class="icon-button user-menu-button" aria-label="Menu utilisateur">
-            <span class="material-symbols-outlined">account_circle</span>
+            <span class="material-symbols-outlined">more_vert</span>
           </button>
         </slot>
       </template>

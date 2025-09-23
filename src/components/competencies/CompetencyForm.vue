@@ -129,6 +129,9 @@ const emit = defineEmits<Emits>()
 
 const localData = ref<CompetencyData>({ ...props.modelValue })
 
+// Flag to prevent recursive updates
+const isUpdating = ref(false)
+
 // Computed properties for dynamic content
 const typeLabel = computed(() => {
   const labels = {
@@ -172,12 +175,29 @@ const descriptionPlaceholder = computed(() => {
 
 // Watch for external changes
 watch(() => props.modelValue, (newValue) => {
-  localData.value = { ...newValue }
+  if (!isUpdating.value) {
+    // Check if the values are actually different
+    if (JSON.stringify(newValue) !== JSON.stringify(localData.value)) {
+      isUpdating.value = true
+      localData.value = { ...newValue }
+      // Reset flag after a tick to allow for next updates
+      setTimeout(() => {
+        isUpdating.value = false
+      }, 0)
+    }
+  }
 }, { deep: true })
 
 // Watch for local changes and emit
 watch(localData, (newValue) => {
-  emit('update:modelValue', { ...newValue })
+  if (!isUpdating.value) {
+    isUpdating.value = true
+    emit('update:modelValue', { ...newValue })
+    // Reset flag after a tick to allow for next updates
+    setTimeout(() => {
+      isUpdating.value = false
+    }, 0)
+  }
 }, { deep: true })
 </script>
 

@@ -328,22 +328,22 @@ const handleDrop = (event: DragEvent, item: unknown, type: string, index: number
 
 .domain-label {
   font-weight: var(--md-sys-typescale-title-medium-weight, 500);
-  color: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
 .field-label {
   font-weight: var(--md-sys-typescale-body-large-weight, 400);
-  color: var(--md-sys-color-secondary, #625b71);
+  color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
 .competency-label {
   font-weight: var(--md-sys-typescale-body-medium-weight, 400);
-  color: var(--md-sys-color-tertiary, #7d5260);
+  color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
 .specific-competency-label {
   font-weight: var(--md-sys-typescale-body-small-weight, 400);
-  color: var(--md-sys-color-outline, #79747e);
+  color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
 .result-type-chip {

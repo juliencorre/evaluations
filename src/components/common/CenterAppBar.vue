@@ -10,6 +10,13 @@
         >
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
+        <div
+          v-else-if="showSchoolIcon"
+          class="school-icon"
+          aria-label="École"
+        >
+          <span class="material-symbols-outlined">school</span>
+        </div>
       </slot>
     </div>
 
@@ -29,7 +36,6 @@
         </button>
         <UserMenu
           v-if="showUserMenu"
-          @help="$emit('help')"
           @logout="$emit('logout')"
         />
       </slot>
@@ -46,12 +52,12 @@ interface Props {
   showSearch?: boolean
   showUserMenu?: boolean
   showBackButton?: boolean
+  showSchoolIcon?: boolean
 }
 
 interface Emits {
   (e: 'search-click'): void
   (e: 'user-menu-click'): void
-  (e: 'help'): void
   (e: 'logout'): void
   (e: 'back'): void
 }
@@ -60,7 +66,8 @@ withDefaults(defineProps<Props>(), {
   isScrolled: false,
   showSearch: true,
   showUserMenu: true,
-  showBackButton: false
+  showBackButton: false,
+  showSchoolIcon: false
 })
 
 defineEmits<Emits>()
@@ -103,7 +110,7 @@ defineEmits<Emits>()
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant);
+  color: #1D1B20;
   cursor: pointer;
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
   position: relative;
@@ -136,6 +143,19 @@ defineEmits<Emits>()
   z-index: 1;
 }
 
+.school-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: #1D1B20;
+}
+
+.school-icon .material-symbols-outlined {
+  font-size: 24px;
+}
+
 .app-bar__title {
   flex: 1;
   display: flex;
@@ -149,7 +169,7 @@ defineEmits<Emits>()
   font-size: var(--md-sys-typescale-title-large-size);
   font-weight: var(--md-sys-typescale-title-large-weight);
   line-height: var(--md-sys-typescale-title-large-line-height);
-  color: var(--md-sys-color-on-surface);
+  color: #1D1B20;
   margin: 0;
   text-align: center;
 }
@@ -171,7 +191,7 @@ defineEmits<Emits>()
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant);
+  color: #49454F;
   cursor: pointer;
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
   position: relative;
@@ -221,7 +241,7 @@ defineEmits<Emits>()
   }
 
   .icon-button .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 24px;
   }
 
 }

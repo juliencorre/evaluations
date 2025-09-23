@@ -560,10 +560,32 @@ export class SupabaseCompetenciesService {
   /**
    * Crée une nouvelle sous-compétence dans une compétence
    */
-  static async createSpecificCompetency(competencyId: string, name: string, description: string): Promise<SpecificCompetency> {
+  static async createSpecificCompetency(competencyId: string, name: string, description: string, resultTypeConfigId?: string): Promise<SpecificCompetency> {
     console.log('➕ [Sous-compétence] Création d\'une nouvelle sous-compétence:', { competencyId, name, description })
 
     try {
+      // Si aucun resultTypeConfigId n'est fourni, utiliser le premier type de résultat disponible
+      let finalResultTypeConfigId = resultTypeConfigId
+      if (!finalResultTypeConfigId) {
+        console.log('🔍 [Sous-compétence] Recherche d\'un type de résultat par défaut...')
+        const { data: resultTypes, error: resultTypesError } = await supabase
+          .from('result_type_configs')
+          .select('id')
+          .limit(1)
+
+        if (resultTypesError) {
+          console.error('❌ [Sous-compétence] Erreur récupération types de résultat:', resultTypesError)
+          throw resultTypesError
+        }
+
+        if (resultTypes && resultTypes.length > 0) {
+          finalResultTypeConfigId = resultTypes[0].id
+          console.log('✅ [Sous-compétence] Type de résultat par défaut trouvé:', finalResultTypeConfigId)
+        } else {
+          throw new Error('Aucun type de résultat disponible dans la base de données')
+        }
+      }
+
       // Obtenir le prochain index d'ordre
       console.log('🔢 [Sous-compétence] Calcul de l\'index d\'ordre...')
       const { count } = await supabase
@@ -575,14 +597,17 @@ export class SupabaseCompetenciesService {
       console.log('📈 [Sous-compétence] Index d\'ordre calculé:', orderIndex)
 
       console.log('💾 [Sous-compétence] Insertion en base...')
+      const insertData = {
+        competency_id: competencyId,
+        name,
+        description,
+        order_index: orderIndex,
+        result_type_config_id: finalResultTypeConfigId
+      }
+
       const { data, error } = await supabase
         .from('specific_competencies')
-        .insert({
-          competency_id: competencyId,
-          name,
-          description,
-          order_index: orderIndex
-        })
+        .insert(insertData)
         .select()
         .single()
 

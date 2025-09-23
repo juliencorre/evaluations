@@ -3,10 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Define route constants for better maintainability
 const ROUTE_NAMES = {
   HOME: 'home',
+  WELCOME: 'welcome',
   EVALUATIONS: 'evaluations',
   EVALUATION_DETAIL: 'evaluation-detail',
+  EVALUATION_EDIT: 'evaluation-edit',
   STUDENTS: 'students',
   COMPETENCIES: 'competencies',
+  TYPES: 'types',
   ANALYSIS: 'analysis',
   SETTINGS: 'settings'
 } as const
@@ -17,7 +20,17 @@ const router = createRouter({
     {
       path: '/',
       name: ROUTE_NAMES.HOME,
-      redirect: '/evaluations'
+      redirect: '/welcome'
+    },
+    {
+      path: '/welcome',
+      name: ROUTE_NAMES.WELCOME,
+      component: () => import(/* webpackChunkName: "welcome" */ '../views/WelcomeView.vue'),
+      meta: {
+        title: 'Accueil',
+        description: 'Page d\'accueil de l\'application Évaluations',
+        preload: true
+      }
     },
     {
       path: '/evaluations',
@@ -40,6 +53,16 @@ const router = createRouter({
       }
     },
     {
+      path: '/evaluation/:id/edit',
+      name: ROUTE_NAMES.EVALUATION_EDIT,
+      component: () => import(/* webpackChunkName: "evaluation-edit" */ '../views/EvaluationEditView.vue'),
+      props: true,
+      meta: {
+        title: 'Édition d\'évaluation',
+        description: 'Modifier les paramètres de l\'évaluation'
+      }
+    },
+    {
       path: '/students',
       name: ROUTE_NAMES.STUDENTS,
       component: () => import(/* webpackChunkName: "students" */ '../views/StudentsView.vue'),
@@ -55,6 +78,15 @@ const router = createRouter({
       meta: {
         title: 'Compétences',
         description: 'Référentiels de compétences'
+      }
+    },
+    {
+      path: '/types',
+      name: ROUTE_NAMES.TYPES,
+      component: () => import(/* webpackChunkName: "types" */ '../views/ResultTypesView.vue'),
+      meta: {
+        title: 'Types de résultats',
+        description: 'Configuration des types de résultats'
       }
     },
     {

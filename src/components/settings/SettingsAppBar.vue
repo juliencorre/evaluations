@@ -13,7 +13,7 @@
         <span class="material-symbols-outlined">search</span>
       </button>
       <button class="icon-button user-menu-button" aria-label="Menu utilisateur">
-        <span class="material-symbols-outlined">account_circle</span>
+        <span class="material-symbols-outlined">more_vert</span>
       </button>
     </div>
   </header>
@@ -95,7 +95,7 @@ onUnmounted(() => {
   font-size: var(--md-sys-typescale-title-large-size, 22px);
   font-weight: var(--md-sys-typescale-title-large-weight, 400);
   line-height: var(--md-sys-typescale-title-large-line-height, 28px);
-  color: var(--md-sys-color-on-surface);
+  color: #1D1B20;
   margin: 0;
   text-align: center;
 }
@@ -117,7 +117,7 @@ onUnmounted(() => {
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant, #49454f);
+  color: #49454F;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
@@ -152,11 +152,11 @@ onUnmounted(() => {
 
 /* User menu button styling */
 .user-menu-button {
-  color: var(--md-sys-color-primary, #6750a4);
+  color: #49454F;
 }
 
 .user-menu-button .material-symbols-outlined {
-  font-size: 32px;
+  font-size: 24px;
 }
 
 /* Responsive design */
@@ -176,11 +176,11 @@ onUnmounted(() => {
   }
 
   .icon-button .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .user-menu-button .material-symbols-outlined {
-    font-size: 28px;
+    font-size: 24px;
   }
 }
 </style>

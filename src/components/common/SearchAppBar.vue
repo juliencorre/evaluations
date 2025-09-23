@@ -33,7 +33,6 @@
     <!-- Trailing Actions -->
     <div class="search-app-bar__trailing">
       <UserMenu
-        @help="$emit('help')"
         @logout="$emit('logout')"
       />
     </div>
@@ -55,7 +54,6 @@ interface Emits {
   (e: 'update:search-value', value: string): void
   (e: 'clear-search'): void
   (e: 'logo-click'): void
-  (e: 'help'): void
   (e: 'logout'): void
 }
 
@@ -107,7 +105,7 @@ defineEmits<Emits>()
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-sys-color-primary);
+  color: #1D1B20;
   cursor: pointer;
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
   position: relative;
@@ -140,7 +138,7 @@ defineEmits<Emits>()
 }
 
 .app-logo-icon {
-  font-size: 28px;
+  font-size: 24px;
   z-index: 1;
 }
 
@@ -239,7 +237,7 @@ defineEmits<Emits>()
 }
 
 .search-field__clear .material-symbols-outlined {
-  font-size: 18px;
+  font-size: 24px;
 }
 
 /* Trailing section with actions */
@@ -259,7 +257,7 @@ defineEmits<Emits>()
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant);
+  color: #49454F;
   cursor: pointer;
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
   position: relative;
@@ -340,7 +338,7 @@ defineEmits<Emits>()
   }
 
   .icon-button .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .search-field {
@@ -349,7 +347,7 @@ defineEmits<Emits>()
   }
 
   .search-field__icon {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .search-field__input {

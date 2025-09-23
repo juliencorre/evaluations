@@ -10,7 +10,6 @@
       :show-search="false"
       :show-back-button="true"
       @back="goBackToList"
-      @help="handleHelp"
       @logout="handleLogout"
     />
 
@@ -41,6 +40,22 @@
       <p>Aucune compétence disponible</p>
     </div>
 
+    <!-- Menu FAB pour les actions d'évaluation -->
+    <MenuFAB
+      v-if="!isLoading && framework.domains.length > 0"
+      @edit="openEditEvaluation"
+      @delete="openDeleteEvaluation"
+    />
+
+    <!-- Dialog de confirmation de suppression -->
+    <ConfirmationDialog
+      :visible="showDeleteDialog"
+      title="Supprimer l'évaluation"
+      :message="`Êtes-vous sûr de vouloir supprimer l'évaluation '${currentEvaluation.name}' ?`"
+      warning-text="Cette action est irréversible. Toutes les données d'évaluation associées seront définitivement supprimées."
+      @close="showDeleteDialog = false"
+      @confirm="confirmDeleteEvaluation"
+    />
 
   </main>
 </template>
@@ -71,6 +86,8 @@ const EvaluationTable = defineAsyncComponent({
 
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import EvaluationMobileView from '@/components/EvaluationMobileView.vue'
+import MenuFAB from '@/components/common/MenuFAB.vue'
+import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
 
 // Stores
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
@@ -87,6 +104,7 @@ const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluati
 const isLoading = isCompetenciesLoading
 const isScrolled = ref(false)
 const isMobileView = ref(false)
+const showDeleteDialog = ref(false)
 
 // Scroll handling
 const handleScroll = () => {
@@ -130,10 +148,6 @@ onUnmounted(() => {
 })
 
 // Event handlers
-const handleHelp = () => {
-  console.log('Help requested')
-  window.alert('Aide - Fonctionnalité à venir')
-}
 
 const handleLogout = () => {
   console.log('Logout requested')
@@ -142,6 +156,29 @@ const handleLogout = () => {
 
 const goBackToList = () => {
   router.push('/evaluations')
+}
+
+// MenuFAB handlers
+const openEditEvaluation = () => {
+  console.log('Edit evaluation requested')
+  const evaluationId = props.id || (route?.params?.id as string)
+  if (evaluationId) {
+    router.push(`/evaluation/${evaluationId}/edit`)
+  } else {
+    console.error('❌ [HomeView] No evaluation ID found for editing')
+  }
+}
+
+const openDeleteEvaluation = () => {
+  console.log('Delete evaluation requested')
+  showDeleteDialog.value = true
+}
+
+const confirmDeleteEvaluation = () => {
+  console.log('Evaluation deletion confirmed')
+  showDeleteDialog.value = false
+  // TODO: Implémenter la suppression réelle de l'évaluation
+  window.alert('Suppression de l\'évaluation - Fonctionnalité à venir')
 }
 
 // Debug logs
@@ -187,7 +224,7 @@ console.log('🏠 [HomeView] Initialisation avec framework:', {
 main {
   height: calc(100vh - 60px);
   overflow: hidden;
-  padding: 20px 20px 80px;
+  padding: 0;
   box-sizing: border-box;
 }
 </style>

@@ -5,15 +5,14 @@
       title="Compétences"
       :is-scrolled="isScrolled"
       :show-search="false"
+      :show-back-button="true"
+      @back="goBack"
       @user-menu-click="handleUserMenuClick"
-      @help="handleHelp"
       @logout="handleLogout"
     />
 
-    <!-- Competency Tabs -->
-    <CompetencyTabs v-model="activeView" :tabs="tabItems" />
-    <!-- Tree View -->
-    <div v-if="activeView === 'tree'" class="page-content">
+    <!-- Référentiels Content -->
+    <div class="page-content">
       <CompetencyTree
         :domains="frameworkWithDragDrop.domains"
         @add-field="openAddFieldModal"
@@ -30,31 +29,10 @@
       />
     </div>
 
-    <!-- Types View -->
-    <div v-if="activeView === 'types'" class="page-content types-content">
-      <ResultTypesGrid
-        :result-types="resultTypes"
-        @edit="editResultType"
-        @delete="deleteResultType"
-      />
-    </div>
-
-
-    <!-- FABs -->
-    <ExtendedFAB
-      v-if="activeView === 'tree'"
-      icon="add"
-      :visible="true"
-      aria-label="Ajouter un domaine"
-      @click="openAddDomainModal"
-    />
-
-    <ExtendedFAB
-      v-if="activeView === 'types'"
-      icon="add"
-      :visible="true"
-      aria-label="Nouveau type"
-      @click="openAddResultTypeModal"
+    <!-- Menu FAB pour les actions de compétences -->
+    <MenuFAB
+      :menu-items="competenciesMenuItems"
+      @menu-item-click="handleFabMenuClick"
     />
   </div>
 
@@ -66,72 +44,78 @@
     @delete="handleModalDelete"
   />
 
-  <!-- Result Type Modal -->
-  <ResultTypeModal
-    ref="resultTypeModalRef"
-    @save="handleResultTypeSave"
-    @delete="handleResultTypeDelete"
-  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
-import CompetencyTabs from '@/components/competencies/CompetencyTabs.vue'
-import ExtendedFAB from '@/components/common/ExtendedFAB.vue'
+import MenuFAB from '@/components/common/MenuFAB.vue'
 import CompetencyTree from '@/components/competencies/CompetencyTree.vue'
-import ResultTypesGrid from '@/components/competencies/ResultTypesGrid.vue'
 import CompetencyModals from '@/components/competencies/CompetencyModals.vue'
-import ResultTypeModal from '@/components/competencies/ResultTypeModal.vue'
 import type { Domain, ResultTypeConfig } from '@/types/evaluation'
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { SupabaseCompetenciesService } from '@/services/supabaseCompetenciesService'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
-
-interface TabItem {
-  id: string
-  label: string
-  value: string
-}
 
 // Store
 const competencyStore = useCompetencyFrameworkStore()
+
+// Router
+const router = useRouter()
 
 // Services
 const resultTypesService = new SupabaseResultTypesService()
 
 // State
-const activeView = ref('tree')
 const isScrolled = ref(false)
-
-// Tab configuration
-const tabItems = computed<TabItem[]>(() => [
-  {
-    id: 'tree',
-    label: 'Référentiels',
-    value: 'tree'
-  },
-  {
-    id: 'types',
-    label: 'Types',
-    value: 'types'
-  }
-])
+const resultTypes = ref<ResultTypeConfig[]>([])
 
 // Framework state with real data from store
 const frameworkWithDragDrop = computed(() => ({
   domains: competencyStore.framework.value.domains
 }))
 
-// Result types state
-const resultTypes = ref<ResultTypeConfig[]>([])
+// FAB Menu Items
+const competenciesMenuItems = ref([
+  {
+    key: 'add-domain',
+    icon: 'add',
+    label: 'Nouveau domaine',
+    ariaLabel: 'Ajouter un nouveau domaine',
+    type: 'add'
+  },
+  {
+    key: 'import',
+    icon: 'file_upload',
+    label: 'Importer',
+    ariaLabel: 'Importer un référentiel',
+    type: 'import'
+  }
+])
 
 // Modal states
 const modalsRef = ref()
-const resultTypeModalRef = ref()
 
-// TODO: Add editing context when modals are implemented
+// FAB Menu Handler
+const handleFabMenuClick = (item: any) => {
+  console.log('FAB menu click:', item.key)
+  switch (item.key) {
+    case 'add-domain':
+      openAddDomainModal()
+      break
+    case 'import':
+      handleImportClick()
+      break
+    default:
+      console.warn('Unknown FAB menu item:', item.key)
+  }
+}
 
-// TODO: Add modal management functions when modals are implemented
+const handleImportClick = () => {
+  console.log('Import clicked - functionality to be implemented')
+  window.alert('Fonctionnalité d\'importation - À venir')
+}
 
 // Tree operations
 const openAddFieldModal = (domain: Domain) => {
@@ -199,21 +183,6 @@ const openAddDomainModal = () => {
 
 // TODO: Add saveCompetency function when modals are implemented
 
-// Result type operations
-const openAddResultTypeModal = () => {
-  console.log('Add result type')
-  resultTypeModalRef.value?.openAddModal()
-}
-
-const editResultType = (type: ResultTypeConfig) => {
-  console.log('Edit result type:', type)
-  resultTypeModalRef.value?.openEditModal(type)
-}
-
-const deleteResultType = (type: ResultTypeConfig) => {
-  console.log('Delete result type:', type)
-  resultTypeModalRef.value?.openDeleteModal(type)
-}
 
 // Import/Export operations
 // TODO: Implement these functions when Import/Export tab is re-enabled
@@ -230,54 +199,116 @@ const deleteResultType = (type: ResultTypeConfig) => {
 // Modal event handlers
 const handleModalSave = async (data: { type: string; data: any; context?: any }) => {
   console.log('Modal save:', data)
-  // TODO: Implement save logic with competencyStore
-  // For now, just refresh data
-  await competencyStore.refreshFromSupabase()
+
+  try {
+    switch (data.type) {
+      case 'domain':
+        if (data.data.id) {
+          await SupabaseCompetenciesService.updateDomain(data.data.id, {
+            name: data.data.name,
+            description: data.data.description
+          })
+        } else {
+          await SupabaseCompetenciesService.createDomain(
+            data.data.name,
+            data.data.description
+          )
+        }
+        break
+
+      case 'field':
+        if (data.data.id) {
+          await SupabaseCompetenciesService.updateField(data.data.id, {
+            name: data.data.name,
+            description: data.data.description
+          })
+        } else if (data.context?.domain) {
+          await SupabaseCompetenciesService.createField(
+            data.context.domain.id,
+            data.data.name,
+            data.data.description
+          )
+        }
+        break
+
+      case 'competency':
+        if (data.data.id) {
+          await SupabaseCompetenciesService.updateCompetency(data.data.id, {
+            name: data.data.name,
+            description: data.data.description
+          })
+        } else if (data.context?.field) {
+          await SupabaseCompetenciesService.createCompetency(
+            data.context.field.id,
+            data.data.name,
+            data.data.description
+          )
+        }
+        break
+
+      case 'specificCompetency':
+        if (data.data.id) {
+          // Update specific competency including result type
+          await SupabaseCompetenciesService.updateSpecificCompetency(data.data.id, {
+            name: data.data.name,
+            description: data.data.description,
+            resultTypeConfigId: data.data.resultTypeConfigId || undefined
+          })
+        } else if (data.context?.competency) {
+          await SupabaseCompetenciesService.createSpecificCompetency(
+            data.context.competency.id,
+            data.data.name,
+            data.data.description,
+            data.data.resultTypeConfigId || undefined
+          )
+        }
+        break
+    }
+
+    // Refresh data after save
+    await competencyStore.refreshFromSupabase()
+  } catch (error) {
+    console.error('Error saving competency data:', error)
+  }
 }
 
 const handleModalDelete = async (data: { type: string; item: any; context?: any }) => {
   console.log('Modal delete:', data)
-  // TODO: Implement delete logic with competencyStore
-  // For now, just refresh data
-  await competencyStore.refreshFromSupabase()
-}
 
-// Result type modal event handlers
-const handleResultTypeSave = async (data: { type: Partial<ResultTypeConfig>; isEditing: boolean }) => {
-  console.log('Result type save:', data)
   try {
-    if (data.isEditing && data.type.id) {
-      await resultTypesService.updateResultType(data.type.id, data.type as ResultTypeConfig)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, ...resultTypeWithoutId } = data.type
-      // Ensure type is defined, default to 'scale' if undefined
-      const typeToCreate = {
-        ...resultTypeWithoutId,
-        type: resultTypeWithoutId.type || 'scale',
-        config: {
-          values: resultTypeWithoutId.config?.values || []
+    switch (data.type) {
+      case 'domain':
+        if (data.item?.id) {
+          await SupabaseCompetenciesService.deleteDomain(data.item.id)
         }
-      }
-      await resultTypesService.createResultType(typeToCreate as Omit<ResultTypeConfig, 'id'>)
+        break
+
+      case 'field':
+        if (data.item?.id) {
+          await SupabaseCompetenciesService.deleteField(data.item.id)
+        }
+        break
+
+      case 'competency':
+        if (data.item?.id) {
+          await SupabaseCompetenciesService.deleteCompetency(data.item.id)
+        }
+        break
+
+      case 'specificCompetency':
+        if (data.item?.id) {
+          await SupabaseCompetenciesService.deleteSpecificCompetency(data.item.id)
+        }
+        break
     }
-    // Reload result types
-    resultTypes.value = await resultTypesService.getResultTypes()
+
+    // Refresh data after delete
+    await competencyStore.refreshFromSupabase()
   } catch (error) {
-    console.error('Error saving result type:', error)
+    console.error('Error deleting competency data:', error)
   }
 }
 
-const handleResultTypeDelete = async (type: ResultTypeConfig) => {
-  console.log('Result type delete:', type)
-  try {
-    await resultTypesService.deleteResultType(type.id!)
-    // Reload result types
-    resultTypes.value = await resultTypesService.getResultTypes()
-  } catch (error) {
-    console.error('Error deleting result type:', error)
-  }
-}
 
 // Scroll handling
 const handleScroll = () => {
@@ -286,8 +317,14 @@ const handleScroll = () => {
 
 onMounted(async () => {
   await competencyStore.refreshFromSupabase()
+
   // Load result types
-  resultTypes.value = await resultTypesService.getResultTypes()
+  try {
+    resultTypes.value = await resultTypesService.getResultTypes()
+    console.log('✅ Types de résultat chargés:', resultTypes.value.length)
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement des types de résultat:', error)
+  }
 
   // Scroll handling
   window.addEventListener('scroll', handleScroll, { passive: true })
@@ -299,14 +336,15 @@ onUnmounted(() => {
 })
 
 // Event handlers
+const goBack = () => {
+  console.log('Going back to previous page')
+  router.go(-1)
+}
+
 const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }
 
-const handleHelp = () => {
-  console.log('Help requested')
-  window.alert('Aide - Fonctionnalité à venir')
-}
 
 const handleLogout = () => {
   console.log('Logout requested')

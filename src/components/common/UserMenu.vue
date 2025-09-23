@@ -6,7 +6,7 @@
       :aria-expanded="isOpen"
       @click="toggleMenu"
     >
-      <span class="material-symbols-outlined">account_circle</span>
+      <span class="material-symbols-outlined">more_vert</span>
     </button>
 
     <Transition name="menu">
@@ -26,6 +26,26 @@
 
           <nav class="menu-items">
             <router-link
+              to="/competencies"
+              class="menu-item"
+              @click="closeMenu"
+            >
+              <span class="material-symbols-outlined">psychology</span>
+              <span class="menu-item-text">Compétences</span>
+            </router-link>
+
+            <router-link
+              to="/types"
+              class="menu-item"
+              @click="closeMenu"
+            >
+              <span class="material-symbols-outlined">category</span>
+              <span class="menu-item-text">Types de résultats</span>
+            </router-link>
+
+            <div class="menu-divider"></div>
+
+            <router-link
               to="/settings"
               class="menu-item"
               @click="closeMenu"
@@ -34,12 +54,6 @@
               <span class="menu-item-text">Paramètres</span>
             </router-link>
 
-            <button class="menu-item menu-item-button" @click="handleHelp">
-              <span class="material-symbols-outlined">help</span>
-              <span class="menu-item-text">Aide</span>
-            </button>
-
-            <div class="menu-divider"></div>
 
             <button class="menu-item menu-item-button" @click="handleLogout">
               <span class="material-symbols-outlined">logout</span>
@@ -56,7 +70,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 interface Emits {
-  (e: 'help'): void
   (e: 'logout'): void
 }
 
@@ -77,11 +90,6 @@ function handleClickOutside(event: Event) {
   if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
     closeMenu()
   }
-}
-
-function handleHelp() {
-  emit('help')
-  closeMenu()
 }
 
 function handleLogout() {
@@ -112,7 +120,7 @@ onUnmounted(() => {
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-sys-color-on-surface-variant);
+  color: #49454F;
   cursor: pointer;
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
   position: relative;
@@ -146,11 +154,11 @@ onUnmounted(() => {
 }
 
 .user-menu-button {
-  color: var(--md-sys-color-primary);
+  color: #49454F;
 }
 
 .user-menu-button .material-symbols-outlined {
-  font-size: 32px;
+  font-size: 24px;
 }
 
 /* Menu Dropdown */
@@ -164,7 +172,7 @@ onUnmounted(() => {
   box-shadow:
     0px 2px 6px 2px rgba(0, 0, 0, 0.15),
     0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
+  z-index: 1100;
   overflow: hidden;
 }
 
@@ -243,7 +251,7 @@ onUnmounted(() => {
 }
 
 .menu-item .material-symbols-outlined {
-  font-size: 20px;
+  font-size: 24px;
   color: var(--md-sys-color-on-surface-variant);
 }
 
@@ -282,11 +290,11 @@ onUnmounted(() => {
   }
 
   .icon-button .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .user-menu-button .material-symbols-outlined {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .menu-dropdown {

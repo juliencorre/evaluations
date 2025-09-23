@@ -28,14 +28,48 @@
           >
             <option value="scale">Échelle (A, B, C, D, E)</option>
             <option value="boolean">Booléen (Oui/Non)</option>
+            <option value="numeric">Numérique (avec plage)</option>
             <option value="custom">Personnalisé</option>
           </select>
         </div>
       </div>
     </ContentSection>
 
-    <!-- Values Section -->
-    <ContentSection title="Valeurs possibles">
+    <!-- Numeric Configuration Section (only shown for numeric type) -->
+    <ContentSection v-if="localData.type === 'numeric'" title="Configuration numérique">
+      <div class="form-row">
+        <TextFieldOutlined
+          id="numeric-min-value"
+          :model-value="localData.config.minValue ?? 0"
+          @update:modelValue="(value) => { localData.config.minValue = Number(value); handleNumericConfigChange() }"
+          label="Valeur minimale"
+          placeholder="Ex: 0"
+          type="number"
+          required
+          class="half-width"
+        />
+        <TextFieldOutlined
+          id="numeric-max-value"
+          :model-value="localData.config.maxValue ?? 10"
+          @update:modelValue="(value) => { localData.config.maxValue = Number(value); handleNumericConfigChange() }"
+          label="Valeur maximale"
+          placeholder="Ex: 20"
+          type="number"
+          required
+          class="half-width"
+        />
+      </div>
+      <div class="form-row">
+        <div class="info-text">
+          <p>• Les élèves peuvent saisir n'importe quelle valeur numérique</p>
+          <p>• La note sur 10 sera calculée proportionnellement entre min et max</p>
+          <p>• Si la valeur dépasse le maximum, la note sera 10/10</p>
+        </div>
+      </div>
+    </ContentSection>
+
+    <!-- Values Section (not shown for numeric type) -->
+    <ContentSection v-if="localData.type !== 'numeric'" title="Valeurs possibles">
       <div class="values-container">
         <div
           v-for="(value, index) in localData.config.values"
@@ -93,7 +127,39 @@
     <!-- Preview Section -->
     <ContentSection title="Aperçu">
       <div class="preview-container">
-        <div class="preview-values">
+        <!-- Numeric type preview -->
+        <div v-if="localData.type === 'numeric'" class="preview-values">
+          <div class="preview-numeric">
+            <div class="numeric-range">
+              <span class="range-label">Plage de valeurs : {{ localData.config.minValue || 0 }} - {{ localData.config.maxValue || 0 }}</span>
+            </div>
+            <div class="scoring-examples">
+              <div class="score-example">
+                <span class="example-value">{{ localData.config.minValue || 0 }}</span>
+                <span class="example-arrow">→</span>
+                <span class="example-score">0/10</span>
+              </div>
+              <div class="score-example">
+                <span class="example-value">{{ ((localData.config.minValue || 0) + (localData.config.maxValue || 0)) / 2 }}</span>
+                <span class="example-arrow">→</span>
+                <span class="example-score">5/10</span>
+              </div>
+              <div class="score-example">
+                <span class="example-value">{{ localData.config.maxValue || 0 }}</span>
+                <span class="example-arrow">→</span>
+                <span class="example-score">10/10</span>
+              </div>
+              <div class="score-example">
+                <span class="example-value">{{ (localData.config.maxValue || 0) + 5 }}+</span>
+                <span class="example-arrow">→</span>
+                <span class="example-score">10/10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Other types preview -->
+        <div v-else class="preview-values">
           <div
             v-for="value in localData.config.values"
             :key="value.value"
@@ -135,7 +201,9 @@ const localData = ref<ResultTypeConfig>({
   name: '',
   type: 'scale',
   config: {
-    values: []
+    values: [],
+    minValue: 0,
+    maxValue: 10
   }
 })
 
@@ -174,12 +242,29 @@ const handleTypeChange = () => {
       case 'boolean':
         localData.value.config.values = [...booleanTemplate]
         break
+      case 'numeric':
+        // Set default numeric configuration
+        localData.value.config.minValue = 0
+        localData.value.config.maxValue = 10
+        localData.value.config.values = [] // Numeric type doesn't use predefined values
+        break
       case 'custom':
         localData.value.config.values = [
           { label: '', value: '', pivot_value: 0 }
         ]
         break
     }
+  }
+  emitChange()
+}
+
+const handleNumericConfigChange = () => {
+  // Ensure min is less than max
+  if (localData.value.config.minValue !== undefined && 
+      localData.value.config.maxValue !== undefined &&
+      localData.value.config.minValue >= localData.value.config.maxValue) {
+    // If min >= max, adjust max to be min + 1
+    localData.value.config.maxValue = localData.value.config.minValue + 1
   }
   emitChange()
 }
@@ -211,7 +296,9 @@ const initializeForm = () => {
       name: props.modelValue.name || '',
       type: props.modelValue.type || 'scale',
       config: {
-        values: props.modelValue.config?.values ? [...props.modelValue.config.values] : []
+        values: props.modelValue.config?.values ? [...props.modelValue.config.values] : [],
+        minValue: props.modelValue.config?.minValue,
+        maxValue: props.modelValue.config?.maxValue
       }
     }
   }
@@ -233,7 +320,10 @@ const emitChange = () => {
         label: v.label || '',
         value: v.value || '',
         pivot_value: v.pivot_value || 0
-      }))
+      })),
+      // Include numeric configuration if it exists
+      ...(localData.value.config.minValue !== undefined && { minValue: localData.value.config.minValue }),
+      ...(localData.value.config.maxValue !== undefined && { maxValue: localData.value.config.maxValue })
     }
   }
   emit('update:modelValue', cleanedData)
@@ -407,6 +497,83 @@ onMounted(() => {
   font-size: var(--md-sys-typescale-body-small-size);
   color: var(--md-sys-color-on-surface-variant);
   font-variant-numeric: tabular-nums;
+}
+
+/* Numeric type styles */
+.half-width {
+  flex: 0 0 calc(50% - 8px);
+  min-width: 200px;
+}
+
+.info-text {
+  flex: 1;
+  padding: 12px;
+  background: var(--md-sys-color-surface-container-low);
+  border-radius: var(--md-sys-shape-corner-small);
+  border-left: 4px solid var(--md-sys-color-primary);
+}
+
+.info-text p {
+  margin: 4px 0;
+  font-family: var(--md-sys-typescale-body-small-font);
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.preview-numeric {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.numeric-range {
+  padding: 12px;
+  background: var(--md-sys-color-secondary-container);
+  border-radius: var(--md-sys-shape-corner-small);
+  text-align: center;
+}
+
+.range-label {
+  font-family: var(--md-sys-typescale-title-medium-font);
+  font-size: var(--md-sys-typescale-title-medium-size);
+  font-weight: var(--md-sys-typescale-title-medium-weight);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.scoring-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.score-example {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--md-sys-color-surface-container);
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.example-value {
+  font-family: var(--md-sys-typescale-body-medium-font);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.example-arrow {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0 8px;
+}
+
+.example-score {
+  font-family: var(--md-sys-typescale-body-small-font);
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 
 /* Responsive */

@@ -276,19 +276,53 @@ const getScoreFromValue = (value: string, resultTypeConfigId?: string): number =
     return 0
   }
 
-  const configValue = resultType.config.values.find(v => v.value === value)
-  if (!configValue) {
-    console.log('🔢 [getScoreFromValue] Config value not found:', { value, availableValues: resultType.config.values })
-    return 0
-  }
+  let finalScore = 0
 
-  const finalScore = configValue.pivot_value // Direct pivot_value (sur 10)
-  console.log('🔢 [getScoreFromValue] Conversion:', {
-    value,
-    resultType: resultType.name,
-    pivotValue: configValue.pivot_value,
-    finalScore: finalScore.toFixed(1)
-  })
+  if (resultType.type === 'numeric') {
+    // Handle numeric type - calculate score based on range
+    const numericValue = parseFloat(value)
+    if (isNaN(numericValue)) {
+      console.log('🔢 [getScoreFromValue] Invalid numeric value:', value)
+      return 0
+    }
+
+    const minValue = resultType.config.minValue ?? 0
+    const maxValue = resultType.config.maxValue ?? 10
+
+    // Calculate score: proportional between min and max, capped at 10
+    if (numericValue <= minValue) {
+      finalScore = 0
+    } else if (numericValue >= maxValue) {
+      finalScore = 10
+    } else {
+      // Linear interpolation between min and max
+      finalScore = ((numericValue - minValue) / (maxValue - minValue)) * 10
+    }
+
+    console.log('🔢 [getScoreFromValue] Numeric conversion:', {
+      value,
+      numericValue,
+      minValue,
+      maxValue,
+      resultType: resultType.name,
+      finalScore: finalScore.toFixed(1)
+    })
+  } else {
+    // Handle other types - find the corresponding pivot value
+    const configValue = resultType.config.values.find(v => v.value === value)
+    if (!configValue) {
+      console.log('🔢 [getScoreFromValue] Config value not found:', { value, availableValues: resultType.config.values })
+      return 0
+    }
+
+    finalScore = configValue.pivot_value // Direct pivot_value (sur 10)
+    console.log('🔢 [getScoreFromValue] Conversion:', {
+      value,
+      resultType: resultType.name,
+      pivotValue: configValue.pivot_value,
+      finalScore: finalScore.toFixed(1)
+    })
+  }
 
   return finalScore
 }

@@ -11,13 +11,26 @@ export class SupabaseResultTypesService {
     }
   }
 
-  private parseConfig(config: unknown): { values: ResultTypeConfigValue[] } {
+  private parseConfig(config: unknown): { values: ResultTypeConfigValue[]; minValue?: number; maxValue?: number } {
     // Type guard for config structure
-    if (typeof config === 'object' && config !== null && 'values' in config) {
-      const configObj = config as { values: unknown }
-      if (Array.isArray(configObj.values)) {
-        return { values: configObj.values as ResultTypeConfigValue[] }
+    if (typeof config === 'object' && config !== null) {
+      const configObj = config as { values?: unknown; minValue?: number; maxValue?: number }
+      
+      // Parse values array if it exists
+      const values = Array.isArray(configObj.values) ? configObj.values as ResultTypeConfigValue[] : []
+      
+      // Parse numeric configuration
+      const result: { values: ResultTypeConfigValue[]; minValue?: number; maxValue?: number } = { values }
+      
+      if (typeof configObj.minValue === 'number') {
+        result.minValue = configObj.minValue
       }
+      
+      if (typeof configObj.maxValue === 'number') {
+        result.maxValue = configObj.maxValue
+      }
+      
+      return result
     }
 
     // Fallback to empty array if config is invalid
@@ -69,8 +82,10 @@ export class SupabaseResultTypesService {
 
   async createResultType(resultType: Omit<ResultTypeConfig, 'id'>): Promise<ResultTypeConfig | null> {
     try {
-      // Validate pivot values are between 0 and 10
-      this.validatePivotValues(resultType.config.values)
+      // Validate pivot values are between 0 and 10 (skip for numeric types which don't have predefined values)
+      if (resultType.type !== 'numeric' && resultType.config.values.length > 0) {
+        this.validatePivotValues(resultType.config.values)
+      }
 
       const { data, error } = await supabase
         .from('result_type_configs')
@@ -98,8 +113,8 @@ export class SupabaseResultTypesService {
 
   async updateResultType(id: string, resultType: Partial<ResultTypeConfig>): Promise<ResultTypeConfig | null> {
     try {
-      // Validate pivot values are between 0 and 10
-      if (resultType.config?.values) {
+      // Validate pivot values are between 0 and 10 (skip for numeric types which don't have predefined values)
+      if (resultType.config?.values && resultType.type !== 'numeric' && resultType.config.values.length > 0) {
         this.validatePivotValues(resultType.config.values)
       }
 

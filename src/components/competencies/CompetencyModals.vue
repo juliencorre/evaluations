@@ -46,6 +46,7 @@ interface ContextItem {
   id: string
   name: string
   description?: string
+  resultTypeConfigId?: string
 }
 
 interface Context {
@@ -175,7 +176,7 @@ const openDeleteDialog = (type: string, item: CompetencyItem, context?: Context)
 const closeDialog = () => {
   showEditDialog.value = false
   showDeleteDialog.value = false
-  currentItem.value = null
+  currentItem.value = undefined
   currentContext.value = undefined
 }
 
@@ -191,12 +192,14 @@ const handleSave = () => {
 }
 
 const handleDelete = () => {
-  emit('delete', {
-    type: currentType.value,
-    item: currentItem.value,
-    context: currentContext.value
-  })
-  closeDialog()
+  if (currentItem.value) {
+    emit('delete', {
+      type: currentType.value,
+      item: currentItem.value,
+      context: currentContext.value
+    })
+    closeDialog()
+  }
 }
 
 // Update method to prevent recursion

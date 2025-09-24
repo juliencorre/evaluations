@@ -97,7 +97,7 @@ export const useEvaluationResultsStore = () => {
 
       // Initialiser aussi le stockage local en backup pour garantir le fallback
       try {
-        evaluationResultsService.getOrCreateEvaluation(toEvaluationMetadata(evaluation))
+        evaluationResultsService.getOrCreateEvaluation(evaluation)
       } catch (backupInitError) {
         console.warn('⚠️ [EvaluationResultsStore] Impossible d\'initialiser le backup local:', backupInitError)
       }

@@ -445,6 +445,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: 8px;
   flex: 1;
+  margin-inline: auto;
 }
 
 .nav-destination {
@@ -458,7 +459,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   padding: var(--nav-item-padding-block) var(--nav-item-padding-inline);
   min-width: 64px;

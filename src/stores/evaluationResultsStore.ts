@@ -82,6 +82,20 @@ export const useEvaluationResultsStore = () => {
 
       currentEvaluation.value = evaluation
 
+      // Initialiser aussi le stockage local en backup pour garantir le fallback
+      try {
+        evaluationResultsService.getOrCreateEvaluation({
+          id: evaluation.id,
+          name: evaluation.name,
+          description: evaluation.description,
+          frameworkId: evaluation.frameworkId,
+          classId: evaluation.classId,
+          createdAt: evaluation.createdAt
+        })
+      } catch (backupInitError) {
+        console.warn('⚠️ [EvaluationResultsStore] Impossible d\'initialiser le backup local:', backupInitError)
+      }
+
       console.log('✅ [EvaluationResultsStore] Évaluation initialisée:', {
         id: evaluation.id,
         name: evaluation.name,
@@ -133,13 +147,17 @@ export const useEvaluationResultsStore = () => {
           console.log('✅ [EvaluationResultsStore] Résultat sauvegardé avec Supabase')
 
           // Sauvegarder aussi en local comme backup
-          evaluationResultsService.saveResult(
-            currentEvaluation.value.id,
-            studentId,
-            competencyId,
-            value,
-            comment
-          )
+          try {
+            evaluationResultsService.saveResult(
+              currentEvaluation.value.id,
+              studentId,
+              competencyId,
+              value,
+              comment
+            )
+          } catch (backupError) {
+            console.warn('⚠️ [EvaluationResultsStore] Backup localStorage impossible, opération ignorée:', backupError)
+          }
         } catch (supabaseError) {
           console.error('❌ [EvaluationResultsStore] Erreur Supabase, basculement localStorage:', supabaseError)
           useSupabase.value = false

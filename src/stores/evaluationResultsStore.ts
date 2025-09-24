@@ -9,6 +9,10 @@ type EvaluationMetadata = Omit<Evaluation, 'results'>
 const toEvaluationMetadata = (
   evaluationLike: Evaluation | EvaluationMetadata
 ): EvaluationMetadata => {
+  // If input is already EvaluationMetadata (does not have 'results'), return it directly
+  if (!('results' in evaluationLike)) {
+    return evaluationLike
+  }
   const { id, name, description, frameworkId, classId, createdAt } = evaluationLike
   return { id, name, description, frameworkId, classId, createdAt }
 }

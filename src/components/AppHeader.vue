@@ -507,6 +507,7 @@ onUnmounted(() => {
 
 .nav-destination.active .nav-label {
   font-weight: 700;
+  color: var(--md-sys-color-on-primary);
 }
 
 .nav-indicator {

@@ -445,6 +445,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: 8px;
   flex: 1;
+  margin-inline: auto;
 }
 
 .nav-destination {
@@ -458,7 +459,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   padding: var(--nav-item-padding-block) var(--nav-item-padding-inline);
   min-width: 64px;
@@ -491,16 +492,20 @@ onUnmounted(() => {
   outline-offset: 2px;
 }
 
+
 .nav-destination.active {
-  color: var(--md-sys-color-on-surface-variant);
+  background-color: transparent;
+}
+
+.nav-destination.active:hover {
+  background-color: transparent;
 }
 
 .nav-destination.active .nav-icon {
-  color: var(--md-sys-color-on-surface-variant);
+  color: var(--md-sys-color-on-primary);
 }
 
 .nav-destination.active .nav-label {
-  color: var(--md-sys-color-on-surface-variant);
   font-weight: 700;
 }
 
@@ -551,6 +556,7 @@ onUnmounted(() => {
   text-align: center;
   z-index: 1;
   position: relative;
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .user-actions {

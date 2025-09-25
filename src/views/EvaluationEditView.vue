@@ -118,6 +118,7 @@ import { useRoute, useRouter } from 'vue-router'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 import type { Evaluation } from '@/types/evaluation'
+import { ROUTE_NAMES } from '@/router/route-names'
 
 const route = useRoute()
 const router = useRouter()
@@ -174,9 +175,8 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
 }
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const handleLogout = async () => {
+  await router.replace({ name: ROUTE_NAMES.AUTH })
 }
 
 const goBack = () => {

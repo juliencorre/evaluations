@@ -50,9 +50,10 @@ import StudentsList from '@/components/students/StudentsList.vue'
 import StudentModals from '@/components/students/StudentModals.vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
+import { ROUTE_NAMES } from '@/router/route-names'
 
 // Router
-const $router = useRouter()
+const router = useRouter()
 
 // Store
 const studentsStore = useStudentsStore()
@@ -97,9 +98,8 @@ const filteredStudents = computed(() => {
 
 // Event handlers
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const handleLogout = async () => {
+  await router.replace({ name: ROUTE_NAMES.AUTH })
 }
 
 const handleAddStudent = () => {

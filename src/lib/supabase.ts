@@ -108,7 +108,7 @@ function createSupabaseClient(): SupabaseClient<Database> {
       autoRefreshToken: true,
       detectSessionInUrl: true,
       flowType: 'pkce',
-      storageKey: 'evaluations.auth.token'
+      storageKey: 'evaluations.supabase.auth.token'
     }
   })
 }

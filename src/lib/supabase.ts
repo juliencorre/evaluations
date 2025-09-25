@@ -44,6 +44,25 @@ const createMockSupabase = () => {
     upsert: (_data: any, _options?: any) => createChainableMock()
   })
 
+  const authMock = {
+    getSession: async () => ({ data: { session: null }, error: null }),
+    signInWithPassword: async () => ({ data: { session: null, user: null }, error: null }),
+    signUp: async () => ({ data: { session: null, user: null }, error: null }),
+    signOut: async () => ({ error: null }),
+    resetPasswordForEmail: async () => ({ error: null }),
+    updateUser: async () => ({ data: { user: null }, error: null }),
+    refreshSession: async () => ({ data: { session: null, user: null }, error: null }),
+    resend: async () => ({ error: null }),
+    exchangeCodeForSession: async () => ({ data: { session: null }, error: null }),
+    onAuthStateChange: () => ({
+      data: {
+        subscription: {
+          unsubscribe: () => undefined
+        }
+      }
+    })
+  }
+
   return {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     from: (_table: any) => createTableMock(),
@@ -52,7 +71,8 @@ const createMockSupabase = () => {
       on: (..._args: any[]) => ({
         subscribe: () => ({})
       })
-    })
+    }),
+    auth: authMock
   }
 }
 
@@ -74,6 +94,9 @@ function createSupabaseClient(): SupabaseClient<Database> {
         auth: {
           persistSession: true,
           autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+          storageKey: 'evaluations.auth.token'
         }
       })
     }

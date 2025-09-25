@@ -35,7 +35,7 @@
           <span class="material-symbols-outlined">search</span>
         </button>
         <UserMenu
-          v-if="showUserMenu"
+          v-if="shouldDisplayUserMenu"
           @logout="$emit('logout')"
         />
       </slot>
@@ -44,7 +44,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import UserMenu from './UserMenu.vue'
+import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 
 interface Props {
   title: string
@@ -62,7 +64,7 @@ interface Emits {
   (e: 'back'): void
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   isScrolled: false,
   showSearch: true,
   showUserMenu: true,
@@ -71,6 +73,11 @@ withDefaults(defineProps<Props>(), {
 })
 
 defineEmits<Emits>()
+
+const authStore = useAuthStore()
+const shouldDisplayUserMenu = computed(
+  () => props.showUserMenu && isAuthenticated.value && !authStore.isInitializing.value
+)
 </script>
 
 <style scoped>

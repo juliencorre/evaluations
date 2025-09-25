@@ -200,7 +200,7 @@
             <button
               class="auth-submit"
               type="submit"
-              :disabled="isFormDisabled"
+              :disabled="isFormDisabled || !canSubmitSignUp"
             >
               <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
               <span>{{ isSubmitting ? 'Création du compte...' : 'Créer mon compte' }}</span>

@@ -1,5 +1,9 @@
 <template>
-  <header class="app-header" :class="{ 'expanded': isExpanded, 'hidden': isNavHidden }">
+  <header
+    v-if="shouldRenderNavigation"
+    class="app-header"
+    :class="{ 'expanded': isExpanded, 'hidden': isNavHidden }"
+  >
     <!-- Top App Bar -->
     <nav class="top-app-bar" role="navigation" aria-label="Navigation principale">
       <!-- Navigation Rail (Desktop) -->
@@ -125,14 +129,16 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ROUTE_NAMES } from '../router'
-
-type AppRouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]
+import { useAuthStore, isAuthenticated } from '@/stores/authStore'
+import { ROUTE_NAMES, AppRouteName } from '@/router/route-names'
 
 const route = useRoute()
 const currentRouteName = computed<AppRouteName | undefined>(() => {
   return typeof route.name === 'string' ? (route.name as AppRouteName) : undefined
 })
+
+const authStore = useAuthStore()
+const shouldRenderNavigation = computed(() => !authStore.isInitializing.value && isAuthenticated.value)
 
 // State for expanded navigation rail
 const isExpanded = ref(false)
@@ -172,19 +178,47 @@ function handleScroll() {
   lastScrollY.value = currentScrollY
 }
 
+let isScrollListenerAttached = false
+
+const attachScrollListener = () => {
+  if (typeof window === 'undefined' || isScrollListenerAttached) {
+    return
+  }
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  lastScrollY.value = window.scrollY
+  isScrollListenerAttached = true
+}
+
+const detachScrollListener = () => {
+  if (typeof window === 'undefined' || !isScrollListenerAttached) {
+    return
+  }
+  window.removeEventListener('scroll', handleScroll)
+  isScrollListenerAttached = false
+}
+
 // Watch for changes and emit events
 watch(isExpanded, (expanded) => {
   emit('rail-expanded', expanded)
 }, { immediate: true })
 
+watch(shouldRenderNavigation, (visible) => {
+  if (visible) {
+    attachScrollListener()
+  } else {
+    detachScrollListener()
+  }
+}, { immediate: true })
+
 // Lifecycle hooks
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-  lastScrollY.value = window.scrollY
+  if (shouldRenderNavigation.value) {
+    attachScrollListener()
+  }
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
+  detachScrollListener()
 })
 </script>
 

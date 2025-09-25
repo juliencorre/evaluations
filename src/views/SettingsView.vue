@@ -230,9 +230,19 @@ const resetAccountFeedback = () => {
   authStore.resetError()
 }
 
+// Type guard for error objects with a string message
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  )
+}
+
 const translateAccountError = (error: unknown) => {
-  if (error && typeof error === 'object' && 'message' in error && typeof (error as { message?: string }).message === 'string') {
-    const message = (error as { message?: string }).message?.toLowerCase?.() ?? ''
+  if (isErrorWithMessage(error)) {
+    const message = error.message.toLowerCase?.() ?? ''
     if (message.includes('password')) {
       return 'Le mot de passe doit comporter au moins 12 caractères, avec lettres et chiffres.'
     }

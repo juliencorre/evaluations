@@ -204,7 +204,7 @@ const refreshSession = async () => {
 
 const resendEmailVerification = async () => {
   if (!currentUser.value?.email) {
-    return { error: new Error('Utilisateur inconnu') }
+    return { error: new Error('Aucune adresse e-mail associée au compte') }
   }
   const { error } = await supabase.auth.resend({
     type: 'signup',

@@ -219,7 +219,9 @@ const resendEmailVerification = async () => {
 }
 
 // Démarre automatiquement l'initialisation au chargement du module
-void loadInitialSession()
+loadInitialSession().catch((err) => {
+  console.error('Error during initial session load:', err)
+})
 
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', stopAuthListener, { once: true })

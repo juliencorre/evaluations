@@ -4,6 +4,7 @@
       class="icon-button user-menu-button"
       aria-label="Menu utilisateur"
       :aria-expanded="isOpen"
+      :disabled="isLoading || !signedIn"
       @click="toggleMenu"
     >
       <span class="material-symbols-outlined">more_vert</span>
@@ -16,13 +17,21 @@
             <div class="user-info">
               <span class="material-symbols-outlined user-avatar">account_circle</span>
               <div class="user-details">
-                <span class="user-name">Utilisateur</span>
-                <span class="user-role">Enseignant</span>
+                <span class="user-name">{{ displayName }}</span>
+                <span class="user-role">{{ userEmail }}</span>
+                <span
+                  v-if="!isEmailVerified"
+                  class="user-warning"
+                >
+                  E-mail à confirmer
+                </span>
               </div>
             </div>
           </div>
 
           <div class="menu-divider"></div>
+
+          <p v-if="logoutError" class="logout-error" role="alert">{{ logoutError }}</p>
 
           <nav class="menu-items">
             <router-link
@@ -55,7 +64,7 @@
             </router-link>
 
 
-            <button class="menu-item menu-item-button" @click="handleLogout">
+            <button class="menu-item menu-item-button" type="button" @click="handleLogout">
               <span class="material-symbols-outlined">logout</span>
               <span class="menu-item-text">Déconnexion</span>
             </button>
@@ -67,7 +76,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 
 interface Emits {
   (e: 'logout'): void
@@ -77,6 +87,14 @@ const emit = defineEmits<Emits>()
 
 const isOpen = ref(false)
 const userMenuRef = ref<HTMLElement>()
+const authStore = useAuthStore()
+const logoutError = ref<string | null>(null)
+
+const displayName = computed(() => authStore.displayName.value)
+const userEmail = computed(() => authStore.userEmail.value)
+const isEmailVerified = computed(() => authStore.isEmailVerified.value)
+const isLoading = computed(() => authStore.isInitializing.value)
+const signedIn = computed(() => isAuthenticated.value)
 
 function toggleMenu() {
   isOpen.value = !isOpen.value
@@ -92,7 +110,14 @@ function handleClickOutside(event: Event) {
   }
 }
 
-function handleLogout() {
+async function handleLogout() {
+  logoutError.value = null
+  const { error } = await authStore.signOut()
+  if (error) {
+    logoutError.value = "La déconnexion a échoué. Merci de réessayer."
+    return
+  }
+
   emit('logout')
   closeMenu()
 }
@@ -217,6 +242,13 @@ onUnmounted(() => {
   color: var(--md-sys-color-on-surface-variant);
 }
 
+.user-warning {
+  font-family: var(--md-sys-typescale-body-small-font);
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-error);
+  font-weight: 600;
+}
+
 .menu-divider {
   height: 1px;
   background: var(--md-sys-color-outline-variant);
@@ -264,6 +296,20 @@ onUnmounted(() => {
 
 .menu-item-button {
   text-align: left;
+}
+
+.logout-error {
+  margin: 0 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--md-sys-color-error) 12%, transparent);
+  color: var(--md-sys-color-error);
+  font-size: 0.875rem;
+}
+
+.user-menu-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Transitions */

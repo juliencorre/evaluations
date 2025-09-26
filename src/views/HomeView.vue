@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ROUTE_NAMES } from '@/router/route-names'
 
 // Define props for the evaluation ID
 interface Props {
@@ -149,9 +150,8 @@ onUnmounted(() => {
 
 // Event handlers
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const handleLogout = async () => {
+  await router.replace({ name: ROUTE_NAMES.AUTH })
 }
 
 const goBackToList = () => {

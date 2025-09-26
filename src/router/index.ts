@@ -1,18 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
-// Define route constants for better maintainability
-const ROUTE_NAMES = {
-  HOME: 'home',
-  WELCOME: 'welcome',
-  EVALUATIONS: 'evaluations',
-  EVALUATION_DETAIL: 'evaluation-detail',
-  EVALUATION_EDIT: 'evaluation-edit',
-  STUDENTS: 'students',
-  COMPETENCIES: 'competencies',
-  TYPES: 'types',
-  ANALYSIS: 'analysis',
-  SETTINGS: 'settings'
-} as const
+import { useAuthStore, isAuthenticated } from '@/stores/authStore'
+import { ROUTE_NAMES } from './route-names'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,7 +8,31 @@ const router = createRouter({
     {
       path: '/',
       name: ROUTE_NAMES.HOME,
-      redirect: '/welcome'
+      redirect: '/welcome',
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/auth',
+      name: ROUTE_NAMES.AUTH,
+      component: () => import(/* webpackChunkName: "auth" */ '../views/AuthView.vue'),
+      meta: {
+        title: 'Connexion',
+        description: 'Identifiez-vous pour accéder à l\'application Évaluations',
+        requiresAuth: false,
+        guestOnly: true
+      }
+    },
+    {
+      path: '/auth/callback',
+      name: ROUTE_NAMES.AUTH_CALLBACK,
+      component: () => import(/* webpackChunkName: "auth-callback" */ '../views/AuthCallbackView.vue'),
+      meta: {
+        title: 'Connexion en cours',
+        description: 'Finalisation du processus de connexion sécurisée',
+        requiresAuth: false
+      }
     },
     {
       path: '/welcome',
@@ -29,7 +41,8 @@ const router = createRouter({
       meta: {
         title: 'Accueil',
         description: 'Page d\'accueil de l\'application Évaluations',
-        preload: true
+        preload: true,
+        requiresAuth: true
       }
     },
     {
@@ -39,7 +52,8 @@ const router = createRouter({
       meta: {
         title: 'Évaluations',
         description: 'Liste des évaluations disponibles',
-        preload: true
+        preload: true,
+        requiresAuth: true
       }
     },
     {
@@ -49,7 +63,8 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Évaluation',
-        description: 'Tableau d\'évaluation des compétences'
+        description: 'Tableau d\'évaluation des compétences',
+        requiresAuth: true
       }
     },
     {
@@ -59,7 +74,8 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Édition d\'évaluation',
-        description: 'Modifier les paramètres de l\'évaluation'
+        description: 'Modifier les paramètres de l\'évaluation',
+        requiresAuth: true
       }
     },
     {
@@ -68,7 +84,8 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "students" */ '../views/StudentsView.vue'),
       meta: {
         title: 'Élèves',
-        description: 'Gérer la liste des élèves de la classe'
+        description: 'Gérer la liste des élèves de la classe',
+        requiresAuth: true
       }
     },
     {
@@ -77,7 +94,8 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "competencies" */ '../views/CompetenciesView.vue'),
       meta: {
         title: 'Compétences',
-        description: 'Référentiels de compétences'
+        description: 'Référentiels de compétences',
+        requiresAuth: true
       }
     },
     {
@@ -86,7 +104,8 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "types" */ '../views/ResultTypesView.vue'),
       meta: {
         title: 'Types de résultats',
-        description: 'Configuration des types de résultats'
+        description: 'Configuration des types de résultats',
+        requiresAuth: true
       }
     },
     {
@@ -95,7 +114,8 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "analysis" */ '../views/AnalysisView.vue'),
       meta: {
         title: 'Analyse',
-        description: 'Analyse des résultats'
+        description: 'Analyse des résultats',
+        requiresAuth: true
       }
     },
     {
@@ -104,18 +124,49 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "settings" */ '../views/SettingsView.vue'),
       meta: {
         title: 'Paramètres',
-        description: 'Personnalisez votre expérience de navigation'
+        description: 'Personnalisez votre expérience de navigation',
+        requiresAuth: true
       }
     }
   ]
 })
 
+const sanitizeRedirectPath = (value: unknown) => {
+  if (typeof value === 'string' && value.startsWith('/')) {
+    return value
+  }
+  return '/welcome'
+}
+
 // Add route guards for performance optimization
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   // Set document title based on route meta
   if (to.meta?.title) {
     document.title = `${to.meta.title} - Évaluations`
   }
+
+  const store = useAuthStore()
+  await store.ensureInitialized()
+
+  const authStatus = isAuthenticated.value
+  const requiresAuth = to.meta?.requiresAuth !== false
+  const guestOnly = Boolean(to.meta?.guestOnly)
+
+  if (requiresAuth && !authStatus) {
+    const redirect = sanitizeRedirectPath(to.fullPath)
+    next({
+      name: ROUTE_NAMES.AUTH,
+      query: { redirect }
+    })
+    return
+  }
+
+  if (guestOnly && authStatus) {
+    const redirect = sanitizeRedirectPath(to.query.redirect)
+    next(redirect)
+    return
+  }
+
   next()
 })
 

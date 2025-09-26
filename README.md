@@ -24,6 +24,21 @@ This repository provides a foundational Vue 3 PWA that is:
 npm install
 ```
 
+## Configuration de l'authentification Supabase
+
+1. Créez un fichier `.env.local` à la racine du projet :
+
+   ```bash
+   VITE_SUPABASE_URL="https://<votre-projet>.supabase.co"
+   VITE_SUPABASE_ANON_KEY="<clef-anonyme>"
+   ```
+
+2. Dans le tableau de bord Supabase, activez l'authentification par e-mail et configurez la durée de validité des liens (15 à 60 minutes recommandées).
+3. Personnalisez les e-mails d'authentification en important les modèles fournis dans `supabase/templates`. Chaque fichier correspond à un scénario (confirmation, réinitialisation, lien magique) et respecte les bonnes pratiques d'accessibilité.
+4. Vérifiez que l'URL de redirection (`Site URL`) pointe vers l'origine de votre application (ex. `https://app.mondomaine.fr`).
+
+> Les sessions sont gérées côté client via Supabase avec persistance sécurisée, rafraîchissement automatique des tokens et flux PKCE.
+
 ## Development
 
 ```bash

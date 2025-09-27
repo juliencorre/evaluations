@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Class } from '@/types/evaluation'
+import type { Database } from '@/types/supabase'
 
 export interface EvaluationClass {
   id: string
@@ -29,6 +31,21 @@ export interface CreateEvaluationClassRequest {
   evaluation_id: string
   class_id: string
   school_year_id?: string // Si non fourni, utilise l'année courante
+}
+
+type EvaluationClassRow = Database['public']['Tables']['evaluation_classes']['Row']
+type EvaluationRow = Database['public']['Tables']['evaluations']['Row']
+type ClassRow = Database['public']['Tables']['classes']['Row']
+type SchoolYearRow = Database['public']['Tables']['school_years']['Row']
+
+type EvaluationClassWithClassRow = EvaluationClassRow & {
+  class: ClassRow | null
+}
+
+type EvaluationClassDetailsRow = EvaluationClassRow & {
+  evaluation: EvaluationRow | null
+  class: ClassRow | null
+  school_year: SchoolYearRow | null
 }
 
 /**
@@ -122,10 +139,23 @@ export const supabaseEvaluationClassesService = {
       }
 
       // Extraire les données classes des relations
-      const classes = data?.map(item => (item as any).class).filter(Boolean) || []
+      const classes = ((data ?? []) as EvaluationClassWithClassRow[])
+        .map(item => item.class)
+        .filter((cls): cls is ClassRow => Boolean(cls))
+        .map(cls => ({
+          id: cls.id,
+          name: cls.name,
+          description: cls.description ?? undefined,
+          schoolYear: cls.school_year,
+          level: cls.level ?? undefined,
+          subject: cls.subject ?? undefined,
+          active: cls.active,
+          createdAt: cls.created_at,
+          updatedAt: cls.updated_at
+        }))
 
       console.log(`✅ [SupabaseEvaluationClasses] ${classes.length} classes récupérées pour l'évaluation`)
-      return classes as Class[]
+      return classes
 
     } catch (globalError) {
       console.error('❌ [SupabaseEvaluationClasses] Erreur globale:', globalError)
@@ -139,7 +169,7 @@ export const supabaseEvaluationClassesService = {
   async getEvaluationsForClass(
     class_id: string,
     school_year_id?: string
-  ): Promise<any[]> {
+  ): Promise<EvaluationClassWithDetails[]> {
     console.log(`🔍 [SupabaseEvaluationClasses] Récupération des évaluations de la classe: ${class_id}`)
 
     let query = supabase
@@ -173,8 +203,45 @@ export const supabaseEvaluationClassesService = {
       throw new Error(`Erreur lors de la récupération des évaluations: ${error.message}`)
     }
 
-    console.log(`✅ [SupabaseEvaluationClasses] ${data?.length || 0} évaluations récupérées pour la classe`)
-    return data || []
+    const typedData = ((data ?? []) as EvaluationClassDetailsRow[]).map(item => ({
+      id: item.id,
+      evaluation_id: item.evaluation_id,
+      class_id: item.class_id,
+      school_year_id: item.school_year_id,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      evaluation: item.evaluation
+        ? {
+            id: item.evaluation.id,
+            name: item.evaluation.name,
+            description: item.evaluation.description || undefined,
+            framework_id: item.evaluation.framework_id
+          }
+        : undefined,
+      class: item.class
+        ? {
+            id: item.class.id,
+            name: item.class.name,
+            description: item.class.description ?? undefined,
+            schoolYear: item.class.school_year,
+            level: item.class.level ?? undefined,
+            subject: item.class.subject ?? undefined,
+            active: item.class.active,
+            createdAt: item.class.created_at,
+            updatedAt: item.class.updated_at
+          }
+        : undefined,
+      school_year: item.school_year
+        ? {
+            id: item.school_year.id,
+            name: item.school_year.name,
+            is_current: item.school_year.is_current
+          }
+        : undefined
+    }))
+
+    console.log(`✅ [SupabaseEvaluationClasses] ${typedData.length} évaluations récupérées pour la classe`)
+    return typedData
   },
 
   /**
@@ -371,7 +438,11 @@ export const supabaseEvaluationClassesService = {
   /**
    * Souscription aux changements des relations évaluations-classes
    */
-  subscribeToEvaluationClasses(callback: (payload: any) => void) {
+  subscribeToEvaluationClasses(
+    callback: (
+      payload: RealtimePostgresChangesPayload<EvaluationClassRow>
+    ) => void
+  ) {
     console.log('🔔 [SupabaseEvaluationClasses] Abonnement aux changements des relations')
 
     return supabase

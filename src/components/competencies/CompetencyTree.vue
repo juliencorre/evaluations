@@ -195,7 +195,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Domain } from '@/types/evaluation'
+import type { Domain, Field, Competency, SpecificCompetency } from '@/types/evaluation'
 
 interface Props {
   domains: Domain[]
@@ -205,14 +205,26 @@ interface Emits {
   (e: 'add-field', domain: Domain): void
   (e: 'edit-domain', domain: Domain): void
   (e: 'delete-domain', domain: Domain): void
-  (e: 'add-competency', field: any, domain: Domain): void
-  (e: 'edit-field', field: any, domain: Domain): void
-  (e: 'delete-field', field: any, domain: Domain): void
-  (e: 'edit-competency', competency: any, field: any, domain: Domain): void
-  (e: 'delete-competency', competency: any, field: any, domain: Domain): void
-  (e: 'add-specific-competency', competency: any, field: any, domain: Domain): void
-  (e: 'edit-specific-competency', specificCompetency: any, competency: any, field: any, domain: Domain): void
-  (e: 'delete-specific-competency', specificCompetency: any, competency: any, field: any, domain: Domain): void
+  (e: 'add-competency', field: Field, domain: Domain): void
+  (e: 'edit-field', field: Field, domain: Domain): void
+  (e: 'delete-field', field: Field, domain: Domain): void
+  (e: 'edit-competency', competency: Competency, field: Field, domain: Domain): void
+  (e: 'delete-competency', competency: Competency, field: Field, domain: Domain): void
+  (e: 'add-specific-competency', competency: Competency, field: Field, domain: Domain): void
+  (
+    e: 'edit-specific-competency',
+    specificCompetency: SpecificCompetency,
+    competency: Competency,
+    field: Field,
+    domain: Domain
+  ): void
+  (
+    e: 'delete-specific-competency',
+    specificCompetency: SpecificCompetency,
+    competency: Competency,
+    field: Field,
+    domain: Domain
+  ): void
 }
 
 defineProps<Props>()

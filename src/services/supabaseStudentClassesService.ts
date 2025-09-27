@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Student } from '@/types/evaluation'
+import type { Database } from '@/types/supabase'
 
 export interface StudentClass {
   id: string
@@ -36,6 +38,21 @@ export interface CreateStudentClassRequest {
 
 export interface UpdateStudentClassRequest {
   status?: 'active' | 'transferred' | 'graduated' | 'dropped'
+}
+
+type StudentClassRow = Database['public']['Tables']['student_classes']['Row']
+type StudentRow = Database['public']['Tables']['students']['Row']
+type ClassRow = Database['public']['Tables']['classes']['Row']
+type SchoolYearRow = Database['public']['Tables']['school_years']['Row']
+
+type StudentClassWithStudentRow = StudentClassRow & {
+  student: StudentRow | null
+}
+
+type StudentClassDetailsRow = StudentClassRow & {
+  student: StudentRow | null
+  class: ClassRow | null
+  school_year: SchoolYearRow | null
 }
 
 /**
@@ -136,23 +153,20 @@ export const supabaseStudentClassesService = {
       }
 
       // Extraire les données students des relations et mapper les propriétés
-      const students = data?.map(item => {
-        const student = (item as any).student
-        if (!student) return null
-
-        // Mapper snake_case vers camelCase
-        return {
+      const students = ((data ?? []) as StudentClassWithStudentRow[])
+        .map(item => item.student)
+        .filter((student): student is StudentRow => Boolean(student))
+        .map(student => ({
           id: student.id,
           firstName: student.first_name,
           lastName: student.last_name,
           displayName: student.display_name,
           createdAt: student.created_at,
           updatedAt: student.updated_at
-        }
-      }).filter(Boolean) || []
+        }))
 
       console.log(`✅ [SupabaseStudentClasses] ${students.length} étudiants récupérés pour la classe`)
-      return students as Student[]
+      return students
 
     } catch (globalError) {
       console.warn('⚠️ [SupabaseStudentClasses] Erreur globale, utilisation du fallback:', globalError)
@@ -198,7 +212,7 @@ export const supabaseStudentClassesService = {
     student_id: string,
     school_year_id?: string,
     status: string = 'active'
-  ): Promise<any[]> {
+  ): Promise<StudentClassWithDetails[]> {
     console.log(`🔍 [SupabaseStudentClasses] Récupération des classes de l'étudiant: ${student_id}`)
 
     let query = supabase
@@ -233,8 +247,49 @@ export const supabaseStudentClassesService = {
       throw new Error(`Erreur lors de la récupération des classes: ${error.message}`)
     }
 
-    console.log(`✅ [SupabaseStudentClasses] ${data?.length || 0} classes récupérées pour l'étudiant`)
-    return data || []
+    const typedData = ((data ?? []) as StudentClassDetailsRow[]).map(item => ({
+      id: item.id,
+      student_id: item.student_id,
+      class_id: item.class_id,
+      school_year_id: item.school_year_id,
+      enrolled_at: item.enrolled_at,
+      status: item.status,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      student: item.student
+        ? {
+            id: item.student.id,
+            firstName: item.student.first_name,
+            lastName: item.student.last_name,
+            displayName: item.student.display_name,
+            createdAt: item.student.created_at,
+            updatedAt: item.student.updated_at
+          }
+        : undefined,
+      class: item.class
+        ? {
+            id: item.class.id,
+            name: item.class.name,
+            description: item.class.description ?? undefined,
+            schoolYear: item.class.school_year,
+            level: item.class.level ?? undefined,
+            subject: item.class.subject ?? undefined,
+            active: item.class.active,
+            createdAt: item.class.created_at,
+            updatedAt: item.class.updated_at
+          }
+        : undefined,
+      school_year: item.school_year
+        ? {
+            id: item.school_year.id,
+            name: item.school_year.name,
+            is_current: item.school_year.is_current
+          }
+        : undefined
+    }))
+
+    console.log(`✅ [SupabaseStudentClasses] ${typedData.length} classes récupérées pour l'étudiant`)
+    return typedData
   },
 
   /**
@@ -429,7 +484,11 @@ export const supabaseStudentClassesService = {
   /**
    * Souscription aux changements des relations étudiants-classes
    */
-  subscribeToStudentClasses(callback: (payload: any) => void) {
+  subscribeToStudentClasses(
+    callback: (
+      payload: RealtimePostgresChangesPayload<StudentClassRow>
+    ) => void
+  ) {
     console.log('🔔 [SupabaseStudentClasses] Abonnement aux changements des relations')
 
     return supabase

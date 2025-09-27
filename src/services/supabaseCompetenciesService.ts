@@ -10,6 +10,23 @@ type SupabaseField = Database['public']['Tables']['fields']['Row']
 type SupabaseCompetency = Database['public']['Tables']['competencies']['Row']
 type SupabaseSpecificCompetency = Database['public']['Tables']['specific_competencies']['Row']
 type SupabaseFramework = Database['public']['Tables']['competency_frameworks']['Row']
+type SupabaseResultTypeConfig = Database['public']['Tables']['result_type_configs']['Row']
+
+type SupabaseSpecificCompetencyWithResult = SupabaseSpecificCompetency & {
+  result_type_configs?: SupabaseResultTypeConfig | null
+}
+
+type SupabaseCompetencyWithChildren = SupabaseCompetency & {
+  specific_competencies?: SupabaseSpecificCompetencyWithResult[]
+}
+
+type SupabaseFieldWithChildren = SupabaseField & {
+  competencies?: SupabaseCompetencyWithChildren[]
+}
+
+type SupabaseDomainWithChildren = SupabaseDomain & {
+  fields?: SupabaseFieldWithChildren[]
+}
 
 // ID du framework par défaut - sera généré automatiquement
 let DEFAULT_FRAMEWORK_ID: string | null = null
@@ -743,16 +760,14 @@ export class SupabaseCompetenciesService {
   /**
    * Transforme un domaine avec ses enfants
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static transformDomainWithChildren(supabaseDomain: any): Domain {
+  private static transformDomainWithChildren(supabaseDomain: SupabaseDomainWithChildren): Domain {
     return {
       id: supabaseDomain.id,
       name: supabaseDomain.name,
       description: supabaseDomain.description || '',
       fields: (supabaseDomain.fields || [])
         .sort((a: SupabaseField, b: SupabaseField) => a.order_index - b.order_index)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((field: any) => SupabaseCompetenciesService.transformFieldWithChildren(field))
+        .map(field => SupabaseCompetenciesService.transformFieldWithChildren(field))
     }
   }
 
@@ -771,16 +786,14 @@ export class SupabaseCompetenciesService {
   /**
    * Transforme un champ avec ses enfants
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static transformFieldWithChildren(supabaseField: any): Field {
+  private static transformFieldWithChildren(supabaseField: SupabaseFieldWithChildren): Field {
     return {
       id: supabaseField.id,
       name: supabaseField.name,
       description: supabaseField.description || '',
       competencies: (supabaseField.competencies || [])
         .sort((a: SupabaseCompetency, b: SupabaseCompetency) => a.order_index - b.order_index)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((competency: any) => SupabaseCompetenciesService.transformCompetencyWithChildren(competency))
+        .map(competency => SupabaseCompetenciesService.transformCompetencyWithChildren(competency))
     }
   }
 
@@ -799,22 +812,23 @@ export class SupabaseCompetenciesService {
   /**
    * Transforme une compétence avec ses enfants
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static transformCompetencyWithChildren(supabaseCompetency: any): Competency {
+  private static transformCompetencyWithChildren(supabaseCompetency: SupabaseCompetencyWithChildren): Competency {
     return {
       id: supabaseCompetency.id,
       name: supabaseCompetency.name,
       description: supabaseCompetency.description || '',
       specificCompetencies: (supabaseCompetency.specific_competencies || [])
         .sort((a: SupabaseSpecificCompetency, b: SupabaseSpecificCompetency) => a.order_index - b.order_index)
-        .map((specificCompetency: SupabaseSpecificCompetency) => SupabaseCompetenciesService.transformSpecificCompetency(specificCompetency))
+        .map(specificCompetency => SupabaseCompetenciesService.transformSpecificCompetency(specificCompetency))
     }
   }
 
   /**
    * Transforme une sous-compétence Supabase en objet SpecificCompetency
    */
-  private static transformSpecificCompetency(supabaseSpecificCompetency: any): SpecificCompetency {
+  private static transformSpecificCompetency(
+    supabaseSpecificCompetency: SupabaseSpecificCompetencyWithResult
+  ): SpecificCompetency {
     return {
       id: supabaseSpecificCompetency.id,
       name: supabaseSpecificCompetency.name,

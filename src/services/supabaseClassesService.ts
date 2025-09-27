@@ -1,16 +1,16 @@
 import type { Database } from '../types/supabase'
+import type { Class } from '@/types/evaluation'
 import { supabase } from '../lib/supabase'
 
 type ClassInsert = Database['public']['Tables']['classes']['Insert']
 type ClassUpdate = Database['public']['Tables']['classes']['Update']
-
 type UserClass = Database['public']['Tables']['user_classes']['Row']
 
 export class SupabaseClassesService {
   /**
    * Get all active classes
    */
-  async getClasses(): Promise<any[]> {
+  async getClasses(): Promise<Class[]> {
     try {
       const { data, error } = await supabase
         .from('classes')
@@ -25,10 +25,10 @@ export class SupabaseClassesService {
       return (data || []).map(cls => ({
         id: cls.id,
         name: cls.name,
-        description: cls.description,
+        description: cls.description ?? undefined,
         schoolYear: cls.school_year, // Map snake_case to camelCase
-        level: cls.level,
-        subject: cls.subject,
+        level: cls.level ?? undefined,
+        subject: cls.subject ?? undefined,
         active: cls.active,
         createdAt: cls.created_at,
         updatedAt: cls.updated_at
@@ -42,7 +42,7 @@ export class SupabaseClassesService {
   /**
    * Get classes for a specific user
    */
-  async getClassesForUser(userId: string): Promise<any[]> {
+  async getClassesForUser(userId: string): Promise<Class[]> {
     try {
       const { data, error } = await supabase
         .from('user_classes')
@@ -68,15 +68,15 @@ export class SupabaseClassesService {
       // Transform the data to return just the classes, filtering for active ones
       const classes = (data || [])
         .map(item => item.classes)
-        .filter(Boolean)
+        .filter((cls): cls is Database['public']['Tables']['classes']['Row'] => Boolean(cls))
         .filter(cls => cls.active)
         .map(cls => ({
           id: cls.id,
           name: cls.name,
-          description: cls.description,
+          description: cls.description ?? undefined,
           schoolYear: cls.school_year, // Map snake_case to camelCase
-          level: cls.level,
-          subject: cls.subject,
+          level: cls.level ?? undefined,
+          subject: cls.subject ?? undefined,
           active: cls.active,
           createdAt: cls.created_at,
           updatedAt: cls.updated_at
@@ -92,7 +92,7 @@ export class SupabaseClassesService {
   /**
    * Get a single class by ID
    */
-  async getClass(id: string): Promise<any | null> {
+  async getClass(id: string): Promise<Class | null> {
     try {
       const { data, error } = await supabase
         .from('classes')
@@ -107,10 +107,10 @@ export class SupabaseClassesService {
       return {
         id: data.id,
         name: data.name,
-        description: data.description,
+        description: data.description ?? undefined,
         schoolYear: data.school_year, // Map snake_case to camelCase
-        level: data.level,
-        subject: data.subject,
+        level: data.level ?? undefined,
+        subject: data.subject ?? undefined,
         active: data.active,
         createdAt: data.created_at,
         updatedAt: data.updated_at
@@ -124,7 +124,7 @@ export class SupabaseClassesService {
   /**
    * Create a new class
    */
-  async createClass(classData: ClassInsert): Promise<any> {
+  async createClass(classData: ClassInsert): Promise<Class> {
     try {
       const { data, error } = await supabase
         .from('classes')
@@ -137,10 +137,10 @@ export class SupabaseClassesService {
       return {
         id: data.id,
         name: data.name,
-        description: data.description,
+        description: data.description ?? undefined,
         schoolYear: data.school_year, // Map snake_case to camelCase
-        level: data.level,
-        subject: data.subject,
+        level: data.level ?? undefined,
+        subject: data.subject ?? undefined,
         active: data.active,
         createdAt: data.created_at,
         updatedAt: data.updated_at
@@ -154,7 +154,7 @@ export class SupabaseClassesService {
   /**
    * Update a class
    */
-  async updateClass(id: string, updates: ClassUpdate): Promise<any> {
+  async updateClass(id: string, updates: ClassUpdate): Promise<Class> {
     try {
       const { data, error } = await supabase
         .from('classes')
@@ -168,10 +168,10 @@ export class SupabaseClassesService {
       return {
         id: data.id,
         name: data.name,
-        description: data.description,
+        description: data.description ?? undefined,
         schoolYear: data.school_year, // Map snake_case to camelCase
-        level: data.level,
-        subject: data.subject,
+        level: data.level ?? undefined,
+        subject: data.subject ?? undefined,
         active: data.active,
         createdAt: data.created_at,
         updatedAt: data.updated_at

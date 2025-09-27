@@ -63,7 +63,10 @@ export default [
         KeyboardEvent: 'readonly',
         FocusEvent: 'readonly',
         FileReader: 'readonly',
-        alert: 'readonly'
+        alert: 'readonly',
+        Deno: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly'
       }
     },
     plugins: {

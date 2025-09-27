@@ -161,7 +161,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStudentsStore } from '@/stores/studentsStore'
 import { useClassStore } from '@/stores/classStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'

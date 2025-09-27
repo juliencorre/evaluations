@@ -584,7 +584,8 @@ const resetEmail = ref(getInitialEmail())
 const isInitializing = computed(() => authStore.isInitializing.value)
 const isFormDisabled = computed(() => isSubmitting.value || isInitializing.value)
 
-// Validation en temps réel
+// Validation en temps réel (unused but kept for potential future use)
+/*
 const emailValidation = computed(() => {
   const email = signInForm.email || signUpForm.email
   if (!email) return { isValid: false, message: '' }
@@ -597,6 +598,7 @@ const emailValidation = computed(() => {
     message: isValid ? 'Adresse e-mail valide' : 'Format d\'adresse e-mail invalide'
   }
 })
+*/
 
 const passwordValidation = computed(() => {
   const password = signUpForm.password

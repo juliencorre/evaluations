@@ -40,9 +40,6 @@ import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
 import { useLogout } from '@/composables/useLogout'
 
 // Stores
-import { useClassStore } from '@/stores/classStore'
-
-// const classStore = useClassStore()
 
 // State
 const activeView = ref('dashboard')

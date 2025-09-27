@@ -144,7 +144,7 @@ const handleConfirm = () => {
   }
 }
 
-const handleOverlayClick = (event: MouseEvent) => {
+const handleOverlayClick = (event: Event) => {
   if (event.target === event.currentTarget) {
     emit('close')
   }

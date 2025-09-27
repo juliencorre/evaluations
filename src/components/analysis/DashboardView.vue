@@ -55,7 +55,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useClassStore } from '@/stores/classStore'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
@@ -252,41 +251,6 @@ const getCompetencyIdFromSpecificCompetencyId = (specificCompetencyId: string): 
   return undefined
 }
 
-const getDomainNameById = (domainId: string): string => {
-  const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
-
-  const domain = framework.domains.find(d => d.id === domainId)
-  return domain ? domain.name : `Domaine ${domainId.slice(-8)}`
-}
-
-const getFieldNameById = (fieldId: string): string => {
-  const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
-
-  for (const domain of framework.domains) {
-    const field = domain.fields.find(f => f.id === fieldId)
-    if (field) {
-      return field.name
-    }
-  }
-  return `Champ ${fieldId.slice(-8)}`
-}
-
-const getCompetencyNameById = (competencyId: string): string => {
-  const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
-
-  for (const domain of framework.domains) {
-    for (const field of domain.fields) {
-      const competency = field.competencies.find(c => c.id === competencyId)
-      if (competency) {
-        return competency.name
-      }
-    }
-  }
-  return `Compétence ${competencyId.slice(-8)}`
-}
 
 // Function to convert evaluation result value to score using pivot_value
 const getScoreFromValue = (value: string, resultTypeConfigId?: string): number => {
@@ -322,7 +286,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   }
 
   const resultsByEvaluation = results.reduce((acc, result) => {
-    const evaluationId = (result as any).evaluationId ||
+    const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
         evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
         'current')

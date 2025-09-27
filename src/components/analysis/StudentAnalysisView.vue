@@ -386,7 +386,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
   const resultsByEvaluation = studentResults.reduce((acc, result) => {
     // Use the evaluationId we added to each result, fallback to old logic if not available
-    const evaluationId = (result as any).evaluationId ||
+    const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
         evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
         evaluationResultsStore.evaluation.value?.id || 'current')
@@ -453,7 +453,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalDomainResults = domainResults.filter(result => {
-              const resultEvaluationId = (result as any).evaluationId ||
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
@@ -539,7 +539,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalFieldResults = fieldResults.filter(result => {
-              const resultEvaluationId = (result as any).evaluationId ||
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
@@ -571,7 +571,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           })
 
           return {
-            id: fieldId, // Add unique field ID
+            id: field.id, // Add unique field ID
             name: displayName, // Use "Domain - Field" format
             evaluations: evaluationScores
           }
@@ -621,14 +621,14 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalCompetencyResults = competencyResults.filter(result => {
-              const resultEvaluationId = (result as any).evaluationId ||
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
-            console.log(`📊 [competencies] ${competencyName} - ${evaluation.name}: ${evalCompetencyResults.length} results`)
+            console.log(`📊 [competencies] ${competency.name} - ${evaluation.name}: ${evalCompetencyResults.length} results`)
 
             if (evalCompetencyResults.length === 0) return { score: 0 }
 
@@ -642,7 +642,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const totalScore = scores.reduce((sum, score) => sum + score, 0)
             const averageScore = Math.round((totalScore / evalCompetencyResults.length) * 10) / 10
 
-            console.log(`📊 [competencies] ${competencyName} - ${evaluation.name} calculation:`, {
+            console.log(`📊 [competencies] ${competency.name} - ${evaluation.name} calculation:`, {
               individualScores: scores.map(s => s.toFixed(2)),
               totalScore: totalScore.toFixed(2),
               count: evalCompetencyResults.length,

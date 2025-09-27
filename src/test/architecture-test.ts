@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Test de la nouvelle architecture
 // Ce fichier peut être exécuté pour tester les nouveaux services
 

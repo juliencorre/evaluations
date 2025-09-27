@@ -213,7 +213,7 @@ export const useStudentsStore = () => {
       if (!schoolYearId) {
         const schoolYearStore = useSchoolYearStore()
         await schoolYearStore.ensureLoaded()
-        schoolYearId = schoolYearStore.currentSchoolYear?.id
+        schoolYearId = schoolYearStore.currentSchoolYear.value?.id
       }
 
       return await supabaseStudentClassesService.getClassesForStudent(
@@ -284,7 +284,7 @@ export const useStudentsStore = () => {
       if (!schoolYearId) {
         const schoolYearStore = useSchoolYearStore()
         await schoolYearStore.ensureLoaded()
-        schoolYearId = schoolYearStore.currentSchoolYear?.id
+        schoolYearId = schoolYearStore.currentSchoolYear.value?.id
       }
 
       return await supabaseStudentClassesService.getStudentsForClass(

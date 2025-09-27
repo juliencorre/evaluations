@@ -35,8 +35,8 @@ export function useSchoolYearFilterStore() {
     const currentYear = schoolYearStore.currentSchoolYear
     return {
       type: 'single' as const,
-      yearId: currentYear?.id || null,
-      yearName: currentYear?.name || 'Aucune année'
+      yearId: currentYear.value?.id || null,
+      yearName: currentYear.value?.name || 'Aucune année'
     }
   })
 
@@ -50,7 +50,7 @@ export function useSchoolYearFilterStore() {
 
   const activeYearId = computed(() => {
     if (isAllYearsSelected.value) return null
-    return selectedYearId.value || schoolYearStore.currentSchoolYear?.id || null
+    return selectedYearId.value || schoolYearStore.currentSchoolYear.value?.id || null
   })
 
   // Actions
@@ -71,8 +71,8 @@ export function useSchoolYearFilterStore() {
 
   const setToCurrentYear = () => {
     const currentYear = schoolYearStore.currentSchoolYear
-    if (currentYear) {
-      setFilter({ type: 'single', yearId: currentYear.id })
+    if (currentYear.value) {
+      setFilter({ type: 'single', yearId: currentYear.value.id })
     }
   }
 

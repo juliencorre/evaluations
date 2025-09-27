@@ -179,7 +179,7 @@ const currentClass = computed(() => {
 })
 
 const currentSchoolYear = computed(() => {
-  return schoolYearStore.currentSchoolYear
+  return schoolYearStore.currentSchoolYear.value
 })
 
 // Scroll handling

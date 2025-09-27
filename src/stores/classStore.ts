@@ -75,7 +75,7 @@ export const useClassStore = defineStore('classes', () => {
       await schoolYearStore.ensureLoaded()
 
       const currentSchoolYear = schoolYearStore.currentSchoolYear
-      const schoolYearName = classData.schoolYear || currentSchoolYear?.name || '2024-2025'
+      const schoolYearName = classData.schoolYear || currentSchoolYear.value?.name || '2024-2025'
 
       // Create the class
       const newClass = await supabaseClassesService.createClass({
@@ -176,7 +176,7 @@ export const useClassStore = defineStore('classes', () => {
 
       return await supabaseStudentClassesService.getStudentsForClass(
         selectedClassId.value,
-        currentSchoolYear?.id,
+        currentSchoolYear.value?.id,
         'active'
       )
     } catch (err) {
@@ -197,7 +197,7 @@ export const useClassStore = defineStore('classes', () => {
 
       return await supabaseEvaluationsService.getEvaluationsByClass(
         selectedClassId.value,
-        currentSchoolYear?.id
+        currentSchoolYear.value?.id
       )
     } catch (err) {
       console.error('Error loading evaluations for class:', err)
@@ -210,7 +210,7 @@ export const useClassStore = defineStore('classes', () => {
       if (!schoolYearId) {
         const schoolYearStore = useSchoolYearStore()
         await schoolYearStore.ensureLoaded()
-        schoolYearId = schoolYearStore.currentSchoolYear?.id
+        schoolYearId = schoolYearStore.currentSchoolYear.value?.id
       }
 
       return await supabaseStudentClassesService.getStudentsForClass(
@@ -232,7 +232,7 @@ export const useClassStore = defineStore('classes', () => {
         const { useSchoolYearStore } = await import('@/stores/schoolYearStore')
         const schoolYearStore = useSchoolYearStore()
         await schoolYearStore.ensureLoaded()
-        effectiveSchoolYearId = schoolYearStore.currentSchoolYear?.id
+        effectiveSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
       }
 
       return await supabaseEvaluationsService.getEvaluationsByClass(classId, effectiveSchoolYearId)

@@ -1,11 +1,16 @@
 import './utils/consoleLogoControl'
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import { router, preloadCriticalRoutes } from './router'
 import './style.css'
 
+// Create pinia store
+const pinia = createPinia()
+
 // Create and mount the app
 const app = createApp(App)
+app.use(pinia)
 app.use(router)
 app.mount('#app')
 

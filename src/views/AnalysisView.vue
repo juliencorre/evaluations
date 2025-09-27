@@ -37,6 +37,9 @@ import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import AnalysisTabs from '@/components/analysis/AnalysisTabs.vue'
 import DashboardView from '@/components/analysis/DashboardView.vue'
 import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
+import { useLogout } from '@/composables/useLogout'
+
+// Stores
 
 // State
 const activeView = ref('dashboard')
@@ -198,9 +201,10 @@ const handleUserMenuClick = () => {
 }
 
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const { logout } = useLogout()
+
+const handleLogout = async () => {
+  await logout()
 }
 </script>
 
@@ -233,4 +237,5 @@ const handleLogout = () => {
     padding: 24px 32px 80px 80px;
   }
 }
+
 </style>

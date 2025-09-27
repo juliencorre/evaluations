@@ -27,6 +27,7 @@ interface EvaluationFormData {
   name: string
   description: string
   frameworkId: string
+  classIds: string[]
 }
 
 interface Props {

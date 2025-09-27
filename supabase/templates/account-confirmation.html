@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirmez votre adresse e-mail</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --md-sys-color-primary: #6750a4;
+        --md-sys-color-on-primary: #ffffff;
+        --md-sys-color-primary-container: #eaddff;
+        --md-sys-color-on-primary-container: #21005d;
+        --md-sys-color-surface: #fffbfe;
+        --md-sys-color-on-surface: #1c1b1f;
+        --md-sys-color-surface-variant: #e7e0ec;
+        --md-sys-color-on-surface-variant: #49454f;
+        --md-sys-color-outline: #79747e;
+        --md-sys-color-outline-variant: #cac4d0;
+        --md-sys-color-surface-container-lowest: #ffffff;
+        --md-sys-color-surface-container-low: #f7f2fa;
+        --md-sys-color-surface-container: #f3edf7;
+        --md-sys-color-surface-container-high: #ece6f0;
+        --md-sys-color-surface-container-highest: #e6e0e9;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --md-sys-color-primary: #d0bcff;
+          --md-sys-color-on-primary: #381e72;
+          --md-sys-color-primary-container: #4f378b;
+          --md-sys-color-on-primary-container: #eaddff;
+          --md-sys-color-surface: #141218;
+          --md-sys-color-on-surface: #e6e1e5;
+          --md-sys-color-surface-variant: #49454f;
+          --md-sys-color-on-surface-variant: #cac4d0;
+          --md-sys-color-outline: #938f99;
+          --md-sys-color-outline-variant: #49454f;
+          --md-sys-color-surface-container-lowest: #0f0d13;
+          --md-sys-color-surface-container-low: #1d1b20;
+          --md-sys-color-surface-container: #211f26;
+          --md-sys-color-surface-container-high: #2b2930;
+          --md-sys-color-surface-container-highest: #36343b;
+        }
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Google Sans', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background: linear-gradient(135deg, var(--md-sys-color-surface-container-low) 0%, var(--md-sys-color-surface) 100%);
+        color: var(--md-sys-color-on-surface);
+        min-height: 100vh;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 48px 16px;
+        background: transparent;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--md-sys-color-surface-container-lowest);
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow:
+          0px 3px 12px rgba(0, 0, 0, 0.15),
+          0px 1px 4px rgba(0, 0, 0, 0.12);
+      }
+      .header {
+        background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, #8b7bb8 100%);
+        padding: 48px 32px;
+        text-align: center;
+        position: relative;
+      }
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          var(--md-sys-color-primary-container) 20%,
+          var(--md-sys-color-primary-container) 80%,
+          transparent 100%);
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+        background: var(--md-sys-color-on-primary);
+        border-radius: 16px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--md-sys-color-primary);
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--md-sys-color-on-primary);
+        letter-spacing: 0.5px;
+        margin: 0;
+      }
+      .content {
+        padding: 40px 32px;
+      }
+      .greeting {
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-bottom: 16px;
+        font-weight: 500;
+        letter-spacing: 0.1px;
+      }
+      .message {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--md-sys-color-on-surface);
+        margin-bottom: 32px;
+      }
+      .message strong {
+        color: var(--md-sys-color-primary);
+        font-weight: 500;
+      }
+      .button-container {
+        text-align: center;
+        margin: 40px 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 16px 32px;
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary) !important;
+        text-decoration: none;
+        border-radius: 100px;
+        font-weight: 500;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+          0px 3px 8px rgba(103, 80, 164, 0.2),
+          0px 1px 3px rgba(103, 80, 164, 0.15);
+      }
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0px 6px 16px rgba(103, 80, 164, 0.3),
+          0px 2px 6px rgba(103, 80, 164, 0.2);
+      }
+      .divider {
+        height: 1px;
+        background: var(--md-sys-color-outline-variant);
+        margin: 32px 0;
+        opacity: 0.3;
+      }
+      .alternative {
+        background: var(--md-sys-color-surface-container);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 24px;
+      }
+      .alternative-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .link-text {
+        font-size: 13px;
+        color: var(--md-sys-color-primary);
+        word-break: break-all;
+        font-family: 'Courier New', monospace;
+        background: var(--md-sys-color-surface-container-high);
+        padding: 8px 12px;
+        border-radius: 8px;
+        display: block;
+        margin-top: 8px;
+      }
+      .footer {
+        background: var(--md-sys-color-surface-container);
+        padding: 24px 32px;
+        text-align: center;
+        border-top: 1px solid var(--md-sys-color-outline-variant);
+      }
+      .footer-text {
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        line-height: 1.5;
+      }
+      .security-note {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--md-sys-color-surface-container-low);
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 24px;
+      }
+      .security-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        color: var(--md-sys-color-outline);
+      }
+      .security-text {
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface-variant);
+        line-height: 1.4;
+      }
+      @media only screen and (max-width: 600px) {
+        .wrapper {
+          padding: 24px 8px;
+        }
+        .header {
+          padding: 32px 24px;
+        }
+        .content {
+          padding: 32px 24px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        .button {
+          padding: 14px 28px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="email-container">
+        <div class="header">
+          <div class="logo">É</div>
+          <h1>Confirmez votre adresse e-mail</h1>
+        </div>
+
+        <div class="content">
+          <p class="greeting">Bonjour {{ .Email }},</p>
+
+          <p class="message">
+            Bienvenue sur la plateforme <strong>Évaluations</strong> ! Pour activer votre compte et accéder à toutes les fonctionnalités, veuillez confirmer votre adresse e-mail.
+          </p>
+
+          <div class="button-container">
+            <a class="button" href="{{ .ConfirmationURL }}" target="_blank" rel="noopener">
+              Confirmer mon e-mail
+            </a>
+          </div>
+
+          <div class="alternative">
+            <div class="alternative-title">Problème avec le bouton ?</div>
+            <p style="font-size: 14px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 8px;">
+              Copiez et collez ce lien dans votre navigateur :
+            </p>
+            <span class="link-text">{{ .ConfirmationURL }}</span>
+          </div>
+
+          <div class="security-note">
+            <svg class="security-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p class="security-text">
+              Ce lien est valable pendant <strong>24 heures</strong>. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message en toute sécurité.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p class="footer-text">
+            © 2024 Plateforme Évaluations · E-mail envoyé automatiquement<br/>
+            Ne pas répondre à ce message
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

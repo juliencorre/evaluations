@@ -1,5 +1,9 @@
 <template>
-  <header class="app-header" :class="{ 'expanded': isExpanded, 'hidden': isNavHidden }">
+  <header
+    v-if="shouldRenderNavigation"
+    class="app-header"
+    :class="{ 'expanded': isExpanded, 'hidden': isNavHidden }"
+  >
     <!-- Top App Bar -->
     <nav class="top-app-bar" role="navigation" aria-label="Navigation principale">
       <!-- Navigation Rail (Desktop) -->
@@ -41,6 +45,28 @@
               </svg>
             </div>
             <span class="nav-label">Accueil</span>
+          </router-link>
+
+          <router-link
+            to="/classes"
+            class="nav-destination"
+            :class="{ active: currentRouteName === ROUTE_NAMES.CLASSES }"
+            :aria-current="currentRouteName === ROUTE_NAMES.CLASSES ? 'page' : undefined"
+          >
+            <div class="nav-indicator" aria-hidden="true"></div>
+            <div class="nav-icon-container">
+              <svg v-if="currentRouteName !== ROUTE_NAMES.CLASSES" class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM12 6.53L3 11l9 4.91L21 11l-9-4.47z"
+                />
+              </svg>
+              <svg v-else class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"
+                />
+              </svg>
+            </div>
+            <span class="nav-label">Classes</span>
           </router-link>
 
           <router-link
@@ -108,6 +134,7 @@
         </div>
 
         <div class="user-actions">
+          <!-- User actions will be added here if needed -->
         </div>
       </div>
 
@@ -125,14 +152,16 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ROUTE_NAMES } from '../router'
-
-type AppRouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]
+import { useAuthStore, isAuthenticated } from '@/stores/authStore'
+import { ROUTE_NAMES, AppRouteName } from '@/router/route-names'
 
 const route = useRoute()
 const currentRouteName = computed<AppRouteName | undefined>(() => {
   return typeof route.name === 'string' ? (route.name as AppRouteName) : undefined
 })
+
+const authStore = useAuthStore()
+const shouldRenderNavigation = computed(() => !authStore.isInitializing.value && isAuthenticated.value)
 
 // State for expanded navigation rail
 const isExpanded = ref(false)
@@ -172,19 +201,47 @@ function handleScroll() {
   lastScrollY.value = currentScrollY
 }
 
+let isScrollListenerAttached = false
+
+const attachScrollListener = () => {
+  if (typeof window === 'undefined' || isScrollListenerAttached) {
+    return
+  }
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  lastScrollY.value = window.scrollY
+  isScrollListenerAttached = true
+}
+
+const detachScrollListener = () => {
+  if (typeof window === 'undefined' || !isScrollListenerAttached) {
+    return
+  }
+  window.removeEventListener('scroll', handleScroll)
+  isScrollListenerAttached = false
+}
+
 // Watch for changes and emit events
 watch(isExpanded, (expanded) => {
   emit('rail-expanded', expanded)
 }, { immediate: true })
 
+watch(shouldRenderNavigation, (visible) => {
+  if (visible) {
+    attachScrollListener()
+  } else {
+    detachScrollListener()
+  }
+}, { immediate: true })
+
 // Lifecycle hooks
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-  lastScrollY.value = window.scrollY
+  if (shouldRenderNavigation.value) {
+    attachScrollListener()
+  }
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
+  detachScrollListener()
 })
 </script>
 
@@ -264,7 +321,11 @@ onUnmounted(() => {
 
   .user-actions {
     margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+
 }
 
 /* Menu Button - Only visible on large screens with rail */
@@ -566,6 +627,7 @@ onUnmounted(() => {
   gap: 8px;
   flex-shrink: 0;
 }
+
 
 .icon-button {
   display: flex;

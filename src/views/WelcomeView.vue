@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
+import { useLogout } from '@/composables/useLogout'
 
 // State
 const isScrolled = ref(false)
@@ -44,9 +45,10 @@ const handleScroll = () => {
 
 // Event handlers
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const { logout } = useLogout()
+
+const handleLogout = async () => {
+  await logout()
 }
 
 // Lifecycle

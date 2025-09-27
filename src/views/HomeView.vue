@@ -43,6 +43,8 @@
     <!-- Menu FAB pour les actions d'évaluation -->
     <MenuFAB
       v-if="!isLoading && framework.domains.length > 0"
+      :menu-items="fabMenuItems"
+      @menu-item-click="handleMenuItemClick"
       @edit="openEditEvaluation"
       @delete="openDeleteEvaluation"
     />
@@ -92,6 +94,8 @@ import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
 // Stores
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useLogout } from '@/composables/useLogout'
+import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
 
 const { allStudents } = useStudentsStore()
 const competenciesStore = useCompetencyFrameworkStore()
@@ -100,11 +104,38 @@ const { framework, isCompetenciesLoading } = competenciesStore
 const evaluationStore = useEvaluationStore()
 const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
 
+const schoolYearFilter = getSchoolYearFilterStore()
+
 // State
 const isLoading = isCompetenciesLoading
 const isScrolled = ref(false)
 const isMobileView = ref(false)
 const showDeleteDialog = ref(false)
+
+// FAB Menu configuration
+const fabMenuItems = [
+  {
+    key: 'export',
+    icon: 'download',
+    label: 'Exporter',
+    ariaLabel: 'Exporter les résultats de l\'évaluation',
+    type: 'export'
+  },
+  {
+    key: 'edit',
+    icon: 'edit',
+    label: 'Éditer',
+    ariaLabel: 'Éditer l\'évaluation',
+    type: 'edit'
+  },
+  {
+    key: 'delete',
+    icon: 'delete',
+    label: 'Supprimer',
+    ariaLabel: 'Supprimer l\'évaluation',
+    type: 'delete'
+  }
+]
 
 // Scroll handling
 const handleScroll = () => {
@@ -149,9 +180,10 @@ onUnmounted(() => {
 
 // Event handlers
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const { logout } = useLogout()
+
+const handleLogout = async () => {
+  await logout()
 }
 
 const goBackToList = () => {
@@ -159,6 +191,210 @@ const goBackToList = () => {
 }
 
 // MenuFAB handlers
+const handleMenuItemClick = (item: { key: string }) => {
+  switch (item.key) {
+    case 'export':
+      exportEvaluationResults()
+      break
+    case 'edit':
+      openEditEvaluation()
+      break
+    case 'delete':
+      openDeleteEvaluation()
+      break
+    default:
+      console.warn('Unknown menu item:', item.key)
+  }
+}
+
+const exportEvaluationResults = () => {
+  console.log('📊 Export evaluation results requested')
+
+  try {
+    // Debug framework structure
+    console.log('Framework structure:', framework.value)
+    console.log('Domains:', framework.value.domains)
+
+    // Check if we have the necessary data
+    if (!framework.value.domains || framework.value.domains.length === 0) {
+      alert('Aucune compétence à exporter. Veuillez vérifier que des compétences sont définies pour cette évaluation.')
+      return
+    }
+
+    if (!allStudents.value || allStudents.value.length === 0) {
+      alert('Aucun élève à exporter. Veuillez vérifier que des élèves sont inscrits dans cette classe.')
+      return
+    }
+
+    // Prepare data for export with safety checks
+    const exportData = {
+      evaluation: {
+        id: currentEvaluation.value?.id || 'unknown',
+        name: currentEvaluation.value?.name || 'Évaluation sans nom',
+        description: currentEvaluation.value?.description || '',
+        date: new Date().toLocaleDateString('fr-FR'),
+        className: currentEvaluation.value?.className || '',
+        schoolYearFilter: schoolYearFilter.displayText.value
+      },
+      students: allStudents.value.map(student => ({
+        id: student.id,
+        firstName: student.firstName || '',
+        lastName: student.lastName || '',
+        fullName: `${student.firstName || ''} ${student.lastName || ''}`.trim()
+      })),
+      competencies: framework.value.domains
+        .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
+        .flatMap(domain =>
+          domain.fields
+            .filter(field => field && field.competencies && Array.isArray(field.competencies))
+            .flatMap(field =>
+              field.competencies.map(competency => ({
+                id: competency.id,
+                name: competency.name || 'Compétence sans nom',
+                domain: domain.name || 'Domaine sans nom',
+                field: field.name || 'Champ sans nom',
+                results: allStudents.value.map(student => ({
+                  studentId: student.id,
+                  studentName: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+                  result: competency.results?.[student.id] || null
+                }))
+              }))
+            )
+        ),
+      summary: {
+        totalStudents: allStudents.value.length,
+        totalCompetencies: framework.value.domains
+          .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
+          .reduce((sum, domain) =>
+            sum + domain.fields
+              .filter(field => field && field.competencies && Array.isArray(field.competencies))
+              .reduce((fieldSum, field) => fieldSum + field.competencies.length, 0)
+          , 0),
+        exportDate: new Date().toISOString()
+      }
+    }
+
+    console.log('Export data prepared:', exportData)
+
+    if (exportData.competencies.length === 0) {
+      alert('Aucune compétence valide trouvée pour l\'export. Veuillez vérifier la structure des compétences.')
+      return
+    }
+
+    // Generate CSV content
+    const csvContent = generateCSV(exportData)
+
+    // Download file
+    const fileName = `evaluation_${(currentEvaluation.value?.name || 'evaluation').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`
+    downloadCSV(csvContent, fileName)
+
+    console.log('✅ Export completed successfully')
+  } catch (error) {
+    console.error('❌ Error exporting evaluation results:', error)
+    alert('Erreur lors de l\'export des résultats. Veuillez réessayer.')
+  }
+}
+
+interface ExportedResult {
+  studentId: string
+  result: string | null
+}
+
+interface ExportedCompetency {
+  id: string
+  name: string
+  domain: string
+  field: string
+  results: ExportedResult[]
+}
+
+interface ExportedStudent {
+  id: string
+  fullName: string
+}
+
+interface ExportSummary {
+  totalStudents: number
+  totalCompetencies: number
+  exportDate: string
+}
+
+interface ExportedEvaluationInfo {
+  id: string
+  name: string
+  description?: string
+  date: string
+  schoolYearFilter?: string
+}
+
+interface EvaluationExportData {
+  evaluation: ExportedEvaluationInfo
+  competencies: ExportedCompetency[]
+  students: ExportedStudent[]
+  summary: ExportSummary
+}
+
+const generateCSV = (data: EvaluationExportData) => {
+  try {
+    // Validate input data
+    if (!data || !data.competencies || !Array.isArray(data.competencies)) {
+      throw new Error('Invalid competencies data for CSV generation')
+    }
+
+    if (!data.students || !Array.isArray(data.students)) {
+      throw new Error('Invalid students data for CSV generation')
+    }
+
+    // Create headers
+    const headers = [
+      'Élève',
+      ...data.competencies.map(comp => `"${comp.domain} - ${comp.field} - ${comp.name}"`)
+    ]
+    const csvRows = [headers.join(',')]
+
+    // Add student rows
+    data.students.forEach(student => {
+      const row = [
+        `"${student.fullName || 'Élève sans nom'}"`,
+        ...data.competencies.map(comp => {
+          const result = comp.results.find(r => r.studentId === student.id)
+          return result?.result ? `"${result.result}"` : '""'
+        })
+      ]
+      csvRows.push(row.join(','))
+    })
+
+    // Add summary information
+    csvRows.push('') // Empty line
+    csvRows.push(`"Évaluation","${data.evaluation.name || 'Sans nom'}"`)
+    csvRows.push(`"Description","${data.evaluation.description || 'Aucune description'}"`)
+    csvRows.push(`"Date d'export","${data.evaluation.date || new Date().toLocaleDateString('fr-FR')}"`)
+    csvRows.push(`"Filtre année scolaire","${data.evaluation.schoolYearFilter || 'Aucun filtre'}"`)
+    csvRows.push(`"Nombre d'élèves","${data.summary.totalStudents || 0}"`)
+    csvRows.push(`"Nombre de compétences","${data.summary.totalCompetencies || 0}"`)
+
+    return csvRows.join('\n')
+  } catch (error) {
+    console.error('❌ Error generating CSV:', error)
+    throw new Error('Erreur lors de la génération du fichier CSV')
+  }
+}
+
+const downloadCSV = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', filename)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+}
+
 const openEditEvaluation = () => {
   console.log('Edit evaluation requested')
   const evaluationId = props.id || (route?.params?.id as string)

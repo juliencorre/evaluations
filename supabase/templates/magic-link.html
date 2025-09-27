@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion instantanée</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --md-sys-color-primary: #6750a4;
+        --md-sys-color-on-primary: #ffffff;
+        --md-sys-color-primary-container: #eaddff;
+        --md-sys-color-on-primary-container: #21005d;
+        --md-sys-color-secondary: #625b71;
+        --md-sys-color-on-secondary: #ffffff;
+        --md-sys-color-secondary-container: #e8def8;
+        --md-sys-color-on-secondary-container: #1d192b;
+        --md-sys-color-tertiary: #7d5260;
+        --md-sys-color-on-tertiary: #ffffff;
+        --md-sys-color-tertiary-container: #ffd8e4;
+        --md-sys-color-on-tertiary-container: #31111d;
+        --md-sys-color-surface: #fffbfe;
+        --md-sys-color-on-surface: #1c1b1f;
+        --md-sys-color-surface-variant: #e7e0ec;
+        --md-sys-color-on-surface-variant: #49454f;
+        --md-sys-color-outline: #79747e;
+        --md-sys-color-outline-variant: #cac4d0;
+        --md-sys-color-surface-container-lowest: #ffffff;
+        --md-sys-color-surface-container-low: #f7f2fa;
+        --md-sys-color-surface-container: #f3edf7;
+        --md-sys-color-surface-container-high: #ece6f0;
+        --md-sys-color-surface-container-highest: #e6e0e9;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --md-sys-color-primary: #d0bcff;
+          --md-sys-color-on-primary: #381e72;
+          --md-sys-color-primary-container: #4f378b;
+          --md-sys-color-on-primary-container: #eaddff;
+          --md-sys-color-secondary: #ccc2dc;
+          --md-sys-color-on-secondary: #332d41;
+          --md-sys-color-secondary-container: #4a4458;
+          --md-sys-color-on-secondary-container: #e8def8;
+          --md-sys-color-tertiary: #efb8c8;
+          --md-sys-color-on-tertiary: #492532;
+          --md-sys-color-tertiary-container: #633b48;
+          --md-sys-color-on-tertiary-container: #ffd8e4;
+          --md-sys-color-surface: #141218;
+          --md-sys-color-on-surface: #e6e1e5;
+          --md-sys-color-surface-variant: #49454f;
+          --md-sys-color-on-surface-variant: #cac4d0;
+          --md-sys-color-outline: #938f99;
+          --md-sys-color-outline-variant: #49454f;
+          --md-sys-color-surface-container-lowest: #0f0d13;
+          --md-sys-color-surface-container-low: #1d1b20;
+          --md-sys-color-surface-container: #211f26;
+          --md-sys-color-surface-container-high: #2b2930;
+          --md-sys-color-surface-container-highest: #36343b;
+        }
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Google Sans', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background: linear-gradient(135deg, var(--md-sys-color-surface-container-low) 0%, var(--md-sys-color-surface) 100%);
+        color: var(--md-sys-color-on-surface);
+        min-height: 100vh;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 48px 16px;
+        background: transparent;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--md-sys-color-surface-container-lowest);
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow:
+          0px 3px 12px rgba(0, 0, 0, 0.15),
+          0px 1px 4px rgba(0, 0, 0, 0.12);
+      }
+      .header {
+        background: linear-gradient(135deg, var(--md-sys-color-tertiary) 0%, var(--md-sys-color-primary) 100%);
+        padding: 48px 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        transform: rotate(-30deg);
+      }
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          var(--md-sys-color-tertiary-container) 20%,
+          var(--md-sys-color-primary-container) 50%,
+          var(--md-sys-color-tertiary-container) 80%,
+          transparent 100%);
+      }
+      .magic-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--md-sys-color-on-primary);
+        border-radius: 16px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+      }
+      .wand-icon {
+        width: 28px;
+        height: 28px;
+        color: var(--md-sys-color-primary);
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--md-sys-color-on-primary);
+        letter-spacing: 0.5px;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+      }
+      .content {
+        padding: 40px 32px;
+      }
+      .greeting {
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-bottom: 16px;
+        font-weight: 500;
+        letter-spacing: 0.1px;
+      }
+      .message {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--md-sys-color-on-surface);
+        margin-bottom: 32px;
+      }
+      .message strong {
+        color: var(--md-sys-color-primary);
+        font-weight: 500;
+      }
+      .button-container {
+        text-align: center;
+        margin: 40px 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 16px 40px;
+        background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%);
+        color: var(--md-sys-color-on-primary) !important;
+        text-decoration: none;
+        border-radius: 100px;
+        font-weight: 500;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+          0px 3px 8px rgba(103, 80, 164, 0.25),
+          0px 1px 3px rgba(103, 80, 164, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+      .button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+      .button:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0px 6px 16px rgba(103, 80, 164, 0.35),
+          0px 2px 6px rgba(103, 80, 164, 0.25);
+      }
+      .features {
+        display: grid;
+        gap: 16px;
+        margin: 32px 0;
+      }
+      .feature {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background: var(--md-sys-color-surface-container-low);
+        border-radius: 12px;
+      }
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--md-sys-color-primary-container);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .feature-icon svg {
+        width: 20px;
+        height: 20px;
+        color: var(--md-sys-color-on-primary-container);
+      }
+      .feature-content {
+        flex: 1;
+      }
+      .feature-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--md-sys-color-on-surface);
+        margin-bottom: 4px;
+      }
+      .feature-description {
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        line-height: 1.4;
+      }
+      .expiry-notice {
+        background: var(--md-sys-color-secondary-container);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 24px;
+        text-align: center;
+      }
+      .expiry-icon {
+        width: 32px;
+        height: 32px;
+        margin: 0 auto 12px;
+        color: var(--md-sys-color-on-secondary-container);
+      }
+      .expiry-text {
+        font-size: 14px;
+        color: var(--md-sys-color-on-secondary-container);
+        line-height: 1.5;
+      }
+      .alternative {
+        background: var(--md-sys-color-surface-container);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 24px;
+      }
+      .alternative-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .link-text {
+        font-size: 13px;
+        color: var(--md-sys-color-primary);
+        word-break: break-all;
+        font-family: 'Courier New', monospace;
+        background: var(--md-sys-color-surface-container-high);
+        padding: 8px 12px;
+        border-radius: 8px;
+        display: block;
+        margin-top: 8px;
+      }
+      .footer {
+        background: var(--md-sys-color-surface-container);
+        padding: 24px 32px;
+        text-align: center;
+        border-top: 1px solid var(--md-sys-color-outline-variant);
+      }
+      .footer-text {
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        line-height: 1.5;
+      }
+      @media only screen and (max-width: 600px) {
+        .wrapper {
+          padding: 24px 8px;
+        }
+        .header {
+          padding: 32px 24px;
+        }
+        .content {
+          padding: 32px 24px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        .button {
+          padding: 14px 32px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="email-container">
+        <div class="header">
+          <div class="magic-icon">
+            <svg class="wand-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7.5,5.6L5,7L6.4,4.5L5,2L7.5,3.4L10,2L8.6,4.5L10,7L7.5,5.6M19.5,15.4L22,14L20.6,16.5L22,19L19.5,17.6L17,19L18.4,16.5L17,14L19.5,15.4M22,2L20.6,4.5L22,7L19.5,5.6L17,7L18.4,4.5L17,2L19.5,3.4L22,2M13.34,12.78L15.78,10.34L13.66,8.22L11.22,10.66L13.34,12.78M14.37,7.29L16.71,9.63C17.1,10 17.1,10.65 16.71,11.04L5.04,22.71C4.65,23.1 4,23.1 3.63,22.71L1.29,20.37C0.9,20 0.9,19.35 1.29,18.96L12.96,7.29C13.35,6.9 14,6.9 14.37,7.29Z" />
+            </svg>
+          </div>
+          <h1>Connexion magique</h1>
+        </div>
+
+        <div class="content">
+          <p class="greeting">Bonjour {{ .Email }},</p>
+
+          <p class="message">
+            Votre lien de connexion sécurisé pour la plateforme <strong>Évaluations</strong> est prêt !
+            Un simple clic vous permettra d'accéder instantanément à votre compte, sans mot de passe.
+          </p>
+
+          <div class="features">
+            <div class="feature">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+                </svg>
+              </div>
+              <div class="feature-content">
+                <div class="feature-title">Connexion sécurisée</div>
+                <div class="feature-description">Lien unique et chiffré pour votre sécurité</div>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.1 14.8,9.5V11C15.4,11 16,11.6 16,12.3V15.8C16,16.4 15.4,17 14.7,17H9.2C8.6,17 8,16.4 8,15.7V12.2C8,11.6 8.6,11 9.2,11V9.5C9.2,8.1 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,9.5V11H13.5V9.5C13.5,8.7 12.8,8.2 12,8.2Z" />
+                </svg>
+              </div>
+              <div class="feature-content">
+                <div class="feature-title">Sans mot de passe</div>
+                <div class="feature-description">Plus besoin de mémoriser vos identifiants</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-container">
+            <a class="button" href="{{ .ActionLink }}" target="_blank" rel="noopener">
+              Accéder à Évaluations
+            </a>
+          </div>
+
+          <div class="expiry-notice">
+            <svg class="expiry-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22A9,9 0 0,0 21,13A9,9 0 0,0 12,4M12.5,8H11V14L15.75,16.85L16.5,15.62L12.5,13.25V8M7.88,3.39L6.6,1.86L2,5.71L3.29,7.24L7.88,3.39M22,5.72L17.4,1.86L16.11,3.39L20.71,7.25L22,5.72Z" />
+            </svg>
+            <p class="expiry-text">
+              <strong>Lien à usage unique</strong><br/>
+              Ce lien expirera automatiquement après utilisation ou dans quelques minutes
+            </p>
+          </div>
+
+          <div class="alternative">
+            <div class="alternative-title">Problème avec le bouton ?</div>
+            <p style="font-size: 14px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 8px;">
+              Copiez et collez ce lien dans votre navigateur :
+            </p>
+            <span class="link-text">{{ .ActionLink }}</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p class="footer-text">
+            © 2024 Plateforme Évaluations · Connexion sécurisée<br/>
+            Ne partagez jamais ce lien · E-mail automatique
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

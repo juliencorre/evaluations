@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
-import type { Evaluation } from '@/types/evaluation'
-import { SAMPLE_EVALUATION } from '@/data/staticData'
+import type { Evaluation, Class } from '@/types/evaluation'
 import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsService'
+import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 
 const evaluations = ref<Evaluation[]>([])
 const currentEvaluation = ref<Evaluation | null>(null)
@@ -10,12 +10,14 @@ const isLoading = ref(false)
 export function useEvaluationStore() {
   // Computed properties
   const allEvaluations = computed(() => {
-    // If no evaluations loaded yet, show sample as fallback
-    return evaluations.value.length > 0 ? evaluations.value : [SAMPLE_EVALUATION]
+    // Return actual evaluations from database, empty array if none
+    return evaluations.value
   })
   const getCurrentEvaluation = computed(() => {
-    const result = currentEvaluation.value || SAMPLE_EVALUATION
-    console.log('🔍 [EvaluationStore] getCurrentEvaluation computed:', result.name, 'ID:', result.id)
+    const result = currentEvaluation.value
+    if (result) {
+      console.log('🔍 [EvaluationStore] getCurrentEvaluation computed:', result.name, 'ID:', result.id)
+    }
     return result
   })
 
@@ -100,18 +102,147 @@ export function useEvaluationStore() {
     return evaluations.value.find(evaluation => evaluation.id === id)
   }
 
+  // === NOUVELLES FONCTIONS POUR LES RELATIONS EVALUATION-CLASSES ===
+
+  /**
+   * Récupère les classes associées à une évaluation
+   */
+  const getClassesForEvaluation = async (evaluationId: string, schoolYearId?: string): Promise<Class[]> => {
+    try {
+      return await supabaseEvaluationClassesService.getClassesForEvaluation(evaluationId, schoolYearId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des classes pour l\'évaluation:', error)
+      return []
+    }
+  }
+
+  /**
+   * Récupère les évaluations d'une classe
+   */
+  const getEvaluationsForClass = async (classId: string, schoolYearId?: string) => {
+    try {
+      return await supabaseEvaluationClassesService.getEvaluationsForClass(classId, schoolYearId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des évaluations pour la classe:', error)
+      return []
+    }
+  }
+
+  /**
+   * Associe une évaluation à une ou plusieurs classes
+   */
+  const addClassesToEvaluation = async (evaluationId: string, classIds: string[], schoolYearId?: string) => {
+    try {
+      if (classIds.length === 0) {
+        console.warn('Aucune classe spécifiée pour l\'association')
+        return []
+      }
+
+      if (classIds.length === 1) {
+        const result = await supabaseEvaluationClassesService.addClassToEvaluation({
+          evaluation_id: evaluationId,
+          class_id: classIds[0],
+          school_year_id: schoolYearId
+        })
+        return [result]
+      } else {
+        return await supabaseEvaluationClassesService.addClassesToEvaluation(evaluationId, classIds, schoolYearId)
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'association des classes à l\'évaluation:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Supprime l'association entre une évaluation et une classe
+   */
+  const removeClassFromEvaluation = async (evaluationId: string, classId: string, schoolYearId?: string) => {
+    try {
+      return await supabaseEvaluationClassesService.removeClassFromEvaluation(evaluationId, classId, schoolYearId)
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'association:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Met à jour les classes associées à une évaluation
+   * Remplace toutes les associations existantes par les nouvelles
+   */
+  const updateEvaluationClasses = async (evaluationId: string, classIds: string[], schoolYearId?: string) => {
+    try {
+      return await supabaseEvaluationClassesService.updateEvaluationClasses(evaluationId, classIds, schoolYearId)
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des classes de l\'évaluation:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Crée une évaluation avec des associations de classes
+   */
+  const addEvaluationWithClasses = async (
+    evaluation: Omit<Evaluation, 'id' | 'createdAt' | 'results'>,
+    classIds: string[],
+    schoolYearId?: string
+  ) => {
+    try {
+      // Créer l'évaluation d'abord
+      const newEvaluation = await supabaseEvaluationsService.createEvaluation(evaluation)
+      if (!newEvaluation) {
+        throw new Error('Échec de la création de l\'évaluation')
+      }
+
+      // Associer les classes à l'évaluation
+      if (classIds.length > 0) {
+        await addClassesToEvaluation(newEvaluation.id, classIds, schoolYearId)
+      }
+
+      // Ajouter à la liste locale
+      evaluations.value.push(newEvaluation)
+      currentEvaluation.value = newEvaluation
+
+      return newEvaluation
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'évaluation avec classes:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Obtient les statistiques d'une évaluation (nombre de classes associées)
+   */
+  const getEvaluationStatistics = async (evaluationId: string, schoolYearId?: string) => {
+    try {
+      return await supabaseEvaluationClassesService.getEvaluationStatistics(evaluationId, schoolYearId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques:', error)
+      return { totalClasses: 0, classIds: [] }
+    }
+  }
+
   return {
     // State
     allEvaluations,
     currentEvaluation: getCurrentEvaluation,
     isLoading: computed(() => isLoading.value),
 
-    // Actions
+    // Actions de base
     loadEvaluations,
     addEvaluation,
     updateEvaluation,
     deleteEvaluation,
     setCurrentEvaluation,
-    getEvaluationById
+    getEvaluationById,
+
+    // Actions pour les relations evaluation-classes
+    getClassesForEvaluation,
+    getEvaluationsForClass,
+    addClassesToEvaluation,
+    removeClassFromEvaluation,
+    updateEvaluationClasses,
+    addEvaluationWithClasses,
+    getEvaluationStatistics
   }
 }

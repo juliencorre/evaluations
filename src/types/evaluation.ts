@@ -5,6 +5,18 @@ export interface Student {
   displayName: string
 }
 
+export interface Class {
+  id: string
+  name: string
+  description?: string
+  schoolYear: string
+  level?: string
+  subject?: string
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export type ResultType = 'scale' | 'boolean' | 'custom' | 'numeric'
 
 export interface ResultTypeConfigValue {

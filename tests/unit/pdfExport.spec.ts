@@ -2,7 +2,21 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import AnalysisView from '@/views/AnalysisView.vue'
 
-const mockPdfInstances: any[] = []
+interface MockJsPdfInstance {
+  internal: {
+    pageSize: {
+      getWidth: () => number
+      getHeight: () => number
+    }
+  }
+  setFontSize: (...args: unknown[]) => void
+  text: (...args: unknown[]) => void
+  addImage: (...args: unknown[]) => void
+  addPage: (...args: unknown[]) => void
+  save: (...args: unknown[]) => void
+}
+
+const mockPdfInstances: MockJsPdfInstance[] = []
 
 const mockJsPDF = vi.fn(() => {
   const instance = {

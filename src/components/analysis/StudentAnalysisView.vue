@@ -386,7 +386,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
   const resultsByEvaluation = studentResults.reduce((acc, result) => {
     // Use the evaluationId we added to each result, fallback to old logic if not available
-    const evaluationId = (result as any).evaluationId ||
+    const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
         evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
         evaluationResultsStore.evaluation.value?.id || 'current')
@@ -408,9 +408,16 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
   )
 
   const calculateByMetricType = (allResults: EvaluationResult[]) => {
+    const frameworkStore = useCompetencyFrameworkStore()
+    const framework = frameworkStore.framework.value
+
     switch (metricType) {
       case 'domains': {
         console.log('📊 [domains] Starting domain calculation')
+
+        // Get ALL domains from framework
+        const allDomains = framework.domains || []
+
         // Group results by domain using specificCompetencyId (fallback to competencyId if empty)
         const domainGroups = allResults.reduce((acc, result) => {
           const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
@@ -439,20 +446,21 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           }))
         )
 
-        return Object.entries(domainGroups).map(([domainId, domainResults]) => {
-          const domainName = getDomainNameById(domainId)
-          console.log(`📊 [domains] Processing domain: ${domainName} (${domainResults.length} results)`)
+        // Include ALL domains, even those without results
+        return allDomains.map(domain => {
+          const domainResults = domainGroups[domain.id] || []
+          console.log(`📊 [domains] Processing domain: ${domain.name} (${domainResults.length} results)`)
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalDomainResults = domainResults.filter(result => {
-              const resultEvaluationId = (result as any).evaluationId ||
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
-            console.log(`📊 [domains] ${domainName} - ${evaluation.name}: ${evalDomainResults.length} results`)
+            console.log(`📊 [domains] ${domain.name} - ${evaluation.name}: ${evalDomainResults.length} results`)
 
             if (evalDomainResults.length === 0) return { score: 0 }
 
@@ -466,7 +474,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const totalScore = scores.reduce((sum, score) => sum + score, 0)
             const averageScore = Math.round((totalScore / evalDomainResults.length) * 10) / 10
 
-            console.log(`📊 [domains] ${domainName} - ${evaluation.name} calculation:`, {
+            console.log(`📊 [domains] ${domain.name} - ${evaluation.name} calculation:`, {
               individualScores: scores.map(s => s.toFixed(2)),
               totalScore: totalScore.toFixed(2),
               count: evalDomainResults.length,
@@ -477,8 +485,8 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           })
 
           return {
-            id: domainId, // Add unique domain ID
-            name: domainName,
+            id: domain.id, // Add unique domain ID
+            name: domain.name,
             evaluations: evaluationScores
           }
         })
@@ -486,6 +494,10 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
       case 'fields': {
         console.log('📊 [fields] Starting field calculation')
+
+        // Get ALL fields from framework
+        const allFields = framework.domains?.flatMap(domain => domain.fields || []) || []
+
         // Group results by field using specificCompetencyId (fallback to competencyId if empty)
         const fieldGroups = allResults.reduce((acc, result) => {
           const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
@@ -514,19 +526,20 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           }))
         )
 
-        return Object.entries(fieldGroups).map(([fieldId, fieldResults]) => {
-          const fieldName = getFieldNameById(fieldId)
+        // Include ALL fields, even those without results
+        return allFields.map(field => {
+          const fieldResults = fieldGroups[field.id] || []
 
           // Get domain name for this field
-          const domainId = getDomainIdFromFieldId(fieldId)
+          const domainId = getDomainIdFromFieldId(field.id)
           const domainName = domainId ? getDomainNameById(domainId) : 'Domaine inconnu'
-          const displayName = `${domainName} - ${fieldName}`
+          const displayName = `${domainName} - ${field.name}`
 
           console.log(`📊 [fields] Processing field: ${displayName} (${fieldResults.length} results)`)
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalFieldResults = fieldResults.filter(result => {
-              const resultEvaluationId = (result as any).evaluationId ||
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
@@ -558,7 +571,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           })
 
           return {
-            id: fieldId, // Add unique field ID
+            id: field.id, // Add unique field ID
             name: displayName, // Use "Domain - Field" format
             evaluations: evaluationScores
           }
@@ -567,6 +580,12 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
 
       case 'competencies': {
         console.log('📊 [competencies] Starting competency calculation')
+
+        // Get ALL competencies from framework
+        const allCompetencies = framework.domains?.flatMap(domain =>
+          domain.fields?.flatMap(field => field.competencies || []) || []
+        ) || []
+
         // Group results by competency using specificCompetencyId to find parent competency (fallback to competencyId if empty)
         const competencyGroups = allResults.reduce((acc, result) => {
           const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
@@ -595,20 +614,21 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           }))
         )
 
-        return Object.entries(competencyGroups).map(([competencyId, competencyResults]) => {
-          const competencyName = getCompetencyNameById(competencyId)
-          console.log(`📊 [competencies] Processing competency: ${competencyName} (${competencyResults.length} results)`)
+        // Include ALL competencies, even those without results
+        return allCompetencies.map(competency => {
+          const competencyResults = competencyGroups[competency.id] || []
+          console.log(`📊 [competencies] Processing competency: ${competency.name} (${competencyResults.length} results)`)
 
           const evaluationScores = evaluations.map(evaluation => {
             const evalCompetencyResults = competencyResults.filter(result => {
-              const resultEvaluationId = (result as any).evaluationId ||
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
-            console.log(`📊 [competencies] ${competencyName} - ${evaluation.name}: ${evalCompetencyResults.length} results`)
+            console.log(`📊 [competencies] ${competency.name} - ${evaluation.name}: ${evalCompetencyResults.length} results`)
 
             if (evalCompetencyResults.length === 0) return { score: 0 }
 
@@ -622,7 +642,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const totalScore = scores.reduce((sum, score) => sum + score, 0)
             const averageScore = Math.round((totalScore / evalCompetencyResults.length) * 10) / 10
 
-            console.log(`📊 [competencies] ${competencyName} - ${evaluation.name} calculation:`, {
+            console.log(`📊 [competencies] ${competency.name} - ${evaluation.name} calculation:`, {
               individualScores: scores.map(s => s.toFixed(2)),
               totalScore: totalScore.toFixed(2),
               count: evalCompetencyResults.length,
@@ -633,8 +653,8 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           })
 
           return {
-            id: competencyId, // Add unique competency ID
-            name: competencyName,
+            id: competency.id, // Add unique competency ID
+            name: competency.name,
             evaluations: evaluationScores
           }
         })

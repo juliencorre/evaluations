@@ -44,6 +44,7 @@ import ResultTypesGrid from '@/components/competencies/ResultTypesGrid.vue'
 import ResultTypeModal from '@/components/competencies/ResultTypeModal.vue'
 import type { ResultTypeConfig } from '@/types/evaluation'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
+import { useLogout } from '@/composables/useLogout'
 
 // Router
 const router = useRouter()
@@ -180,9 +181,10 @@ const goBack = () => {
 
 // Event handlers
 
-const handleLogout = () => {
-  console.log('Logout requested')
-  window.alert('Déconnexion - Fonctionnalité à venir')
+const { logout } = useLogout()
+
+const handleLogout = async () => {
+  await logout()
 }
 
 // Lifecycle

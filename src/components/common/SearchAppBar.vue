@@ -33,6 +33,7 @@
     <!-- Trailing Actions -->
     <div class="search-app-bar__trailing">
       <UserMenu
+        v-if="shouldDisplayUserMenu"
         @logout="$emit('logout')"
       />
     </div>
@@ -40,7 +41,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import UserMenu from './UserMenu.vue'
+import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 
 interface Props {
   searchValue: string
@@ -65,6 +68,11 @@ withDefaults(defineProps<Props>(), {
 })
 
 defineEmits<Emits>()
+
+const authStore = useAuthStore()
+const shouldDisplayUserMenu = computed(
+  () => isAuthenticated.value && !authStore.isInitializing.value
+)
 </script>
 
 <style scoped>

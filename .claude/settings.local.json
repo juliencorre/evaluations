@@ -62,7 +62,12 @@
       "Bash(npm run type-fix:*)",
       "Bash(npx supabase:*)",
       "Bash(del \"C:\\Users\\julien\\Documents\\00_github\\evaluations\\src\\components\\common\\ActionMenu.vue\")",
-      "Bash(npm run type-check:*)"
+      "Bash(npm run type-check:*)",
+      "WebFetch(domain:chatgpt.com)",
+      "WebSearch",
+      "mcp__supabase__get_logs",
+      "Bash(netstat:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

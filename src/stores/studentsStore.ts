@@ -2,6 +2,8 @@ import { ref, computed } from 'vue'
 import type { Student, CompetencyFramework, SpecificCompetency } from '@/types/evaluation'
 import { STUDENTS } from '@/data/staticData'
 import { supabaseStudentsService } from '@/services/supabaseStudentsService'
+import { supabaseStudentClassesService } from '@/services/supabaseStudentClassesService'
+import { useSchoolYearStore } from '@/stores/schoolYearStore'
 
 // Store réactif global pour les élèves
 const students = ref<Student[]>([])
@@ -32,8 +34,7 @@ const loadStudentsFromSupabase = async () => {
   }
 }
 
-// Initialiser les données au démarrage
-loadStudentsFromSupabase()
+// Les données seront chargées à la demande via loadStudentsFromSupabase()
 
 // Actions pour manipuler les élèves
 export const useStudentsStore = () => {
@@ -206,9 +207,108 @@ export const useStudentsStore = () => {
     await loadStudentsFromSupabase()
   }
 
+  // New methods for class relationships
+  const getStudentClasses = async (studentId: string, schoolYearId?: string) => {
+    try {
+      if (!schoolYearId) {
+        const schoolYearStore = useSchoolYearStore()
+        await schoolYearStore.ensureLoaded()
+        schoolYearId = schoolYearStore.currentSchoolYear?.id
+      }
+
+      return await supabaseStudentClassesService.getClassesForStudent(
+        studentId,
+        schoolYearId,
+        'active'
+      )
+    } catch (err) {
+      console.error('Error getting student classes:', err)
+      return []
+    }
+  }
+
+  const enrollStudentInClass = async (studentId: string, classId: string, schoolYearId?: string) => {
+    try {
+      return await supabaseStudentClassesService.enrollStudentInClass({
+        student_id: studentId,
+        class_id: classId,
+        school_year_id: schoolYearId,
+        status: 'active'
+      })
+    } catch (err) {
+      console.error('Error enrolling student:', err)
+      throw err
+    }
+  }
+
+  const unenrollStudentFromClass = async (
+    studentId: string,
+    classId: string,
+    status: 'transferred' | 'graduated' | 'dropped' = 'transferred',
+    schoolYearId?: string
+  ) => {
+    try {
+      return await supabaseStudentClassesService.unenrollStudentFromClass(
+        studentId,
+        classId,
+        status,
+        schoolYearId
+      )
+    } catch (err) {
+      console.error('Error unenrolling student:', err)
+      throw err
+    }
+  }
+
+  const transferStudentToClass = async (
+    studentId: string,
+    fromClassId: string,
+    toClassId: string,
+    schoolYearId?: string
+  ) => {
+    try {
+      return await supabaseStudentClassesService.transferStudent(
+        studentId,
+        fromClassId,
+        toClassId,
+        schoolYearId
+      )
+    } catch (err) {
+      console.error('Error transferring student:', err)
+      throw err
+    }
+  }
+
+  const getStudentsForClass = async (classId: string, schoolYearId?: string) => {
+    try {
+      if (!schoolYearId) {
+        const schoolYearStore = useSchoolYearStore()
+        await schoolYearStore.ensureLoaded()
+        schoolYearId = schoolYearStore.currentSchoolYear?.id
+      }
+
+      return await supabaseStudentClassesService.getStudentsForClass(
+        classId,
+        schoolYearId,
+        'active'
+      )
+    } catch (err) {
+      console.error('Error getting students for class:', err)
+      return []
+    }
+  }
+
+  // Filter students by current school year relationships
+  const getActiveStudents = computed(() => {
+    // For now, return all students until we implement the full filtering
+    // TODO: Filter students based on active enrollments in current school year
+    return students.value
+  })
+
   return {
     // Getters
     allStudents,
+    activeStudents: getActiveStudents,
     studentCount,
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
@@ -220,7 +320,14 @@ export const useStudentsStore = () => {
     deleteStudent,
     getStudentById,
     resetStudents,
-    refreshFromSupabase
+    refreshFromSupabase,
+
+    // Class relationship methods
+    getStudentClasses,
+    enrollStudentInClass,
+    unenrollStudentFromClass,
+    transferStudentToClass,
+    getStudentsForClass
   }
 }
 
@@ -259,9 +366,7 @@ const loadFromSupabase = async () => {
   }
 }
 
-// Chargement automatique au démarrage de l'application
-console.log('🚀 [Store] Initialisation du store des compétences...')
-loadFromSupabase()
+// Les compétences seront chargées à la demande
 
 // Actions pour manipuler le framework de compétences
 export const useCompetencyFrameworkStore = () => {

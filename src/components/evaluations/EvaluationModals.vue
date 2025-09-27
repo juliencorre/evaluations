@@ -54,7 +54,8 @@ const emit = defineEmits<Emits>()
 const formData = ref<EvaluationFormData>({
   name: '',
   description: '',
-  frameworkId: props.frameworkId
+  frameworkId: props.frameworkId,
+  classIds: []
 })
 
 const isFormValid = ref(false)
@@ -88,7 +89,8 @@ watch(() => props.visible, (newVisible) => {
       formData.value = {
         name: '',
         description: '',
-        frameworkId: props.frameworkId
+        frameworkId: props.frameworkId,
+        classIds: []
       }
     }
   }

@@ -2,6 +2,7 @@
   <div class="class-selector">
     <!-- Class Selection Button -->
     <button
+      id="class-selector-button"
       ref="selectorButton"
       class="class-selector-button"
       :class="{ 'is-open': isMenuOpen, 'has-error': error }"
@@ -55,7 +56,7 @@
       ref="menu"
       class="class-menu"
       role="listbox"
-      :aria-labelledby="selectorButton"
+      :aria-labelledby="'class-selector-button'"
     >
       <div class="menu-content">
         <!-- Menu Header -->
@@ -222,7 +223,7 @@ function focusNextOption() {
   const options = menu.value.querySelectorAll('.class-option')
   const currentIndex = Array.from(options).indexOf(document.activeElement as HTMLElement)
   const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0
-  options[nextIndex]?.focus()
+  ;(options[nextIndex] as HTMLElement)?.focus()
 }
 
 function focusPreviousOption() {
@@ -231,7 +232,7 @@ function focusPreviousOption() {
   const options = menu.value.querySelectorAll('.class-option')
   const currentIndex = Array.from(options).indexOf(document.activeElement as HTMLElement)
   const previousIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1
-  options[previousIndex]?.focus()
+  ;(options[previousIndex] as HTMLElement)?.focus()
 }
 
 // Click outside to close

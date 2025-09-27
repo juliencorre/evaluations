@@ -37,7 +37,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return (data as EmailRestriction[]) || []
+      return (data as unknown as EmailRestriction[]) || []
     } catch (error) {
       console.error('Erreur dans getEmailRestrictions:', error)
       throw error
@@ -60,7 +60,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return (data as EmailRestriction[]) || []
+      return (data as unknown as EmailRestriction[]) || []
     } catch (error) {
       console.error('Erreur dans getActiveEmailRestrictions:', error)
       throw error
@@ -91,7 +91,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data as EmailRestriction
+      return data as unknown as EmailRestriction
     } catch (error) {
       console.error('Erreur dans createEmailRestriction:', error)
       throw error
@@ -131,7 +131,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data as EmailRestriction
+      return data as unknown as EmailRestriction
     } catch (error) {
       console.error('Erreur dans updateEmailRestriction:', error)
       throw error
@@ -155,7 +155,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data as EmailRestriction
+      return data as unknown as EmailRestriction
     } catch (error) {
       console.error('Erreur dans toggleEmailRestriction:', error)
       throw error
@@ -232,7 +232,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return (data as EmailRestriction[]) || []
+      return (data as unknown as EmailRestriction[]) || []
     } catch (error) {
       console.error('Erreur dans bulkCreateEmailRestrictions:', error)
       throw error

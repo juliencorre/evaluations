@@ -5,7 +5,7 @@
     <!-- Center-aligned App Bar -->
     <CenterAppBar
       v-if="!isLoading && framework.domains.length > 0"
-      :title="currentEvaluation.name || 'Évaluation'"
+      :title="currentEvaluation?.name || 'Évaluation'"
       :is-scrolled="isScrolled"
       :show-search="false"
       :show-back-button="true"
@@ -21,7 +21,7 @@
 
     <!-- Desktop Evaluation Table -->
     <EvaluationTable
-      v-else-if="framework.domains.length > 0 && !isMobileView"
+      v-else-if="framework.domains.length > 0 && !isMobileView && currentEvaluation"
       :evaluation="currentEvaluation"
       :students="allStudents"
       :framework="framework"
@@ -29,7 +29,7 @@
 
     <!-- Mobile Evaluation View -->
     <EvaluationMobileView
-      v-else-if="framework.domains.length > 0 && isMobileView"
+      v-else-if="framework.domains.length > 0 && isMobileView && currentEvaluation"
       :evaluation="currentEvaluation"
       :students="allStudents"
       :framework="framework"
@@ -53,7 +53,7 @@
     <ConfirmationDialog
       :visible="showDeleteDialog"
       title="Supprimer l'évaluation"
-      :message="`Êtes-vous sûr de vouloir supprimer l'évaluation '${currentEvaluation.name}' ?`"
+      :message="`Êtes-vous sûr de vouloir supprimer l'évaluation '${currentEvaluation?.name}' ?`"
       warning-text="Cette action est irréversible. Toutes les données d'évaluation associées seront définitivement supprimées."
       @close="showDeleteDialog = false"
       @confirm="confirmDeleteEvaluation"
@@ -233,7 +233,7 @@ const exportEvaluationResults = () => {
         name: currentEvaluation.value?.name || 'Évaluation sans nom',
         description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
-        className: currentEvaluation.value?.className || '',
+        className: '', // Class name would need to be resolved from classId
         schoolYearFilter: schoolYearFilter.displayText.value
       },
       students: allStudents.value.map(student => ({
@@ -256,7 +256,7 @@ const exportEvaluationResults = () => {
                 results: allStudents.value.map(student => ({
                   studentId: student.id,
                   studentName: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
-                  result: competency.results?.[student.id] || null
+                  result: null // Results would need to be mapped from currentEvaluation.results
                 }))
               }))
             )

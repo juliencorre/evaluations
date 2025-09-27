@@ -107,7 +107,11 @@ export const emailRestrictionsService = {
   ): Promise<EmailRestriction> {
     try {
       // Normaliser les données de mise à jour
-      const normalizedUpdates: any = { ...updates }
+      type EmailRestrictionUpdate = Partial<Omit<CreateEmailRestrictionData, 'description'>> & {
+        description?: string | null
+      }
+
+      const normalizedUpdates: EmailRestrictionUpdate = { ...updates }
       if (updates.value) {
         normalizedUpdates.value = updates.value.toLowerCase().trim()
       }

@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabase'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { Database } from '@/types/supabase'
 
 export interface SchoolYear {
   id: string
@@ -283,7 +285,11 @@ export const supabaseSchoolYearsService = {
   /**
    * Souscription aux changements des années scolaires (temps réel)
    */
-  subscribeToSchoolYears(callback: (payload: any) => void) {
+  subscribeToSchoolYears(
+    callback: (
+      payload: RealtimePostgresChangesPayload<Database['public']['Tables']['school_years']['Row']>
+    ) => void
+  ) {
     console.log('🔔 [SupabaseSchoolYears] Abonnement aux changements des années scolaires')
 
     return supabase

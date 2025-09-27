@@ -137,7 +137,15 @@ import { useClassStore } from '@/stores/classStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 import { useLogout } from '@/composables/useLogout'
-// import type { Class } from '@/types/evaluation'
+
+interface ClassFormData {
+  name: string
+  description?: string
+  level?: string
+  subject?: string
+  schoolYear?: string
+  active?: boolean
+}
 
 interface Props {
   id: string
@@ -218,7 +226,7 @@ const handleCloseModal = () => {
   isSubmittingModal.value = false
 }
 
-const handleSubmitModal = async (classData: any) => {
+const handleSubmitModal = async (classData: ClassFormData) => {
   if (isSubmittingModal.value || !currentClass.value) return
 
   isSubmittingModal.value = true

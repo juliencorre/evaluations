@@ -53,7 +53,13 @@ import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
 import CompetencyTree from '@/components/competencies/CompetencyTree.vue'
 import CompetencyModals from '@/components/competencies/CompetencyModals.vue'
-import type { Domain, ResultTypeConfig } from '@/types/evaluation'
+import type {
+  Domain,
+  Field,
+  Competency,
+  SpecificCompetency,
+  ResultTypeConfig
+} from '@/types/evaluation'
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { SupabaseCompetenciesService } from '@/services/supabaseCompetenciesService'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
@@ -77,8 +83,31 @@ const frameworkWithDragDrop = computed(() => ({
   domains: competencyStore.framework.value.domains
 }))
 
+interface MenuFabItem {
+  key: string
+  icon: string
+  label: string
+  ariaLabel: string
+  type?: string
+}
+
+type CompetencyModalType = 'domain' | 'field' | 'competency' | 'specificCompetency'
+
+interface CompetencyModalData {
+  id?: string
+  name: string
+  description: string
+  resultTypeConfigId?: string
+}
+
+interface CompetencyModalContext {
+  domain?: Domain
+  field?: Field
+  competency?: Competency
+}
+
 // FAB Menu Items
-const competenciesMenuItems = ref([
+const competenciesMenuItems = ref<MenuFabItem[]>([
   {
     key: 'add-domain',
     icon: 'add',
@@ -96,10 +125,10 @@ const competenciesMenuItems = ref([
 ])
 
 // Modal states
-const modalsRef = ref()
+const modalsRef = ref<InstanceType<typeof CompetencyModals> | null>(null)
 
 // FAB Menu Handler
-const handleFabMenuClick = (item: any) => {
+const handleFabMenuClick = (item: MenuFabItem) => {
   console.log('FAB menu click:', item.key)
   switch (item.key) {
     case 'add-domain':
@@ -135,44 +164,54 @@ const openDeleteDomainModal = (domain: Domain) => {
 }
 
 // Field operations
-const openAddCompetencyModal = (field: any, domain: any) => {
+const openAddCompetencyModal = (field: Field, domain: Domain) => {
   console.log('Add competency to field:', field.name, 'in domain:', domain.name)
   modalsRef.value?.openAddDialog('competency', { domain, field })
 }
 
-const openEditFieldModal = (field: any, domain: any) => {
+const openEditFieldModal = (field: Field, domain: Domain) => {
   console.log('Edit field:', field.name, 'in domain:', domain.name)
   modalsRef.value?.openEditDialog('field', field, { domain })
 }
 
-const openDeleteFieldModal = (field: any, domain: any) => {
+const openDeleteFieldModal = (field: Field, domain: Domain) => {
   console.log('Delete field:', field.name, 'in domain:', domain.name)
   modalsRef.value?.openDeleteDialog('field', field, { domain })
 }
 
 // Competency operations
-const openEditCompetencyModal = (competency: any, field: any, domain: any) => {
+const openEditCompetencyModal = (competency: Competency, field: Field, domain: Domain) => {
   console.log('Edit competency:', competency.name, 'in field:', field.name)
   modalsRef.value?.openEditDialog('competency', competency, { domain, field })
 }
 
-const openDeleteCompetencyModal = (competency: any, field: any, domain: any) => {
+const openDeleteCompetencyModal = (competency: Competency, field: Field, domain: Domain) => {
   console.log('Delete competency:', competency.name, 'in field:', field.name)
   modalsRef.value?.openDeleteDialog('competency', competency, { domain, field })
 }
 
 // Specific competency operations
-const openAddSpecificCompetencyModal = (competency: any, field: any, domain: any) => {
+const openAddSpecificCompetencyModal = (competency: Competency, field: Field, domain: Domain) => {
   console.log('Add specific competency to:', competency.name)
   modalsRef.value?.openAddDialog('specificCompetency', { domain, field, competency })
 }
 
-const openEditSpecificCompetencyModal = (specificCompetency: any, competency: any, field: any, domain: any) => {
+const openEditSpecificCompetencyModal = (
+  specificCompetency: SpecificCompetency,
+  competency: Competency,
+  field: Field,
+  domain: Domain
+) => {
   console.log('Edit specific competency:', specificCompetency.name)
   modalsRef.value?.openEditDialog('specificCompetency', specificCompetency, { domain, field, competency })
 }
 
-const openDeleteSpecificCompetencyModal = (specificCompetency: any, competency: any, field: any, domain: any) => {
+const openDeleteSpecificCompetencyModal = (
+  specificCompetency: SpecificCompetency,
+  competency: Competency,
+  field: Field,
+  domain: Domain
+) => {
   console.log('Delete specific competency:', specificCompetency.name)
   modalsRef.value?.openDeleteDialog('specificCompetency', specificCompetency, { domain, field, competency })
 }
@@ -198,7 +237,13 @@ const openAddDomainModal = () => {
 // }
 
 // Modal event handlers
-const handleModalSave = async (data: { type: string; data: any; context?: any }) => {
+const handleModalSave = async (
+  data: {
+    type: CompetencyModalType
+    data: CompetencyModalData
+    context?: CompetencyModalContext
+  }
+) => {
   console.log('Modal save:', data)
 
   try {
@@ -273,7 +318,13 @@ const handleModalSave = async (data: { type: string; data: any; context?: any })
   }
 }
 
-const handleModalDelete = async (data: { type: string; item: any; context?: any }) => {
+const handleModalDelete = async (
+  data: {
+    type: CompetencyModalType
+    item: CompetencyModalData
+    context?: CompetencyModalContext
+  }
+) => {
   console.log('Modal delete:', data)
 
   try {

@@ -295,7 +295,46 @@ const exportEvaluationResults = () => {
   }
 }
 
-const generateCSV = (data: any) => {
+interface ExportedResult {
+  studentId: string
+  result: string | null
+}
+
+interface ExportedCompetency {
+  id: string
+  name: string
+  domain: string
+  field: string
+  results: ExportedResult[]
+}
+
+interface ExportedStudent {
+  id: string
+  fullName: string
+}
+
+interface ExportSummary {
+  totalStudents: number
+  totalCompetencies: number
+  exportDate: string
+}
+
+interface ExportedEvaluationInfo {
+  id: string
+  name: string
+  description?: string
+  date: string
+  schoolYearFilter?: string
+}
+
+interface EvaluationExportData {
+  evaluation: ExportedEvaluationInfo
+  competencies: ExportedCompetency[]
+  students: ExportedStudent[]
+  summary: ExportSummary
+}
+
+const generateCSV = (data: EvaluationExportData) => {
   try {
     // Validate input data
     if (!data || !data.competencies || !Array.isArray(data.competencies)) {
@@ -307,15 +346,18 @@ const generateCSV = (data: any) => {
     }
 
     // Create headers
-    const headers = ['Élève', ...data.competencies.map((comp: any) => `"${comp.domain} - ${comp.field} - ${comp.name}"`)]
+    const headers = [
+      'Élève',
+      ...data.competencies.map(comp => `"${comp.domain} - ${comp.field} - ${comp.name}"`)
+    ]
     const csvRows = [headers.join(',')]
 
     // Add student rows
-    data.students.forEach((student: any) => {
+    data.students.forEach(student => {
       const row = [
         `"${student.fullName || 'Élève sans nom'}"`,
-        ...data.competencies.map((comp: any) => {
-          const result = comp.results?.find((r: any) => r.studentId === student.id)
+        ...data.competencies.map(comp => {
+          const result = comp.results.find(r => r.studentId === student.id)
           return result?.result ? `"${result.result}"` : '""'
         })
       ]

@@ -1,12 +1,18 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
+interface WebhookRecord {
+  id: string
+  email?: string | null
+  [key: string]: unknown
+}
+
 interface WebhookPayload {
   type: string
   table: string
-  record: any
+  record: WebhookRecord
   schema: string
-  old_record?: any
+  old_record?: WebhookRecord | null
 }
 
 Deno.serve(async (req: Request) => {

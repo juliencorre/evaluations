@@ -135,6 +135,15 @@ import { useLogout } from '@/composables/useLogout'
 import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
 import type { Class } from '@/types/evaluation'
 
+interface ClassFormData {
+  name: string
+  description?: string
+  level?: string
+  subject?: string
+  schoolYear?: string
+  active?: boolean
+}
+
 // Router
 const router = useRouter()
 
@@ -280,7 +289,7 @@ const handleCloseModal = () => {
   isSubmittingModal.value = false
 }
 
-const handleSubmitModal = async (classData: any) => {
+const handleSubmitModal = async (classData: ClassFormData) => {
   if (isSubmittingModal.value) return
 
   isSubmittingModal.value = true

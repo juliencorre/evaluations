@@ -5,6 +5,11 @@ import type { Database } from '@/types/supabase'
 type EvaluationRow = Database['public']['Tables']['evaluations']['Row']
 type EvaluationInsert = Database['public']['Tables']['evaluations']['Insert']
 type EvaluationUpdate = Database['public']['Tables']['evaluations']['Update']
+type EvaluationClassRow = Database['public']['Tables']['evaluation_classes']['Row']
+
+type EvaluationClassWithEvaluation = EvaluationClassRow & {
+  evaluations: EvaluationRow | null
+}
 
 export class SupabaseEvaluationsService {
   async getEvaluations(): Promise<Evaluation[]> {
@@ -63,15 +68,16 @@ export class SupabaseEvaluationsService {
       if (!data) return []
 
       // Transformer les données pour matcher l'interface Evaluation
-      return data
-        .filter(item => item.evaluations) // Filtrer les résultats null
-        .map((item: any) => ({
-          id: item.evaluations.id,
-          name: item.evaluations.name,
-          description: item.evaluations.description || '',
-          frameworkId: item.evaluations.framework_id,
+      return ((data ?? []) as EvaluationClassWithEvaluation[])
+        .map(item => item.evaluations)
+        .filter((evaluation): evaluation is EvaluationRow => Boolean(evaluation))
+        .map(evaluation => ({
+          id: evaluation.id,
+          name: evaluation.name,
+          description: evaluation.description || '',
+          frameworkId: evaluation.framework_id,
           // Note: classId n'est plus directement disponible car relation many-to-many
-          createdAt: item.evaluations.created_at || new Date().toISOString(),
+          createdAt: evaluation.created_at || new Date().toISOString(),
           results: [] // Results are loaded separately
         }))
     } catch (error) {

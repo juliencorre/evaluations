@@ -93,6 +93,8 @@ describe('useStudentsStore', () => {
     const { useStudentsStore } = await import('@/stores/studentsStore')
     const store = useStudentsStore()
 
+    // Ensure students are loaded first
+    await store.refreshFromSupabase()
     await flushPromises()
 
     const updated = await store.updateStudent('stu-1', { firstName: 'Alicia' })
@@ -106,6 +108,8 @@ describe('useStudentsStore', () => {
     const { useStudentsStore } = await import('@/stores/studentsStore')
     const store = useStudentsStore()
 
+    // Ensure students are loaded first
+    await store.refreshFromSupabase()
     await flushPromises()
 
     const deleted = await store.deleteStudent('stu-1')
@@ -149,6 +153,8 @@ describe('useCompetencyFrameworkStore', () => {
     const { useCompetencyFrameworkStore } = await import('@/stores/studentsStore')
     const store = useCompetencyFrameworkStore()
 
+    // Trigger the loading of framework data
+    await store.refreshFromSupabase()
     await flushPromises()
 
     const framework = store.framework.value

@@ -24,7 +24,7 @@
 
         <!-- Chips pour chaque classe -->
         <div
-          v-for="classItem in classStore.allClasses"
+          v-for="classItem in classStore.classes"
           :key="classItem.id"
           class="filter-chip"
           :class="{ 'selected': classStore.selectedClassId === classItem.id }"

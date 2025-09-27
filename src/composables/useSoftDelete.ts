@@ -119,7 +119,7 @@ export function useSoftDelete() {
    */
   const confirmDelete = (
     entityName: string,
-    entityType: 'étudiant' | 'classe' | 'évaluation' = 'élément'
+    entityType: 'étudiant' | 'classe' | 'évaluation' = 'étudiant'
   ): boolean => {
     return confirm(
       `Êtes-vous sûr de vouloir supprimer ${entityType} "${entityName}" ?\n\n` +

@@ -243,7 +243,8 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
     const evaluationData = {
       name: formData.name.trim(),
       description: formData.description.trim(),
-      frameworkId: validFrameworkId
+      frameworkId: validFrameworkId,
+      classId: formData.classIds[0] || '' // Use first class as primary class
     }
 
     // Use the new function that handles classes association

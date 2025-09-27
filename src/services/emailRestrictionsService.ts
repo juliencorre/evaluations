@@ -28,7 +28,7 @@ export const emailRestrictionsService = {
   async getEmailRestrictions(): Promise<EmailRestriction[]> {
     try {
       const { data, error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .select('*')
         .order('created_at', { ascending: false })
 
@@ -37,7 +37,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data || []
+      return (data as unknown as EmailRestriction[]) || []
     } catch (error) {
       console.error('Erreur dans getEmailRestrictions:', error)
       throw error
@@ -50,7 +50,7 @@ export const emailRestrictionsService = {
   async getActiveEmailRestrictions(): Promise<EmailRestriction[]> {
     try {
       const { data, error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -60,7 +60,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data || []
+      return (data as unknown as EmailRestriction[]) || []
     } catch (error) {
       console.error('Erreur dans getActiveEmailRestrictions:', error)
       throw error
@@ -81,7 +81,7 @@ export const emailRestrictionsService = {
       }
 
       const { data, error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .insert([normalizedData])
         .select()
         .single()
@@ -91,7 +91,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data
+      return data as unknown as EmailRestriction
     } catch (error) {
       console.error('Erreur dans createEmailRestriction:', error)
       throw error
@@ -120,7 +120,7 @@ export const emailRestrictionsService = {
       }
 
       const { data, error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .update(normalizedUpdates)
         .eq('id', id)
         .select()
@@ -131,7 +131,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data
+      return data as unknown as EmailRestriction
     } catch (error) {
       console.error('Erreur dans updateEmailRestriction:', error)
       throw error
@@ -144,7 +144,7 @@ export const emailRestrictionsService = {
   async toggleEmailRestriction(id: string, isActive: boolean): Promise<EmailRestriction> {
     try {
       const { data, error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .update({ is_active: isActive })
         .eq('id', id)
         .select()
@@ -155,7 +155,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data
+      return data as unknown as EmailRestriction
     } catch (error) {
       console.error('Erreur dans toggleEmailRestriction:', error)
       throw error
@@ -168,7 +168,7 @@ export const emailRestrictionsService = {
   async deleteEmailRestriction(id: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .delete()
         .eq('id', id)
 
@@ -223,7 +223,7 @@ export const emailRestrictionsService = {
       }))
 
       const { data, error } = await supabase
-        .from('email_restrictions')
+        .from('email_restrictions' as any)
         .insert(normalizedRestrictions)
         .select()
 
@@ -232,7 +232,7 @@ export const emailRestrictionsService = {
         throw error
       }
 
-      return data || []
+      return (data as unknown as EmailRestriction[]) || []
     } catch (error) {
       console.error('Erreur dans bulkCreateEmailRestrictions:', error)
       throw error

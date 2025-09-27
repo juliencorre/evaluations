@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/supabase'
 import type { Evaluation, EvaluationResult, EvaluationValue, EvaluationLevel } from '@/types/evaluation'

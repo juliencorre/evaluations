@@ -107,7 +107,6 @@ import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
 // Stores
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useClassStore } from '@/stores/classStore'
 // import type { Evaluation } from '@/types/evaluation'
 
 const router = useRouter()
@@ -117,7 +116,6 @@ const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesSt
 const evaluationStore = useEvaluationStore()
 const { allEvaluations, loadEvaluations } = evaluationStore
 
-const classStore = useClassStore()
 
 // State
 const isLoading = isCompetenciesLoading

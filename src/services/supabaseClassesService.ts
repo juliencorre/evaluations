@@ -1,7 +1,6 @@
 import type { Database } from '../types/supabase'
 import { supabase } from '../lib/supabase'
 
-type Class = Database['public']['Tables']['classes']['Row']
 type ClassInsert = Database['public']['Tables']['classes']['Insert']
 type ClassUpdate = Database['public']['Tables']['classes']['Update']
 

@@ -138,9 +138,6 @@ const filteredStudents = computed(() => {
   )
 })
 
-const currentSchoolYear = computed(() => {
-  return schoolYearStore.currentSchoolYear
-})
 
 // const selectedClass = computed(() => {
 //   return classStore.selectedClass

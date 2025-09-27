@@ -99,6 +99,7 @@ describe('useEvaluationStore', () => {
 
     expect(success).toBe(true)
     expect(store.allEvaluations.value.find(evaluation => evaluation.id === sampleEvaluation.id)).toBeUndefined()
-    expect(store.currentEvaluation.value.id).not.toBe(sampleEvaluation.id)
+    // After deleting the only evaluation, currentEvaluation should be null
+    expect(store.currentEvaluation.value).toBeNull()
   })
 })

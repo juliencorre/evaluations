@@ -72,6 +72,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const localStudent = ref<Student>({ ...props.student })
+const isUpdatingFromProps = ref(false)
 
 const description = computed(() => {
   return props.isEditing
@@ -81,12 +82,19 @@ const description = computed(() => {
 
 // Watch for external changes
 watch(() => props.student, (newValue) => {
+  isUpdatingFromProps.value = true
   localStudent.value = { ...newValue }
+  // Reset flag on next tick to avoid blocking user input
+  setTimeout(() => {
+    isUpdatingFromProps.value = false
+  }, 0)
 }, { deep: true })
 
-// Watch for local changes and emit
+// Watch for local changes and emit (only when not updating from props)
 watch(localStudent, (newValue) => {
-  emit('update:student', { ...newValue })
+  if (!isUpdatingFromProps.value) {
+    emit('update:student', { ...newValue })
+  }
 }, { deep: true })
 </script>
 

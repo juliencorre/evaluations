@@ -12,11 +12,26 @@
       @logout="handleLogout"
     />
 
+
     <main class="students-content" role="main">
       <h1 class="visually-hidden">Gestion des élèves</h1>
 
+      <!-- No Students State -->
+      <div v-if="studentsStore.allStudents.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+          </svg>
+        </div>
+        <h2 class="empty-title">Aucun élève</h2>
+        <p class="empty-description">
+          Commencez par ajouter votre premier élève avec le bouton ci-dessous.
+        </p>
+      </div>
+
       <!-- Students List -->
       <StudentsList
+        v-else
         :students="filteredStudents"
         @edit-student="handleEditStudent"
         @delete-student="handleDeleteStudent"
@@ -43,20 +58,20 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import SearchAppBar from '@/components/common/SearchAppBar.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
 import StudentsList from '@/components/students/StudentsList.vue'
 import StudentModals from '@/components/students/StudentModals.vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
-import { ROUTE_NAMES } from '@/router/route-names'
+import { useClassStore } from '@/stores/classStore'
+import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { useLogout } from '@/composables/useLogout'
 
-// Router
-const router = useRouter()
-
-// Store
+// Stores
 const studentsStore = useStudentsStore()
+const classStore = useClassStore()
+const schoolYearStore = useSchoolYearStore()
 
 // Refs
 const modalsRef = ref()
@@ -72,23 +87,50 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
 }
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-  handleScroll()
-})
-
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
+
+// Initialize students on mount
+onMounted(async () => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+
+  try {
+    // Load school years, classes, and students
+    await schoolYearStore.ensureLoaded()
+
+    if (classStore.classes.length === 0) {
+      await classStore.loadClasses()
+    }
+
+    // Load students from Supabase if not already loaded
+    if (studentsStore.allStudents.value.length === 0) {
+      await studentsStore.refreshFromSupabase()
+    }
+  } catch (error) {
+    console.error('Error loading students data:', error)
+  }
+})
+
 // Computed
 const filteredStudents = computed(() => {
+  let students = studentsStore.allStudents.value
+
+  // Filter by selected class if any
+  if (classStore.selectedClassId) {
+    // TODO: This would ideally filter students enrolled in the selected class
+    // For now, we show all students until the class-specific filtering is implemented
+    students = studentsStore.activeStudents.value
+  }
+
   if (!searchTerm.value) {
-    return studentsStore.allStudents.value
+    return students
   }
 
   const search = searchTerm.value.toLowerCase()
-  return studentsStore.allStudents.value.filter(
+  return students.filter(
     (student) =>
       student.firstName.toLowerCase().includes(search) ||
       student.lastName.toLowerCase().includes(search) ||
@@ -96,10 +138,20 @@ const filteredStudents = computed(() => {
   )
 })
 
+const currentSchoolYear = computed(() => {
+  return schoolYearStore.currentSchoolYear
+})
+
+// const selectedClass = computed(() => {
+//   return classStore.selectedClass
+// })
+
 // Event handlers
 
+const { logout } = useLogout()
+
 const handleLogout = async () => {
-  await router.replace({ name: ROUTE_NAMES.AUTH })
+  await logout()
 }
 
 const handleAddStudent = () => {
@@ -149,11 +201,12 @@ const handleSaveStudent = async (student: Student) => {
     } else {
       // Ajouter un nouvel élève
       console.log('➕ Ajout élève:', student.firstName, student.lastName)
-      const result = await studentsStore.addStudent({
+      const newStudent = await studentsStore.addStudent({
         firstName: student.firstName,
         lastName: student.lastName
       })
-      console.log('✅ Élève ajouté:', result)
+
+      console.log('✅ Élève ajouté:', newStudent)
     }
 
     console.log('🎯 Fermeture du dialog')
@@ -172,6 +225,7 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   isDeleting.value = true
 
   try {
+    // Delete the student directly
     await studentsStore.deleteStudent(student.id)
     modalsRef.value?.closeDialogs()
   } catch (error) {
@@ -212,6 +266,45 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 32px;
+  flex: 1;
+  min-height: 400px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 24px;
+  color: var(--md-sys-color-outline);
+}
+
+.empty-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.empty-title {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+.empty-description {
+  font-size: 16px;
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0;
 }
 
 @media (max-width: 768px) {

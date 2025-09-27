@@ -190,13 +190,20 @@ const signUpWithEmail = async ({ email, password, fullName }: SignUpPayload) => 
 
 const signOut = async () => {
   resetError()
+
+  // Clear the session immediately to trigger reactive updates
+  applySession(null)
+
+  // Then perform the actual signOut
   const { error } = await supabase.auth.signOut({ scope: 'global' })
   if (error) {
     lastError.value = error
+    // Re-apply the session if signOut failed
+    const { data } = await supabase.auth.getSession()
+    applySession(data.session)
     return { error }
   }
 
-  applySession(null)
   return { error: null }
 }
 

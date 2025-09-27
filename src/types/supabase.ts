@@ -17,6 +17,7 @@ export type Database = {
           first_name: string
           last_name: string
           display_name: string
+          class_id: string | null
           created_at: string
           updated_at: string
         }
@@ -25,6 +26,7 @@ export type Database = {
           first_name: string
           last_name: string
           display_name: string
+          class_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -33,8 +35,67 @@ export type Database = {
           first_name?: string
           last_name?: string
           display_name?: string
+          class_id?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      classes: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          school_year: string
+          level: string | null
+          subject: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          school_year?: string
+          level?: string | null
+          subject?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          school_year?: string
+          level?: string | null
+          subject?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      user_classes: {
+        Row: {
+          id: string
+          user_id: string
+          class_id: string
+          role: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          class_id: string
+          role?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          class_id?: string
+          role?: string
+          created_at?: string
         }
       }
       competency_frameworks: {
@@ -188,7 +249,7 @@ export type Database = {
           name: string
           description: string | null
           framework_id: string
-          class_id: string | null
+          class_id: string
           created_at: string
           updated_at: string
         }
@@ -197,7 +258,7 @@ export type Database = {
           name: string
           description?: string | null
           framework_id: string
-          class_id?: string | null
+          class_id: string
           created_at?: string
           updated_at?: string
         }
@@ -206,7 +267,7 @@ export type Database = {
           name?: string
           description?: string | null
           framework_id?: string
-          class_id?: string | null
+          class_id?: string
           created_at?: string
           updated_at?: string
         }

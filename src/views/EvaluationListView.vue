@@ -20,8 +20,21 @@
 
     <!-- Main Content -->
     <main v-else class="evaluations-content" role="main">
+      <!-- No Evaluations State -->
+      <div v-if="allEvaluations.length === 0" class="empty-state">
+        <div class="empty-state-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+        </div>
+        <h2 class="empty-state-title">Aucune évaluation</h2>
+        <p class="empty-state-description">
+          Créez votre première évaluation avec le bouton ci-dessous.
+        </p>
+      </div>
+
       <!-- Evaluations List -->
-      <div v-if="allEvaluations.length > 0" class="evaluations-container">
+      <div v-else class="evaluations-container">
         <ul class="md3-list" role="list">
           <li
             v-for="evaluation in allEvaluations"
@@ -58,18 +71,6 @@
         </ul>
       </div>
 
-      <!-- Empty State -->
-      <div v-else class="empty-state">
-        <div class="empty-state-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-          </svg>
-        </div>
-        <h2 class="empty-state-title">Aucune évaluation</h2>
-        <p class="empty-state-description">
-          Créez votre première évaluation pour commencer à évaluer vos élèves
-        </p>
-      </div>
     </main>
 
     <!-- Menu FAB -->
@@ -96,7 +97,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { ROUTE_NAMES } from '@/router/route-names'
+import { useLogout } from '@/composables/useLogout'
 
 // Components
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
@@ -106,13 +107,17 @@ import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
 // Stores
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useClassStore } from '@/stores/classStore'
+// import type { Evaluation } from '@/types/evaluation'
 
 const router = useRouter()
 const competenciesStore = useCompetencyFrameworkStore()
-const { framework, isCompetenciesLoading } = competenciesStore
+const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
-const { allEvaluations, addEvaluation, loadEvaluations } = evaluationStore
+const { allEvaluations, loadEvaluations } = evaluationStore
+
+const classStore = useClassStore()
 
 // State
 const isLoading = isCompetenciesLoading
@@ -121,11 +126,14 @@ const showModal = ref(false)
 const isEditMode = ref(false)
 const isSaving = ref(false)
 
+// No class filtering needed - show all evaluations
+
 // Form data
 const currentEvaluationForm = ref({
   name: '',
   description: '',
-  frameworkId: framework.value.id
+  frameworkId: framework.value.id,
+  classIds: [] as string[]
 })
 
 // Scroll handling
@@ -137,7 +145,8 @@ onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
 
-  // Load evaluations from database
+  // Load competency framework and evaluations from database
+  await refreshFromSupabase()
   await loadEvaluations()
 })
 
@@ -167,8 +176,10 @@ const handleUserMenuClick = () => {
 }
 
 
+const { logout } = useLogout()
+
 const handleLogout = async () => {
-  await router.replace({ name: ROUTE_NAMES.AUTH })
+  await logout()
 }
 
 const openAddModal = () => {
@@ -176,7 +187,8 @@ const openAddModal = () => {
   currentEvaluationForm.value = {
     name: '',
     description: '',
-    frameworkId: framework.value.id
+    frameworkId: framework.value.id,
+    classIds: []
   }
   showModal.value = true
 }
@@ -191,7 +203,8 @@ const resetForm = () => {
   currentEvaluationForm.value = {
     name: '',
     description: '',
-    frameworkId: framework.value.id
+    frameworkId: framework.value.id,
+    classIds: []
   }
 }
 
@@ -213,22 +226,37 @@ const handleMenuItemClick = (item: { key: string }) => {
   }
 }
 
-const saveEvaluation = async (formData: { name: string; description: string; frameworkId: string }) => {
+const saveEvaluation = async (formData: { name: string; description: string; frameworkId: string; classIds: string[] }) => {
   isSaving.value = true
 
   try {
-    // Add new evaluation
+    // Add new evaluation with classes
+    // Ensure we have a valid framework ID
+    const validFrameworkId = framework.value.id !== 'temp' ? framework.value.id : null
+    if (!validFrameworkId) {
+      throw new Error('Framework non chargé. Veuillez rafraîchir la page.')
+    }
+
+    // Validate that at least one class is selected
+    if (!formData.classIds || formData.classIds.length === 0) {
+      throw new Error('Au moins une classe doit être sélectionnée.')
+    }
+
     const evaluationData = {
       name: formData.name.trim(),
       description: formData.description.trim(),
-      classId: 'default-class',
-      frameworkId: formData.frameworkId
+      frameworkId: validFrameworkId
     }
 
-    const newEvaluation = await addEvaluation(evaluationData)
+    // Use the new function that handles classes association
+    const newEvaluation = await evaluationStore.addEvaluationWithClasses(
+      evaluationData,
+      formData.classIds
+    )
 
     if (newEvaluation) {
       console.log('➕ Nouvelle évaluation créée:', newEvaluation.name)
+      console.log('📚 Classes associées:', formData.classIds.length)
       closeModal()
       // Optionally redirect to the new evaluation
       // router.push(`/evaluation/${newEvaluation.id}`)

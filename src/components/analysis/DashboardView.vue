@@ -55,6 +55,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useClassStore } from '@/stores/classStore'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
@@ -65,6 +66,7 @@ import ChartCard from '@/components/analysis/ChartCard.vue'
 // Use stores
 const studentsStore = useStudentsStore()
 const evaluationStore = useEvaluationStore()
+// const classStore = useClassStore()
 
 // Services
 const resultTypesService = new SupabaseResultTypesService()
@@ -74,6 +76,9 @@ const resultTypes = ref<ResultTypeConfig[]>([])
 
 // All results from all evaluations for analysis
 const allEvaluationResults = ref<EvaluationResult[]>([])
+
+// Results filtered by class
+// const classEvaluationResults = ref<EvaluationResult[]>([])
 
 // Selected metric type
 const selectedMetricType = ref('domains')
@@ -173,6 +178,8 @@ const getClassData = () => {
   console.log('📊 [getClassData] Starting class average calculation')
   return calculateClassAveragesByLevel(selectedMetricType.value)
 }
+
+// Load all data on mount without class filtering
 
 // Helper functions (simplified versions from StudentAnalysisView)
 const getResultTypeConfigId = (specificCompetencyId?: string): string | undefined => {
@@ -304,6 +311,7 @@ const getScoreFromValue = (value: string, resultTypeConfigId?: string): number =
 const calculateClassAveragesByLevel = (metricType: string) => {
   console.log('📊 [calculateClassAveragesByLevel] Starting calculation:', { metricType })
 
+  // Use all results without class filtering
   const results = allEvaluationResults.value
   const evaluations = evaluationStore.allEvaluations.value
   const students = studentsStore.allStudents.value
@@ -328,8 +336,14 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   }, {} as Record<string, EvaluationResult[]>)
 
   const calculateByMetricType = (allResults: EvaluationResult[]) => {
+    const frameworkStore = useCompetencyFrameworkStore()
+    const framework = frameworkStore.framework.value
+
     switch (metricType) {
       case 'domains': {
+        // Get ALL domains from framework
+        const allDomains = framework.domains || []
+
         // Group results by domain
         const domainGroups = allResults.reduce((acc, result) => {
           const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
@@ -344,7 +358,18 @@ const calculateClassAveragesByLevel = (metricType: string) => {
           return acc
         }, {} as Record<string, EvaluationResult[]>)
 
-        return Object.entries(domainGroups).map(([domainId, groupResults]) => {
+        // Include ALL domains, even those without results
+        return allDomains.map(domain => {
+          const groupResults = domainGroups[domain.id] || []
+
+          if (groupResults.length === 0) {
+            // No results for this domain
+            return {
+              name: domain.name,
+              value: 0
+            }
+          }
+
           // Calculate average across ALL students for this domain
           const studentAverages: number[] = []
 
@@ -378,14 +403,17 @@ const calculateClassAveragesByLevel = (metricType: string) => {
             : 0
 
           return {
-            name: getDomainNameById(domainId),
+            name: domain.name,
             value: Math.round(classAverage * 100) / 100
           }
         })
       }
 
       case 'fields': {
-        // Similar logic for fields
+        // Get ALL fields from framework
+        const allFields = framework.domains?.flatMap(domain => domain.fields || []) || []
+
+        // Group results by field
         const fieldGroups = allResults.reduce((acc, result) => {
           const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
           const fieldId = getFieldIdFromSpecificCompetencyId(effectiveSpecificCompetencyId)
@@ -399,7 +427,18 @@ const calculateClassAveragesByLevel = (metricType: string) => {
           return acc
         }, {} as Record<string, EvaluationResult[]>)
 
-        return Object.entries(fieldGroups).map(([fieldId, groupResults]) => {
+        // Include ALL fields, even those without results
+        return allFields.map(field => {
+          const groupResults = fieldGroups[field.id] || []
+
+          if (groupResults.length === 0) {
+            // No results for this field
+            return {
+              name: field.name,
+              value: 0
+            }
+          }
+
           const studentAverages: number[] = []
 
           const resultsByStudent = groupResults.reduce((acc, result) => {
@@ -429,14 +468,19 @@ const calculateClassAveragesByLevel = (metricType: string) => {
             : 0
 
           return {
-            name: getFieldNameById(fieldId),
+            name: field.name,
             value: Math.round(classAverage * 100) / 100
           }
         })
       }
 
       case 'competencies': {
-        // Similar logic for competencies
+        // Get ALL competencies from framework
+        const allCompetencies = framework.domains?.flatMap(domain =>
+          domain.fields?.flatMap(field => field.competencies || []) || []
+        ) || []
+
+        // Group results by competency
         const competencyGroups = allResults.reduce((acc, result) => {
           const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
           const competencyId = getCompetencyIdFromSpecificCompetencyId(effectiveSpecificCompetencyId)
@@ -450,7 +494,18 @@ const calculateClassAveragesByLevel = (metricType: string) => {
           return acc
         }, {} as Record<string, EvaluationResult[]>)
 
-        return Object.entries(competencyGroups).map(([competencyId, groupResults]) => {
+        // Include ALL competencies, even those without results
+        return allCompetencies.map(competency => {
+          const groupResults = competencyGroups[competency.id] || []
+
+          if (groupResults.length === 0) {
+            // No results for this competency
+            return {
+              name: competency.name,
+              value: 0
+            }
+          }
+
           const studentAverages: number[] = []
 
           const resultsByStudent = groupResults.reduce((acc, result) => {
@@ -480,7 +535,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
             : 0
 
           return {
-            name: getCompetencyNameById(competencyId),
+            name: competency.name,
             value: Math.round(classAverage * 100) / 100
           }
         })

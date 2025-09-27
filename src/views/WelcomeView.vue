@@ -31,13 +31,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
-import { ROUTE_NAMES } from '@/router/route-names'
+import { useLogout } from '@/composables/useLogout'
 
 // State
 const isScrolled = ref(false)
-const router = useRouter()
 
 // Scroll handling
 const handleScroll = () => {
@@ -47,8 +45,10 @@ const handleScroll = () => {
 
 // Event handlers
 
+const { logout } = useLogout()
+
 const handleLogout = async () => {
-  await router.replace({ name: ROUTE_NAMES.AUTH })
+  await logout()
 }
 
 // Lifecycle

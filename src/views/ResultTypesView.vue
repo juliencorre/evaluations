@@ -44,7 +44,7 @@ import ResultTypesGrid from '@/components/competencies/ResultTypesGrid.vue'
 import ResultTypeModal from '@/components/competencies/ResultTypeModal.vue'
 import type { ResultTypeConfig } from '@/types/evaluation'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
-import { ROUTE_NAMES } from '@/router/route-names'
+import { useLogout } from '@/composables/useLogout'
 
 // Router
 const router = useRouter()
@@ -181,8 +181,10 @@ const goBack = () => {
 
 // Event handlers
 
+const { logout } = useLogout()
+
 const handleLogout = async () => {
-  await router.replace({ name: ROUTE_NAMES.AUTH })
+  await logout()
 }
 
 // Lifecycle

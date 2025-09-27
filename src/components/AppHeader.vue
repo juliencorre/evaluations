@@ -48,6 +48,28 @@
           </router-link>
 
           <router-link
+            to="/classes"
+            class="nav-destination"
+            :class="{ active: currentRouteName === ROUTE_NAMES.CLASSES }"
+            :aria-current="currentRouteName === ROUTE_NAMES.CLASSES ? 'page' : undefined"
+          >
+            <div class="nav-indicator" aria-hidden="true"></div>
+            <div class="nav-icon-container">
+              <svg v-if="currentRouteName !== ROUTE_NAMES.CLASSES" class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM12 6.53L3 11l9 4.91L21 11l-9-4.47z"
+                />
+              </svg>
+              <svg v-else class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"
+                />
+              </svg>
+            </div>
+            <span class="nav-label">Classes</span>
+          </router-link>
+
+          <router-link
             to="/evaluations"
             class="nav-destination"
             :class="{ active: currentRouteName === ROUTE_NAMES.EVALUATIONS || currentRouteName === ROUTE_NAMES.EVALUATION_DETAIL }"
@@ -112,6 +134,7 @@
         </div>
 
         <div class="user-actions">
+          <!-- User actions will be added here if needed -->
         </div>
       </div>
 
@@ -298,7 +321,11 @@ onUnmounted(() => {
 
   .user-actions {
     margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+
 }
 
 /* Menu Button - Only visible on large screens with rail */
@@ -600,6 +627,7 @@ onUnmounted(() => {
   gap: 8px;
   flex-shrink: 0;
 }
+
 
 .icon-button {
   display: flex;

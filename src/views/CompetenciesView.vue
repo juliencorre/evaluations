@@ -57,7 +57,7 @@ import type { Domain, ResultTypeConfig } from '@/types/evaluation'
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { SupabaseCompetenciesService } from '@/services/supabaseCompetenciesService'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
-import { ROUTE_NAMES } from '@/router/route-names'
+import { useLogout } from '@/composables/useLogout'
 
 // Store
 const competencyStore = useCompetencyFrameworkStore()
@@ -347,8 +347,10 @@ const handleUserMenuClick = () => {
 }
 
 
+const { logout } = useLogout()
+
 const handleLogout = async () => {
-  await router.replace({ name: ROUTE_NAMES.AUTH })
+  await logout()
 }
 </script>
 

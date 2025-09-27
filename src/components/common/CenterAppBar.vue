@@ -34,19 +34,36 @@
         >
           <span class="material-symbols-outlined">search</span>
         </button>
+        <SchoolYearIcon
+          v-if="showSchoolYearSelector"
+          :selected-year="schoolYearFilter.displayText.value"
+          :all-years-selected="schoolYearFilter.isFilteringAllYears.value"
+          @click="showSchoolYearDialog = true"
+        />
         <UserMenu
           v-if="shouldDisplayUserMenu"
           @logout="$emit('logout')"
         />
       </slot>
     </div>
+
+    <!-- School Year Selection Dialog -->
+    <SchoolYearSelectionDialog
+      :visible="showSchoolYearDialog"
+      :initial-selection="getInitialSelection()"
+      @close="showSchoolYearDialog = false"
+      @select="handleSchoolYearSelection"
+    />
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import UserMenu from './UserMenu.vue'
+import SchoolYearIcon from './SchoolYearIcon.vue'
+import SchoolYearSelectionDialog from './SchoolYearSelectionDialog.vue'
 import { useAuthStore, isAuthenticated } from '@/stores/authStore'
+import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
 
 interface Props {
   title: string
@@ -55,6 +72,7 @@ interface Props {
   showUserMenu?: boolean
   showBackButton?: boolean
   showSchoolIcon?: boolean
+  showSchoolYearSelector?: boolean
 }
 
 interface Emits {
@@ -69,15 +87,41 @@ const props = withDefaults(defineProps<Props>(), {
   showSearch: true,
   showUserMenu: true,
   showBackButton: false,
-  showSchoolIcon: false
+  showSchoolIcon: false,
+  showSchoolYearSelector: true
 })
 
 defineEmits<Emits>()
 
+// State
+const showSchoolYearDialog = ref(false)
+
+// Stores
 const authStore = useAuthStore()
+const schoolYearFilter = getSchoolYearFilterStore()
+
+// Computed
 const shouldDisplayUserMenu = computed(
   () => props.showUserMenu && isAuthenticated.value && !authStore.isInitializing.value
 )
+
+// Methods
+const getInitialSelection = () => {
+  if (schoolYearFilter.isFilteringAllYears.value) {
+    return 'all'
+  }
+  return schoolYearFilter.activeYearId.value
+}
+
+const handleSchoolYearSelection = (selection: { type: 'all' | 'single', yearId?: string, yearName?: string }) => {
+  schoolYearFilter.setFilter(selection)
+  showSchoolYearDialog.value = false
+}
+
+// Initialize filter on mount
+onMounted(async () => {
+  await schoolYearFilter.initialize()
+})
 </script>
 
 <style scoped>
@@ -166,9 +210,11 @@ const shouldDisplayUserMenu = computed(
 .app-bar__title {
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-width: 0;
+  gap: 4px;
 }
 
 .app-bar__title-text {

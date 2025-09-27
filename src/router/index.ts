@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { watch } from 'vue'
 import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 import { ROUTE_NAMES } from './route-names'
 
@@ -79,6 +80,38 @@ const router = createRouter({
       }
     },
     {
+      path: '/classes',
+      name: ROUTE_NAMES.CLASSES,
+      component: () => import(/* webpackChunkName: "classes" */ '../views/ClassesView.vue'),
+      meta: {
+        title: 'Classes',
+        description: 'Gérer les classes et leurs paramètres',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/classes/:id',
+      name: ROUTE_NAMES.CLASS_DETAIL,
+      component: () => import(/* webpackChunkName: "class-detail" */ '../views/ClassDetailView.vue'),
+      props: true,
+      meta: {
+        title: 'Détail de la classe',
+        description: 'Gérer les informations et paramètres d\'une classe',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/classes/:id/students',
+      name: ROUTE_NAMES.CLASS_STUDENTS,
+      component: () => import(/* webpackChunkName: "class-students" */ '../views/ClassStudentsView.vue'),
+      props: true,
+      meta: {
+        title: 'Élèves de la classe',
+        description: 'Gérer les élèves inscrits dans cette classe',
+        requiresAuth: true
+      }
+    },
+    {
       path: '/students',
       name: ROUTE_NAMES.STUDENTS,
       component: () => import(/* webpackChunkName: "students" */ '../views/StudentsView.vue'),
@@ -139,7 +172,9 @@ const sanitizeRedirectPath = (value: unknown) => {
 }
 
 // Add route guards for performance optimization
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
+  console.log(`[Router] Navigation: ${from.path || 'initial'} -> ${to.path}`)
+
   // Set document title based on route meta
   if (to.meta?.title) {
     document.title = `${to.meta.title} - Évaluations`
@@ -152,7 +187,11 @@ router.beforeEach(async (to, _from, next) => {
   const requiresAuth = to.meta?.requiresAuth !== false
   const guestOnly = Boolean(to.meta?.guestOnly)
 
+  console.log(`[Router] Auth status: ${authStatus}, requires auth: ${requiresAuth}, guest only: ${guestOnly}`)
+
+  // Si l'utilisateur n'est pas authentifié et que la route nécessite une authentification
   if (requiresAuth && !authStatus) {
+    console.log('[Router] Redirection vers auth - utilisateur non authentifié')
     const redirect = sanitizeRedirectPath(to.fullPath)
     next({
       name: ROUTE_NAMES.AUTH,
@@ -161,19 +200,46 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
+  // Si l'utilisateur est authentifié et que la route est réservée aux invités
   if (guestOnly && authStatus) {
+    console.log('[Router] Redirection depuis auth - utilisateur déjà authentifié')
     const redirect = sanitizeRedirectPath(to.query.redirect)
     next(redirect)
     return
   }
 
+  console.log('[Router] Navigation autorisée')
   next()
 })
+
+// Écouter les changements d'état d'authentification pour rediriger automatiquement
+
+if (typeof window !== 'undefined') {
+  // Surveiller les changements d'état d'authentification
+  watch(isAuthenticated, (newAuthStatus, oldAuthStatus) => {
+    console.log(`[Router] Changement d'authentification: ${oldAuthStatus} -> ${newAuthStatus}`)
+
+    // Si l'utilisateur se déconnecte alors qu'il est sur une page protégée
+    if (oldAuthStatus === true && newAuthStatus === false) {
+      const currentRoute = router.currentRoute.value
+      const requiresAuth = currentRoute.meta?.requiresAuth !== false
+
+      if (requiresAuth) {
+        console.log('[Router] Déconnexion détectée - redirection vers auth')
+        router.replace({
+          name: ROUTE_NAMES.AUTH,
+          query: { from: 'logout' }
+        })
+      }
+    }
+  }, { immediate: false })
+}
 
 // Preload critical routes on app initialization
 export const preloadCriticalRoutes = () => {
   // Preload the students route as it's commonly accessed after home
   import(/* webpackChunkName: "students" */ '../views/StudentsView.vue')
 }
+
 
 export { router, ROUTE_NAMES }

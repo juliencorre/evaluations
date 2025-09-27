@@ -31,19 +31,22 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 
 // Components
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import AnalysisTabs from '@/components/analysis/AnalysisTabs.vue'
 import DashboardView from '@/components/analysis/DashboardView.vue'
 import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
-import { ROUTE_NAMES } from '@/router/route-names'
+import { useLogout } from '@/composables/useLogout'
+
+// Stores
+import { useClassStore } from '@/stores/classStore'
+
+// const classStore = useClassStore()
 
 // State
 const activeView = ref('dashboard')
 const isScrolled = ref(false)
-const router = useRouter()
 
 
 // Tab configuration
@@ -201,8 +204,10 @@ const handleUserMenuClick = () => {
 }
 
 
+const { logout } = useLogout()
+
 const handleLogout = async () => {
-  await router.replace({ name: ROUTE_NAMES.AUTH })
+  await logout()
 }
 </script>
 
@@ -235,4 +240,5 @@ const handleLogout = async () => {
     padding: 24px 32px 80px 80px;
   }
 }
+
 </style>

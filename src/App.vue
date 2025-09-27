@@ -10,6 +10,7 @@
 import { RouterView } from 'vue-router'
 import { onMounted, onBeforeUnmount, ref, defineAsyncComponent } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
+import { useClassStore } from '@/stores/classStore'
 
 // Lazy load components that are not immediately visible
 const AppHeader = defineAsyncComponent(() => import('./components/AppHeader.vue'))
@@ -20,6 +21,7 @@ const PwaInstallPrompt = defineAsyncComponent({
 })
 
 const authStore = useAuthStore()
+const classStore = useClassStore()
 const isRailExpanded = ref(false)
 
 function handleRailExpanded(expanded: boolean) {
@@ -27,6 +29,9 @@ function handleRailExpanded(expanded: boolean) {
 }
 
 onMounted(() => {
+  // Initialize class store
+  classStore.initialize()
+
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
     import('./registerSW')
   }

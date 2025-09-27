@@ -1,497 +1,499 @@
 <template>
-  <div class="auth-layout">
-    <section class="auth-panel" role="main">
-      <header class="auth-header">
-        <div class="auth-brand">
-          <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
-          <div class="auth-brand-text">
-            <h1 class="auth-title">Connexion sécurisée</h1>
-            <p class="auth-subtitle">Gérez vos évaluations en toute confiance</p>
+  <div class="auth-page">
+    <!-- Container principal -->
+    <div class="auth-container">
+      <!-- Carte d'authentification -->
+      <div class="auth-card">
+        <!-- En-tête avec logo et titre -->
+        <header class="auth-header">
+          <div class="logo-container">
+            <span class="material-symbols-outlined">school</span>
           </div>
-        </div>
-      </header>
+          <h1 class="auth-title">Évaluations</h1>
+          <p class="auth-subtitle">Plateforme de gestion des évaluations scolaires</p>
+        </header>
 
-      <div class="auth-card" :aria-busy="isSubmitting || isInitializing">
-        <div class="auth-tabs" role="tablist" aria-label="Choix du formulaire d'authentification">
+        <!-- Navigation par onglets -->
+        <nav class="tab-navigation" role="tablist">
           <button
-            id="signin-tab"
-            class="auth-tab"
+            class="tab-button"
+            :class="{ 'tab-active': activeTab === 'signin' }"
             role="tab"
-            :tabindex="activeTab === 'signin' ? 0 : -1"
             :aria-selected="activeTab === 'signin'"
             @click="switchTab('signin')"
           >
             Connexion
           </button>
           <button
-            id="signup-tab"
-            class="auth-tab"
+            class="tab-button"
+            :class="{ 'tab-active': activeTab === 'signup' }"
             role="tab"
-            :tabindex="activeTab === 'signup' ? 0 : -1"
             :aria-selected="activeTab === 'signup'"
             @click="switchTab('signup')"
           >
             Inscription
           </button>
-        </div>
+        </nav>
 
-        <div
-          v-if="initializationFailed"
-          class="auth-initialization-error"
-          role="alert"
-        >
-          <p>
-            {{
-              initializationError ||
-                "Impossible de vérifier le service d'authentification. Vérifiez votre connexion et réessayez."
-            }}
-          </p>
-          <button
-            type="button"
-            class="auth-secondary-action"
-            :disabled="isInitializing"
-            @click="handleRetryInitialization"
-          >
-            <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
-            <span>{{ isInitializing ? 'Nouvelle tentative...' : 'Réessayer la connexion sécurisée' }}</span>
-          </button>
-        </div>
-
-        <p v-else-if="initializationMessage" class="auth-initialization-info" role="status">
-          {{ initializationMessage }}
-        </p>
-
-        <Transition name="fade" mode="out-in">
-          <form
-            v-if="activeTab === 'signin'"
-            key="signin"
-            class="auth-form"
-            autocomplete="on"
-            aria-labelledby="signin-tab"
-          @submit.prevent="handleSignIn"
-        >
-            <p
-              v-if="feedback.signin.message && !isSubmitting"
-              class="auth-message"
-              role="status"
-            >
-              {{ feedback.signin.message }}
-            </p>
-            <p
-              v-if="feedback.signin.error && !isSubmitting"
-              class="auth-error"
-              role="alert"
-            >
-              {{ feedback.signin.error }}
-            </p>
-            <section
-              v-if="needsEmailVerification && !isSubmitting"
-              class="auth-verification-card"
-              aria-live="polite"
-            >
-              <h2 class="auth-verification-title">
-                <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
-                Vérification requise
-              </h2>
-              <p class="auth-verification-text">
-                Votre adresse e-mail
-                <strong>{{ verificationEmail || signInForm.email }}</strong>
-                doit être vérifiée avant de pouvoir vous connecter. Consultez votre boîte de réception et cliquez sur le
-                lien de confirmation.
-              </p>
-              <button
-                type="button"
-                class="auth-secondary-action tonal"
-                :disabled="isResendingVerification"
-                @click="handleResendVerification"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">forward_to_inbox</span>
-                <span>{{ isResendingVerification ? 'Nouvel envoi en cours...' : 'Renvoyer l\'e-mail de confirmation' }}</span>
-              </button>
-              <p v-if="verificationFeedback" class="auth-message" role="status">{{ verificationFeedback }}</p>
-              <p v-if="verificationError" class="auth-error" role="alert">{{ verificationError }}</p>
-            </section>
-
-            <label
-              class="md-text-field"
-              :class="{ 'has-error': !!feedback.signin.fieldErrors.email, 'has-value': Boolean(signInForm.email) }"
-            >
-              <span class="md-text-field__label">Adresse e-mail</span>
-              <input
-                v-model.trim="signInForm.email"
-                type="email"
-                name="email"
-                inputmode="email"
-                autocomplete="email"
-                placeholder=" "
-                required
-                :disabled="isFormDisabled"
-                :aria-invalid="!!feedback.signin.fieldErrors.email"
-                :aria-describedby="feedback.signin.fieldErrors.email ? signInEmailSupportId : undefined"
-              />
-              <span
-                v-if="feedback.signin.fieldErrors.email"
-                :id="signInEmailSupportId"
-                class="md-text-field__supporting"
-              >
-                {{ feedback.signin.fieldErrors.email }}
-              </span>
-            </label>
-
-            <label
-              class="md-text-field password-field"
-              :class="{ 'has-error': !!feedback.signin.fieldErrors.password, 'has-value': Boolean(signInForm.password) }"
-            >
-              <span class="md-text-field__label">Mot de passe</span>
-              <input
-                v-model="signInForm.password"
-                :type="showSignInPassword ? 'text' : 'password'"
-                name="current-password"
-                autocomplete="current-password"
-                minlength="8"
-                placeholder=" "
-                required
-                :disabled="isFormDisabled"
-                :aria-invalid="!!feedback.signin.fieldErrors.password"
-                :aria-describedby="feedback.signin.fieldErrors.password ? signInPasswordSupportId : undefined"
-              />
-              <button
-                type="button"
-                class="password-toggle"
-                :aria-label="showSignInPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
-                @click="showSignInPassword = !showSignInPassword"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">
-                  {{ showSignInPassword ? 'visibility_off' : 'visibility' }}
-                </span>
-              </button>
-              <span
-                v-if="feedback.signin.fieldErrors.password"
-                :id="signInPasswordSupportId"
-                class="md-text-field__supporting"
-              >
-                {{ feedback.signin.fieldErrors.password }}
-              </span>
-            </label>
-
-            <div class="auth-links">
-              <button type="button" class="link-button" @click="switchTab('forgot')">
-                Mot de passe oublié ?
-              </button>
-            </div>
-
+        <!-- Messages d'erreur globaux -->
+        <div v-if="initializationFailed" class="alert alert-error" role="alert">
+          <span class="material-symbols-outlined">error</span>
+          <div class="alert-content">
+            <p>{{ initializationError || "Impossible de vérifier le service d'authentification." }}</p>
             <button
-              class="auth-submit"
-              type="submit"
-              :disabled="!canSubmitSignIn || isFormDisabled"
+              class="button button-outlined"
+              :disabled="isInitializing"
+              @click="handleRetryInitialization"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">login</span>
-              <span>{{ isSubmitting ? 'Connexion en cours...' : 'Se connecter' }}</span>
+              {{ isInitializing ? 'Nouvelle tentative...' : 'Réessayer' }}
             </button>
-          </form>
+          </div>
+        </div>
 
-          <section
-            v-else-if="activeTab === 'signup' && signUpSuccess"
-            key="signup-success"
-            class="auth-success-card"
-            role="status"
-            aria-live="polite"
-          >
-            <span class="material-symbols-outlined auth-success-icon" aria-hidden="true">mark_email_read</span>
-            <h2>Confirmez votre adresse e-mail</h2>
-            <p>
-              Un lien sécurisé vient d'être envoyé à
-              <strong>{{ lastRegisteredEmail || signUpForm.email }}</strong>.
-              Cliquez dessus pour activer votre compte, puis revenez vous connecter.
-            </p>
-            <button type="button" class="auth-secondary-action tonal" @click="restartSignUpFlow">
-              <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
-              <span>Créer un autre compte</span>
-            </button>
-            <button type="button" class="auth-submit" @click="switchTab('signin')">
-              <span class="material-symbols-outlined" aria-hidden="true">login</span>
-              <span>Aller à la connexion</span>
-            </button>
-          </section>
-          <form
-            v-else-if="activeTab === 'signup'"
-            key="signup-form"
-            class="auth-form"
-            autocomplete="on"
-            aria-labelledby="signup-tab"
-            @submit.prevent="handleSignUp"
-          >
-            <p
-              v-if="feedback.signup.message && !isSubmitting"
-              class="auth-message"
-              role="status"
-            >
-              {{ feedback.signup.message }}
-            </p>
-            <p
-              v-if="feedback.signup.error && !isSubmitting"
-              class="auth-error"
-              role="alert"
-            >
-              {{ feedback.signup.error }}
-            </p>
+        <div v-else-if="initializationMessage" class="alert alert-info" role="status">
+          <span class="material-symbols-outlined">info</span>
+          <p>{{ initializationMessage }}</p>
+        </div>
 
-            <label class="md-text-field" :class="{ 'has-value': Boolean(signUpForm.fullName) }">
-              <span class="md-text-field__label">Nom complet</span>
-              <input
-                v-model.trim="signUpForm.fullName"
-                type="text"
-                name="name"
-                autocomplete="name"
-                placeholder=" "
-                :disabled="isFormDisabled"
-              />
-              <span class="md-text-field__supporting">Optionnel — affiché dans vos notifications.</span>
-            </label>
-
-            <label
-              class="md-text-field"
-              :class="{
-                'has-error': !!feedback.signup.fieldErrors.email,
-                'has-value': Boolean(signUpForm.email)
-              }"
+        <!-- Contenu des formulaires -->
+        <main class="auth-content">
+          <Transition name="slide-fade" mode="out-in">
+            <!-- Formulaire de connexion -->
+            <form
+              v-if="activeTab === 'signin'"
+              key="signin"
+              class="auth-form"
+              autocomplete="on"
+              @submit.prevent="handleSignIn"
             >
-              <span class="md-text-field__label">Adresse e-mail</span>
-              <input
-                v-model.trim="signUpForm.email"
-                type="email"
-                name="new-email"
-                inputmode="email"
-                autocomplete="email"
-                placeholder=" "
-                required
-                :disabled="isFormDisabled"
-                :aria-invalid="!!feedback.signup.fieldErrors.email"
-                :aria-describedby="feedback.signup.fieldErrors.email ? signUpEmailSupportId : undefined"
-              />
-              <span
-                v-if="feedback.signup.fieldErrors.email"
-                :id="signUpEmailSupportId"
-                class="md-text-field__supporting"
+              <!-- Messages de retour -->
+              <div v-if="feedback.signin.message && !isSubmitting" class="alert alert-success" role="status">
+                <span class="material-symbols-outlined">check_circle</span>
+                <p>{{ feedback.signin.message }}</p>
+              </div>
+
+              <div v-if="feedback.signin.error && !isSubmitting" class="alert alert-error" role="alert">
+                <span class="material-symbols-outlined">error</span>
+                <p>{{ feedback.signin.error }}</p>
+              </div>
+
+              <!-- Vérification email -->
+              <div
+                v-if="needsEmailVerification && !isSubmitting"
+                class="verification-card"
+                role="region"
+                aria-live="polite"
               >
-                {{ feedback.signup.fieldErrors.email }}
-              </span>
-            </label>
+                <div class="verification-icon">
+                  <span class="material-symbols-outlined">mark_email_unread</span>
+                </div>
+                <div class="verification-content">
+                  <h2>Vérification requise</h2>
+                  <p>
+                    Votre adresse e-mail <strong>{{ verificationEmail || signInForm.email }}</strong>
+                    doit être vérifiée avant de pouvoir vous connecter.
+                  </p>
+                  <button
+                    type="button"
+                    class="button button-outlined"
+                    :disabled="isResendingVerification"
+                    @click="handleResendVerification"
+                  >
+                    {{ isResendingVerification ? 'Envoi en cours...' : 'Renvoyer l\'e-mail' }}
+                  </button>
+                  <p v-if="verificationFeedback" class="success-text">{{ verificationFeedback }}</p>
+                  <p v-if="verificationError" class="error-text">{{ verificationError }}</p>
+                </div>
+              </div>
 
-            <label
-              class="md-text-field password-field"
-              :class="{
-                'has-error': !!feedback.signup.fieldErrors.password,
-                'has-value': Boolean(signUpForm.password)
-              }"
-            >
-              <span class="md-text-field__label">Mot de passe</span>
-              <input
-                v-model="signUpForm.password"
-                :type="showSignUpPassword ? 'text' : 'password'"
-                name="new-password"
-                autocomplete="new-password"
-                minlength="12"
-                placeholder=" "
-                required
-                :disabled="isFormDisabled"
-                :aria-invalid="!!feedback.signup.fieldErrors.password"
-                :aria-describedby="joinIds(
-                  feedback.signup.fieldErrors.password ? signUpPasswordSupportId : null,
-                  passwordRequirementsId
-                )"
-              />
+              <!-- Champs du formulaire -->
+              <div class="form-fields">
+                <!-- Email -->
+                <div class="input-group">
+                  <div
+                    class="text-field"
+                    :class="{
+                      'text-field-error': !!feedback.signin.fieldErrors.email,
+                      'text-field-focused': emailFocused,
+                      'text-field-filled': Boolean(signInForm.email)
+                    }"
+                  >
+                    <label class="text-field-label" for="signin-email">Adresse e-mail</label>
+                    <div class="text-field-container">
+                      <span class="text-field-icon material-symbols-outlined">mail</span>
+                      <input
+                        id="signin-email"
+                        v-model.trim="signInForm.email"
+                        class="text-field-input"
+                        type="email"
+                        name="email"
+                        autocomplete="email"
+                        required
+                        :disabled="isFormDisabled"
+                        :aria-invalid="!!feedback.signin.fieldErrors.email"
+                        @focus="emailFocused = true"
+                        @blur="emailFocused = false"
+                      />
+                    </div>
+                    <div v-if="feedback.signin.fieldErrors.email" class="text-field-error-text">
+                      {{ feedback.signin.fieldErrors.email }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mot de passe -->
+                <div class="input-group">
+                  <div
+                    class="text-field"
+                    :class="{
+                      'text-field-error': !!feedback.signin.fieldErrors.password,
+                      'text-field-focused': passwordFocused,
+                      'text-field-filled': Boolean(signInForm.password)
+                    }"
+                  >
+                    <label class="text-field-label" for="signin-password">Mot de passe</label>
+                    <div class="text-field-container">
+                      <span class="text-field-icon material-symbols-outlined">lock</span>
+                      <input
+                        id="signin-password"
+                        v-model="signInForm.password"
+                        class="text-field-input"
+                        :type="showSignInPassword ? 'text' : 'password'"
+                        name="current-password"
+                        autocomplete="current-password"
+                        minlength="8"
+                        required
+                        :disabled="isFormDisabled"
+                        :aria-invalid="!!feedback.signin.fieldErrors.password"
+                        @focus="passwordFocused = true"
+                        @blur="passwordFocused = false"
+                      />
+                      <button
+                        type="button"
+                        class="text-field-trailing-icon"
+                        :aria-label="showSignInPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                        @click="showSignInPassword = !showSignInPassword"
+                      >
+                        <span class="material-symbols-outlined">
+                          {{ showSignInPassword ? 'visibility_off' : 'visibility' }}
+                        </span>
+                      </button>
+                    </div>
+                    <div v-if="feedback.signin.fieldErrors.password" class="text-field-error-text">
+                      {{ feedback.signin.fieldErrors.password }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions secondaires -->
+              <div class="form-actions">
+                <label class="checkbox-container">
+                  <input type="checkbox" class="checkbox-input">
+                  <span class="checkbox-checkmark"></span>
+                  <span class="checkbox-label">Se souvenir de moi</span>
+                </label>
+                <button type="button" class="link-button" @click="switchTab('forgot')">
+                  Mot de passe oublié ?
+                </button>
+              </div>
+
+              <!-- Bouton principal -->
               <button
-                type="button"
-                class="password-toggle"
-                :aria-label="showSignUpPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
-                @click="showSignUpPassword = !showSignUpPassword"
+                class="button button-filled"
+                type="submit"
+                :disabled="!canSubmitSignIn || isFormDisabled"
               >
-                <span class="material-symbols-outlined" aria-hidden="true">
-                  {{ showSignUpPassword ? 'visibility_off' : 'visibility' }}
-                </span>
+                <span v-if="isSubmitting" class="loading-spinner"></span>
+                {{ isSubmitting ? 'Connexion en cours...' : 'Se connecter' }}
               </button>
-              <span
-                v-if="feedback.signup.fieldErrors.password"
-                :id="signUpPasswordSupportId"
-                class="md-text-field__supporting"
-              >
-                {{ feedback.signup.fieldErrors.password }}
-              </span>
-              <ul :id="passwordRequirementsId" class="password-guidelines" aria-live="polite">
-                <li :class="{ fulfilled: passwordValidation.length }">
-                  <span class="material-symbols-outlined" aria-hidden="true">
+
+            </form>
+
+            <!-- Formulaire d'inscription -->
+            <form
+              v-else-if="activeTab === 'signup' && !signUpSuccess"
+              key="signup"
+              class="auth-form"
+              autocomplete="on"
+              @submit.prevent="handleSignUp"
+            >
+              <!-- Messages -->
+              <div v-if="feedback.signup.message && !isSubmitting" class="alert alert-success" role="status">
+                <span class="material-symbols-outlined">check_circle</span>
+                <p>{{ feedback.signup.message }}</p>
+              </div>
+
+              <div v-if="feedback.signup.error && !isSubmitting" class="alert alert-error" role="alert">
+                <span class="material-symbols-outlined">error</span>
+                <p>{{ feedback.signup.error }}</p>
+              </div>
+
+              <!-- Champs -->
+              <div class="form-fields">
+                <!-- Email -->
+                <div class="input-group">
+                  <div
+                    class="text-field"
+                    :class="{
+                      'text-field-error': !!feedback.signup.fieldErrors.email,
+                      'text-field-focused': signUpEmailFocused,
+                      'text-field-filled': Boolean(signUpForm.email)
+                    }"
+                  >
+                    <label class="text-field-label" for="signup-email">Adresse e-mail</label>
+                    <div class="text-field-container">
+                      <span class="text-field-icon material-symbols-outlined">mail</span>
+                      <input
+                        id="signup-email"
+                        v-model.trim="signUpForm.email"
+                        class="text-field-input"
+                        type="email"
+                        name="new-email"
+                        autocomplete="email"
+                        required
+                        :disabled="isFormDisabled"
+                        :aria-invalid="!!feedback.signup.fieldErrors.email"
+                        @focus="signUpEmailFocused = true"
+                        @blur="signUpEmailFocused = false; validateSignUpEmail()"
+                        @input="emailValidationResult = null; feedback.signup.fieldErrors.email = ''"
+                      />
+                      <!-- Indicateur de validation en cours -->
+                      <div v-if="isValidatingEmail" class="text-field-trailing-icon">
+                        <span class="loading-spinner-small"></span>
+                      </div>
+                      <!-- Indicateur de validation réussie -->
+                      <div v-else-if="emailValidationResult?.allowed" class="text-field-trailing-icon text-success">
+                        <span class="material-symbols-outlined">check_circle</span>
+                      </div>
+                    </div>
+                    <div v-if="feedback.signup.fieldErrors.email" class="text-field-error-text">
+                      {{ feedback.signup.fieldErrors.email }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mot de passe -->
+                <div class="input-group">
+                  <div
+                    class="text-field"
+                    :class="{
+                      'text-field-error': !!feedback.signup.fieldErrors.password,
+                      'text-field-focused': signUpPasswordFocused,
+                      'text-field-filled': Boolean(signUpForm.password)
+                    }"
+                  >
+                    <label class="text-field-label" for="signup-password">Mot de passe</label>
+                    <div class="text-field-container">
+                      <span class="text-field-icon material-symbols-outlined">lock</span>
+                      <input
+                        id="signup-password"
+                        v-model="signUpForm.password"
+                        class="text-field-input"
+                        :type="showSignUpPassword ? 'text' : 'password'"
+                        name="new-password"
+                        autocomplete="new-password"
+                        minlength="12"
+                        required
+                        :disabled="isFormDisabled"
+                        :aria-invalid="!!feedback.signup.fieldErrors.password"
+                        @focus="signUpPasswordFocused = true"
+                        @blur="signUpPasswordFocused = false"
+                      />
+                      <button
+                        type="button"
+                        class="text-field-trailing-icon"
+                        @click="showSignUpPassword = !showSignUpPassword"
+                      >
+                        <span class="material-symbols-outlined">
+                          {{ showSignUpPassword ? 'visibility_off' : 'visibility' }}
+                        </span>
+                      </button>
+                    </div>
+                    <div v-if="feedback.signup.fieldErrors.password" class="text-field-error-text">
+                      {{ feedback.signup.fieldErrors.password }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Indicateur de force du mot de passe -->
+              <div class="password-strength">
+                <div class="password-strength-label">
+                  <span>Force du mot de passe</span>
+                  <span class="password-strength-percentage" :class="passwordValidation.level">
+                    {{ passwordValidation.strength }}%
+                  </span>
+                </div>
+                <div class="password-strength-bar">
+                  <div
+                    class="password-strength-fill"
+                    :class="passwordValidation.level"
+                    :style="{ width: passwordValidation.strength + '%' }"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Critères du mot de passe -->
+              <ul class="password-requirements">
+                <li :class="{ 'requirement-fulfilled': passwordValidation.length }">
+                  <span class="material-symbols-outlined">
                     {{ passwordValidation.length ? 'check_circle' : 'radio_button_unchecked' }}
                   </span>
-                  Au moins 12 caractères.
+                  Au moins 12 caractères
                 </li>
-                <li :class="{ fulfilled: passwordValidation.letters }">
-                  <span class="material-symbols-outlined" aria-hidden="true">
+                <li :class="{ 'requirement-fulfilled': passwordValidation.letters }">
+                  <span class="material-symbols-outlined">
                     {{ passwordValidation.letters ? 'check_circle' : 'radio_button_unchecked' }}
                   </span>
-                  Inclure des lettres.
+                  Inclure des lettres
                 </li>
-                <li :class="{ fulfilled: passwordValidation.numbers }">
-                  <span class="material-symbols-outlined" aria-hidden="true">
+                <li :class="{ 'requirement-fulfilled': passwordValidation.numbers }">
+                  <span class="material-symbols-outlined">
                     {{ passwordValidation.numbers ? 'check_circle' : 'radio_button_unchecked' }}
                   </span>
-                  Inclure des chiffres.
+                  Inclure des chiffres
                 </li>
-                <li :class="{ fulfilled: passwordValidation.matches }">
-                  <span class="material-symbols-outlined" aria-hidden="true">
-                    {{ passwordValidation.matches ? 'check_circle' : 'radio_button_unchecked' }}
+                <li :class="{ 'requirement-fulfilled': passwordValidation.special }">
+                  <span class="material-symbols-outlined">
+                    {{ passwordValidation.special ? 'check_circle' : 'radio_button_unchecked' }}
                   </span>
-                  Confirmation identique.
+                  Caractères spéciaux
                 </li>
               </ul>
-            </label>
 
-            <label
-              class="md-text-field"
-              :class="{
-                'has-error': !!feedback.signup.fieldErrors.confirmPassword,
-                'has-value': Boolean(signUpForm.confirmPassword)
-              }"
-            >
-              <span class="md-text-field__label">Confirmation du mot de passe</span>
-              <input
-                v-model="signUpForm.confirmPassword"
-                :type="showSignUpPassword ? 'text' : 'password'"
-                name="confirm-password"
-                autocomplete="new-password"
-                placeholder=" "
-                required
-                :disabled="isFormDisabled"
-                :aria-invalid="!!feedback.signup.fieldErrors.confirmPassword"
-                :aria-describedby="feedback.signup.fieldErrors.confirmPassword ? signUpConfirmSupportId : undefined"
-              />
-              <span
-                v-if="feedback.signup.fieldErrors.confirmPassword"
-                :id="signUpConfirmSupportId"
-                class="md-text-field__supporting"
+              <button
+                class="button button-filled"
+                type="submit"
+                :disabled="!canSubmitSignUp || isFormDisabled"
               >
-                {{ feedback.signup.fieldErrors.confirmPassword }}
-              </span>
-            </label>
-
-            <button
-              class="auth-submit"
-              type="submit"
-              :disabled="isFormDisabled"
-            >
-              <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
-              <span>{{ isSubmitting ? 'Création du compte...' : 'Créer mon compte' }}</span>
-            </button>
-          </form>
-
-          <section
-            v-else-if="activeTab === 'forgot' && forgotSuccess"
-            key="forgot-success"
-            class="auth-success-card"
-            role="status"
-            aria-live="polite"
-          >
-            <span class="material-symbols-outlined auth-success-icon" aria-hidden="true">mark_email_read</span>
-            <h2>Vérifiez votre boîte de réception</h2>
-            <p>
-              Si un compte est associé à
-              <strong>{{ resetEmail }}</strong>, un e-mail de réinitialisation vient de vous être envoyé. Suivez le lien pour
-              définir un nouveau mot de passe.
-            </p>
-            <button type="button" class="auth-secondary-action tonal" @click="restartForgotFlow">
-              <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
-              <span>Envoyer un autre e-mail</span>
-            </button>
-            <button type="button" class="auth-submit" @click="switchTab('signin')">
-              <span class="material-symbols-outlined" aria-hidden="true">login</span>
-              <span>Retour à la connexion</span>
-            </button>
-          </section>
-          <form
-            v-else
-            key="forgot"
-            class="auth-form"
-            autocomplete="on"
-            aria-labelledby="forgot-password-title"
-            @submit.prevent="handlePasswordReset"
-          >
-            <h2 id="forgot-password-title" class="auth-secondary-title">Réinitialiser le mot de passe</h2>
-            <p class="auth-description">
-              Indiquez votre adresse e-mail pour recevoir un lien de réinitialisation sécurisé.
-            </p>
-
-            <p
-              v-if="feedback.forgot.message && !isSubmitting"
-              class="auth-message"
-              role="status"
-            >
-              {{ feedback.forgot.message }}
-            </p>
-            <p
-              v-if="feedback.forgot.error && !isSubmitting"
-              class="auth-error"
-              role="alert"
-            >
-              {{ feedback.forgot.error }}
-            </p>
-
-            <label
-              class="md-text-field"
-              :class="{
-                'has-error': !!feedback.forgot.fieldErrors.email,
-                'has-value': Boolean(resetEmail)
-              }"
-            >
-              <span class="md-text-field__label">Adresse e-mail</span>
-              <input
-                v-model.trim="resetEmail"
-                type="email"
-                name="recovery-email"
-                autocomplete="email"
-                placeholder=" "
-                required
-                :disabled="isFormDisabled"
-                :aria-invalid="!!feedback.forgot.fieldErrors.email"
-                :aria-describedby="feedback.forgot.fieldErrors.email ? forgotEmailSupportId : undefined"
-              />
-              <span
-                v-if="feedback.forgot.fieldErrors.email"
-                :id="forgotEmailSupportId"
-                class="md-text-field__supporting"
-              >
-                {{ feedback.forgot.fieldErrors.email }}
-              </span>
-            </label>
-
-            <div class="auth-links">
-              <button type="button" class="link-button" @click="switchTab('signin')">
-                Retour à la connexion
+                <span v-if="isSubmitting" class="loading-spinner"></span>
+                {{ isSubmitting ? 'Création du compte...' : 'Créer mon compte' }}
               </button>
+            </form>
+
+            <!-- Succès inscription -->
+            <div
+              v-else-if="activeTab === 'signup' && signUpSuccess"
+              key="signup-success"
+              class="success-state"
+            >
+              <div class="success-icon">
+                <span class="material-symbols-outlined">mark_email_read</span>
+              </div>
+              <h2>Confirmez votre adresse e-mail</h2>
+              <p>
+                Un lien sécurisé a été envoyé à <strong>{{ lastRegisteredEmail || signUpForm.email }}</strong>.
+                Cliquez dessus pour activer votre compte.
+              </p>
+              <div class="success-actions">
+                <button class="button button-outlined" @click="restartSignUpFlow">
+                  Créer un autre compte
+                </button>
+                <button class="button button-filled" @click="switchTab('signin')">
+                  Aller à la connexion
+                </button>
+              </div>
             </div>
 
-            <button
-              class="auth-submit"
-              type="submit"
-              :disabled="!resetEmail || isFormDisabled"
+            <!-- Formulaire mot de passe oublié -->
+            <form
+              v-else-if="activeTab === 'forgot' && !forgotSuccess"
+              key="forgot"
+              class="auth-form"
+              @submit.prevent="handlePasswordReset"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">mail</span>
-              <span>{{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le lien' }}</span>
-            </button>
-          </form>
-        </Transition>
-      </div>
-    </section>
+              <div class="form-header">
+                <h2>Réinitialiser le mot de passe</h2>
+                <p>Indiquez votre adresse e-mail pour recevoir un lien de réinitialisation.</p>
+              </div>
 
-    <aside class="auth-aside" aria-hidden="true">
-      <div class="auth-illustration">
-        <h2>Une plateforme conçue pour les enseignants</h2>
-        <ul>
-          <li>Suivi précis des compétences et des progrès</li>
-          <li>Partage sécurisé des évaluations</li>
-          <li>Accès protégé et conforme RGPD</li>
-        </ul>
+              <div v-if="feedback.forgot.message && !isSubmitting" class="alert alert-success">
+                <span class="material-symbols-outlined">check_circle</span>
+                <p>{{ feedback.forgot.message }}</p>
+              </div>
+
+              <div v-if="feedback.forgot.error && !isSubmitting" class="alert alert-error">
+                <span class="material-symbols-outlined">error</span>
+                <p>{{ feedback.forgot.error }}</p>
+              </div>
+
+              <div class="form-fields">
+                <div class="input-group">
+                  <div
+                    class="text-field"
+                    :class="{
+                      'text-field-error': !!feedback.forgot.fieldErrors.email,
+                      'text-field-focused': resetEmailFocused,
+                      'text-field-filled': Boolean(resetEmail)
+                    }"
+                  >
+                    <label class="text-field-label" for="reset-email">Adresse e-mail</label>
+                    <div class="text-field-container">
+                      <span class="text-field-icon material-symbols-outlined">mail</span>
+                      <input
+                        id="reset-email"
+                        v-model.trim="resetEmail"
+                        class="text-field-input"
+                        type="email"
+                        name="recovery-email"
+                        autocomplete="email"
+                        required
+                        :disabled="isFormDisabled"
+                        @focus="resetEmailFocused = true"
+                        @blur="resetEmailFocused = false"
+                      />
+                    </div>
+                    <div v-if="feedback.forgot.fieldErrors.email" class="text-field-error-text">
+                      {{ feedback.forgot.fieldErrors.email }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="link-button" @click="switchTab('signin')">
+                  Retour à la connexion
+                </button>
+              </div>
+
+              <button
+                class="button button-filled"
+                type="submit"
+                :disabled="!resetEmail || isFormDisabled"
+              >
+                <span v-if="isSubmitting" class="loading-spinner"></span>
+                {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le lien' }}
+              </button>
+            </form>
+
+            <!-- Succès mot de passe oublié -->
+            <div
+              v-else-if="activeTab === 'forgot' && forgotSuccess"
+              key="forgot-success"
+              class="success-state"
+            >
+              <div class="success-icon">
+                <span class="material-symbols-outlined">mark_email_read</span>
+              </div>
+              <h2>Vérifiez votre boîte de réception</h2>
+              <p>
+                Si un compte est associé à <strong>{{ resetEmail }}</strong>,
+                un e-mail de réinitialisation vous a été envoyé.
+              </p>
+              <div class="success-actions">
+                <button class="button button-outlined" @click="restartForgotFlow">
+                  Envoyer un autre e-mail
+                </button>
+                <button class="button button-filled" @click="switchTab('signin')">
+                  Retour à la connexion
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </main>
       </div>
-    </aside>
+    </div>
   </div>
 </template>
 
@@ -501,6 +503,7 @@ import { useRoute, useRouter } from 'vue-router'
 import type { LocationQueryRaw } from 'vue-router'
 import type { AuthError } from '@supabase/supabase-js'
 import { useAuthStore } from '@/stores/authStore'
+import { emailValidationService } from '@/services/emailValidationService'
 
 const route = useRoute()
 const router = useRouter()
@@ -508,6 +511,7 @@ const authStore = useAuthStore()
 
 type AuthTab = 'signin' | 'signup' | 'forgot'
 
+// État réactif
 const activeTab = ref<AuthTab>(getInitialTab())
 const isSubmitting = ref(false)
 const initializationMessage = ref<string | null>(null)
@@ -523,6 +527,15 @@ const initializationFailed = ref(false)
 const signUpSuccess = ref(false)
 const forgotSuccess = ref(false)
 const lastRegisteredEmail = ref('')
+const isValidatingEmail = ref(false)
+const emailValidationResult = ref<{ allowed: boolean; message: string } | null>(null)
+
+// États de focus pour les champs
+const emailFocused = ref(false)
+const passwordFocused = ref(false)
+const signUpEmailFocused = ref(false)
+const signUpPasswordFocused = ref(false)
+const resetEmailFocused = ref(false)
 
 interface FormFeedback {
   message: string | null
@@ -543,10 +556,8 @@ const feedback = reactive<Record<AuthTab, FormFeedback>>({
     message: null,
     error: null,
     fieldErrors: {
-      fullName: null,
       email: null,
-      password: null,
-      confirmPassword: null
+      password: null
     }
   },
   forgot: {
@@ -558,112 +569,72 @@ const feedback = reactive<Record<AuthTab, FormFeedback>>({
   }
 })
 
-const signInEmailSupportId = 'signin-email-support'
-const signInPasswordSupportId = 'signin-password-support'
-const signUpEmailSupportId = 'signup-email-support'
-const signUpPasswordSupportId = 'signup-password-support'
-const signUpConfirmSupportId = 'signup-confirm-support'
-const forgotEmailSupportId = 'forgot-email-support'
-
 const signInForm = reactive({
   email: getInitialEmail(),
   password: ''
 })
 
 const signUpForm = reactive({
-  fullName: '',
   email: getInitialEmail(),
-  password: '',
-  confirmPassword: ''
+  password: ''
 })
-
-const passwordRequirementsId = 'signup-password-requirements'
 
 const resetEmail = ref(getInitialEmail())
 
 const isInitializing = computed(() => authStore.isInitializing.value)
 const isFormDisabled = computed(() => isSubmitting.value || isInitializing.value)
 
-onMounted(async () => {
-  try {
-    await authStore.ensureInitialized()
-    initializationFailed.value = false
-    initializationError.value = null
-  } catch (error) {
-    console.error('Failed to initialize authentication', error)
-    const normalizedError = error instanceof Error ? error : new Error('Échec de l\'initialisation de la session')
-    const details = getErrorDetails(normalizedError)
-    initializationError.value = details.message
-    initializationFailed.value = true
+// Validation en temps réel
+const emailValidation = computed(() => {
+  const email = signInForm.email || signUpForm.email
+  if (!email) return { isValid: false, message: '' }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const isValid = emailRegex.test(email)
+
+  return {
+    isValid,
+    message: isValid ? 'Adresse e-mail valide' : 'Format d\'adresse e-mail invalide'
   }
 })
 
-watch(
-  () => route.query.mode,
-  (mode) => {
-    const nextTab: AuthTab = mode === 'signup' ? 'signup' : mode === 'forgot' ? 'forgot' : 'signin'
-    if (activeTab.value !== nextTab) {
-      if (nextTab !== 'signup') {
-        signUpSuccess.value = false
-      }
-      if (nextTab !== 'forgot') {
-        forgotSuccess.value = false
-      }
-    }
-    activeTab.value = nextTab
-    resetFeedback(nextTab)
-    if (nextTab !== 'signin') {
-      resetVerificationState()
-    }
+const passwordValidation = computed(() => {
+  const password = signUpForm.password
+  const hasLength = password.length >= 12
+  const hasLetters = /[A-Za-zÀ-ÿ]/.test(password)
+  const hasNumbers = /\d/.test(password)
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+  let strength = 0
+  if (hasLength) strength += 25
+  if (hasLetters) strength += 25
+  if (hasNumbers) strength += 25
+  if (hasSpecial) strength += 25
+
+  return {
+    length: hasLength,
+    letters: hasLetters,
+    numbers: hasNumbers,
+    special: hasSpecial,
+    strength,
+    level: strength < 50 ? 'weak' : strength < 75 ? 'medium' : 'strong'
   }
-)
+})
 
-watch(
-  () => route.query.email,
-  (email) => {
-    if (typeof email === 'string') {
-      signInForm.email = email
-      signUpForm.email = email
-      resetEmail.value = email
-    }
-  }
-)
+const canSubmitSignIn = computed(() => {
+  return Boolean(signInForm.email && signInForm.password.length >= 8)
+})
 
-watch(
-  () => authStore.lastError.value,
-  (error) => {
-    if (error) {
-      if (isEmailVerificationRequired(error)) {
-        needsEmailVerification.value = true
-        verificationEmail.value = verificationEmail.value || signInForm.email.trim()
-        verificationFeedback.value = null
-        verificationError.value = null
-        feedback.signin.fieldErrors.password = null
-        feedback.signin.error =
-          "Votre adresse e-mail n'est pas encore vérifiée. Cliquez sur le lien de confirmation reçu pour activer votre compte."
-        return
-      }
+const canSubmitSignUp = computed(() => {
+  const { length, letters, numbers, special } = passwordValidation.value
+  return Boolean(signUpForm.email) && length && letters && numbers && special
+})
 
-      resetVerificationState()
-      const details = getErrorDetails(error)
-      if (details.category === 'invalidCredentials') {
-        feedback.signin.fieldErrors.password = details.message
-        feedback.signin.error = null
-      } else {
-        feedback.signin.error = details.message
-      }
-    }
-  }
-)
-
+// Fonctions utilitaires
 function getInitialTab() {
   const mode = route.query.mode
-  if (mode === 'signup') {
-    return 'signup' as const
-  }
-  if (mode === 'forgot') {
-    return 'forgot' as const
-  }
+  if (mode === 'signup') return 'signup' as const
+  if (mode === 'forgot') return 'forgot' as const
   return 'signin' as const
 }
 
@@ -682,51 +653,6 @@ const sanitizeRedirectPath = (value: unknown) => {
 
 const redirectPath = computed(() => sanitizeRedirectPath(route.query.redirect))
 
-function joinIds(...ids: Array<string | null | undefined>) {
-  const combined = ids.filter((value): value is string => Boolean(value)).join(' ')
-  return combined || undefined
-}
-
-const canSubmitSignIn = computed(() => {
-  return Boolean(signInForm.email && signInForm.password.length >= 8)
-})
-
-const passwordValidation = computed(() => ({
-  length: signUpForm.password.length >= 12,
-  letters: /[A-Za-zÀ-ÿ]/.test(signUpForm.password),
-  numbers: /\d/.test(signUpForm.password),
-  matches: signUpForm.password === signUpForm.confirmPassword && signUpForm.password.length > 0
-}))
-
-const canSubmitSignUp = computed(() => {
-  return Boolean(signUpForm.email) && Object.values(passwordValidation.value).every(Boolean)
-})
-
-const missingSignUpRequirements = computed(() => {
-  if (canSubmitSignUp.value) {
-    return []
-  }
-
-  const messages: string[] = []
-  if (!signUpForm.email) {
-    messages.push('Indiquez une adresse e-mail valide.')
-  }
-  if (!passwordValidation.value.length) {
-    messages.push('Le mot de passe doit contenir au moins 12 caractères.')
-  }
-  if (!passwordValidation.value.letters) {
-    messages.push('Ajoutez au moins une lettre à votre mot de passe.')
-  }
-  if (!passwordValidation.value.numbers) {
-    messages.push('Ajoutez au moins un chiffre à votre mot de passe.')
-  }
-  if (!passwordValidation.value.matches) {
-    messages.push('La confirmation doit correspondre au mot de passe.')
-  }
-
-  return messages
-})
-
 function getErrorDetails(error: AuthError | Error) {
   const lowered = error.message?.toLowerCase?.() ?? ''
   if (
@@ -736,7 +662,7 @@ function getErrorDetails(error: AuthError | Error) {
   ) {
     return {
       category: 'emailNotConfirmed' as const,
-      message: 'Votre adresse e-mail n\'est pas encore vérifiée. Vérifiez votre boîte de réception.'
+      message: 'Votre adresse e-mail n\'est pas encore vérifiée.'
     }
   }
   if (lowered.includes('invalid login') || lowered.includes('invalid email or password')) {
@@ -748,24 +674,18 @@ function getErrorDetails(error: AuthError | Error) {
   if (lowered.includes('email rate limit')) {
     return {
       category: 'rateLimited' as const,
-      message: 'Vous avez demandé trop d\'e-mails sur une courte période. Veuillez patienter quelques minutes.'
+      message: 'Trop de demandes. Veuillez patienter quelques minutes.'
     }
   }
   if (lowered.includes('already registered')) {
     return {
       category: 'alreadyRegistered' as const,
-      message: 'Un compte existe déjà avec cette adresse e-mail. Vous pouvez vous connecter directement.'
-    }
-  }
-  if (lowered.includes('password')) {
-    return {
-      category: 'passwordPolicy' as const,
-      message: 'Le mot de passe ne respecte pas les critères de sécurité requis.'
+      message: 'Un compte existe déjà avec cette adresse e-mail.'
     }
   }
   return {
     category: 'generic' as const,
-    message: "Une erreur est survenue. Merci de réessayer ou de contacter le support si le problème persiste."
+    message: "Une erreur est survenue. Merci de réessayer."
   }
 }
 
@@ -801,11 +721,10 @@ function isEmailVerificationRequired(error: AuthError | Error) {
   )
 }
 
+// Gestionnaires d'événements
 async function handleSignIn() {
   resetFeedback('signin')
-  if (!canSubmitSignIn.value) {
-    return
-  }
+  if (!canSubmitSignIn.value) return
 
   isSubmitting.value = true
   const { error } = await authStore.signInWithPassword(signInForm.email, signInForm.password)
@@ -815,54 +734,73 @@ async function handleSignIn() {
     if (isEmailVerificationRequired(error)) {
       needsEmailVerification.value = true
       verificationEmail.value = signInForm.email.trim()
-      verificationFeedback.value = null
-      verificationError.value = null
-      feedback.signin.error =
-        "Votre adresse e-mail n'est pas encore vérifiée. Cliquez sur le lien de confirmation reçu pour activer votre compte."
+      feedback.signin.error = "Votre adresse e-mail n'est pas encore vérifiée."
       return
     }
 
-    resetVerificationState()
     const details = getErrorDetails(error)
     if (details.category === 'invalidCredentials') {
       feedback.signin.fieldErrors.password = details.message
-      feedback.signin.error = null
     } else {
       feedback.signin.error = details.message
     }
     return
   }
 
-  resetVerificationState()
   feedback.signin.message = 'Connexion réussie. Redirection en cours...'
   signInForm.password = ''
   await router.replace(redirectPath.value)
 }
 
+// Fonction pour valider l'email en temps réel
+async function validateSignUpEmail() {
+  const email = signUpForm.email.trim()
+
+  // Reset de la validation précédente
+  emailValidationResult.value = null
+  feedback.signup.fieldErrors.email = ''
+
+  // Validation du format d'abord
+  const formatValidation = emailValidationService.validateEmailFormat(email)
+  if (!formatValidation.valid) {
+    feedback.signup.fieldErrors.email = formatValidation.message || 'Format d\'email invalide'
+    return
+  }
+
+  // Validation côté serveur si le format est correct
+  if (email) {
+    isValidatingEmail.value = true
+    try {
+      const result = await emailValidationService.validateEmail(email)
+      emailValidationResult.value = result
+
+      if (!result.allowed) {
+        feedback.signup.fieldErrors.email = result.message
+      }
+    } catch (error) {
+      console.error('Erreur lors de la validation de l\'email:', error)
+      feedback.signup.fieldErrors.email = 'Erreur lors de la validation de l\'email'
+    } finally {
+      isValidatingEmail.value = false
+    }
+  }
+}
+
 async function handleSignUp() {
   resetFeedback('signup')
-  if (!canSubmitSignUp.value) {
-    feedback.signup.error =
-      missingSignUpRequirements.value.join(' ') || 'Veuillez vérifier les informations saisies.'
-    if (!signUpForm.email) {
-      feedback.signup.fieldErrors.email = 'Indiquez une adresse e-mail valide.'
-    }
-    if (!passwordValidation.value.length) {
-      feedback.signup.fieldErrors.password = 'Le mot de passe doit contenir au moins 12 caractères.'
-    } else if (!passwordValidation.value.letters || !passwordValidation.value.numbers) {
-      feedback.signup.fieldErrors.password = 'Ajoutez des lettres et des chiffres pour renforcer votre mot de passe.'
-    }
-    if (!passwordValidation.value.matches) {
-      feedback.signup.fieldErrors.confirmPassword = 'La confirmation doit correspondre au mot de passe.'
-    }
+
+  // Valider l'email avant de procéder
+  await validateSignUpEmail()
+
+  if (!canSubmitSignUp.value || !emailValidationResult.value?.allowed) {
+    feedback.signup.error = 'Veuillez vérifier les informations saisies.'
     return
   }
 
   isSubmitting.value = true
   const { error } = await authStore.signUpWithEmail({
     email: signUpForm.email,
-    password: signUpForm.password,
-    fullName: signUpForm.fullName
+    password: signUpForm.password
   })
   isSubmitting.value = false
 
@@ -870,24 +808,16 @@ async function handleSignUp() {
     const details = getErrorDetails(error)
     if (details.category === 'alreadyRegistered') {
       feedback.signup.fieldErrors.email = details.message
-      feedback.signup.error = null
-    } else if (details.category === 'passwordPolicy') {
-      feedback.signup.fieldErrors.password = details.message
-      feedback.signup.error = null
     } else {
       feedback.signup.error = details.message
     }
     return
   }
 
-  feedback.signup.message =
-    'Votre compte a été créé. Un e-mail de confirmation vient de vous être envoyé pour sécuriser votre inscription.'
   signUpSuccess.value = true
   lastRegisteredEmail.value = signUpForm.email
   signInForm.email = signUpForm.email
-  signUpForm.fullName = signUpForm.fullName.trim()
   signUpForm.password = ''
-  signUpForm.confirmPassword = ''
 }
 
 async function handlePasswordReset() {
@@ -903,16 +833,10 @@ async function handlePasswordReset() {
 
   if (error) {
     const details = getErrorDetails(error)
-    if (details.category === 'generic') {
-      feedback.forgot.error = details.message
-    } else {
-      feedback.forgot.fieldErrors.email = details.message
-    }
+    feedback.forgot.error = details.message
     return
   }
 
-  feedback.forgot.message =
-    'Si cette adresse correspond à un compte existant, un e-mail de réinitialisation vient d\'être envoyé.'
   forgotSuccess.value = true
 }
 
@@ -922,7 +846,7 @@ async function handleResendVerification() {
 
   const email = (verificationEmail.value || signInForm.email).trim()
   if (!email) {
-    verificationError.value = "Merci d'indiquer votre adresse e-mail avant de demander un nouvel envoi."
+    verificationError.value = "Merci d'indiquer votre adresse e-mail."
     return
   }
 
@@ -936,22 +860,17 @@ async function handleResendVerification() {
     return
   }
 
-  verificationFeedback.value =
-    "Un nouveau message de confirmation vient d'être envoyé. Pensez à vérifier vos courriers indésirables."
+  verificationFeedback.value = "Un nouveau message de confirmation a été envoyé."
 }
 
 async function handleRetryInitialization() {
   initializationFailed.value = false
   initializationError.value = null
-  initializationMessage.value = null
-  resetFeedback(activeTab.value)
   try {
     await authStore.retryInitialization()
-    initializationMessage.value = "Connexion au service d'authentification rétablie."
+    initializationMessage.value = "Connexion rétablie."
   } catch (error) {
-    console.error('Retrying authentication initialization failed', error)
-    const normalizedError = error instanceof Error ? error : new Error("Nouvelle tentative d'initialisation échouée")
-    const details = getErrorDetails(normalizedError)
+    const details = getErrorDetails(error instanceof Error ? error : new Error('Erreur'))
     initializationError.value = details.message
     initializationFailed.value = true
   }
@@ -969,32 +888,17 @@ function restartForgotFlow() {
 
 function switchTab(tab: AuthTab) {
   if (activeTab.value !== tab) {
-    if (tab !== 'signup') {
-      signUpSuccess.value = false
-    }
-    if (tab !== 'forgot') {
-      forgotSuccess.value = false
-    }
+    if (tab !== 'signup') signUpSuccess.value = false
+    if (tab !== 'forgot') forgotSuccess.value = false
   }
 
   resetFeedback(tab)
   initializationMessage.value = null
-  if (tab !== 'signin') {
-    resetVerificationState()
-  }
+  if (tab !== 'signin') resetVerificationState()
 
   activeTab.value = tab
-  const nextQuery: LocationQueryRaw = {}
+  const nextQuery: LocationQueryRaw = { ...route.query }
 
-  Object.entries(route.query).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      nextQuery[key] = value.filter((entry): entry is string => typeof entry === 'string')
-    } else if (typeof value === 'string') {
-      nextQuery[key] = value
-    } else if (value === null) {
-      nextQuery[key] = null
-    }
-  })
   if (tab === 'signin') {
     delete nextQuery.mode
   } else {
@@ -1003,505 +907,822 @@ function switchTab(tab: AuthTab) {
 
   void router.replace({ query: nextQuery })
 }
+
+// Cycle de vie
+onMounted(async () => {
+  try {
+    await authStore.ensureInitialized()
+    initializationFailed.value = false
+  } catch (error) {
+    const details = getErrorDetails(error instanceof Error ? error : new Error('Erreur'))
+    initializationError.value = details.message
+    initializationFailed.value = true
+  }
+})
+
+// Watchers
+watch(() => route.query.mode, (mode) => {
+  const nextTab: AuthTab = mode === 'signup' ? 'signup' : mode === 'forgot' ? 'forgot' : 'signin'
+  if (activeTab.value !== nextTab) {
+    if (nextTab !== 'signup') signUpSuccess.value = false
+    if (nextTab !== 'forgot') forgotSuccess.value = false
+  }
+  activeTab.value = nextTab
+  resetFeedback(nextTab)
+  if (nextTab !== 'signin') resetVerificationState()
+})
+
+watch(() => route.query.email, (email) => {
+  if (typeof email === 'string') {
+    signInForm.email = email
+    signUpForm.email = email
+    resetEmail.value = email
+  }
+})
+
+watch(() => authStore.lastError.value, (error) => {
+  if (error) {
+    if (isEmailVerificationRequired(error)) {
+      needsEmailVerification.value = true
+      verificationEmail.value = verificationEmail.value || signInForm.email.trim()
+      feedback.signin.error = "Votre adresse e-mail n'est pas encore vérifiée."
+      return
+    }
+
+    resetVerificationState()
+    const details = getErrorDetails(error)
+    if (details.category === 'invalidCredentials') {
+      feedback.signin.fieldErrors.password = details.message
+    } else {
+      feedback.signin.error = details.message
+    }
+  }
+})
 </script>
 
 <style scoped>
-.auth-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 520px) minmax(0, 1fr);
+/* ===== TOKENS MATERIAL DESIGN 3 ===== */
+:root {
+  /* Surface Colors */
+  --md-sys-color-surface: #fefbff;
+  --md-sys-color-surface-variant: #e8e0e8;
+  --md-sys-color-surface-container: #f3f0f4;
+  --md-sys-color-surface-container-high: #ede0e8;
+  --md-sys-color-surface-container-highest: #e8e0e8;
+
+  /* Primary Colors */
+  --md-sys-color-primary: #6440d6;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #e4ddff;
+  --md-sys-color-on-primary-container: #1e0060;
+
+  /* Secondary Colors */
+  --md-sys-color-secondary: #5d5d74;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #e1dffc;
+  --md-sys-color-on-secondary-container: #19182d;
+
+  /* Tertiary Colors */
+  --md-sys-color-tertiary: #7e525e;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #ffd9e2;
+  --md-sys-color-on-tertiary-container: #31101c;
+
+  /* Error Colors */
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  /* Neutral Colors */
+  --md-sys-color-outline: #7a757f;
+  --md-sys-color-outline-variant: #cbc4cf;
+  --md-sys-color-on-surface: #1c1b1f;
+  --md-sys-color-on-surface-variant: #4d444c;
+  --md-sys-color-inverse-surface: #312f33;
+  --md-sys-color-inverse-on-surface: #f4f0f4;
+
+  /* Success Colors (Extension) */
+  --md-sys-color-success: #00A86B;
+  --md-sys-color-on-success: #ffffff;
+  --md-sys-color-success-container: #c8f2d8;
+  --md-sys-color-on-success-container: #002114;
+
+  /* Shadows & Effects */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level2: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level3: 0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level4: 0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level5: 0px 4px 4px 0px rgba(0, 0, 0, 0.3), 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
+
+  /* Typography */
+  --md-sys-typescale-display-large-size: 57px;
+  --md-sys-typescale-display-medium-size: 45px;
+  --md-sys-typescale-display-small-size: 36px;
+  --md-sys-typescale-headline-large-size: 32px;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-headline-small-size: 24px;
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-small-size: 14px;
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-small-size: 12px;
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-label-medium-size: 12px;
+  --md-sys-typescale-label-small-size: 11px;
+
+  /* Motion */
+  --md-sys-motion-easing-legacy: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --md-sys-motion-easing-linear: cubic-bezier(0.0, 0.0, 1, 1);
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0.0, 0, 1.0);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0.0, 0, 1.0);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.3, 0.0, 0.8, 0.15);
+
+  /* Duration */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-duration-long3: 550ms;
+  --md-sys-motion-duration-long4: 600ms;
+  --md-sys-motion-duration-extra-long1: 700ms;
+  --md-sys-motion-duration-extra-long2: 800ms;
+  --md-sys-motion-duration-extra-long3: 900ms;
+  --md-sys-motion-duration-extra-long4: 1000ms;
+}
+
+/* ===== LAYOUT ===== */
+.auth-page {
   min-height: 100vh;
-  background: var(--md-sys-color-surface);
-}
-
-.auth-panel {
+  background: linear-gradient(135deg, var(--md-sys-color-surface) 0%, var(--md-sys-color-surface-container) 100%);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   display: flex;
-  flex-direction: column;
-  padding: clamp(24px, 4vw, 64px);
-  gap: clamp(24px, 3vw, 40px);
-}
-
-.auth-header {
-  display: flex;
-  justify-content: center;
-}
-
-.auth-brand {
-  display: flex;
-  gap: 16px;
   align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--md-sys-color-on-surface);
 }
 
-.auth-brand .material-symbols-outlined {
-  font-size: 40px;
-  color: var(--md-sys-color-primary);
+.auth-container {
+  width: 100%;
+  max-width: 400px;
 }
 
-.auth-brand-text {
+.auth-card {
+  background: var(--md-sys-color-surface);
+  border-radius: 28px;
+  padding: 40px 32px;
+  box-shadow: var(--md-sys-elevation-level3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo-container {
+  width: 72px;
+  height: 72px;
+  background: var(--md-sys-color-primary);
+  border-radius: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  box-shadow: var(--md-sys-elevation-level2);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+}
+
+.logo-container .material-symbols-outlined {
+  font-size: 36px;
+  color: var(--md-sys-color-on-primary);
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-title {
-  font-family: var(--md-sys-typescale-headline-small-font);
-  font-size: var(--md-sys-typescale-headline-small-size);
-  margin: 0;
+  margin: 0 0 8px;
+  font-size: var(--md-sys-typescale-headline-medium-size);
+  font-weight: 600;
   color: var(--md-sys-color-on-surface);
+  line-height: 1.2;
 }
 
 .auth-subtitle {
   margin: 0;
+  font-size: var(--md-sys-typescale-body-medium-size);
   color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.4;
+  font-weight: 400;
 }
 
-.auth-card {
-  background: var(--md-sys-color-surface-container);
-  border-radius: 28px;
-  box-shadow: var(--md-sys-elevation-level2);
-  padding: clamp(24px, 4vw, 44px);
+/* ===== NAVIGATION TABS ===== */
+.tab-navigation {
   display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.auth-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  border-radius: 20px;
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-color-surface-container);
+  border-radius: 100px;
   padding: 4px;
-  gap: 4px;
-}
-
-.auth-tab {
+  margin-bottom: 32px;
   position: relative;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px 24px;
   border: none;
-  border-radius: 18px;
-  padding: 12px 16px;
+  border-radius: 100px;
   background: transparent;
-  cursor: pointer;
-  font-weight: 600;
   color: var(--md-sys-color-on-surface-variant);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  font-weight: 500;
+  font-size: var(--md-sys-typescale-label-large-size);
+  cursor: pointer;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  position: relative;
+  z-index: 2;
 }
 
-.auth-tab::after {
-  content: '';
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 6px;
-  height: 3px;
-  border-radius: 999px;
-  background: transparent;
-  transition: background-color 0.2s ease;
+.tab-button:hover:not(.tab-active) {
+  background: var(--md-sys-color-surface-container-high);
 }
 
-.auth-tab[aria-selected='true'] {
+.tab-button.tab-active {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+/* ===== ALERTS ===== */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: var(--md-sys-typescale-body-small-size);
+  margin-bottom: 20px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.alert-error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border-color: var(--md-sys-color-error);
+}
+
+.alert-success {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+  border-color: var(--md-sys-color-success);
+}
+
+.alert-info {
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
+  border-color: var(--md-sys-color-primary);
 }
 
-.auth-tab[aria-selected='true']::after {
-  background: var(--md-sys-color-primary);
+.alert-content {
+  flex: 1;
 }
 
-.auth-tab:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);
+.alert .material-symbols-outlined {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+/* ===== FORMS ===== */
+.auth-content {
+  min-height: 200px;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
-.md-text-field {
-  position: relative;
+.form-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.form-header h2 {
+  margin: 0 0 8px;
+  font-size: var(--md-sys-typescale-title-large-size);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.form-header p {
+  margin: 0;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.4;
+}
+
+.form-fields {
   display: flex;
   flex-direction: column;
-  padding-top: 14px;
-  gap: 6px;
+  gap: 20px;
 }
 
-.md-text-field input {
+.input-group {
+  position: relative;
+}
+
+/* ===== TEXT FIELDS (Material Design 3 Outlined) ===== */
+.text-field {
+  position: relative;
+  border-radius: 4px;
+}
+
+.text-field-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.text-field-input {
   width: 100%;
-  border: none;
-  border-radius: 16px;
-  padding: 22px 16px 10px;
-  background: var(--md-sys-color-surface-container-highest);
+  height: 56px;
+  padding: 16px 16px 16px 48px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 4px;
+  background: transparent;
+  font-size: var(--md-sys-typescale-body-large-size);
   color: var(--md-sys-color-on-surface);
-  font-size: 1rem;
-  box-shadow: inset 0 0 0 1px var(--md-sys-color-outline);
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-.md-text-field.password-field input {
-  padding-right: 52px;
+.text-field-input:focus {
+  outline: none;
+  border-color: var(--md-sys-color-primary);
+  border-width: 2px;
+  padding-left: 47px; /* Ajustement pour compenser la bordure plus épaisse */
 }
 
-.md-text-field__label {
+.text-field-label {
   position: absolute;
-  left: 16px;
-  top: 26px;
+  left: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--md-sys-typescale-body-large-size);
   color: var(--md-sys-color-on-surface-variant);
-  transform-origin: top left;
-  transition: transform 0.2s ease, color 0.2s ease;
   pointer-events: none;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  background: var(--md-sys-color-surface);
+  padding: 0 4px;
+  z-index: 1;
 }
 
-.md-text-field.has-value .md-text-field__label,
-.md-text-field:focus-within .md-text-field__label {
-  transform: translateY(-14px) scale(0.85);
+.text-field-focused .text-field-label,
+.text-field-filled .text-field-label {
+  top: 0;
+  left: 44px;
+  font-size: var(--md-sys-typescale-body-small-size);
   color: var(--md-sys-color-primary);
 }
 
-.md-text-field.has-error .md-text-field__label {
+.text-field-error .text-field-input {
+  border-color: var(--md-sys-color-error);
+}
+
+.text-field-error .text-field-label {
   color: var(--md-sys-color-error);
 }
 
-.md-text-field input:focus {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--md-sys-color-primary);
-}
-
-.md-text-field.has-error input {
-  box-shadow: inset 0 0 0 2px var(--md-sys-color-error);
-}
-
-.md-text-field__supporting {
-  font-size: 0.85rem;
+.text-field-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
   color: var(--md-sys-color-on-surface-variant);
+  z-index: 2;
 }
 
-.md-text-field.has-error .md-text-field__supporting {
-  color: var(--md-sys-color-error);
-}
-
-.password-toggle {
+.text-field-trailing-icon {
   position: absolute;
   right: 12px;
-  top: 28px;
-  border: none;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
+  border: none;
   cursor: pointer;
+  padding: 4px;
+  border-radius: 20px;
+  transition: background-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+  z-index: 2;
+}
+
+.text-field-trailing-icon:hover {
+  background: var(--md-sys-color-surface-container);
+}
+
+.text-field-trailing-icon .material-symbols-outlined {
+  font-size: 24px;
   color: var(--md-sys-color-on-surface-variant);
+}
+
+.success-icon {
+  color: var(--md-sys-color-success) !important;
+}
+
+.text-field-error-text {
+  margin-top: 4px;
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-error);
+  padding-left: 16px;
+}
+
+/* ===== BUTTONS (Material Design 3) ===== */
+.button {
+  height: 40px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: var(--md-sys-typescale-label-large-size);
+  cursor: pointer;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  border-radius: 999px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  min-width: 64px;
+  padding: 0 24px;
 }
 
-.password-toggle:hover {
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.button-filled {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.button-filled:hover:not(:disabled) {
+  box-shadow: var(--md-sys-elevation-level2);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 92%, var(--md-sys-color-on-primary) 8%);
+}
+
+.button-filled:active:not(:disabled) {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.button-outlined {
+  background: transparent;
+  border: 1px solid var(--md-sys-color-outline);
+  color: var(--md-sys-color-primary);
+}
+
+.button-outlined:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+  border-color: var(--md-sys-color-primary);
+}
+
+.button-outlined:active:not(:disabled) {
   background: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
 }
 
-.password-toggle:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);
-}
-
-.password-guidelines {
-  list-style: none;
-  padding: 10px 0 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 8px;
-}
-
-.password-guidelines li {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  background: var(--md-sys-color-surface-container-highest);
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.85rem;
-}
-
-.password-guidelines li.fulfilled {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-.password-guidelines .material-symbols-outlined {
-  font-size: 18px;
-}
-
-.auth-links {
+/* ===== FORM ACTIONS ===== */
+.form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface);
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--md-sys-color-primary);
 }
 
 .link-button {
-  border: none;
   background: none;
+  border: none;
   color: var(--md-sys-color-primary);
-  font-weight: 600;
+  font-weight: 500;
+  font-size: var(--md-sys-typescale-body-medium-size);
   cursor: pointer;
-  padding: 4px 0;
-  border-radius: 8px;
+  padding: 8px 0;
+  text-decoration: none;
+  transition: color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
 .link-button:hover {
   text-decoration: underline;
+  color: color-mix(in srgb, var(--md-sys-color-primary) 80%, black);
 }
 
-.link-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);
+
+/* ===== LOADING SPINNER ===== */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.auth-initialization-error {
-  display: grid;
-  gap: 12px;
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--md-sys-color-error) 18%, transparent);
-  color: var(--md-sys-color-on-error);
+.loading-spinner-small {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid transparent;
+  border-top: 1.5px solid var(--md-sys-color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.auth-initialization-error p {
-  margin: 0;
-  font-weight: 600;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.auth-initialization-info {
-  margin: 0;
-  padding: 12px 16px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent);
-  color: var(--md-sys-color-primary);
-  font-weight: 500;
+/* ===== EMAIL VALIDATION STYLES ===== */
+.text-success {
+  color: var(--md-sys-color-tertiary);
 }
 
-.auth-verification-card {
-  display: grid;
-  gap: 12px;
-  padding: 20px;
-  border-radius: 24px;
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-.auth-verification-title {
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1rem;
-}
-
-.auth-verification-text {
-  margin: 0;
-  line-height: 1.5;
-}
-
-.auth-verification-text strong {
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-.auth-secondary-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: none;
-  border-radius: 999px;
-  padding: 12px 18px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-}
-
-.auth-secondary-action.tonal {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-.auth-secondary-action:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.auth-secondary-action:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--md-sys-elevation-level2);
-}
-
-.auth-secondary-action:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);
-}
-
-.auth-submit {
-  display: inline-flex;
+.text-field-trailing-icon {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 16px 22px;
-  border-radius: 999px;
-  border: none;
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
+  width: 24px;
+  height: 24px;
+}
+
+/* ===== VERIFICATION CARD ===== */
+.verification-card {
+  background: var(--md-sys-color-tertiary-container);
+  border: 1px solid var(--md-sys-color-tertiary);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 16px;
+}
+
+.verification-icon .material-symbols-outlined {
+  font-size: 32px;
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.verification-content h2 {
+  margin: 0 0 8px;
+  font-size: var(--md-sys-typescale-title-medium-size);
   font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: var(--md-sys-color-on-tertiary-container);
 }
 
-.auth-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
+.verification-content p {
+  margin: 0 0 16px;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-tertiary-container);
+  line-height: 1.4;
 }
 
-.auth-submit:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--md-sys-elevation-level3);
+.success-text {
+  margin-top: 8px;
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-success);
 }
 
-.auth-submit:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);
-}
-
-.auth-message,
-.auth-error {
-  padding: 14px 18px;
-  border-radius: 18px;
-  border-left: 4px solid;
-  font-weight: 500;
-  margin: 0;
-}
-
-.auth-message {
-  background: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
-  color: var(--md-sys-color-primary);
-  border-color: var(--md-sys-color-primary);
-}
-
-.auth-error {
-  background: color-mix(in srgb, var(--md-sys-color-error) 12%, transparent);
+.error-text {
+  margin-top: 8px;
+  font-size: var(--md-sys-typescale-body-small-size);
   color: var(--md-sys-color-error);
-  border-color: var(--md-sys-color-error);
 }
 
-.auth-secondary-title {
-  margin: 0;
-  font-size: 1.3rem;
-  color: var(--md-sys-color-on-surface);
+/* ===== PASSWORD STRENGTH ===== */
+.password-strength {
+  margin: 16px 0;
 }
 
-.auth-description {
-  margin: 0;
+.password-strength-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: var(--md-sys-typescale-body-small-size);
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.auth-success-card {
-  display: grid;
-  gap: 16px;
-  padding: 28px;
-  border-radius: 28px;
-  background: var(--md-sys-color-tertiary-container);
-  color: var(--md-sys-color-on-tertiary-container);
+.password-strength-percentage {
+  font-weight: 600;
+}
+
+.password-strength-percentage.weak { color: var(--md-sys-color-error); }
+.password-strength-percentage.medium { color: #ff9800; }
+.password-strength-percentage.strong { color: var(--md-sys-color-success); }
+
+.password-strength-bar {
+  height: 4px;
+  background: var(--md-sys-color-surface-variant);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.password-strength-fill {
+  height: 100%;
+  transition: width var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
+  border-radius: 2px;
+}
+
+.password-strength-fill.weak { background: var(--md-sys-color-error); }
+.password-strength-fill.medium { background: #ff9800; }
+.password-strength-fill.strong { background: var(--md-sys-color-success); }
+
+/* ===== PASSWORD REQUIREMENTS ===== */
+.password-requirements {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.password-requirements li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-on-surface-variant);
+  transition: color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.password-requirements li.requirement-fulfilled {
+  color: var(--md-sys-color-success);
+}
+
+.password-requirements .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* ===== SUCCESS STATE ===== */
+.success-state {
   text-align: center;
+  padding: 24px 0;
 }
 
-.auth-success-card h2 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.auth-success-card p {
-  margin: 0;
-  line-height: 1.6;
-}
-
-.auth-success-icon {
-  font-size: 42px;
-}
-
-.auth-aside {
-  background: linear-gradient(160deg, color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent) 0%, transparent 100%);
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--md-sys-color-success-container);
+  border-radius: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(24px, 5vw, 64px);
+  margin: 0 auto 24px;
 }
 
-.auth-illustration {
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.success-icon .material-symbols-outlined {
+  font-size: 40px;
+  color: var(--md-sys-color-on-success-container);
+}
+
+.success-state h2 {
+  margin: 0 0 16px;
+  font-size: var(--md-sys-typescale-title-large-size);
+  font-weight: 600;
   color: var(--md-sys-color-on-surface);
 }
 
-.auth-illustration h2 {
-  margin: 0;
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+.success-state p {
+  margin: 0 0 24px;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.4;
 }
 
-.auth-illustration ul {
-  margin: 0;
-  padding: 0 0 0 20px;
+.success-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
+/* ===== TRANSITIONS ===== */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized);
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.slide-fade-enter-from {
   opacity: 0;
+  transform: translateX(20px);
 }
 
-@media (max-width: 1024px) {
-  .auth-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-panel {
-    padding-inline: clamp(20px, 5vw, 48px);
-  }
-
-  .auth-aside {
-    display: none;
-  }
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
 }
 
-@media (max-width: 720px) {
-  .auth-panel {
-    padding: 24px 16px 32px;
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 16px;
   }
 
   .auth-card {
-    padding: 24px;
-    border-radius: 24px;
-    gap: 24px;
+    padding: 32px 24px;
+    border-radius: 20px;
   }
 
-  .auth-tabs {
-    grid-template-columns: 1fr;
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
   }
 
-  .auth-submit {
-    width: 100%;
+  .success-actions {
+    flex-direction: column;
   }
+}
 
-  .auth-secondary-action {
-    justify-content: center;
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-sys-color-surface: #111318;
+    --md-sys-color-on-surface: #e4e1e6;
+    --md-sys-color-surface-variant: #47454a;
+    --md-sys-color-on-surface-variant: #c8c5ca;
+    --md-sys-color-surface-container: #1d1b20;
+    --md-sys-color-surface-container-high: #28262b;
+    --md-sys-color-surface-container-highest: #322f35;
+    --md-sys-color-outline: #918f94;
+    --md-sys-color-outline-variant: #47454a;
+    --md-sys-color-primary: #c7bfff;
+    --md-sys-color-on-primary: #2e0080;
+    --md-sys-color-primary-container: #4521b8;
+    --md-sys-color-on-primary-container: #e4ddff;
   }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible pour l'accessibilité clavier */
+.button:focus-visible,
+.text-field-input:focus-visible,
+.link-button:focus-visible,
+.tab-button:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
 }
 </style>

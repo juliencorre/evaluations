@@ -45,9 +45,29 @@
             </svg>
             Exporter
           </button>
+          <button
+            class="share-button chart-share"
+            title="Partager les moyennes de classe par email"
+            @click="shareClassChart"
+          >
+            <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A2.92,2.92 0 0,0 18,16.08Z"
+              />
+            </svg>
+            Partager
+          </button>
         </div>
       </ChartCard>
     </section>
+
+    <!-- Share Results Dialog -->
+    <ShareResultsDialog
+      :visible="showShareDialog"
+      :evaluation-info="shareEvaluationInfo"
+      @close="showShareDialog = false"
+      @send-email="handleSendEmail"
+    />
   </div>
 </template>
 
@@ -61,6 +81,7 @@ import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
 
 import ClassAverageChart from '@/components/analysis/ClassAverageChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
+import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
 
 // Use stores
 const studentsStore = useStudentsStore()
@@ -169,6 +190,116 @@ const exportClassChart = async () => {
   } catch (error) {
     console.error('Erreur lors de l\'export:', error)
     window.alert('Erreur lors de l\'export du graphique')
+  }
+}
+
+// Share functionality
+const showShareDialog = ref(false)
+
+const shareEvaluationInfo = computed(() => ({
+  name: 'Analyse des moyennes de classe',
+  description: `Analyse des moyennes de classe par ${metricTypes.value.find(type => type.value === selectedMetricType.value)?.label || 'domaines'}`,
+  studentsCount: studentsStore.allStudents.value.length,
+  competenciesCount: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) => 
+    total + domain.fields.reduce((fieldTotal, field) => 
+      fieldTotal + field.competencies.reduce((compTotal, comp) => 
+        compTotal + comp.specificCompetencies.length, 0), 0), 0)
+}))
+
+const shareClassChart = () => {
+  console.log('📧 [DashboardView] Opening share dialog for class chart')
+  showShareDialog.value = true
+}
+
+const handleSendEmail = async (data: { emails: string[]; message: string }) => {
+  console.log('📧 [DashboardView] Sending class chart via email', {
+    recipients: data.emails.length,
+    messageLength: data.message.length
+  })
+
+  try {
+    // Capture le graphique pour le partage
+    const chartElement = document.querySelector('.chart-container')
+    if (!chartElement) {
+      alert('Impossible de trouver le graphique à partager')
+      return
+    }
+
+    // Générer le canvas
+    const html2canvas = (await import('html2canvas')).default
+    const canvas = await html2canvas(chartElement as HTMLElement, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true
+    })
+
+    // Créer le PDF pour le partage
+    const { jsPDF } = await import('jspdf')
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const margin = 15
+    const imgWidth = pageWidth - (margin * 2)
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    // Ajouter le titre
+    pdf.setFontSize(16)
+    pdf.text('Moyennes de la classe', margin, 20)
+
+    // Ajouter la date
+    pdf.setFontSize(10)
+    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 30)
+
+    // Ajouter le type de métrique
+    const metricTypeLabel = metricTypes.value.find(type => type.value === selectedMetricType.value)?.label || ''
+    pdf.text(`Type d'analyse: ${metricTypeLabel}`, margin, 40)
+
+    // Ajouter l'image du graphique
+    const imgData = canvas.toDataURL('image/png')
+    pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
+
+    // Préparer les données pour le service de partage
+    const evaluationData = {
+      evaluation: {
+        id: 'class-analysis',
+        name: 'Analyse des moyennes de classe',
+        description: `Analyse des moyennes de classe par ${metricTypeLabel}`,
+        date: new Date().toLocaleDateString('fr-FR')
+      },
+      summary: {
+        totalStudents: studentsStore.allStudents.value.length,
+        totalCompetencies: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) => 
+          total + domain.fields.reduce((fieldTotal, field) => 
+            fieldTotal + field.competencies.reduce((compTotal, comp) => 
+              compTotal + comp.specificCompetencies.length, 0), 0), 0),
+        exportDate: new Date().toISOString()
+      },
+      competencies: [] // Analyse chart doesn't have individual competency data
+    }
+
+    // Importer et utiliser le service de partage
+    const { shareResultsService } = await import('@/services/shareResultsService')
+    const result = await shareResultsService.shareEvaluationResults(
+      evaluationData,
+      data.emails,
+      data.message
+    )
+
+    if (result.success) {
+      console.log('✅ [DashboardView] Class chart shared successfully')
+      alert(`✅ ${result.message}`)
+      showShareDialog.value = false
+    } else {
+      console.error('❌ [DashboardView] Failed to share class chart:', result.message)
+      alert(`❌ ${result.message}`)
+    }
+  } catch (error) {
+    console.error('❌ [DashboardView] Error sharing class chart:', error)
+    alert('Erreur lors du partage du graphique. Veuillez réessayer.')
   }
 }
 
@@ -679,6 +810,55 @@ onMounted(async () => {
   height: 16px;
 }
 
+/* Chart actions */
+.chart-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Share button styles */
+.chart-share {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--md-sys-color-secondary, #625b71);
+  color: var(--md-sys-color-on-secondary, #ffffff);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  white-space: nowrap;
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.chart-share:hover {
+  background: var(--md-sys-color-secondary-container, #e8def8);
+  color: var(--md-sys-color-on-secondary-container, #1d192b);
+  box-shadow:
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.chart-share:active {
+  background: var(--md-sys-color-secondary, #625b71);
+  color: var(--md-sys-color-on-secondary, #ffffff);
+  box-shadow:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.share-icon {
+  width: 16px;
+  height: 16px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .chart-header {
@@ -706,6 +886,15 @@ onMounted(async () => {
   .chart-export {
     padding: 10px 14px;
     font-size: 0.8rem;
+  }
+
+  .chart-share {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .chart-actions {
+    gap: 8px;
   }
 }
 </style>

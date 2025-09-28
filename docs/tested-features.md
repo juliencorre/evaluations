@@ -17,6 +17,12 @@
 - Génération d'un PDF pour un graphique élève individuel avec `html2canvas` et `jsPDF` (`tests/unit/pdfExport.spec.ts`)
 - Génération d'un PDF multi-pages pour l'ensemble des graphiques élèves (`tests/unit/pdfExport.spec.ts`)
 
+## Partage des résultats par email
+- Génération de PDF structuré des résultats d'évaluation avec `jsPDF` (`tests/unit/shareResultsService.spec.ts`)
+- Validation des données de partage (destinataires, contenu du message) (`tests/unit/shareResultsService.spec.ts`)
+- Envoi d'emails avec pièces jointes PDF via Supabase Edge Functions (`tests/unit/shareResultsService.spec.ts`)
+- Interface utilisateur de partage avec validation d'emails en temps réel (`ShareResultsDialog.vue`)
+
 ## Calculs pour les graphiques d'analyse
 - Normalisation des résultats d'évaluation (numériques et qualitatifs) (`tests/unit/pivotAnalysisService.spec.ts`)
 - Agrégation statistique et regroupement des résultats pour alimenter les graphiques (`tests/unit/pivotAnalysisService.spec.ts`)

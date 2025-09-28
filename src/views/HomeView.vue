@@ -59,11 +59,19 @@
       @confirm="confirmDeleteEvaluation"
     />
 
+    <!-- Dialog de partage des résultats -->
+    <ShareResultsDialog
+      :visible="showShareDialog"
+      :evaluation-info="shareEvaluationInfo || undefined"
+      @close="showShareDialog = false"
+      @send-email="handleSendEmail"
+    />
+
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Define props for the evaluation ID
@@ -90,6 +98,10 @@ import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import EvaluationMobileView from '@/components/EvaluationMobileView.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
+import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
+
+// Services
+import { shareResultsService } from '@/services/shareResultsService'
 
 // Stores
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
@@ -111,6 +123,7 @@ const isLoading = isCompetenciesLoading
 const isScrolled = ref(false)
 const isMobileView = ref(false)
 const showDeleteDialog = ref(false)
+const showShareDialog = ref(false)
 
 // FAB Menu configuration
 const fabMenuItems = [
@@ -120,6 +133,13 @@ const fabMenuItems = [
     label: 'Exporter',
     ariaLabel: 'Exporter les résultats de l\'évaluation',
     type: 'export'
+  },
+  {
+    key: 'share',
+    icon: 'share',
+    label: 'Partager',
+    ariaLabel: 'Partager les résultats par email',
+    type: 'share'
   },
   {
     key: 'edit',
@@ -150,6 +170,28 @@ const checkMobileView = () => {
 const handleResize = () => {
   checkMobileView()
 }
+
+// Share evaluation info for dialog
+const shareEvaluationInfo = computed(() => {
+  if (!currentEvaluation.value || !framework.value.domains || !allStudents.value) {
+    return null
+  }
+
+  const competenciesCount = framework.value.domains
+    .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
+    .reduce((sum, domain) =>
+      sum + domain.fields
+        .filter(field => field && field.competencies && Array.isArray(field.competencies))
+        .reduce((fieldSum, field) => fieldSum + field.competencies.length, 0)
+    , 0)
+
+  return {
+    name: currentEvaluation.value.name || 'Évaluation sans nom',
+    description: currentEvaluation.value.description,
+    studentsCount: allStudents.value.length,
+    competenciesCount
+  }
+})
 
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true })
@@ -190,11 +232,107 @@ const goBackToList = () => {
   router.push('/evaluations')
 }
 
+// Share dialog handlers
+const openShareDialog = () => {
+  console.log('📧 [HomeView] Opening share dialog')
+  showShareDialog.value = true
+}
+
+const handleSendEmail = async (data: { emails: string[]; message: string }) => {
+  console.log('📧 [HomeView] Sending results via email', {
+    recipients: data.emails.length,
+    messageLength: data.message.length
+  })
+
+  try {
+    // Prepare evaluation data for sharing (similar to export)
+    if (!framework.value.domains || framework.value.domains.length === 0) {
+      alert('Aucune compétence à partager. Veuillez vérifier que des compétences sont définies pour cette évaluation.')
+      return
+    }
+
+    if (!allStudents.value || allStudents.value.length === 0) {
+      alert('Aucun élève à partager. Veuillez vérifier que des élèves sont inscrits dans cette classe.')
+      return
+    }
+
+    // Prepare data for sharing (reuse export data structure)
+    const exportData = {
+      evaluation: {
+        id: currentEvaluation.value?.id || 'unknown',
+        name: currentEvaluation.value?.name || 'Évaluation sans nom',
+        description: currentEvaluation.value?.description || '',
+        date: new Date().toLocaleDateString('fr-FR'),
+        className: '',
+        schoolYearFilter: schoolYearFilter.displayText.value
+      },
+      students: allStudents.value.map(student => ({
+        id: student.id,
+        firstName: student.firstName || '',
+        lastName: student.lastName || '',
+        fullName: `${student.firstName || ''} ${student.lastName || ''}`.trim()
+      })),
+      competencies: framework.value.domains
+        .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
+        .flatMap(domain =>
+          domain.fields
+            .filter(field => field && field.competencies && Array.isArray(field.competencies))
+            .flatMap(field =>
+              field.competencies.map(competency => ({
+                id: competency.id,
+                name: competency.name || 'Compétence sans nom',
+                domain: domain.name || 'Domaine sans nom',
+                field: field.name || 'Champ sans nom',
+                results: allStudents.value.map(student => ({
+                  studentId: student.id,
+                  studentName: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+                  result: null // Results would need to be mapped from currentEvaluation.results
+                }))
+              }))
+            )
+        ),
+      summary: {
+        totalStudents: allStudents.value.length,
+        totalCompetencies: framework.value.domains
+          .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
+          .reduce((sum, domain) =>
+            sum + domain.fields
+              .filter(field => field && field.competencies && Array.isArray(field.competencies))
+              .reduce((fieldSum, field) => fieldSum + field.competencies.length, 0)
+          , 0),
+        exportDate: new Date().toISOString()
+      }
+    }
+
+    // Share the results
+    const result = await shareResultsService.shareEvaluationResults(
+      exportData,
+      data.emails,
+      data.message
+    )
+
+    if (result.success) {
+      console.log('✅ [HomeView] Results shared successfully')
+      alert(`✅ ${result.message}`)
+      showShareDialog.value = false
+    } else {
+      console.error('❌ [HomeView] Failed to share results:', result.message)
+      alert(`❌ ${result.message}`)
+    }
+  } catch (error) {
+    console.error('❌ [HomeView] Error sharing results:', error)
+    alert('Erreur lors du partage des résultats. Veuillez réessayer.')
+  }
+}
+
 // MenuFAB handlers
 const handleMenuItemClick = (item: { key: string }) => {
   switch (item.key) {
     case 'export':
       exportEvaluationResults()
+      break
+    case 'share':
+      openShareDialog()
       break
     case 'edit':
       openEditEvaluation()

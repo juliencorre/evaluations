@@ -1,0 +1,125 @@
+{
+  "version": "2.0.0",
+  "customModes": [],
+  "modes": {
+    "spec": {
+      "name": "Specification",
+      "description": "Requirements analysis and specification",
+      "focus": "Define clear requirements and constraints",
+      "output": "Detailed specification document",
+      "tools": ["analysis", "documentation"]
+    },
+    "architect": {
+      "name": "Architecture",
+      "description": "System design and architecture planning",
+      "focus": "Design system components and interactions",
+      "output": "Architecture diagrams and decisions",
+      "tools": ["design", "modeling"]
+    },
+    "pseudocode": {
+      "name": "Pseudocode",
+      "description": "Algorithm design in pseudocode",
+      "focus": "Create step-by-step logic before coding",
+      "output": "Pseudocode and flow descriptions",
+      "tools": ["logic-design", "algorithm-planning"]
+    },
+    "refactor": {
+      "name": "Refinement",
+      "description": "Code improvement and optimization",
+      "focus": "Refactor and enhance existing code",
+      "output": "Improved, cleaner code",
+      "tools": ["refactoring", "optimization"]
+    },
+    "integration": {
+      "name": "Completion",
+      "description": "Integration and final assembly",
+      "focus": "Connect all components together",
+      "output": "Integrated, working system",
+      "tools": ["integration", "testing"]
+    },
+    "tdd": {
+      "name": "Test-Driven Development",
+      "description": "Test-first development approach",
+      "focus": "Write tests before implementation",
+      "output": "Tests and implementation",
+      "tools": ["testing", "validation"]
+    },
+    "spec-pseudocode": {
+      "name": "Spec-Pseudocode",
+      "description": "Combined specification and pseudocode",
+      "focus": "Requirements analysis with algorithm design",
+      "output": "Specification with pseudocode",
+      "tools": ["analysis", "algorithm-design"]
+    },
+    "full-pipeline": {
+      "name": "Full Pipeline",
+      "description": "Complete SPARC workflow",
+      "focus": "Execute all SPARC phases sequentially",
+      "output": "Complete development lifecycle",
+      "tools": ["all-phases"]
+    },
+    "code-review": {
+      "name": "Code Review",
+      "description": "Comprehensive code review",
+      "focus": "Quality assurance and best practices",
+      "output": "Review report with suggestions",
+      "tools": ["analysis", "quality-check"]
+    },
+    "documentation": {
+      "name": "Documentation",
+      "description": "Create comprehensive documentation",
+      "focus": "Document code, APIs, and architecture",
+      "output": "Complete documentation",
+      "tools": ["documentation", "markdown"]
+    },
+    "performance": {
+      "name": "Performance",
+      "description": "Performance analysis and optimization",
+      "focus": "Identify and fix performance bottlenecks",
+      "output": "Performance report and fixes",
+      "tools": ["profiling", "optimization"]
+    },
+    "security": {
+      "name": "Security",
+      "description": "Security audit and hardening",
+      "focus": "Identify and fix security vulnerabilities",
+      "output": "Security report and patches",
+      "tools": ["security-scan", "vulnerability-analysis"]
+    },
+    "deployment": {
+      "name": "Deployment",
+      "description": "Deployment planning and execution",
+      "focus": "Prepare and execute deployment",
+      "output": "Deployment scripts and documentation",
+      "tools": ["deployment", "ci-cd"]
+    },
+    "debug": {
+      "name": "Debug",
+      "description": "Debugging and troubleshooting",
+      "focus": "Find and fix bugs systematically",
+      "output": "Bug fixes and test cases",
+      "tools": ["debugging", "testing"]
+    },
+    "research": {
+      "name": "Research",
+      "description": "Research and exploration mode",
+      "focus": "Investigate technologies and approaches",
+      "output": "Research findings and recommendations",
+      "tools": ["research", "analysis"]
+    },
+    "prototype": {
+      "name": "Prototype",
+      "description": "Rapid prototyping mode",
+      "focus": "Quick proof-of-concept development",
+      "output": "Working prototype",
+      "tools": ["rapid-development", "prototyping"]
+    },
+    "batch": {
+      "name": "Batch Process",
+      "description": "Batch processing mode",
+      "focus": "Process multiple tasks in parallel",
+      "output": "Batch results",
+      "tools": ["parallel-processing", "automation"]
+    }
+  }
+}

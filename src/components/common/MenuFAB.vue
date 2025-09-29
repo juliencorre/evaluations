@@ -122,27 +122,22 @@ onUnmounted(() => {
   width: 56px;
   height: 56px;
   border: none;
-  border-radius: 16px;
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
   cursor: pointer;
-  box-shadow:
-    0px 3px 5px -1px rgba(0, 0, 0, 0.2),
-    0px 6px 10px 0px rgba(0, 0, 0, 0.14),
-    0px 1px 18px 0px rgba(0, 0, 0, 0.12);
-  transition: all 150ms cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: var(--md-sys-elevation-level3);
+  transition: all var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
   z-index: 1;
 }
 
 .main-fab:hover {
-  box-shadow:
-    0px 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0px 8px 10px 1px rgba(0, 0, 0, 0.14),
-    0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--md-sys-elevation-level4);
+  transform: translateY(-2px);
 }
 
 .main-fab:active {
-  transform: scale(0.96);
+  transform: scale(0.96) translateY(-1px);
 }
 
 /* État étendu du FAB */
@@ -158,7 +153,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+  transition: transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 }
 
 .fab-icon--rotated {

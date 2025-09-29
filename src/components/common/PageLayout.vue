@@ -92,10 +92,10 @@ onUnmounted(() => {
 .main-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 32px;
+  padding: var(--md-comp-page-padding) var(--md-sys-spacing-8);
   background-color: var(--md-sys-color-surface);
   /* Add top padding to account for fixed app bar */
-  padding-top: 88px; /* 64px app bar + 24px margin */
+  padding-top: calc(var(--md-sys-spacing-16) + var(--md-sys-spacing-6)); /* 64px app bar + 24px margin */
 }
 
 /* Adjust padding when tabs are present */
@@ -106,17 +106,17 @@ onUnmounted(() => {
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {
-    padding: 80px 16px 24px;
+    padding: var(--md-sys-spacing-20) var(--md-sys-spacing-4) var(--md-sys-spacing-6);
   }
 
   .page-layout:has(.tabs-container) .main-content {
-    padding-top: 128px;
+    padding-top: calc(var(--md-sys-spacing-32) + var(--md-sys-spacing-8)); /* Account for tabs */
   }
 }
 
 @media (min-width: 1440px) {
   .main-content {
-    padding-left: 80px; /* Account for side navigation */
+    padding-left: var(--md-sys-spacing-20); /* Account for side navigation */
   }
 }
 </style>

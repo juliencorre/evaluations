@@ -67,11 +67,16 @@ const exportStudentChart = async () => {
       return
     }
 
-    // Générer le canvas
+    // Générer le canvas avec options optimisées pour PDF
     const canvas = await html2canvas(chartElement as HTMLElement, {
       backgroundColor: '#ffffff',
       scale: 2,
-      useCORS: true
+      useCORS: true,
+      logging: false,
+      windowWidth: chartElement.scrollWidth,
+      windowHeight: chartElement.scrollHeight,
+      width: chartElement.scrollWidth,
+      height: chartElement.scrollHeight
     })
 
     // Créer le PDF
@@ -83,9 +88,23 @@ const exportStudentChart = async () => {
 
     // Dimensions du PDF avec marges réduites
     const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
     const margin = 15
-    const imgWidth = pageWidth - (margin * 2)
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    const maxWidth = pageWidth - (margin * 2)
+    const maxHeight = pageHeight - 50 // Espace pour titre et date
+
+    // Calculer les dimensions optimales en gardant le ratio
+    let imgWidth = maxWidth
+    let imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    // Si le graphique est trop haut, ajuster
+    if (imgHeight > maxHeight) {
+      imgHeight = maxHeight
+      imgWidth = (canvas.width * imgHeight) / canvas.height
+    }
+
+    // Centrer l'image si nécessaire
+    const xPosition = margin + (maxWidth - imgWidth) / 2
 
     // Ajouter le titre
     pdf.setFontSize(16)
@@ -97,7 +116,7 @@ const exportStudentChart = async () => {
 
     // Ajouter l'image du graphique
     const imgData = canvas.toDataURL('image/png')
-    pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
+    pdf.addImage(imgData, 'PNG', xPosition, 40, imgWidth, imgHeight)
 
     // Télécharger le PDF
     pdf.save(`analyse-eleve-${new Date().toISOString().split('T')[0]}.pdf`)
@@ -148,16 +167,34 @@ const exportAllStudents = async () => {
     for (let i = 0; i < chartElements.length; i++) {
       const chartElement = chartElements[i] as HTMLElement
 
-      // Générer le canvas pour ce graphique
+      // Générer le canvas pour ce graphique avec options optimisées
       const canvas = await html2canvas(chartElement, {
         backgroundColor: '#ffffff',
         scale: 2,
-        useCORS: true
+        useCORS: true,
+        logging: false,
+        windowWidth: chartElement.scrollWidth,
+        windowHeight: chartElement.scrollHeight,
+        width: chartElement.scrollWidth,
+        height: chartElement.scrollHeight
       })
 
       // Dimensions du graphique avec marges
-      const imgWidth = pageWidth - (margin * 2)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      const maxWidth = pageWidth - (margin * 2)
+      const maxHeightPerChart = (pageHeight - 40) / 2 // Max 2 graphiques par page
+
+      // Calculer les dimensions optimales
+      let imgWidth = maxWidth
+      let imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      // Ajuster si trop haut
+      if (imgHeight > maxHeightPerChart) {
+        imgHeight = maxHeightPerChart
+        imgWidth = (canvas.width * imgHeight) / canvas.height
+      }
+
+      // Centrer l'image si nécessaire
+      const xPosition = margin + (maxWidth - imgWidth) / 2
 
       // Vérifier si on a besoin d'une nouvelle page
       if (yPosition + imgHeight > pageHeight - margin) {
@@ -167,7 +204,7 @@ const exportAllStudents = async () => {
 
       // Ajouter l'image du graphique
       const imgData = canvas.toDataURL('image/png')
-      pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight)
+      pdf.addImage(imgData, 'PNG', xPosition, yPosition, imgWidth, imgHeight)
 
       yPosition += imgHeight + 20
     }

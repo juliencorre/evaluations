@@ -569,7 +569,7 @@ console.log('🏠 [HomeView] Initialisation avec framework:', {
   flex-direction: column;
   min-height: 100vh;
   background: var(--md-sys-color-surface);
-  padding-top: 64px;
+  padding-top: var(--md-sys-spacing-16);
 }
 
 .loading-state,
@@ -578,9 +578,13 @@ console.log('🏠 [HomeView] Initialisation avec framework:', {
   justify-content: center;
   align-items: center;
   min-height: 200px;
-  font-family: var(--md-sys-typescale-body-large-font);
-  font-size: var(--md-sys-typescale-body-large-size);
+  font-family: var(--md-sys-typescale-body-large-font-family);
+  font-size: var(--md-sys-typescale-body-large-font-size);
+  font-weight: var(--md-sys-typescale-body-large-font-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
   color: var(--md-sys-color-on-surface-variant);
+  padding: var(--md-sys-spacing-6);
+  text-align: center;
 }
 
 .visually-hidden {

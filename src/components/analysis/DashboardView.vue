@@ -148,11 +148,16 @@ const exportClassChart = async () => {
       return
     }
 
-    // Générer le canvas
+    // Générer le canvas avec options optimisées pour PDF
     const canvas = await html2canvas(chartElement as HTMLElement, {
       backgroundColor: '#ffffff',
       scale: 2,
-      useCORS: true
+      useCORS: true,
+      logging: false,
+      windowWidth: chartElement.scrollWidth,
+      windowHeight: chartElement.scrollHeight,
+      width: chartElement.scrollWidth,
+      height: chartElement.scrollHeight
     })
 
     // Créer le PDF
@@ -164,9 +169,23 @@ const exportClassChart = async () => {
 
     // Dimensions du PDF avec marges réduites
     const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
     const margin = 15
-    const imgWidth = pageWidth - (margin * 2) // 267mm au lieu de 280mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    const maxWidth = pageWidth - (margin * 2)
+    const maxHeight = pageHeight - 60 // Espace pour titre et infos en haut
+
+    // Calculer les dimensions optimales en gardant le ratio
+    let imgWidth = maxWidth
+    let imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    // Si le graphique est trop haut, ajuster
+    if (imgHeight > maxHeight) {
+      imgHeight = maxHeight
+      imgWidth = (canvas.width * imgHeight) / canvas.height
+    }
+
+    // Centrer l'image si nécessaire
+    const xPosition = margin + (maxWidth - imgWidth) / 2
 
     // Ajouter le titre
     pdf.setFontSize(16)
@@ -182,7 +201,7 @@ const exportClassChart = async () => {
 
     // Ajouter l'image du graphique
     const imgData = canvas.toDataURL('image/png')
-    pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
+    pdf.addImage(imgData, 'PNG', xPosition, 50, imgWidth, imgHeight)
 
     // Télécharger le PDF
     pdf.save(`moyennes-classe-${selectedMetricType.value}-${new Date().toISOString().split('T')[0]}.pdf`)
@@ -225,12 +244,17 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
       return
     }
 
-    // Générer le canvas
+    // Générer le canvas avec options optimisées
     const html2canvas = (await import('html2canvas')).default
     const canvas = await html2canvas(chartElement as HTMLElement, {
       backgroundColor: '#ffffff',
       scale: 2,
-      useCORS: true
+      useCORS: true,
+      logging: false,
+      windowWidth: chartElement.scrollWidth,
+      windowHeight: chartElement.scrollHeight,
+      width: chartElement.scrollWidth,
+      height: chartElement.scrollHeight
     })
 
     // Créer le PDF pour le partage
@@ -242,9 +266,23 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
     })
 
     const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
     const margin = 15
-    const imgWidth = pageWidth - (margin * 2)
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    const maxWidth = pageWidth - (margin * 2)
+    const maxHeight = pageHeight - 60
+
+    // Calculer les dimensions optimales
+    let imgWidth = maxWidth
+    let imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    // Ajuster si trop haut
+    if (imgHeight > maxHeight) {
+      imgHeight = maxHeight
+      imgWidth = (canvas.width * imgHeight) / canvas.height
+    }
+
+    // Centrer l'image si nécessaire
+    const xPosition = margin + (maxWidth - imgWidth) / 2
 
     // Ajouter le titre
     pdf.setFontSize(16)
@@ -260,7 +298,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 
     // Ajouter l'image du graphique
     const imgData = canvas.toDataURL('image/png')
-    pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
+    pdf.addImage(imgData, 'PNG', xPosition, 50, imgWidth, imgHeight)
 
     // Préparer les données pour le service de partage
     const evaluationData = {
@@ -384,19 +422,30 @@ const getCompetencyIdFromSpecificCompetencyId = (specificCompetencyId: string): 
 
 
 // Function to convert evaluation result value to score using pivot_value
-const getScoreFromValue = (value: string, resultTypeConfigId?: string): number => {
+// Returns null for N/A values to exclude them from calculations
+const getScoreFromValue = (value: string, resultTypeConfigId?: string): number | null => {
   if (!value || !resultTypeConfigId) {
-    return 0
+    return null
+  }
+
+  // Return null for N/A values to exclude them from calculations
+  if (value === 'N/A' || value === 'Non évalué') {
+    return null
   }
 
   const resultType = resultTypes.value.find(rt => rt.id === resultTypeConfigId)
   if (!resultType) {
-    return 0
+    return null
   }
 
   const configValue = resultType.config.values.find(v => v.value === value)
   if (!configValue) {
-    return 0
+    return null
+  }
+
+  // Check if this is a N/A value (pivot_value might be null or undefined for N/A)
+  if (configValue.pivot_value === null || configValue.pivot_value === undefined) {
+    return null
   }
 
   return configValue.pivot_value
@@ -484,7 +533,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
                 const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId || result.competencyId)
                 return getScoreFromValue(result.value || '', resultTypeConfigId)
               })
-              .filter(score => score > 0)
+              .filter(score => score !== null && score !== undefined) as number[]  // Filter out N/A values
 
             if (scores.length > 0) {
               const average = scores.reduce((sum, score) => sum + score, 0) / scores.length
@@ -550,7 +599,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
                 const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId || result.competencyId)
                 return getScoreFromValue(result.value || '', resultTypeConfigId)
               })
-              .filter(score => score > 0)
+              .filter(score => score !== null && score !== undefined) as number[]  // Filter out N/A values
 
             if (scores.length > 0) {
               const average = scores.reduce((sum, score) => sum + score, 0) / scores.length
@@ -617,7 +666,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
                 const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId || result.competencyId)
                 return getScoreFromValue(result.value || '', resultTypeConfigId)
               })
-              .filter(score => score > 0)
+              .filter(score => score !== null && score !== undefined) as number[]  // Filter out N/A values
 
             if (scores.length > 0) {
               const average = scores.reduce((sum, score) => sum + score, 0) / scores.length

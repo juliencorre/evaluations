@@ -2,19 +2,19 @@
 :root[data-theme='light'] {
   color-scheme: light;
 
-  /* Reference Tokens - Palette (Harmonious Teal-Blue) */
+  /* Reference Tokens - Palette (Modern Material Blue-Teal) */
   --md-ref-palette-primary0: #000000;
-  --md-ref-palette-primary10: #001f24;
-  --md-ref-palette-primary20: #00363e;
-  --md-ref-palette-primary30: #004d56;
-  --md-ref-palette-primary40: #006570;
-  --md-ref-palette-primary50: #007d8a;
-  --md-ref-palette-primary60: #4A90A4;
-  --md-ref-palette-primary70: #6ba4b8;
-  --md-ref-palette-primary80: #88b8cc;
-  --md-ref-palette-primary90: #a6cde1;
-  --md-ref-palette-primary95: #d3e6f5;
-  --md-ref-palette-primary99: #f5faff;
+  --md-ref-palette-primary10: #001d36;
+  --md-ref-palette-primary20: #00325a;
+  --md-ref-palette-primary30: #004881;
+  --md-ref-palette-primary40: #005fa8;
+  --md-ref-palette-primary50: #0077c2;
+  --md-ref-palette-primary60: #0091dc;
+  --md-ref-palette-primary70: #2daaf5;
+  --md-ref-palette-primary80: #5abcff;
+  --md-ref-palette-primary90: #b8dbff;
+  --md-ref-palette-primary95: #ddeeff;
+  --md-ref-palette-primary99: #f8fbff;
   --md-ref-palette-primary100: #ffffff;
 
   --md-ref-palette-neutral0: #000000;
@@ -58,19 +58,19 @@
   --md-ref-typeface-brand: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --md-ref-typeface-plain: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* Reference Tokens - Motion */
-  --md-ref-motion-duration-short1: 50ms;
-  --md-ref-motion-duration-short2: 100ms;
-  --md-ref-motion-duration-short3: 150ms;
-  --md-ref-motion-duration-short4: 200ms;
-  --md-ref-motion-duration-medium1: 250ms;
-  --md-ref-motion-duration-medium2: 300ms;
-  --md-ref-motion-duration-medium3: 350ms;
-  --md-ref-motion-duration-medium4: 400ms;
-  --md-ref-motion-duration-long1: 450ms;
-  --md-ref-motion-duration-long2: 500ms;
-  --md-ref-motion-duration-long3: 550ms;
-  --md-ref-motion-duration-long4: 600ms;
+  /* Reference Tokens - Motion (Enhanced for Modern UX) */
+  --md-ref-motion-duration-short1: 75ms;
+  --md-ref-motion-duration-short2: 150ms;
+  --md-ref-motion-duration-short3: 200ms;
+  --md-ref-motion-duration-short4: 250ms;
+  --md-ref-motion-duration-medium1: 300ms;
+  --md-ref-motion-duration-medium2: 350ms;
+  --md-ref-motion-duration-medium3: 400ms;
+  --md-ref-motion-duration-medium4: 450ms;
+  --md-ref-motion-duration-long1: 500ms;
+  --md-ref-motion-duration-long2: 550ms;
+  --md-ref-motion-duration-long3: 600ms;
+  --md-ref-motion-duration-long4: 650ms;
   --md-ref-motion-duration-extra-long1: 700ms;
   --md-ref-motion-duration-extra-long2: 800ms;
   --md-ref-motion-duration-extra-long3: 900ms;
@@ -83,6 +83,8 @@
   --md-ref-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --md-ref-motion-easing-emphasized-accelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
   --md-ref-motion-easing-emphasized-decelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-ref-motion-easing-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --md-ref-motion-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   /* System Tokens - Colors */
   --md-sys-color-primary: var(--md-ref-palette-primary60);
@@ -144,6 +146,28 @@
   --md-sys-color-border-light: #F0F0F0;
   --md-sys-color-border-medium: #E0E0E0;
   --md-sys-color-border-strong: var(--md-sys-color-outline);
+
+  /* Modern Spacing System - 8dp Grid */
+  --md-sys-spacing-0: 0px;
+  --md-sys-spacing-1: 4px;
+  --md-sys-spacing-2: 8px;
+  --md-sys-spacing-3: 12px;
+  --md-sys-spacing-4: 16px;
+  --md-sys-spacing-5: 20px;
+  --md-sys-spacing-6: 24px;
+  --md-sys-spacing-7: 28px;
+  --md-sys-spacing-8: 32px;
+  --md-sys-spacing-10: 40px;
+  --md-sys-spacing-12: 48px;
+  --md-sys-spacing-16: 64px;
+  --md-sys-spacing-20: 80px;
+  --md-sys-spacing-24: 96px;
+  --md-sys-spacing-32: 128px;
+
+  /* Component Spacing Tokens */
+  --md-comp-card-gap: var(--md-sys-spacing-4);
+  --md-comp-section-gap: var(--md-sys-spacing-6);
+  --md-comp-page-padding: var(--md-sys-spacing-6);
 
   /* Text Hierarchy */
   --md-sys-color-text-primary: var(--md-sys-color-on-surface);
@@ -251,13 +275,13 @@
   --md-sys-shape-corner-extra-large: 28px;
   --md-sys-shape-corner-full: 50%;
 
-  /* System Tokens - Elevation */
-  --md-sys-elevation-level0: 0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12);
-  --md-sys-elevation-level1: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-  --md-sys-elevation-level2: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-  --md-sys-elevation-level3: 0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
-  --md-sys-elevation-level4: 0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
-  --md-sys-elevation-level5: 0px 4px 4px 0px rgba(0, 0, 0, 0.3), 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
+  /* System Tokens - Elevation (Material Design 3 Enhanced) */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.24);
+  --md-sys-elevation-level2: 0px 3px 6px rgba(0, 0, 0, 0.15), 0px 2px 4px rgba(0, 0, 0, 0.12);
+  --md-sys-elevation-level3: 0px 6px 16px rgba(0, 0, 0, 0.15), 0px 3px 6px rgba(0, 0, 0, 0.10);
+  --md-sys-elevation-level4: 0px 8px 28px rgba(0, 0, 0, 0.15), 0px 4px 10px rgba(0, 0, 0, 0.08);
+  --md-sys-elevation-level5: 0px 16px 44px rgba(0, 0, 0, 0.15), 0px 6px 16px rgba(0, 0, 0, 0.08);
 
   /* System Tokens - Motion */
   --md-sys-motion-duration-short1: var(--md-ref-motion-duration-short1);
@@ -537,4 +561,141 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Modern Utility Classes */
+.smooth-transition {
+  transition: all var(--md-sys-motion-duration-medium1) var(--md-ref-motion-easing-standard);
+}
+
+.emphasis-transition {
+  transition: all var(--md-sys-motion-duration-medium2) var(--md-ref-motion-easing-emphasized);
+}
+
+.micro-interaction:hover {
+  transform: translateY(-1px);
+  transition: transform var(--md-sys-motion-duration-short4) var(--md-ref-motion-easing-spring);
+}
+
+.card-elevation {
+  background: var(--md-sys-color-surface-elevated);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--md-sys-elevation-level1);
+  transition: box-shadow var(--md-sys-motion-duration-medium1) var(--md-ref-motion-easing-standard);
+}
+
+.card-elevation:hover {
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.interactive-element {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-ref-motion-easing-standard);
+}
+
+.interactive-element::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+  opacity: 0;
+  transition: opacity var(--md-sys-motion-duration-short3) var(--md-ref-motion-easing-standard);
+  pointer-events: none;
+}
+
+.interactive-element:hover::before {
+  opacity: 1;
+}
+
+.interactive-element:active::before {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+  opacity: 1;
+}
+
+/* Focus-visible enhancement for accessibility */
+.interactive-element:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+/* Modern Typography Utilities */
+.text-display-large {
+  font-family: var(--md-sys-typescale-display-large-font-family);
+  font-size: var(--md-sys-typescale-display-large-font-size);
+  font-weight: var(--md-sys-typescale-display-large-font-weight);
+  line-height: var(--md-sys-typescale-display-large-line-height);
+  letter-spacing: var(--md-sys-typescale-display-large-letter-spacing);
+}
+
+.text-headline-medium {
+  font-family: var(--md-sys-typescale-headline-medium-font-family);
+  font-size: var(--md-sys-typescale-headline-medium-font-size);
+  font-weight: var(--md-sys-typescale-headline-medium-font-weight);
+  line-height: var(--md-sys-typescale-headline-medium-line-height);
+  letter-spacing: var(--md-sys-typescale-headline-medium-letter-spacing);
+}
+
+.text-title-large {
+  font-family: var(--md-sys-typescale-title-large-font-family);
+  font-size: var(--md-sys-typescale-title-large-font-size);
+  font-weight: var(--md-sys-typescale-title-large-font-weight);
+  line-height: var(--md-sys-typescale-title-large-line-height);
+  letter-spacing: var(--md-sys-typescale-title-large-letter-spacing);
+}
+
+.text-body-large {
+  font-family: var(--md-sys-typescale-body-large-font-family);
+  font-size: var(--md-sys-typescale-body-large-font-size);
+  font-weight: var(--md-sys-typescale-body-large-font-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+  letter-spacing: var(--md-sys-typescale-body-large-letter-spacing);
+}
+
+/* Layout Grid Utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--md-comp-page-padding);
+}
+
+.grid-8 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--md-sys-spacing-4);
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-4);
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--md-sys-spacing-3);
+}
+
+/* Responsive Design Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .card-elevation {
+    border: 1px solid var(--md-sys-color-outline);
+  }
+
+  .interactive-element::before {
+    background: color-mix(in srgb, var(--md-sys-color-on-surface) 16%, transparent);
+  }
 }

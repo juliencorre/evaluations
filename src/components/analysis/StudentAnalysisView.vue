@@ -296,16 +296,23 @@ const getDomainNameById = (domainId: string): string => {
 }
 
 // Function to convert evaluation result value to score using pivot_value
-const getScoreFromValue = (value: string, resultTypeConfigId?: string): number => {
+// Returns null for N/A values to exclude them from calculations
+const getScoreFromValue = (value: string, resultTypeConfigId?: string): number | null => {
   if (!value || !resultTypeConfigId) {
     console.log('🔢 [getScoreFromValue] Missing value or config:', { value, resultTypeConfigId })
-    return 0
+    return null
+  }
+
+  // Return null for N/A values to exclude them from calculations
+  if (value === 'N/A' || value === 'Non évalué') {
+    console.log('🔢 [getScoreFromValue] N/A value, excluding from calculation')
+    return null
   }
 
   const resultType = resultTypes.value.find(rt => rt.id === resultTypeConfigId)
   if (!resultType) {
     console.log('🔢 [getScoreFromValue] Result type not found:', resultTypeConfigId)
-    return 0
+    return null
   }
 
   let finalScore = 0
@@ -344,7 +351,13 @@ const getScoreFromValue = (value: string, resultTypeConfigId?: string): number =
     const configValue = resultType.config.values.find(v => v.value === value)
     if (!configValue) {
       console.log('🔢 [getScoreFromValue] Config value not found:', { value, availableValues: resultType.config.values })
-      return 0
+      return null
+    }
+
+    // Check if this is a N/A value (pivot_value might be null or 0 for N/A)
+    if (configValue.pivot_value === null || configValue.pivot_value === undefined) {
+      console.log('🔢 [getScoreFromValue] N/A pivot value detected, excluding from calculation')
+      return null
     }
 
     finalScore = configValue.pivot_value // Direct pivot_value (sur 10)
@@ -488,16 +501,19 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const scores = evalDomainResults.map(result => {
               const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
               const resultTypeConfigId = getResultTypeConfigId(effectiveSpecificCompetencyId)
-              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : null
               return score
-            })
+            }).filter(score => score !== null) as number[] // Filter out N/A values
 
-            const totalScore = scores.reduce((sum, score) => sum + score, 0)
-            const averageScore = Math.round((totalScore / evalDomainResults.length) * 10) / 10
+            // Only calculate average if we have valid scores
+            const averageScore = scores.length > 0
+              ? Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) / 10
+              : 0
 
             console.log(`📊 [domains] ${domain.name} - ${evaluation.name} calculation:`, {
               individualScores: scores.map(s => s.toFixed(2)),
-              totalScore: totalScore.toFixed(2),
+              validScoresCount: scores.length,
+              totalResults: evalDomainResults.length,
               count: evalDomainResults.length,
               averageScore: averageScore.toFixed(1)
             })
@@ -574,16 +590,19 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const scores = evalFieldResults.map(result => {
               const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
               const resultTypeConfigId = getResultTypeConfigId(effectiveSpecificCompetencyId)
-              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : null
               return score
-            })
+            }).filter(score => score !== null) as number[] // Filter out N/A values
 
-            const totalScore = scores.reduce((sum, score) => sum + score, 0)
-            const averageScore = Math.round((totalScore / evalFieldResults.length) * 10) / 10
+            // Only calculate average if we have valid scores
+            const averageScore = scores.length > 0
+              ? Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) / 10
+              : 0
 
             console.log(`📊 [fields] ${displayName} - ${evaluation.name} calculation:`, {
               individualScores: scores.map(s => s.toFixed(2)),
-              totalScore: totalScore.toFixed(2),
+              validScoresCount: scores.length,
+              totalResults: evalFieldResults.length,
               count: evalFieldResults.length,
               averageScore: averageScore.toFixed(1)
             })
@@ -656,16 +675,19 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const scores = evalCompetencyResults.map(result => {
               const effectiveSpecificCompetencyId = result.specificCompetencyId || result.competencyId || ''
               const resultTypeConfigId = getResultTypeConfigId(effectiveSpecificCompetencyId)
-              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : 0
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : null
               return score
-            })
+            }).filter(score => score !== null) as number[] // Filter out N/A values
 
-            const totalScore = scores.reduce((sum, score) => sum + score, 0)
-            const averageScore = Math.round((totalScore / evalCompetencyResults.length) * 10) / 10
+            // Only calculate average if we have valid scores
+            const averageScore = scores.length > 0
+              ? Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) / 10
+              : 0
 
             console.log(`📊 [competencies] ${competency.name} - ${evaluation.name} calculation:`, {
               individualScores: scores.map(s => s.toFixed(2)),
-              totalScore: totalScore.toFixed(2),
+              validScoresCount: scores.length,
+              totalResults: evalCompetencyResults.length,
               count: evalCompetencyResults.length,
               averageScore: averageScore.toFixed(1)
             })

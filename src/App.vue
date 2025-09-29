@@ -1,19 +1,21 @@
 <template>
-  <div id="app" :class="{ 'rail-expanded': isRailExpanded }">
+  <div id="app">
     <RouterView />
-    <AppHeader @rail-expanded="handleRailExpanded" />
+    <NavigationRail />
+    <BottomNavBar />
     <PwaInstallPrompt />
   </div>
 </template>
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { onMounted, onBeforeUnmount, ref, defineAsyncComponent } from 'vue'
+import { onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useClassStore } from '@/stores/classStore'
 
 // Lazy load components that are not immediately visible
-const AppHeader = defineAsyncComponent(() => import('./components/AppHeader.vue'))
+const NavigationRail = defineAsyncComponent(() => import('./components/NavigationRail.vue'))
+const BottomNavBar = defineAsyncComponent(() => import('./components/BottomNavBar.vue'))
 const PwaInstallPrompt = defineAsyncComponent({
   loader: () => import('./components/PwaInstallPrompt.vue'),
   delay: 200, // Show loading after 200ms
@@ -22,11 +24,6 @@ const PwaInstallPrompt = defineAsyncComponent({
 
 const authStore = useAuthStore()
 const classStore = useClassStore()
-const isRailExpanded = ref(false)
-
-function handleRailExpanded(expanded: boolean) {
-  isRailExpanded.value = expanded
-}
 
 onMounted(() => {
   // Initialize class store
@@ -47,33 +44,25 @@ onBeforeUnmount(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 140px; /* Ensure content is not hidden by bottom navigation */
-  box-sizing: border-box; /* Include padding in height calculation */
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  box-sizing: border-box;
 }
 
-/* Large Screen Layout - Navigation Rail */
-@media (min-width: 1440px) {
+/* Small and Medium screens - Bottom Navigation */
+@media (max-width: 839px) {
   #app {
-    padding-left: 45px; /* Mode compact : 45px seulement */
-    padding-bottom: 0; /* Remove bottom padding */
-    transition: padding-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  #app.rail-expanded {
-    padding-left: 185px;
+    padding-bottom: 80px; /* MD3 bottom nav height */
+    padding-left: 0;
   }
 }
 
-/* Responsive bottom padding for different screen sizes */
-@media (max-width: 599px) {
+/* Large screens - Navigation Rail */
+@media (min-width: 840px) {
   #app {
-    padding-bottom: 120px; /* Smaller padding for smaller screens */
-  }
-}
-
-@media (max-width: 480px) {
-  #app {
-    padding-bottom: 100px; /* Even smaller padding for mobile */
+    padding-left: 80px; /* MD3 fixed rail width */
+    padding-bottom: 0;
+    transition: padding-left var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
   }
 }
 

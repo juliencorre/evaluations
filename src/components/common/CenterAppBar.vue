@@ -8,7 +8,9 @@
           aria-label="Retour"
           @click="$emit('back')"
         >
-          <span class="material-symbols-outlined">arrow_back</span>
+          <svg class="back-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
         </button>
         <div
           v-else-if="showSchoolIcon"
@@ -129,15 +131,24 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   min-height: 64px;
-  padding: 0 4px;
-  background: transparent;
+  padding: 0 var(--md-sys-spacing-2);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 80%, transparent);
   color: var(--md-sys-color-on-surface);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  transition: all var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-standard);
+  z-index: 900; /* Below navigation rail (1000) */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
+}
+
+/* Adjust for navigation rail on large screens */
+@media (min-width: 840px) {
+  .app-bar {
+    left: 80px; /* Account for navigation rail width */
+  }
 }
 
 .app-bar--elevated {
@@ -161,9 +172,9 @@ onMounted(async () => {
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: #1D1B20;
+  color: var(--md-sys-color-on-surface);
   cursor: pointer;
-  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-spring);
   position: relative;
 }
 
@@ -189,8 +200,9 @@ onMounted(async () => {
   opacity: var(--md-icon-button-focus-state-layer-opacity);
 }
 
-.back-button .material-symbols-outlined {
-  font-size: 24px;
+.back-icon {
+  width: 24px;
+  height: 24px;
   z-index: 1;
 }
 

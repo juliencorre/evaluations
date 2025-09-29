@@ -1,13 +1,13 @@
 <template>
   <div class="class-students-page">
-    <!-- Center App Bar with School Year Selection -->
+    <!-- Center App Bar with Back Button -->
     <CenterAppBar
       :title="classData?.name || 'Gestion des élèves'"
       :is-scrolled="isScrolled"
       :show-search="false"
       :show-back-button="true"
       :show-school-year-selector="true"
-      @back="$router.back()"
+      @back="handleBack"
       @logout="handleLogout"
     />
 
@@ -161,7 +161,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStudentsStore } from '@/stores/studentsStore'
 import { useClassStore } from '@/stores/classStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
@@ -176,7 +176,7 @@ const schoolYearStore = useSchoolYearStore()
 
 // Router
 const route = useRoute()
-// const router = useRouter()
+const router = useRouter()
 
 // State
 const isLoading = ref(true)
@@ -349,6 +349,11 @@ const handleScroll = () => {
 const { logout } = useLogout()
 const handleLogout = async () => {
   await logout()
+}
+
+// Handle back navigation
+const handleBack = () => {
+  router.push('/classes')
 }
 
 // Initialize

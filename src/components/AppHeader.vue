@@ -2,26 +2,15 @@
   <header
     v-if="shouldRenderNavigation"
     class="app-header"
-    :class="{ 'expanded': isExpanded, 'hidden': isNavHidden }"
+    :class="{ 'hidden': isNavHidden }"
   >
     <!-- Top App Bar -->
     <nav class="top-app-bar" role="navigation" aria-label="Navigation principale">
-      <!-- Navigation Rail (Desktop) -->
-      <div class="navigation-rail" :class="{ 'expanded': isExpanded }">
-        <div class="brand-section">
-          <!-- Menu toggle button -->
-          <button
-            class="rail-menu-button"
-            aria-label="Toggle navigation menu"
-            @click="toggleExpanded"
-          >
-            <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
-            </svg>
-            <svg class="chevron-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
-            </svg>
-          </button>
+      <!-- Navigation Rail (Desktop) - Material Design 3 -->
+      <div class="navigation-rail">
+        <!-- Optional FAB Section (top of rail) -->
+        <div class="rail-fab-container">
+          <!-- FAB can be added here if needed -->
         </div>
 
         <div class="nav-destinations">
@@ -163,22 +152,10 @@ const currentRouteName = computed<AppRouteName | undefined>(() => {
 const authStore = useAuthStore()
 const shouldRenderNavigation = computed(() => !authStore.isInitializing.value && isAuthenticated.value)
 
-// State for expanded navigation rail
-const isExpanded = ref(false)
-
 // Scroll-based navigation bar hiding state
 const isNavHidden = ref(false)
 const lastScrollY = ref(0)
 const scrollThreshold = 5 // Minimum scroll distance to trigger hide/show
-
-// Emit events
-const emit = defineEmits<{
-  'rail-expanded': [expanded: boolean]
-}>()
-
-function toggleExpanded() {
-  isExpanded.value = !isExpanded.value
-}
 
 // Scroll handler for navigation bar hiding
 function handleScroll() {
@@ -220,11 +197,7 @@ const detachScrollListener = () => {
   isScrollListenerAttached = false
 }
 
-// Watch for changes and emit events
-watch(isExpanded, (expanded) => {
-  emit('rail-expanded', expanded)
-}, { immediate: true })
-
+// Watch for navigation visibility changes
 watch(shouldRenderNavigation, (visible) => {
   if (visible) {
     attachScrollListener()
@@ -253,8 +226,11 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--md-sys-color-surface-container, #F5F5F5);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--md-sys-color-surface-container);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 }
 
 /* Hide navigation on scroll down (mobile) */
@@ -262,22 +238,19 @@ onUnmounted(() => {
   transform: translateY(100%);
 }
 
-/* Large Screen Navigation Rail (Left Side) */
-@media (min-width: 1440px) {
+/* Large Screen Navigation Rail (Left Side) - Material Design 3 Official Specs */
+@media (min-width: 840px) { /* MD3 uses 840px as breakpoint for rail */
   .app-header {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     right: auto;
-    width: 80px;
-    background: var(--md-sys-color-surface-container, #F5F5F5);
-    box-shadow: none;
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .app-header.expanded {
-    width: 220px; /* Expanded width */
+    width: 80px; /* MD3 fixed width - does NOT expand */
+    background: var(--md-sys-color-surface);
+    border-top: none;
+    z-index: 1000;
+    transition: transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
   }
 
   /* On large screens, hide the rail by sliding it to the left */
@@ -288,178 +261,173 @@ onUnmounted(() => {
   .top-app-bar {
     height: 100%;
     width: 100%;
-    background: var(--md-sys-color-surface-container, #F5F5F5);
+    background: transparent;
     box-shadow: none;
   }
 
   .navigation-rail {
+    display: flex;
     flex-direction: column;
-    padding: 24px 12px;
+    padding: 0;
     height: 100%;
-    width: 100%;
+    width: 80px; /* Fixed 80px width */
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     gap: 0;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--md-sys-color-surface);
+    border-right: 1px solid var(--md-sys-color-surface-variant);
   }
 
-  .navigation-rail.expanded {
-    align-items: flex-start;
-    padding: 24px 16px;
-  }
-
-  .brand-section {
-    margin-bottom: 24px;
-    width: 100%;
+  /* FAB container at top */
+  .rail-fab-container {
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 80px; /* Space for FAB if needed */
+    width: 100%;
   }
 
-  .navigation-rail.expanded .brand-section {
+  /* Destinations container */
+  .nav-destinations {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 0;
     justify-content: flex-start;
+    align-items: center;
   }
 
   .user-actions {
     margin-top: auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    padding: 16px 0;
   }
 
 }
 
-/* Menu Button - Only visible on large screens with rail */
-.rail-menu-button {
-  display: none !important; /* Force hidden by default */
-}
+/* Navigation Rail Destinations - MD3 Specs */
+@media (min-width: 840px) {
 
-@media (min-width: 1440px) {
-  .rail-menu-button {
-    display: flex !important; /* Force visible only on large screens */
+  /* Individual destination item */
+  .nav-destination {
+    position: relative;
+    width: 80px; /* Full width of rail */
+    height: 56px; /* MD3 spec height with label */
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
-    background: none;
-    border: none;
-    border-radius: 16px;
+    gap: 4px;
+    padding: 12px 0 16px 0; /* MD3 padding */
+    margin: 0;
     cursor: pointer;
-    color: var(--md-sys-color-on-surface-variant, #49454f);
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    color: var(--md-sys-color-on-surface-variant);
+    text-decoration: none;
+    transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  }
+
+  /* Active indicator - pill shape behind icon */
+  .nav-indicator {
+    position: absolute;
+    top: 12px; /* Align with icon area */
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 56px; /* MD3 spec: 56px wide for pill */
+    height: 32px; /* MD3 spec: 32px tall for pill */
+    background: var(--md-sys-color-secondary-container);
+    border-radius: 16px; /* Full rounded pill */
+    opacity: 0;
+    transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
+    z-index: 0;
+  }
+
+  .nav-destination.active .nav-indicator {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  /* State layer for hover/pressed */
+  .nav-destination::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 32px;
+    background: var(--md-sys-color-on-surface);
+    opacity: 0;
+    border-radius: 16px;
+    transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+    z-index: 0;
+  }
+
+  .nav-destination:hover::before {
+    opacity: 0.08; /* MD3 hover state */
+  }
+
+  .nav-destination:focus-visible {
+    outline: 2px solid var(--md-sys-color-primary);
+    outline-offset: 2px;
+  }
+
+  .nav-destination:active::before {
+    opacity: 0.12; /* MD3 pressed state */
+  }
+
+  /* Don't show hover state on active items */
+  .nav-destination.active:hover::before,
+  .nav-destination.active:active::before {
+    opacity: 0;
+  }
+
+  /* Icon container */
+  .nav-icon-container {
     position: relative;
-    overflow: hidden;
-  }
-
-  .rail-menu-button:hover {
-    background-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
-  }
-
-  .rail-menu-button .menu-icon,
-  .rail-menu-button .chevron-icon {
     width: 24px;
     height: 24px;
-    position: absolute;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .rail-menu-button .chevron-icon {
-    opacity: 0;
-    transform: rotate(0deg);
-  }
-
-  .navigation-rail.expanded .rail-menu-button .menu-icon {
-    opacity: 0;
-  }
-
-  .navigation-rail.expanded .rail-menu-button .chevron-icon {
-    opacity: 1;
-    transform: rotate(180deg);
-  }
-
-  .nav-destinations {
-    flex-direction: column;
-    gap: 12px;
-    flex: 0 !important;
-    width: auto;
-    justify-content: flex-start !important;
-    align-items: center;
-  }
-
-  .nav-destination {
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    min-height: 64px;
-    border-radius: 16px;
-    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0;
-    margin: 0 auto;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    --nav-item-padding-inline: 0px;
-    --nav-item-padding-block: 12px;
-    --nav-indicator-width: 56px;
-    --nav-indicator-height: 56px;
-    --nav-indicator-left: 50%;
-    --nav-indicator-translate-x: -50%;
+    z-index: 1;
   }
 
-  .navigation-rail.expanded .nav-destination {
-    width: 100%;
-    height: 48px;
-    margin: 0;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
-    padding: 0 16px;
-    --nav-item-padding-inline: 16px;
-    --nav-item-padding-block: 12px;
-    --nav-indicator-width: 100%;
-    --nav-indicator-height: 48px;
-    --nav-indicator-left: 50%;
-    --nav-indicator-translate-x: -50%;
+  .nav-icon {
+    width: 24px;
+    height: 24px;
+    color: currentColor;
+    transition: color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
   }
 
+  /* Active state colors */
+  .nav-destination.active {
+    color: var(--md-sys-color-on-surface);
+  }
+
+  .nav-destination.active .nav-icon {
+    color: var(--md-sys-color-on-secondary-container);
+  }
+
+  /* Label - MD3 specs show label below icon */
   .nav-label {
-    display: block;
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--md-sys-color-on-surface-variant);
+    position: relative;
+    font-family: var(--md-sys-typescale-label-medium-font-family);
+    font-size: var(--md-sys-typescale-label-medium-font-size);
+    font-weight: var(--md-sys-typescale-label-medium-font-weight);
+    line-height: var(--md-sys-typescale-label-medium-line-height);
+    letter-spacing: var(--md-sys-typescale-label-medium-letter-spacing);
+    color: currentColor;
     white-space: nowrap;
     text-align: center;
-    margin-top: 4px;
-    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0;
+    z-index: 1;
+    transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
   }
 
-  .navigation-rail.expanded .nav-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    margin-top: 0;
-    opacity: 1;
-  }
-
-  .navigation-rail.expanded .nav-indicator {
-    border-radius: 24px;
-  }
-
-  /* Large screen navigation rail - override indicator positioning */
-  .nav-indicator {
-    top: 50%;
-  }
-
-  .nav-icon-container {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-  }
-
-  .user-actions {
-    margin-top: auto;
+  .nav-destination.active .nav-label {
+    color: var(--md-sys-color-on-surface);
+    font-weight: 600;
   }
 }
 
@@ -521,27 +489,20 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 4px;
+  gap: var(--md-sys-spacing-1);
   padding: var(--nav-item-padding-block) var(--nav-item-padding-inline);
   min-width: 64px;
   min-height: 64px;
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
-  border-radius: 16px;
-  font-family:
-    'Roboto',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  font-weight: 500;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  letter-spacing: 0.5px;
+  border-radius: var(--md-sys-shape-corner-large);
+  font-family: var(--md-sys-typescale-label-medium-font-family);
+  font-weight: var(--md-sys-typescale-label-medium-font-weight);
+  font-size: var(--md-sys-typescale-label-medium-font-size);
+  line-height: var(--md-sys-typescale-label-medium-line-height);
+  letter-spacing: var(--md-sys-typescale-label-medium-letter-spacing);
   position: relative;
-  transition:
-    color 0.2s cubic-bezier(0.2, 0, 0, 1),
-    background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
 .nav-destination:hover {

@@ -72,6 +72,10 @@
           </p>
 
           <div class="class-meta">
+            <span v-if="classItem.school_year" class="meta-item school-year">
+              <span class="material-symbols-outlined">calendar_month</span>
+              {{ classItem.school_year }}
+            </span>
             <span v-if="classItem.level" class="meta-item">
               <span class="material-symbols-outlined">grade</span>
               {{ classItem.level }}
@@ -548,9 +552,20 @@ const handleClassJoined = async (classData: Class) => {
   border-radius: 8px;
 }
 
+.meta-item.school-year {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  font-weight: 600;
+}
+
 .class-card.active .meta-item {
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
+}
+
+.class-card.active .meta-item.school-year {
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary);
 }
 
 .meta-item .material-symbols-outlined {

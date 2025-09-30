@@ -37,21 +37,6 @@
       </router-link>
 
       <router-link
-        to="/evaluations"
-        class="nav-destination"
-        :class="{ active: currentRouteName === ROUTE_NAMES.EVALUATIONS || currentRouteName === ROUTE_NAMES.EVALUATION_DETAIL }"
-        :aria-current="(currentRouteName === ROUTE_NAMES.EVALUATIONS || currentRouteName === ROUTE_NAMES.EVALUATION_DETAIL) ? 'page' : undefined"
-      >
-        <div class="nav-indicator" aria-hidden="true"></div>
-        <div class="nav-icon-container">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 4H7v2h10V7h-5zm0 4H7v2h10v-2h-5zm0 4H7v2h7v-2h-5z" />
-          </svg>
-        </div>
-        <span class="nav-label">Évaluations</span>
-      </router-link>
-
-      <router-link
         to="/students"
         class="nav-destination"
         :class="{ active: currentRouteName === ROUTE_NAMES.STUDENTS }"

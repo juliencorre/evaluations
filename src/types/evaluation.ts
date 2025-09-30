@@ -105,7 +105,6 @@ export interface Evaluation {
   name: string
   description: string
   frameworkId: string
-  classId: string
   createdAt: string
   results: EvaluationResult[]
 }

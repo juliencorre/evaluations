@@ -16,7 +16,8 @@
       "Read(//c/Users/julien/**)",
       "Bash(timeout 5 npx claude-flow@alpha mcp start)",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

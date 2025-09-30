@@ -28,7 +28,6 @@ export class SupabaseEvaluationsService {
         name: item.name,
         description: item.description || '',
         frameworkId: item.framework_id,
-        classId: item.class_id,
         createdAt: item.created_at || new Date().toISOString(),
         results: [] // Results are loaded separately
       }))
@@ -89,29 +88,42 @@ export class SupabaseEvaluationsService {
 
   /**
    * Récupère les évaluations pour plusieurs classes (pour un utilisateur)
+   * Utilise maintenant la table evaluation_classes pour la relation many-to-many
    */
   async getEvaluationsByClasses(classIds: string[]): Promise<Evaluation[]> {
     try {
       if (classIds.length === 0) return []
 
       const { data, error } = await supabase
-        .from('evaluations')
-        .select('*')
+        .from('evaluation_classes')
+        .select(`
+          evaluations (
+            id,
+            name,
+            description,
+            framework_id,
+            school_year_id,
+            created_at
+          )
+        `)
         .in('class_id', classIds)
         .order('created_at', { ascending: false })
 
       if (error) throw error
       if (!data) return []
 
-      return data.map((item: EvaluationRow) => ({
-        id: item.id,
-        name: item.name,
-        description: item.description || '',
-        frameworkId: item.framework_id,
-        classId: item.class_id,
-        createdAt: item.created_at || new Date().toISOString(),
-        results: [] // Results are loaded separately
-      }))
+      // Transformer les données pour matcher l'interface Evaluation
+      return ((data ?? []) as EvaluationClassWithEvaluation[])
+        .map(item => item.evaluations)
+        .filter((evaluation): evaluation is EvaluationRow => Boolean(evaluation))
+        .map(evaluation => ({
+          id: evaluation.id,
+          name: evaluation.name,
+          description: evaluation.description || '',
+          frameworkId: evaluation.framework_id,
+          createdAt: evaluation.created_at || new Date().toISOString(),
+          results: [] // Results are loaded separately
+        }))
     } catch (error) {
       console.error('Erreur lors de la récupération des évaluations par classes:', error)
       return []
@@ -135,7 +147,7 @@ export class SupabaseEvaluationsService {
         name: evaluationData.name,
         description: evaluationData.description || '',
         frameworkId: evaluationData.framework_id,
-        classId: evaluationData.class_id,
+        schoolYearId: evaluationData.school_year_id,
         createdAt: evaluationData.created_at || new Date().toISOString(),
         results: [] // Results are loaded separately
       }
@@ -150,8 +162,7 @@ export class SupabaseEvaluationsService {
       const insertData: EvaluationInsert = {
         name: evaluation.name,
         description: evaluation.description,
-        framework_id: evaluation.frameworkId,
-        class_id: evaluation.classId
+        framework_id: evaluation.frameworkId
       }
 
       const { data, error } = await supabase
@@ -169,7 +180,6 @@ export class SupabaseEvaluationsService {
         name: evaluationData.name,
         description: evaluationData.description || '',
         frameworkId: evaluationData.framework_id,
-        classId: evaluationData.class_id,
         createdAt: evaluationData.created_at || new Date().toISOString(),
         results: []
       }
@@ -184,8 +194,7 @@ export class SupabaseEvaluationsService {
       const updateData: EvaluationUpdate = {
         name: updates.name,
         description: updates.description,
-        framework_id: updates.frameworkId,
-        class_id: updates.classId
+        framework_id: updates.frameworkId
       }
 
       const { data, error } = await supabase
@@ -204,7 +213,7 @@ export class SupabaseEvaluationsService {
         name: evaluationData.name,
         description: evaluationData.description || '',
         frameworkId: evaluationData.framework_id,
-        classId: evaluationData.class_id,
+        schoolYearId: evaluationData.school_year_id,
         createdAt: evaluationData.created_at || new Date().toISOString(),
         results: [] // Results are loaded separately
       }

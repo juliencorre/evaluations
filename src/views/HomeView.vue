@@ -23,7 +23,7 @@
     <EvaluationTable
       v-else-if="framework.domains.length > 0 && !isMobileView && currentEvaluation"
       :evaluation="currentEvaluation"
-      :students="allStudents"
+      :students="evaluationStudents"
       :framework="framework"
     />
 
@@ -31,7 +31,7 @@
     <EvaluationMobileView
       v-else-if="framework.domains.length > 0 && isMobileView && currentEvaluation"
       :evaluation="currentEvaluation"
-      :students="allStudents"
+      :students="evaluationStudents"
       :framework="framework"
     />
 
@@ -103,23 +103,27 @@ import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
 // Services
 import { shareResultsService } from '@/services/shareResultsService'
 
+// Services
+import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
+
 // Stores
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useLogout } from '@/composables/useLogout'
-import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
 
-const { allStudents } = useStudentsStore()
+const studentsStore = useStudentsStore()
 const competenciesStore = useCompetencyFrameworkStore()
 const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
 const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
 
-const schoolYearFilter = getSchoolYearFilterStore()
+const schoolYearStore = useSchoolYearStore()
 
 // State
-const isLoading = isCompetenciesLoading
+const isLoading = ref(true)
+const evaluationStudents = ref<any[]>([])
 const isScrolled = ref(false)
 const isMobileView = ref(false)
 const showDeleteDialog = ref(false)
@@ -173,7 +177,7 @@ const handleResize = () => {
 
 // Share evaluation info for dialog
 const shareEvaluationInfo = computed(() => {
-  if (!currentEvaluation.value || !framework.value.domains || !allStudents.value) {
+  if (!currentEvaluation.value || !framework.value.domains || !evaluationStudents.value) {
     return null
   }
 
@@ -188,7 +192,7 @@ const shareEvaluationInfo = computed(() => {
   return {
     name: currentEvaluation.value.name || 'Évaluation sans nom',
     description: currentEvaluation.value.description,
-    studentsCount: allStudents.value.length,
+    studentsCount: evaluationStudents.value.length,
     competenciesCount
   }
 })
@@ -205,6 +209,9 @@ onMounted(async () => {
   // Load evaluations from database
   await loadEvaluations()
 
+  // Ensure school years are loaded
+  await schoolYearStore.ensureLoaded()
+
   // Load the specific evaluation based on the route parameter
   const evaluationId = props.id || (route?.params?.id as string)
   if (evaluationId) {
@@ -212,10 +219,20 @@ onMounted(async () => {
     if (evaluation) {
       console.log('📋 [HomeView] Loading evaluation:', evaluation.name)
       setCurrentEvaluation(evaluation)
+
+      // Load students for this evaluation
+      const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
+      evaluationStudents.value = await supabaseEvaluationClassesService.getStudentsForEvaluation(
+        evaluationId,
+        currentSchoolYearId
+      )
+      console.log(`👥 [HomeView] Loaded ${evaluationStudents.value.length} students for evaluation`)
     } else {
       console.error('❌ [HomeView] Evaluation not found:', evaluationId)
     }
   }
+
+  isLoading.value = false
 })
 
 onUnmounted(() => {
@@ -254,7 +271,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
       return
     }
 
-    if (!allStudents.value || allStudents.value.length === 0) {
+    if (!evaluationStudents.value || evaluationStudents.value.length === 0) {
       alert('Aucun élève à partager. Veuillez vérifier que des élèves sont inscrits dans cette classe.')
       return
     }
@@ -269,7 +286,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         className: '',
         schoolYearFilter: schoolYearFilter.displayText.value
       },
-      students: allStudents.value.map(student => ({
+      students: evaluationStudents.value.map(student => ({
         id: student.id,
         firstName: student.firstName || '',
         lastName: student.lastName || '',
@@ -286,7 +303,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
                 name: competency.name || 'Compétence sans nom',
                 domain: domain.name || 'Domaine sans nom',
                 field: field.name || 'Champ sans nom',
-                results: allStudents.value.map(student => ({
+                results: evaluationStudents.value.map(student => ({
                   studentId: student.id,
                   studentName: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
                   result: null // Results would need to be mapped from currentEvaluation.results
@@ -295,7 +312,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
             )
         ),
       summary: {
-        totalStudents: allStudents.value.length,
+        totalStudents: evaluationStudents.value.length,
         totalCompetencies: framework.value.domains
           .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
           .reduce((sum, domain) =>
@@ -362,7 +379,7 @@ const exportEvaluationResults = () => {
       return
     }
 
-    if (!allStudents.value || allStudents.value.length === 0) {
+    if (!evaluationStudents.value || evaluationStudents.value.length === 0) {
       alert('Aucun élève à exporter. Veuillez vérifier que des élèves sont inscrits dans cette classe.')
       return
     }
@@ -377,7 +394,7 @@ const exportEvaluationResults = () => {
         className: '', // Class name would need to be resolved from classId
         schoolYearFilter: schoolYearFilter.displayText.value
       },
-      students: allStudents.value.map(student => ({
+      students: evaluationStudents.value.map(student => ({
         id: student.id,
         firstName: student.firstName || '',
         lastName: student.lastName || '',
@@ -394,7 +411,7 @@ const exportEvaluationResults = () => {
                 name: competency.name || 'Compétence sans nom',
                 domain: domain.name || 'Domaine sans nom',
                 field: field.name || 'Champ sans nom',
-                results: allStudents.value.map(student => ({
+                results: evaluationStudents.value.map(student => ({
                   studentId: student.id,
                   studentName: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
                   result: null // Results would need to be mapped from currentEvaluation.results
@@ -403,7 +420,7 @@ const exportEvaluationResults = () => {
             )
         ),
       summary: {
-        totalStudents: allStudents.value.length,
+        totalStudents: evaluationStudents.value.length,
         totalCompetencies: framework.value.domains
           .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
           .reduce((sum, domain) =>

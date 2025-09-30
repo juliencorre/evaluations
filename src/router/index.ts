@@ -123,6 +123,17 @@ const router = createRouter({
       }
     },
     {
+      path: '/classes/:id/evaluations',
+      name: ROUTE_NAMES.CLASS_EVALUATIONS,
+      component: () => import(/* webpackChunkName: "class-evaluations" */ '../views/ClassEvaluationsView.vue'),
+      props: true,
+      meta: {
+        title: 'Évaluations de la classe',
+        description: 'Gérer les évaluations de cette classe',
+        requiresAuth: true
+      }
+    },
+    {
       path: '/students',
       name: ROUTE_NAMES.STUDENTS,
       component: () => import(/* webpackChunkName: "students" */ '../views/StudentsView.vue'),

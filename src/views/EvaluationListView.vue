@@ -5,11 +5,11 @@
     <!-- Center-aligned App Bar -->
     <CenterAppBar
       v-if="!isLoading"
-      title="Évaluations"
+      :title="pageTitle"
       :is-scrolled="isScrolled"
       :show-search="false"
       :show-back-button="true"
-      @back="navigateToWelcome"
+      @back="handleBack"
       @user-menu-click="handleUserMenuClick"
       @logout="handleLogout"
     />
@@ -108,6 +108,10 @@ import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
 // Stores
 import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useClassStore } from '@/stores/classStore'
+import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsService'
+import { computed } from 'vue'
 // import type { Evaluation } from '@/types/evaluation'
 
 const router = useRouter()
@@ -115,7 +119,10 @@ const competenciesStore = useCompetencyFrameworkStore()
 const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
-const { allEvaluations, loadEvaluations } = evaluationStore
+const { loadEvaluations } = evaluationStore
+
+const classStore = useClassStore()
+const schoolYearStore = useSchoolYearStore()
 
 
 // State
@@ -124,8 +131,26 @@ const isScrolled = ref(false)
 const showModal = ref(false)
 const isEditMode = ref(false)
 const isSaving = ref(false)
+const classEvaluations = ref<any[]>([])
 
-// No class filtering needed - show all evaluations
+// Filter evaluations by selected class if applicable
+const allEvaluations = computed(() => {
+  if (classStore.selectedClassId) {
+    // Show only evaluations for the selected class
+    return classEvaluations.value
+  } else {
+    // Show all evaluations
+    return evaluationStore.allEvaluations.value
+  }
+})
+
+// Page title based on selected class
+const pageTitle = computed(() => {
+  if (classStore.selectedClassId && classStore.selectedClass) {
+    return `Évaluations - ${classStore.selectedClass.name}`
+  }
+  return 'Évaluations'
+})
 
 // Form data
 const currentEvaluationForm = ref({
@@ -146,7 +171,20 @@ onMounted(async () => {
 
   // Load competency framework and evaluations from database
   await refreshFromSupabase()
-  await loadEvaluations()
+
+  // Check if a class is selected
+  if (classStore.selectedClassId) {
+    // Load evaluations for the selected class only
+    await schoolYearStore.ensureLoaded()
+    const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
+    classEvaluations.value = await supabaseEvaluationsService.getEvaluationsByClass(
+      classStore.selectedClassId,
+      currentSchoolYearId
+    )
+  } else {
+    // Load all evaluations
+    await loadEvaluations()
+  }
 })
 
 onUnmounted(() => {
@@ -170,6 +208,17 @@ const openEvaluation = (evaluationId: string) => {
 }
 
 // Event handlers
+const handleBack = () => {
+  if (classStore.selectedClassId) {
+    // If viewing class evaluations, go back to class detail
+    router.push(`/classes/${classStore.selectedClassId}`)
+    classStore.selectClass(null) // Deselect class
+  } else {
+    // Otherwise go to welcome
+    router.push('/welcome')
+  }
+}
+
 const navigateToWelcome = () => {
   router.push('/welcome')
 }

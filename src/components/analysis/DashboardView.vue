@@ -1,5 +1,13 @@
 <template>
   <div class="charts-section">
+    <!-- Filters -->
+    <AnalysisFilters
+      v-model="filters"
+      :available-classes="availableClasses"
+      :available-years="availableYears"
+      @apply="loadFilteredData"
+    />
+
     <!-- Class Average Chart -->
     <section class="charts-section">
       <ChartCard class="white-card">
@@ -75,21 +83,48 @@
 import { ref, computed, onMounted } from 'vue'
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useClassStore } from '@/stores/classStore'
+import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
+import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
 
 import ClassAverageChart from '@/components/analysis/ClassAverageChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
 import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
+import AnalysisFilters from '@/components/analysis/AnalysisFilters.vue'
 
 // Use stores
 const studentsStore = useStudentsStore()
 const evaluationStore = useEvaluationStore()
-// const classStore = useClassStore()
+const classStore = useClassStore()
+const schoolYearStore = useSchoolYearStore()
 
 // Services
 const resultTypesService = new SupabaseResultTypesService()
+
+// Filters state
+const filters = ref({
+  classIds: [] as string[],
+  yearIds: [] as string[]
+})
+
+// Available data for filters
+const availableClasses = computed(() => {
+  return (classStore.classes || []).map(c => ({
+    id: c.id,
+    name: c.name
+  }))
+})
+
+const availableYears = computed(() => {
+  return (schoolYearStore.schoolYears?.value || []).map(y => ({
+    id: y.id,
+    name: y.name,
+    is_current: y.is_current
+  }))
+})
 
 // Result types configuration
 const resultTypes = ref<ResultTypeConfig[]>([])
@@ -704,34 +739,79 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   })
 }
 
-onMounted(async () => {
+// Load filtered data based on selected classes and years
+const loadFilteredData = async () => {
   try {
-    // Load result types
-    resultTypes.value = await resultTypesService.getResultTypes()
-    console.log('📊 [DashboardView] Result types loaded:', resultTypes.value.length)
+    console.log('📊 [DashboardView] Loading filtered data:', filters.value)
 
-    // Load all evaluation results with evaluation IDs
     const allEvaluations = evaluationStore.allEvaluations.value
     const allResults: EvaluationResult[] = []
 
+    // If no filters selected, load all data
+    const hasClassFilter = filters.value.classIds.length > 0
+    const hasYearFilter = filters.value.yearIds.length > 0
+
     for (const evaluation of allEvaluations) {
       try {
-        // Use getOrCreateEvaluation to ensure proper ID mapping
+        // Get evaluation-class relationships
+        const evaluationClasses = await supabaseEvaluationClassesService.getClassesForEvaluation(
+          evaluation.id,
+          hasYearFilter ? undefined : undefined
+        )
+
+        // Skip if filters are active and this evaluation doesn't match
+        if (hasClassFilter) {
+          const evaluationClassIds = evaluationClasses.map(ec => ec.id)
+          const hasMatchingClass = filters.value.classIds.some(classId =>
+            evaluationClassIds.includes(classId)
+          )
+          if (!hasMatchingClass) continue
+        }
+
+        if (hasYearFilter) {
+          // Check if evaluation belongs to selected years via evaluation_classes
+          const evalClassesData = await supabaseEvaluationClassesService.getEvaluationClasses({
+            evaluation_id: evaluation.id,
+            include_details: true
+          })
+          const hasMatchingYear = evalClassesData.some(ec =>
+            filters.value.yearIds.includes(ec.school_year_id || '')
+          )
+          if (!hasMatchingYear) continue
+        }
+
+        // Load results for this evaluation
         const fullEvaluation = await supabaseEvaluationResultsService.getOrCreateEvaluation(evaluation)
         const resultsWithEvaluationId = fullEvaluation.results.map(result => ({
           ...result,
-          evaluationId: evaluation.id // Use the original evaluation ID
+          evaluationId: evaluation.id
         }))
         allResults.push(...resultsWithEvaluationId)
         console.log('📊 [DashboardView] Loaded', resultsWithEvaluationId.length, 'results for', evaluation.name)
       } catch (error) {
         console.error('📊 [DashboardView] Error loading results for evaluation', evaluation.name, ':', error)
-        // Continue with next evaluation instead of breaking completely
       }
     }
 
     allEvaluationResults.value = allResults
-    console.log('📊 [DashboardView] All evaluation results loaded:', allResults.length)
+    console.log('📊 [DashboardView] Filtered evaluation results loaded:', allResults.length)
+  } catch (error) {
+    console.error('Error loading filtered dashboard data:', error)
+  }
+}
+
+onMounted(async () => {
+  try {
+    // Load initial data
+    await classStore.loadClasses()
+    await schoolYearStore.ensureLoaded()
+
+    // Load result types
+    resultTypes.value = await resultTypesService.getResultTypes()
+    console.log('📊 [DashboardView] Result types loaded:', resultTypes.value.length)
+
+    // Load all evaluation results
+    await loadFilteredData()
   } catch (error) {
     console.error('Error loading dashboard data:', error)
   }

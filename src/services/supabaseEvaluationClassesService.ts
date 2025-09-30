@@ -437,6 +437,77 @@ export const supabaseEvaluationClassesService = {
   },
 
   /**
+   * Récupère les élèves de toutes les classes associées à une évaluation
+   */
+  async getStudentsForEvaluation(
+    evaluation_id: string,
+    school_year_id?: string
+  ): Promise<any[]> {
+    console.log(`👥 [SupabaseEvaluationClasses] Récupération des élèves pour l'évaluation ${evaluation_id}`)
+
+    try {
+      // Récupérer les classes de l'évaluation
+      const classes = await this.getClassesForEvaluation(evaluation_id, school_year_id)
+
+      if (classes.length === 0) {
+        console.log('⚠️ [SupabaseEvaluationClasses] Aucune classe associée à cette évaluation')
+        return []
+      }
+
+      // Récupérer les élèves de toutes ces classes
+      const classIds = classes.map(c => c.id)
+
+      const { data, error } = await supabase
+        .from('student_classes')
+        .select(`
+          student_id,
+          students (
+            id,
+            first_name,
+            last_name,
+            display_name,
+            created_at,
+            updated_at
+          )
+        `)
+        .in('class_id', classIds)
+        .order('students(last_name)')
+
+      if (error) {
+        console.error('❌ [SupabaseEvaluationClasses] Erreur lors de la récupération des élèves:', error)
+        throw new Error(`Erreur lors de la récupération des élèves: ${error.message}`)
+      }
+
+      // Extraire et dédupliquer les élèves (un élève peut être dans plusieurs classes)
+      const studentsMap = new Map()
+
+      data?.forEach((item: any) => {
+        if (item.students) {
+          const student = item.students
+          if (!studentsMap.has(student.id)) {
+            studentsMap.set(student.id, {
+              id: student.id,
+              firstName: student.first_name,
+              lastName: student.last_name,
+              displayName: student.display_name,
+              createdAt: student.created_at,
+              updatedAt: student.updated_at
+            })
+          }
+        }
+      })
+
+      const students = Array.from(studentsMap.values())
+      console.log(`✅ [SupabaseEvaluationClasses] ${students.length} élèves récupérés pour l'évaluation`)
+      return students
+
+    } catch (globalError) {
+      console.error('❌ [SupabaseEvaluationClasses] Erreur globale:', globalError)
+      return []
+    }
+  },
+
+  /**
    * Souscription aux changements des relations évaluations-classes
    */
   subscribeToEvaluationClasses(

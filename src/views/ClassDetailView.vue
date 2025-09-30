@@ -258,8 +258,7 @@ const navigateToStudents = () => {
 }
 
 const navigateToEvaluations = () => {
-  classStore.selectClass(props.id)
-  router.push('/evaluations')
+  router.push(`/classes/${props.id}/evaluations`)
 }
 
 const navigateToTeachers = () => {

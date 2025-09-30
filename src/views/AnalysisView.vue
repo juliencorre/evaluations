@@ -25,6 +25,9 @@
         @export-student-chart="exportStudentChart"
         @export-all-students="exportAllStudents"
       />
+
+      <!-- Year Analysis View -->
+      <YearAnalysisView v-if="activeView === 'year-analysis'" />
     </main>
 
   </div>
@@ -39,6 +42,7 @@ import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import AnalysisTabs from '@/components/analysis/AnalysisTabs.vue'
 import DashboardView from '@/components/analysis/DashboardView.vue'
 import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
+import YearAnalysisView from '@/components/analysis/YearAnalysisView.vue'
 import { useLogout } from '@/composables/useLogout'
 
 // Stores
@@ -52,7 +56,8 @@ const isScrolled = ref(false)
 // Tab configuration
 const tabItems = computed(() => [
   { id: 'dashboard', label: 'Classe', value: 'dashboard' },
-  { id: 'student-analysis', label: 'Élèves', value: 'student-analysis' }
+  { id: 'student-analysis', label: 'Élèves', value: 'student-analysis' },
+  { id: 'year-analysis', label: 'Années', value: 'year-analysis' }
 ])
 
 // Export functions

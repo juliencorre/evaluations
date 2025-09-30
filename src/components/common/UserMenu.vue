@@ -34,16 +34,6 @@
           <p v-if="logoutError" class="logout-error" role="alert">{{ logoutError }}</p>
 
           <nav class="menu-items">
-            <router-link
-              to="/welcome"
-              class="menu-item"
-              @click="closeMenu"
-            >
-              <span class="material-symbols-outlined">home</span>
-              <span class="menu-item-text">Accueil</span>
-            </router-link>
-
-            <div class="menu-divider"></div>
 
             <router-link
               to="/competencies"

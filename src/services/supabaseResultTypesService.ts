@@ -5,6 +5,9 @@ import type { Json } from '@/types/supabase'
 export class SupabaseResultTypesService {
   private validatePivotValues(values: ResultTypeConfigValue[]) {
     for (const value of values) {
+      // Skip validation for N/A values (null pivot_value)
+      if (value.pivot_value === null) continue
+
       if (value.pivot_value < 0 || value.pivot_value > 10) {
         throw new Error(`Pivot value must be between 0 and 10. Got: ${value.pivot_value} for value: ${value.label}`)
       }

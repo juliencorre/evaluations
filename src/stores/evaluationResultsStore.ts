@@ -373,14 +373,22 @@ export const useEvaluationResultsStore = () => {
       'C': 3,
       'D': 2,
       'E': 1,
-      'N/A': 0
+      'N/A': 0  // N/A values will be excluded from calculation
     }
 
-    const totalScore = results.reduce((sum, result) => {
+    // Filter out N/A values before calculating
+    const validResults = results.filter(result => {
+      const level = (result.level || result.value) as EvaluationLevel
+      return level && level !== 'N/A'
+    })
+
+    if (validResults.length === 0) return 0
+
+    const totalScore = validResults.reduce((sum, result) => {
       const level = (result.level || result.value) as EvaluationLevel
       return sum + (level && scoreMap[level] ? scoreMap[level] : 0)
     }, 0)
-    return totalScore / results.length
+    return totalScore / validResults.length
   }
 
   const clearError = () => {

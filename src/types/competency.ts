@@ -17,7 +17,8 @@ export interface DragDropState {
 export interface ResultTypeConfigValue {
   label: string
   value: string
-  pivot_value: number
+  pivot_value: number | null
+  isFixed?: boolean  // For N/A values that cannot be deleted
 }
 
 export interface ResultTypeConfig extends BaseEntity {

@@ -22,7 +22,8 @@ export type ResultType = 'scale' | 'boolean' | 'custom' | 'numeric'
 export interface ResultTypeConfigValue {
   label: string
   value: string
-  pivot_value: number  // Value on 0-10 scale for cross-type analysis
+  pivot_value: number | null  // Value on 0-10 scale for cross-type analysis, null for N/A
+  isFixed?: boolean  // For N/A values that cannot be deleted
 }
 
 export interface ResultTypeConfig {

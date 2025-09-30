@@ -100,7 +100,7 @@ const processedChartData = computed<ChartDataItem[]>(() => {
     const evaluations: EvaluationResult[] = props.chartData.map(evaluation => {
       const categoryData = evaluation.data.find(item => item.name === categoryName)
       return {
-        score: categoryData ? Math.round(categoryData.value * 100) / 100 : 0,
+        score: categoryData ? Math.round(categoryData.value * 10) / 10 : 0,
         color: evaluation.color
       }
     })

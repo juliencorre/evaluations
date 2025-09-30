@@ -111,7 +111,7 @@ import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
 
 const { allStudents } = useStudentsStore()
 const competenciesStore = useCompetencyFrameworkStore()
-const { framework, isCompetenciesLoading } = competenciesStore
+const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
 const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
@@ -198,6 +198,9 @@ onMounted(async () => {
   window.addEventListener('resize', handleResize, { passive: true })
   handleScroll()
   checkMobileView()
+
+  // Load competencies framework from database
+  await refreshFromSupabase()
 
   // Load evaluations from database
   await loadEvaluations()

@@ -90,55 +90,61 @@ export const shareResultsService = {
 
       addLine()
 
-      // Section des élèves
-      addText('Liste des élèves', 16, 'bold', 10)
-      evaluationData.students.forEach((student: any, index: number) => {
-        addText(`${index + 1}. ${student.fullName}`, 11, 'normal', 5)
-      })
-
-      currentY += 10
-      addLine()
-
-      // Section des compétences par domaine
-      addText('Compétences évaluées', 16, 'bold', 10)
-
-      // Regrouper les compétences par domaine
-      const competenciesByDomain: { [key: string]: any[] } = {}
-      evaluationData.competencies.forEach((comp: any) => {
-        if (!competenciesByDomain[comp.domain]) {
-          competenciesByDomain[comp.domain] = []
-        }
-        competenciesByDomain[comp.domain].push(comp)
-      })
-
-      // Afficher chaque domaine
-      Object.entries(competenciesByDomain).forEach(([domain, competencies]) => {
-        addText(domain, 14, 'bold', 8)
-        
-        competencies.forEach((comp: any) => {
-          addText(`• ${comp.name} (${comp.field})`, 11, 'normal', 5)
+      // Section des élèves (si disponibles)
+      if (evaluationData.students && evaluationData.students.length > 0) {
+        addText('Liste des élèves', 16, 'bold', 10)
+        evaluationData.students.forEach((student: any, index: number) => {
+          addText(`${index + 1}. ${student.fullName}`, 11, 'normal', 5)
         })
-        
-        currentY += 5
-      })
+        currentY += 10
+        addLine()
+      }
+
+      // Section des compétences par domaine (si disponibles)
+      if (evaluationData.competencies && evaluationData.competencies.length > 0) {
+        addText('Compétences évaluées', 16, 'bold', 10)
+
+        // Regrouper les compétences par domaine
+        const competenciesByDomain: { [key: string]: any[] } = {}
+        evaluationData.competencies.forEach((comp: any) => {
+          if (!competenciesByDomain[comp.domain]) {
+            competenciesByDomain[comp.domain] = []
+          }
+          competenciesByDomain[comp.domain].push(comp)
+        })
+
+        // Afficher chaque domaine
+        Object.entries(competenciesByDomain).forEach(([domain, competencies]) => {
+          addText(domain, 14, 'bold', 8)
+
+          competencies.forEach((comp: any) => {
+            addText(`• ${comp.name} (${comp.field})`, 11, 'normal', 5)
+          })
+
+          currentY += 5
+        })
+      }
 
       // Section résultats (si disponibles)
-      if (evaluationData.competencies.some((comp: any) => 
-        comp.results.some((result: any) => result.result !== null)
-      )) {
+      if (evaluationData.competencies && evaluationData.competencies.length > 0 &&
+          evaluationData.competencies.some((comp: any) =>
+            comp.results && comp.results.some((result: any) => result.result !== null)
+          )) {
         addLine()
         addText('Résultats détaillés', 16, 'bold', 10)
-        
+
         evaluationData.competencies.forEach((comp: any) => {
-          const hasResults = comp.results.some((result: any) => result.result !== null)
-          if (hasResults) {
-            addText(`${comp.name}`, 12, 'bold', 5)
-            comp.results.forEach((result: any) => {
-              if (result.result !== null) {
-                addText(`  ${result.studentName}: ${result.result}`, 10, 'normal', 4)
-              }
-            })
-            currentY += 3
+          if (comp.results && comp.results.length > 0) {
+            const hasResults = comp.results.some((result: any) => result.result !== null)
+            if (hasResults) {
+              addText(`${comp.name}`, 12, 'bold', 5)
+              comp.results.forEach((result: any) => {
+                if (result.result !== null) {
+                  addText(`  ${result.studentName}: ${result.result}`, 10, 'normal', 4)
+                }
+              })
+              currentY += 3
+            }
           }
         })
       }

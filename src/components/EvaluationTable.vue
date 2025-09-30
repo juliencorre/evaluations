@@ -113,17 +113,8 @@
                     v-if="canShowResult(node) && isEditing(node.id, student.id)"
                     class="edit-mode"
                   >
-                    <!-- Numeric input for numeric result types -->
-                    <InlineNumericInput
-                      v-if="isNumericResultType(node)"
-                      :initial-value="editingValue"
-                      :trigger-element="currentTriggerElement || undefined"
-                      @save="(value) => selectValue(value, node.id, student.id)"
-                      @close="stopEditing"
-                    />
-                    <!-- Standard selector for other result types -->
+                    <!-- Use selector for all types including numeric (they now have predefined values with N/A) -->
                     <InlineResultSelector
-                      v-else
                       :options="getResultValues(node)"
                       :selected-value="editingValue"
                       :trigger-element="currentTriggerElement || undefined"
@@ -165,7 +156,6 @@ import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/c
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import InlineResultSelector from '@/components/evaluation/InlineResultSelector.vue'
-import InlineNumericInput from '@/components/evaluation/InlineNumericInput.vue'
 
 interface Props {
   evaluation: Evaluation
@@ -223,6 +213,7 @@ function handleClickOutside(event: Event) {
 
 // Initialize evaluation store on mount
 onMounted(async () => {
+  console.log('🔄 [EvaluationTable] Initializing evaluation:', props.evaluation.id)
   await evaluationStore.initializeEvaluation({
     id: props.evaluation.id,
     name: props.evaluation.name,
@@ -231,6 +222,7 @@ onMounted(async () => {
     classId: props.evaluation.classId,
     createdAt: props.evaluation.createdAt
   })
+  console.log('✅ [EvaluationTable] Evaluation initialized, results count:', evaluationStore.results.value?.length || 0)
 
   // Load result types
   resultTypes.value = await supabaseResultTypesService.getResultTypes()
@@ -279,9 +271,16 @@ const visibleNodes = computed(() => {
 function getStudentResult(competencyId: string, studentId: string): EvaluationResult | undefined {
   // Try to get from the store first, fallback to props for compatibility
   const storeResult = evaluationStore.getResult(studentId, competencyId)
-  if (storeResult) return storeResult
+  if (storeResult) {
+    console.log('📌 [EvaluationTable] Found result in store:', { studentId, competencyId, value: storeResult.value })
+    return storeResult
+  }
 
-  return getCompetencyResult(props.evaluation.results, studentId, competencyId)
+  const propsResult = getCompetencyResult(props.evaluation.results, studentId, competencyId)
+  if (propsResult) {
+    console.log('📌 [EvaluationTable] Found result in props:', { studentId, competencyId, value: propsResult.value })
+  }
+  return propsResult
 }
 
 function canShowResult(node: TreeNode): boolean {
@@ -356,7 +355,7 @@ function getResultValues(node: TreeNode): ResultTypeConfigValue[] {
       { label: 'C', value: 'C', pivot_value: 5 },
       { label: 'D', value: 'D', pivot_value: 2.5 },
       { label: 'E', value: 'E', pivot_value: 0 },
-      { label: 'N/A', value: 'N/A', pivot_value: 0 }
+      { label: 'N/A', value: 'N/A', pivot_value: null }
     ]
   }
 
@@ -369,11 +368,6 @@ function getResultValues(node: TreeNode): ResultTypeConfigValue[] {
   })
 }
 
-// Check if result type is numeric
-function isNumericResultType(node: TreeNode): boolean {
-  const config = getResultTypeConfig(node)
-  return config?.type === 'numeric' || false
-}
 
 
 // Table navigation computed properties
@@ -457,8 +451,8 @@ function startEditing(node: TreeNode, studentId: string, event?: Event) {
 
   const currentResult = getStudentResult(node.id, studentId)
   editingCell.value = { competencyId: node.id, studentId }
-  // Use value if available (new system), fallback to level (old system)
-  editingValue.value = currentResult?.value || currentResult?.level || getResultValues(node)[getResultValues(node).length - 1]?.value
+  // Use value if available (new system), fallback to level (old system), default to N/A
+  editingValue.value = currentResult?.value || currentResult?.level || 'N/A'
 }
 
 function selectValue(value: string, competencyId: string, studentId: string) {

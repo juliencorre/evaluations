@@ -256,6 +256,13 @@ export class SupabaseEvaluationResultsService {
 
       const results = (data || []).map(result => this.mapSupabaseToEvaluationResult(result as SupabaseEvaluationResult))
       console.log('✅ [SupabaseResult] Résultats récupérés:', results.length)
+      if (results.length > 0) {
+        console.log('📊 [SupabaseResult] Sample results:', results.slice(0, 3).map(r => ({
+          studentId: r.studentId,
+          competencyId: r.competencyId,
+          value: r.value
+        })))
+      }
       return results
 
     } catch (error) {

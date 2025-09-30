@@ -125,7 +125,9 @@ const openEditModal = (type: ResultTypeConfig) => {
     name: type.name || '',
     type: type.type || 'scale',
     config: {
-      values: type.config?.values ? [...type.config.values] : []
+      values: type.config?.values ? [...type.config.values] : [],
+      minValue: type.config?.minValue,
+      maxValue: type.config?.maxValue
     }
   }
   showEditModal.value = true

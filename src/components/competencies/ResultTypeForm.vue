@@ -96,20 +96,22 @@
           />
           <TextFieldOutlined
             :id="`value-pivot-${index}`"
-            v-model="value.pivot_value"
+            :model-value="value.pivot_value === null ? '' : value.pivot_value"
             label="Note /10"
             type="number"
             placeholder="0"
             class="pivot-field"
-            @input="emitChange"
+            :disabled="value.value === 'N/A'"
+            @update:model-value="(val) => { value.pivot_value = val === '' ? null : Number(val); emitChange() }"
           />
           <button
             type="button"
             class="remove-value-btn"
-            :disabled="localData.config.values.length <= 1"
+            :disabled="localData.config.values.length <= 1 || value.value === 'N/A'"
+            :title="value.value === 'N/A' ? 'La valeur N/A est obligatoire' : 'Supprimer cette valeur'"
             @click="removeValue(index)"
           >
-            <span class="material-symbols-outlined">delete</span>
+            <span class="material-symbols-outlined">{{ value.value === 'N/A' ? 'lock' : 'delete' }}</span>
           </button>
         </div>
 
@@ -124,49 +126,17 @@
       </div>
     </ContentSection>
 
-    <!-- Preview Section -->
-    <ContentSection title="Aperçu">
+    <!-- Preview Section (not shown for numeric type) -->
+    <ContentSection v-if="localData.type !== 'numeric'" title="Aperçu">
       <div class="preview-container">
-        <!-- Numeric type preview -->
-        <div v-if="localData.type === 'numeric'" class="preview-values">
-          <div class="preview-numeric">
-            <div class="numeric-range">
-              <span class="range-label">Saisie libre de nombres entiers (tranches de 1 point)</span>
-            </div>
-            <div class="scoring-examples">
-              <div class="score-example">
-                <span class="example-value">0</span>
-                <span class="example-arrow">→</span>
-                <span class="example-score">0/10</span>
-              </div>
-              <div class="score-example">
-                <span class="example-value">5</span>
-                <span class="example-arrow">→</span>
-                <span class="example-score">5/10</span>
-              </div>
-              <div class="score-example">
-                <span class="example-value">10</span>
-                <span class="example-arrow">→</span>
-                <span class="example-score">10/10</span>
-              </div>
-              <div class="score-example">
-                <span class="example-value">15+</span>
-                <span class="example-arrow">→</span>
-                <span class="example-score">10/10</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Other types preview -->
-        <div v-else class="preview-values">
+        <div class="preview-values">
           <div
             v-for="value in localData.config.values"
             :key="value.value"
             class="preview-value"
           >
             <span class="preview-label">{{ value.label || value.value }}</span>
-            <span class="preview-score">{{ value.pivot_value || 0 }}/10</span>
+            <span class="preview-score">{{ value.pivot_value === null ? 'N/A' : `${value.pivot_value}/10` }}</span>
           </div>
         </div>
       </div>
@@ -215,6 +185,9 @@ const nameError = computed(() => {
   return ''
 })
 
+// N/A value is mandatory and always included
+const NA_VALUE = { label: 'N/A - Non évalué', value: 'N/A', pivot_value: null, isFixed: true }
+
 // Predefined templates for different types
 const scaleTemplate = [
   { label: 'A - Très bonne maîtrise', value: 'A', pivot_value: 10 },
@@ -222,13 +195,13 @@ const scaleTemplate = [
   { label: 'C - Maîtrise fragile', value: 'C', pivot_value: 5 },
   { label: 'D - Maîtrise insuffisante', value: 'D', pivot_value: 2.5 },
   { label: 'E - Maîtrise très insuffisante', value: 'E', pivot_value: 0 },
-  { label: 'N/A - Non évalué', value: 'N/A', pivot_value: 0 }
+  { ...NA_VALUE }
 ]
 
 const booleanTemplate = [
   { label: 'Oui - Acquis', value: 'Oui', pivot_value: 10 },
   { label: 'Non - Non acquis', value: 'Non', pivot_value: 0 },
-  { label: 'N/A - Non évalué', value: 'N/A', pivot_value: 0 }
+  { ...NA_VALUE }
 ]
 
 // Methods
@@ -246,16 +219,20 @@ const handleTypeChange = () => {
         // Set default numeric configuration with 10 tranches of 1 point each
         localData.value.config.minValue = 0
         localData.value.config.maxValue = 10
-        // Create 10 tranches: 0, 1, 2, ..., 10 with corresponding scores
-        localData.value.config.values = Array.from({ length: 11 }, (_, i) => ({
-          label: `${i} point${i !== 1 ? 's' : ''}`,
-          value: i.toString(),
-          pivot_value: i
-        }))
+        // Create 10 tranches: 0, 1, 2, ..., 10 with corresponding scores plus N/A
+        localData.value.config.values = [
+          ...Array.from({ length: 11 }, (_, i) => ({
+            label: `${i} point${i !== 1 ? 's' : ''}`,
+            value: i.toString(),
+            pivot_value: i
+          })),
+          { ...NA_VALUE }
+        ]
         break
       case 'custom':
         localData.value.config.values = [
-          { label: '', value: '', pivot_value: 0 }
+          { label: '', value: '', pivot_value: 0 },
+          { ...NA_VALUE }
         ]
         break
     }
@@ -278,11 +255,27 @@ const addValue = () => {
   if (!localData.value.config?.values) {
     localData.value.config = { values: [] }
   }
-  localData.value.config.values.push({
-    label: '',
-    value: '',
-    pivot_value: 0
-  })
+
+  // Find N/A value index
+  const naIndex = localData.value.config.values.findIndex(v => v.value === 'N/A')
+
+  if (naIndex >= 0) {
+    // Insert before N/A
+    localData.value.config.values.splice(naIndex, 0, {
+      label: '',
+      value: '',
+      pivot_value: 0
+    })
+  } else {
+    // No N/A, add at the end then add N/A
+    localData.value.config.values.push({
+      label: '',
+      value: '',
+      pivot_value: 0
+    })
+    localData.value.config.values.push({ ...NA_VALUE })
+  }
+
   emitChange()
 }
 
@@ -302,8 +295,16 @@ const initializeForm = () => {
       type: props.modelValue.type || 'scale',
       config: {
         values: props.modelValue.config?.values ? [...props.modelValue.config.values] : [],
-        minValue: props.modelValue.config?.minValue,
-        maxValue: props.modelValue.config?.maxValue
+        minValue: props.modelValue.config?.minValue ?? 0,
+        maxValue: props.modelValue.config?.maxValue ?? 10
+      }
+    }
+
+    // Ensure N/A value is present for all types (including existing custom types)
+    if (localData.value.config?.values && localData.value.config.values.length > 0) {
+      const hasNA = localData.value.config.values.some(v => v.value === 'N/A')
+      if (!hasNA) {
+        localData.value.config.values.push({ ...NA_VALUE })
       }
     }
   }
@@ -326,16 +327,20 @@ const initializeForm = () => {
         // Set default numeric configuration with 10 tranches of 1 point each
         localData.value.config.minValue = 0
         localData.value.config.maxValue = 10
-        // Create 10 tranches: 0, 1, 2, ..., 10 with corresponding scores
-        localData.value.config.values = Array.from({ length: 11 }, (_, i) => ({
-          label: `${i} point${i !== 1 ? 's' : ''}`,
-          value: i.toString(),
-          pivot_value: i
-        }))
+        // Create 10 tranches: 0, 1, 2, ..., 10 with corresponding scores plus N/A
+        localData.value.config.values = [
+          ...Array.from({ length: 11 }, (_, i) => ({
+            label: `${i} point${i !== 1 ? 's' : ''}`,
+            value: i.toString(),
+            pivot_value: i
+          })),
+          { ...NA_VALUE }
+        ]
         break
       case 'custom':
         localData.value.config.values = [
-          { label: '', value: '', pivot_value: 0 }
+          { label: '', value: '', pivot_value: 0 },
+          { ...NA_VALUE }
         ]
         break
     }
@@ -352,7 +357,8 @@ const emitChange = () => {
       values: localData.value.config.values.map(v => ({
         label: v.label || '',
         value: v.value || '',
-        pivot_value: v.pivot_value || 0
+        pivot_value: v.pivot_value === null ? null : (v.pivot_value || 0),
+        ...(v.isFixed && { isFixed: v.isFixed })
       })),
       // Include numeric configuration if it exists
       ...(localData.value.config.minValue !== undefined && { minValue: localData.value.config.minValue }),

@@ -1,4 +1,4 @@
-import type { ResultTypeConfig, EvaluationResult } from '@/types/evaluation'
+import type { ResultTypeConfig, ResultTypeConfigValue, EvaluationResult } from '@/types/evaluation'
 
 export interface NormalizedEvaluationResult {
   studentId: string
@@ -20,6 +20,9 @@ export class PivotAnalysisService {
   ): NormalizedEvaluationResult | null {
     const value = result.value || result.level // Backward compatibility
     if (!value) return null
+
+    // Skip N/A values - they should not be included in calculations
+    if (value === 'N/A' || value === 'n/a') return null
 
     let pivotValue = 0
 
@@ -54,7 +57,12 @@ export class PivotAnalysisService {
         return null
       }
 
-      pivotValue = typeof configValue === 'object' ? configValue.pivot_value : 5 // Default to middle value
+      // If the pivot_value is null (for N/A), skip this result
+      if (typeof configValue === 'object' && configValue.pivot_value === null) {
+        return null
+      }
+
+      pivotValue = typeof configValue === 'object' && configValue.pivot_value !== null ? configValue.pivot_value : 5 // Default to middle value
     }
 
     return {
@@ -136,7 +144,7 @@ export class PivotAnalysisService {
     }
 
     return {
-      average: Math.round(average * 100) / 100,
+      average: Math.round(average * 10) / 10,
       min,
       max,
       count: values.length,
@@ -185,11 +193,11 @@ export class PivotAnalysisService {
     targetResultTypeConfig: ResultTypeConfig
   ): string | null {
     // Find the closest value in the target result type
-    let closestValue: string | { label: string; value: string; pivot_value: number } | null = null
+    let closestValue: string | ResultTypeConfigValue | null = null
     let closestDistance = Infinity
 
     for (const configValue of targetResultTypeConfig.config.values) {
-      const targetPivotValue = typeof configValue === 'object' ? configValue.pivot_value : 5
+      const targetPivotValue = typeof configValue === 'object' ? (configValue.pivot_value ?? 5) : 5
       const distance = Math.abs(targetPivotValue - pivotValue)
 
       if (distance < closestDistance) {

@@ -168,7 +168,7 @@ const shouldRenderNavigation = computed(() => !authStore.isInitializing.value &&
 /* Active indicator - pill shape behind icon */
 .nav-indicator {
   position: absolute;
-  top: 12px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%) scale(0);
   width: 56px;
@@ -189,7 +189,7 @@ const shouldRenderNavigation = computed(() => !authStore.isInitializing.value &&
 .nav-destination::before {
   content: '';
   position: absolute;
-  top: 12px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%);
   width: 56px;

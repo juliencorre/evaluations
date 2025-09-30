@@ -38,51 +38,6 @@
 
       <!-- Class Details -->
       <div v-else class="class-details">
-        <!-- Header Section -->
-        <div class="class-header-section">
-          <div class="class-header-content">
-            <div class="class-icon">
-              <span class="material-symbols-outlined">school</span>
-            </div>
-            <div class="class-info">
-              <h1 class="class-title">{{ currentClass.name }}</h1>
-              <p v-if="currentClass.description" class="class-description">
-                {{ currentClass.description }}
-              </p>
-              <div class="class-metadata">
-                <span v-if="currentClass.level" class="metadata-item">
-                  <span class="material-symbols-outlined">grade</span>
-                  {{ currentClass.level }}
-                </span>
-                <span v-if="currentSchoolYear" class="metadata-item">
-                  <span class="material-symbols-outlined">calendar_today</span>
-                  {{ currentSchoolYear.name }}
-                </span>
-                <span v-if="currentClass.subject" class="metadata-item">
-                  <span class="material-symbols-outlined">subject</span>
-                  {{ currentClass.subject }}
-                </span>
-                <span class="metadata-item">
-                  <span class="material-symbols-outlined">people</span>
-                  {{ studentCount }} élève{{ studentCount > 1 ? 's' : '' }}
-                </span>
-                <span class="metadata-item" :class="{ 'active': currentClass.active }">
-                  <span class="material-symbols-outlined">
-                    {{ currentClass.active ? 'check_circle' : 'cancel' }}
-                  </span>
-                  {{ currentClass.active ? 'Active' : 'Inactive' }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Button -->
-          <button class="edit-class-btn" @click="openEditModal">
-            <span class="material-symbols-outlined">edit</span>
-            Modifier
-          </button>
-        </div>
-
         <!-- Quick Actions -->
         <div class="quick-actions">
           <div class="action-card" @click="navigateToStudents">
@@ -117,6 +72,13 @@
       </div>
     </main>
 
+    <!-- Menu FAB -->
+    <MenuFAB
+      v-if="!showEditModal && !isLoading && currentClass"
+      :menu-items="fabMenuItems"
+      @menu-item-click="handleMenuItemClick"
+    />
+
     <!-- Edit Modal -->
     <ClassModal
       :visible="showEditModal"
@@ -133,6 +95,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import ClassModal from '@/components/classes/ClassModal.vue'
+import MenuFAB from '@/components/common/MenuFAB.vue'
 import { useClassStore } from '@/stores/classStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
@@ -181,6 +144,17 @@ const currentClass = computed(() => {
 const currentSchoolYear = computed(() => {
   return schoolYearStore.currentSchoolYear.value
 })
+
+// FAB Menu configuration
+const fabMenuItems = computed(() => [
+  {
+    key: 'edit-class',
+    icon: 'edit',
+    label: 'Modifier la classe',
+    ariaLabel: 'Modifier les informations de la classe',
+    type: 'primary'
+  }
+])
 
 // Scroll handling
 const handleScroll = () => {
@@ -266,6 +240,13 @@ const navigateToStudents = () => {
 const navigateToEvaluations = () => {
   classStore.selectClass(props.id)
   router.push('/evaluations')
+}
+
+// FAB Menu handler
+const handleMenuItemClick = (item: { key: string }) => {
+  if (item.key === 'edit-class') {
+    openEditModal()
+  }
 }
 </script>
 
@@ -370,103 +351,6 @@ const navigateToEvaluations = () => {
   gap: 32px;
 }
 
-.class-header-section {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 32px;
-  background: var(--md-sys-color-surface-container-low);
-  border-radius: 16px;
-  border: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.class-header-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  flex: 1;
-}
-
-.class-icon {
-  width: 64px;
-  height: 64px;
-  background: var(--md-sys-color-primary-container);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--md-sys-color-on-primary-container);
-}
-
-.class-icon .material-symbols-outlined {
-  font-size: 32px;
-}
-
-.class-info {
-  flex: 1;
-}
-
-.class-title {
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--md-sys-color-on-surface);
-  margin: 0 0 8px 0;
-  line-height: 1.2;
-}
-
-.class-description {
-  font-size: 16px;
-  color: var(--md-sys-color-on-surface-variant);
-  margin: 0 0 16px 0;
-  line-height: 1.5;
-}
-
-.class-metadata {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.metadata-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--md-sys-color-on-surface-variant);
-  background: var(--md-sys-color-surface-container);
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-
-.metadata-item.active {
-  background: var(--md-sys-color-tertiary-container);
-  color: var(--md-sys-color-on-tertiary-container);
-}
-
-.metadata-item .material-symbols-outlined {
-  font-size: 16px;
-}
-
-.edit-class-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.edit-class-btn:hover {
-  background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
-}
-
 /* Quick Actions */
 .quick-actions {
   display: grid;
@@ -537,38 +421,14 @@ const navigateToEvaluations = () => {
     padding: 16px;
   }
 
-  .class-header-section {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 24px;
-  }
-
-  .class-header-content {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .edit-class-btn {
-    align-self: center;
-  }
-
   .quick-actions {
     grid-template-columns: 1fr;
-  }
-
-  .class-metadata {
-    justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
   .class-detail-content {
     padding: 8px;
-  }
-
-  .class-header-section {
-    padding: 16px;
   }
 
   .action-card {

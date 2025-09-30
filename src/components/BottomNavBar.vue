@@ -157,7 +157,7 @@ const shouldRenderNavigation = computed(() => !authStore.isInitializing.value &&
   transform: translateX(-50%) scale(0);
   width: 64px;
   height: 32px;
-  background: var(--md-sys-color-secondary-container);
+  background: var(--md-sys-color-primary-container);
   border-radius: 16px;
   opacity: 0;
   transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
@@ -207,7 +207,7 @@ const shouldRenderNavigation = computed(() => !authStore.isInitializing.value &&
 
 /* Active state - icon bounces slightly */
 .nav-destination.active .nav-icon {
-  color: var(--md-sys-color-on-secondary-container);
+  color: var(--md-sys-color-on-primary-container);
   transform: translateY(-2px);
 }
 

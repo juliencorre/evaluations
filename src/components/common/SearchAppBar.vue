@@ -2,27 +2,25 @@
   <header class="search-app-bar" :class="{ 'search-app-bar--elevated': isScrolled }">
     <!-- Leading Logo -->
     <div class="search-app-bar__leading">
-      <slot name="leading">
-        <button
-          v-if="showBackButton"
-          class="back-button"
-          aria-label="Retour"
-          @click="$emit('back')"
-        >
-          <svg class="back-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-          </svg>
-        </button>
-        <button
-          v-else
-          class="app-logo-button"
-          :aria-label="logoAriaLabel"
-          @click="$emit('logo-click')"
-        >
-          <span class="material-symbols-outlined app-logo-icon">{{ logoIcon }}</span>
-        </button>
-
-      </slot>
+      <button
+        v-if="showBackButton"
+        class="back-button"
+        aria-label="Retour"
+        @click="$emit('back')"
+      >
+        <svg class="back-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <button
+        v-else
+        class="app-logo-button"
+        :aria-label="logoAriaLabel"
+        @click="$emit('logo-click')"
+      >
+        <span class="material-symbols-outlined app-logo-icon">{{ logoIcon }}</span>
+      </button>
+      <slot name="leading"></slot>
     </div>
 
     <!-- Center Search Field -->
@@ -59,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import UserMenu from './UserMenu.vue'
 import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 
@@ -77,6 +75,7 @@ interface Emits {
   (e: 'clear-search'): void
   (e: 'logo-click'): void
   (e: 'logout'): void
+  (e: 'back'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -88,9 +87,10 @@ const props = withDefaults(defineProps<Props>(), {
   showBackButton: false
 })
 
-const { showBackButton, logoIcon, logoAriaLabel } = toRefs(props)
-
 defineEmits<Emits>()
+
+// Debug
+console.log('SearchAppBar showBackButton:', props.showBackButton)
 
 const authStore = useAuthStore()
 const shouldDisplayUserMenu = computed(
@@ -109,10 +109,17 @@ const shouldDisplayUserMenu = computed(
   color: var(--md-sys-color-on-surface);
   position: fixed;
   top: 0;
-  left: 0;
+  left: 80px; /* Start after navigation rail */
   right: 0;
   z-index: 1000;
   transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
+}
+
+/* On small screens, start from left edge */
+@media (max-width: 839px) {
+  .search-app-bar {
+    left: 0;
+  }
 }
 
 .search-app-bar--elevated {
@@ -359,7 +366,8 @@ const shouldDisplayUserMenu = computed(
   }
 
   .app-logo-button,
-  .icon-button {
+  .icon-button,
+  .back-button {
     width: 40px;
     height: 40px;
   }
@@ -399,7 +407,7 @@ const shouldDisplayUserMenu = computed(
 }
 
 .back-button {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   width: 48px;
@@ -407,10 +415,12 @@ const shouldDisplayUserMenu = computed(
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-sys-color-on-surface);
+  color: #1D1B20 !important;
   cursor: pointer;
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-spring);
   position: relative;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .back-button::before {
@@ -436,8 +446,12 @@ const shouldDisplayUserMenu = computed(
 }
 
 .back-icon {
-  width: 24px;
-  height: 24px;
+  width: 24px !important;
+  height: 24px !important;
   z-index: 1;
+  fill: #1D1B20 !important;
+  color: #1D1B20 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }</style>
 

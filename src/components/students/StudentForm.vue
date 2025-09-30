@@ -46,6 +46,47 @@
             <div class="text-field-outline-end"></div>
           </div>
         </div>
+
+        <div class="text-field-outlined">
+          <select
+            id="gender"
+            v-model="localStudent.gender"
+            class="text-field-input-outlined"
+          >
+            <option :value="null">Non spécifié</option>
+            <option value="M">Masculin</option>
+            <option value="F">Féminin</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <label for="gender" class="text-field-label-outlined text-field-label-select">Sexe</label>
+          <div class="text-field-outline">
+            <div class="text-field-outline-start"></div>
+            <div class="text-field-outline-notch">
+              <div class="text-field-outline-leading"></div>
+              <div class="text-field-outline-trailing"></div>
+            </div>
+            <div class="text-field-outline-end"></div>
+          </div>
+        </div>
+
+        <div class="text-field-outlined">
+          <input
+            id="birthDate"
+            v-model="localStudent.birthDate"
+            type="date"
+            class="text-field-input-outlined"
+            placeholder=" "
+          />
+          <label for="birthDate" class="text-field-label-outlined">Date de naissance</label>
+          <div class="text-field-outline">
+            <div class="text-field-outline-start"></div>
+            <div class="text-field-outline-notch">
+              <div class="text-field-outline-leading"></div>
+              <div class="text-field-outline-trailing"></div>
+            </div>
+            <div class="text-field-outline-end"></div>
+          </div>
+        </div>
       </div>
     </ContentSection>
   </div>
@@ -233,5 +274,42 @@ watch(localStudent, (newValue) => {
 .text-field-outlined:hover:not(:focus-within) .text-field-outline-end,
 .text-field-outlined:hover:not(:focus-within) .text-field-outline-trailing {
   border-color: var(--md-sys-color-on-surface, #1d1b20);
+}
+
+/* Select Field Specific Styles */
+.text-field-input-outlined[type="date"] {
+  cursor: pointer;
+  color-scheme: light;
+}
+
+.text-field-input-outlined[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
+select.text-field-input-outlined {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%2349454f' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+select.text-field-input-outlined:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%236750a4' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+}
+
+.text-field-label-select {
+  top: 0 !important;
+  font-size: var(--md-sys-typescale-body-small-size, 12px) !important;
+  font-weight: var(--md-sys-typescale-body-small-weight, 400) !important;
+  line-height: var(--md-sys-typescale-body-small-line-height, 16px) !important;
+  color: var(--md-sys-color-on-surface-variant, #49454f) !important;
+  transform: translateY(-50%) !important;
+}
+
+select.text-field-input-outlined:focus ~ .text-field-label-select {
+  color: var(--md-sys-color-primary, #6750a4) !important;
 }
 </style>

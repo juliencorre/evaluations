@@ -88,12 +88,12 @@
               <span class="stat-label">{{ classStats[classItem.id]?.studentCount ?? '...' }} élèves</span>
             </span>
             <span class="stat-item">
+              <span class="material-symbols-outlined">school</span>
+              <span class="stat-label">{{ classStats[classItem.id]?.teacherCount ?? '...' }} enseignant{{ (classStats[classItem.id]?.teacherCount ?? 0) > 1 ? 's' : '' }}</span>
+            </span>
+            <span class="stat-item">
               <span class="material-symbols-outlined">assignment</span>
               <span class="stat-label">{{ classStats[classItem.id]?.evaluationCount ?? '...' }} évaluations</span>
-            </span>
-            <span v-if="classItem.schoolYear" class="stat-item">
-              <span class="material-symbols-outlined">calendar_today</span>
-              <span class="stat-label">{{ classItem.schoolYear }}</span>
             </span>
           </div>
         </div>
@@ -159,7 +159,7 @@ const showModal = ref(false)
 const showSearchDialog = ref(false)
 const selectedClassForEdit = ref<Class | null>(null)
 const isSubmittingModal = ref(false)
-const classStats = ref<Record<string, { studentCount: number; evaluationCount: number }>>({})
+const classStats = ref<Record<string, { studentCount: number; evaluationCount: number; teacherCount: number }>>({})
 
 // Computed
 const filteredClasses = computed(() => {
@@ -240,15 +240,21 @@ const loadClassStatistics = async () => {
       const evaluations = await classStore.getEvaluationsForClass(classItem.id)
       const evaluationCount = evaluations.length
 
+      // Get teacher count
+      const teachers = await classStore.getClassTeachers(classItem.id)
+      const teacherCount = teachers.length
+
       classStats.value[classItem.id] = {
         studentCount,
-        evaluationCount
+        evaluationCount,
+        teacherCount
       }
     } catch (error) {
       console.error(`Error loading stats for class ${classItem.id}:`, error)
       classStats.value[classItem.id] = {
         studentCount: 0,
-        evaluationCount: 0
+        evaluationCount: 0,
+        teacherCount: 0
       }
     }
   }

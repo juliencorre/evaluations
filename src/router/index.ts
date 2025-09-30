@@ -112,6 +112,17 @@ const router = createRouter({
       }
     },
     {
+      path: '/classes/:id/teachers',
+      name: ROUTE_NAMES.CLASS_TEACHERS,
+      component: () => import(/* webpackChunkName: "class-teachers" */ '../views/ClassTeachersView.vue'),
+      props: true,
+      meta: {
+        title: 'Enseignants de la classe',
+        description: 'Gérer les enseignants ayant accès à cette classe',
+        requiresAuth: true
+      }
+    },
+    {
       path: '/students',
       name: ROUTE_NAMES.STUDENTS,
       component: () => import(/* webpackChunkName: "students" */ '../views/StudentsView.vue'),

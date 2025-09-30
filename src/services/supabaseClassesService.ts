@@ -307,6 +307,97 @@ export class SupabaseClassesService {
       throw error
     }
   }
+
+  /**
+   * Get teachers for a specific class (using existing user_classes table)
+   */
+  async getClassTeachers(classId: string) {
+    try {
+      console.log('📚 Fetching teachers for class:', classId)
+
+      // First get the user_classes data
+      const { data: userClassesData, error: userClassesError } = await supabase
+        .from('user_classes')
+        .select(`
+          id,
+          class_id,
+          user_id,
+          role,
+          created_at
+        `)
+        .eq('class_id', classId)
+        .order('role')
+        .order('created_at')
+
+      console.log('📊 User classes result:', { userClassesData, userClassesError })
+
+      if (userClassesError) throw userClassesError
+
+      // Now fetch user details for each user_id
+      const teachers = await Promise.all((userClassesData || []).map(async (teacher) => {
+        // Get user metadata from auth.users via RPC or direct query
+        const { data: userData, error: userError } = await supabase
+          .rpc('get_user_email', { user_uuid: teacher.user_id })
+          .single()
+
+        console.log('👤 User data for', teacher.user_id, ':', { userData, userError })
+
+        return {
+          id: teacher.id,
+          classId: teacher.class_id,
+          userId: teacher.user_id,
+          role: teacher.role,
+          email: userData?.email || 'Email non disponible',
+          fullName: userData?.raw_user_meta_data?.full_name || userData?.raw_user_meta_data?.name || 'Nom non disponible',
+          createdAt: teacher.created_at,
+          updatedAt: teacher.created_at
+        }
+      }))
+
+      console.log('👥 Mapped teachers with user data:', teachers)
+      return teachers
+    } catch (error) {
+      console.error('Error fetching class teachers:', error)
+      // If RPC fails, try alternative approach
+      return this.getClassTeachersAlternative(classId)
+    }
+  }
+
+  /**
+   * Alternative method to get teachers if RPC is not available
+   */
+  private async getClassTeachersAlternative(classId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('user_classes')
+        .select(`
+          id,
+          class_id,
+          user_id,
+          role,
+          created_at
+        `)
+        .eq('class_id', classId)
+        .order('role')
+        .order('created_at')
+
+      if (error) throw error
+
+      return (data || []).map(teacher => ({
+        id: teacher.id,
+        classId: teacher.class_id,
+        userId: teacher.user_id,
+        role: teacher.role,
+        email: 'Email non disponible',
+        fullName: 'Nom non disponible',
+        createdAt: teacher.created_at,
+        updatedAt: teacher.created_at
+      }))
+    } catch (error) {
+      console.error('Error in alternative teacher fetch:', error)
+      return []
+    }
+  }
 }
 
 export const supabaseClassesService = new SupabaseClassesService()

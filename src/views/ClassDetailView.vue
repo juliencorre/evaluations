@@ -68,6 +68,19 @@
             </div>
             <span class="material-symbols-outlined">chevron_right</span>
           </div>
+
+          <div class="action-card" @click="navigateToTeachers">
+            <div class="action-icon">
+              <span class="material-symbols-outlined">school</span>
+            </div>
+            <div class="action-content">
+              <h3 class="action-title">Gérer les enseignant(e)s</h3>
+              <p class="action-description">
+                {{ teacherCount }} enseignant{{ teacherCount > 1 ? 's' : '' }} avec accès à cette classe
+              </p>
+            </div>
+            <span class="material-symbols-outlined">chevron_right</span>
+          </div>
         </div>
       </div>
     </main>
@@ -128,6 +141,7 @@ const showEditModal = ref(false)
 const isSubmittingModal = ref(false)
 const studentCount = ref(0)
 const evaluationCount = ref(0)
+const teacherCount = ref(0)
 const classStatistics = ref({
   total: 0,
   active: 0,
@@ -228,6 +242,12 @@ const loadClassData = async () => {
     // Load evaluation count using the new evaluation_classes system
     const evaluations = await evaluationStore.getEvaluationsForClass(props.id, currentSchoolYear.value?.id)
     evaluationCount.value = evaluations.length
+
+    // Load teacher count
+    console.log('🔍 Loading teachers for class:', props.id)
+    const teachers = await classStore.getClassTeachers(props.id)
+    console.log('👥 Teachers loaded:', teachers)
+    teacherCount.value = teachers.length
   } catch (error) {
     console.error('Error loading class data:', error)
   }
@@ -240,6 +260,10 @@ const navigateToStudents = () => {
 const navigateToEvaluations = () => {
   classStore.selectClass(props.id)
   router.push('/evaluations')
+}
+
+const navigateToTeachers = () => {
+  router.push(`/classes/${props.id}/teachers`)
 }
 
 // FAB Menu handler

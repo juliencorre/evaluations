@@ -3,6 +3,8 @@ export interface Student {
   firstName: string
   lastName: string
   displayName: string
+  gender?: 'M' | 'F' | 'Autre' | null
+  birthDate?: string | null  // Format ISO date string (YYYY-MM-DD)
 }
 
 export interface Class {
@@ -13,6 +15,17 @@ export interface Class {
   level?: string
   subject?: string
   active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ClassTeacher {
+  id: string
+  classId: string
+  userId: string
+  role: 'teacher' | 'owner' | 'assistant'
+  email?: string
+  fullName?: string
   createdAt: string
   updatedAt: string
 }

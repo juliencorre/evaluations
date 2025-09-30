@@ -191,14 +191,18 @@ const handleSaveStudent = async (student: Student) => {
       console.log('📝 Modification élève:', student.id)
       await studentsStore.updateStudent(student.id, {
         firstName: student.firstName,
-        lastName: student.lastName
+        lastName: student.lastName,
+        gender: student.gender,
+        birthDate: student.birthDate
       })
     } else {
       // Ajouter un nouvel élève
       console.log('➕ Ajout élève:', student.firstName, student.lastName)
       const newStudent = await studentsStore.addStudent({
         firstName: student.firstName,
-        lastName: student.lastName
+        lastName: student.lastName,
+        gender: student.gender,
+        birthDate: student.birthDate
       })
 
       console.log('✅ Élève ajouté:', newStudent)

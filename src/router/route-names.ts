@@ -9,6 +9,7 @@ export const ROUTE_NAMES = {
   CLASSES: 'classes',
   CLASS_DETAIL: 'class-detail',
   CLASS_STUDENTS: 'class-students',
+  CLASS_TEACHERS: 'class-teachers',
   STUDENTS: 'students',
   COMPETENCIES: 'competencies',
   TYPES: 'types',

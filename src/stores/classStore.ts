@@ -6,6 +6,7 @@ import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsServic
 import { supabaseStudentClassesService } from '@/services/supabaseStudentClassesService'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useAuthStore } from '@/stores/authStore'
+import { supabase } from '@/lib/supabase'
 
 export const useClassStore = defineStore('classes', () => {
   // State
@@ -339,6 +340,45 @@ export const useClassStore = defineStore('classes', () => {
       }
     },
     getEvaluationsForClass,
+
+    async getClassTeachers(classId: string) {
+      try {
+        return await supabaseClassesService.getClassTeachers(classId)
+      } catch (err) {
+        console.error('Error getting class teachers:', err)
+        return []
+      }
+    },
+
+    async addTeacherToClass(classId: string, email: string, role: string = 'teacher') {
+      try {
+        // First, find the user by email
+        const { data: userData, error: userError } = await supabase
+          .from('auth.users')
+          .select('id')
+          .eq('email', email)
+          .single()
+
+        if (userError || !userData) {
+          throw new Error('Utilisateur non trouvé avec cet email')
+        }
+
+        return await supabaseClassesService.addUserToClass(userData.id, classId, role)
+      } catch (err) {
+        console.error('Error adding teacher to class:', err)
+        throw err
+      }
+    },
+
+    async removeTeacherFromClass(classId: string, userId: string) {
+      try {
+        return await supabaseClassesService.removeUserFromClass(userId, classId)
+      } catch (err) {
+        console.error('Error removing teacher from class:', err)
+        throw err
+      }
+    },
+
     initialize
   }
 })

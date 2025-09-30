@@ -2,9 +2,27 @@
   <header class="search-app-bar" :class="{ 'search-app-bar--elevated': isScrolled }">
     <!-- Leading Logo -->
     <div class="search-app-bar__leading">
-      <button class="app-logo-button" aria-label="Accueil" @click="$emit('logo-click')">
-        <span class="material-symbols-outlined app-logo-icon">{{ logoIcon }}</span>
-      </button>
+      <slot name="leading">
+        <button
+          v-if="showBackButton"
+          class="back-button"
+          aria-label="Retour"
+          @click="$emit('back')"
+        >
+          <svg class="back-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+        </button>
+        <button
+          v-else
+          class="app-logo-button"
+          :aria-label="logoAriaLabel"
+          @click="$emit('logo-click')"
+        >
+          <span class="material-symbols-outlined app-logo-icon">{{ logoIcon }}</span>
+        </button>
+
+      </slot>
     </div>
 
     <!-- Center Search Field -->
@@ -41,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import UserMenu from './UserMenu.vue'
 import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 
@@ -50,9 +68,10 @@ interface Props {
   placeholder?: string
   ariaLabel?: string
   logoIcon?: string
+  logoAriaLabel?: string
   isScrolled?: boolean
+  showBackButton?: boolean
 }
-
 interface Emits {
   (e: 'update:search-value', value: string): void
   (e: 'clear-search'): void
@@ -60,12 +79,16 @@ interface Emits {
   (e: 'logout'): void
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Rechercher...',
   ariaLabel: 'Rechercher',
   logoIcon: 'school',
-  isScrolled: false
+  logoAriaLabel: 'Accueil',
+  isScrolled: false,
+  showBackButton: false
 })
+
+const { showBackButton, logoIcon, logoAriaLabel } = toRefs(props)
 
 defineEmits<Emits>()
 
@@ -374,4 +397,47 @@ const shouldDisplayUserMenu = computed(
     gap: 8px;
   }
 }
-</style>
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-spring);
+  position: relative;
+}
+
+.back-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-on-surface-variant);
+  opacity: 0;
+  transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.back-button:hover::before {
+  opacity: var(--md-icon-button-hover-state-layer-opacity);
+}
+
+.back-button:focus {
+  outline: none;
+}
+
+.back-button:focus::before {
+  opacity: var(--md-icon-button-focus-state-layer-opacity);
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}</style>
+

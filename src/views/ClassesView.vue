@@ -5,8 +5,9 @@
       title="Classes"
       :is-scrolled="isScrolled"
       :show-search="true"
-      :show-school-icon="true"
+      :show-back-button="true"
       :show-school-year-selector="true"
+      @back="navigateToWelcome"
       @search-click="handleSearchClick"
       @logout="handleLogout"
     />
@@ -215,6 +216,10 @@ const { logout } = useLogout()
 
 const handleLogout = async () => {
   await logout()
+}
+
+const navigateToWelcome = () => {
+  router.push('/welcome')
 }
 
 const handleSearchClick = () => {

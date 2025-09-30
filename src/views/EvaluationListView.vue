@@ -8,7 +8,8 @@
       title="Évaluations"
       :is-scrolled="isScrolled"
       :show-search="false"
-      :show-school-icon="true"
+      :show-back-button="true"
+      @back="navigateToWelcome"
       @user-menu-click="handleUserMenuClick"
       @logout="handleLogout"
     />
@@ -169,6 +170,10 @@ const openEvaluation = (evaluationId: string) => {
 }
 
 // Event handlers
+const navigateToWelcome = () => {
+  router.push('/welcome')
+}
+
 const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }

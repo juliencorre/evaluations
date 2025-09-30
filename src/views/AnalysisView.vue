@@ -5,7 +5,8 @@
       title="Analyses"
       :is-scrolled="isScrolled"
       :show-search="false"
-      :show-school-icon="true"
+      :show-back-button="true"
+      @back="navigateToWelcome"
       @user-menu-click="handleUserMenuClick"
       @logout="handleLogout"
     />
@@ -31,6 +32,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 // Components
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
@@ -42,6 +44,7 @@ import { useLogout } from '@/composables/useLogout'
 // Stores
 
 // State
+const router = useRouter()
 const activeView = ref('dashboard')
 const isScrolled = ref(false)
 
@@ -233,6 +236,10 @@ onUnmounted(() => {
 })
 
 // Event handlers
+const navigateToWelcome = () => {
+  router.push('/welcome')
+}
+
 const handleUserMenuClick = () => {
   console.log('User menu clicked')
 }

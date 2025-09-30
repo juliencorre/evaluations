@@ -60,7 +60,7 @@ onBeforeUnmount(() => {
 /* Large screens - Navigation Rail */
 @media (min-width: 840px) {
   #app {
-    padding-left: 80px; /* MD3 fixed rail width */
+    padding-left: 40px; /* MD3 fixed rail width */
     padding-bottom: 0;
     transition: padding-left var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
   }

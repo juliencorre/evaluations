@@ -5,14 +5,12 @@
       v-model:search-value="searchTerm"
       placeholder="Rechercher un élève..."
       aria-label="Rechercher un élève"
-      logo-icon="school"
       :is-scrolled="isScrolled"
+      :show-back-button="true"
       @clear-search="searchTerm = ''"
-      @logo-click="$router.push('/evaluations')"
+      @back="$router.push('/welcome')"
       @logout="handleLogout"
     />
-
-
     <main class="students-content" role="main">
       <h1 class="visually-hidden">Gestion des élèves</h1>
 
@@ -317,3 +315,5 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   }
 }
 </style>
+
+

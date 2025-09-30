@@ -2,7 +2,7 @@
   <div class="welcome-page">
     <!-- Center-aligned App Bar -->
     <CenterAppBar
-      title="Accueil"
+      title=""
       :is-scrolled="isScrolled"
       :show-search="false"
       :show-back-button="false"

@@ -270,7 +270,6 @@ export class SupabaseClassesService {
         .from('students')
         .select('*')
         .eq('class_id', classId)
-        .order('last_name')
         .order('first_name')
 
       if (error) throw error
@@ -335,22 +334,42 @@ export class SupabaseClassesService {
 
       // Now fetch user details for each user_id
       const teachers = await Promise.all((userClassesData || []).map(async (teacher) => {
-        // Get user metadata from auth.users via RPC or direct query
-        const { data: userData, error: userError } = await supabase
-          .rpc('get_user_email', { user_uuid: teacher.user_id })
-          .single()
+        try {
+          // Get user metadata from auth.users via RPC or direct query
+          const { data: userData, error: userError } = await supabase
+            .rpc('get_user_email', { user_uuid: teacher.user_id })
+            .single()
 
-        console.log('👤 User data for', teacher.user_id, ':', { userData, userError })
+          if (userError) {
+            console.warn('⚠️ Could not fetch user data for', teacher.user_id, ':', userError)
+            throw userError
+          }
 
-        return {
-          id: teacher.id,
-          classId: teacher.class_id,
-          userId: teacher.user_id,
-          role: teacher.role,
-          email: userData?.email || 'Email non disponible',
-          fullName: userData?.raw_user_meta_data?.full_name || userData?.raw_user_meta_data?.name || 'Nom non disponible',
-          createdAt: teacher.created_at,
-          updatedAt: teacher.created_at
+          console.log('👤 User data for', teacher.user_id, ':', { userData })
+
+          return {
+            id: teacher.id,
+            classId: teacher.class_id,
+            userId: teacher.user_id,
+            role: teacher.role,
+            email: userData?.email || 'Email non disponible',
+            fullName: userData?.raw_user_meta_data?.full_name || userData?.raw_user_meta_data?.name || 'Nom non disponible',
+            createdAt: teacher.created_at,
+            updatedAt: teacher.created_at
+          }
+        } catch (error) {
+          // Fallback if RPC fails for this user
+          console.warn('⚠️ Using fallback for teacher', teacher.user_id)
+          return {
+            id: teacher.id,
+            classId: teacher.class_id,
+            userId: teacher.user_id,
+            role: teacher.role,
+            email: 'Email non disponible',
+            fullName: 'Nom non disponible',
+            createdAt: teacher.created_at,
+            updatedAt: teacher.created_at
+          }
         }
       }))
 

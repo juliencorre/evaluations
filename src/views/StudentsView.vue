@@ -27,13 +27,21 @@
         </p>
       </div>
 
-      <!-- Students List -->
-      <StudentsList
-        v-else
-        :students="filteredStudents"
-        @edit-student="handleEditStudent"
-        @delete-student="handleDeleteStudent"
-      />
+      <!-- Students List with Filter Banner -->
+      <div v-else class="students-with-filters">
+        <StudentFilterBanner
+          :classes="classStore.classes"
+          v-model:gender-filter="genderFilter"
+          v-model:class-filter="classFilter"
+          v-model:age-range-filter="ageRangeFilter"
+          @clear-filters="clearFilters"
+        />
+        <StudentsList
+          :students="filteredStudents"
+          @edit-student="handleEditStudent"
+          @delete-student="handleDeleteStudent"
+        />
+      </div>
     </main>
 
     <!-- Menu FAB -->
@@ -55,11 +63,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import SearchAppBar from '@/components/common/SearchAppBar.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
 import StudentsList from '@/components/students/StudentsList.vue'
 import StudentModals from '@/components/students/StudentModals.vue'
+import StudentFilterBanner from '@/components/students/StudentFilterBanner.vue'
 import type { Student } from '../types/evaluation'
 import { useStudentsStore } from '../stores/studentsStore'
 import { useClassStore } from '@/stores/classStore'
@@ -79,6 +88,10 @@ const searchTerm = ref('')
 const isScrolled = ref(false)
 const isSaving = ref(false)
 const isDeleting = ref(false)
+const genderFilter = ref('')
+const classFilter = ref('')
+const ageRangeFilter = ref('')
+const studentsInSelectedClass = ref<string[]>([]) // IDs of students in selected class
 
 // Scroll handling
 const handleScroll = () => {
@@ -112,6 +125,19 @@ onMounted(async () => {
   }
 })
 
+// Helper function to calculate age from birthDate
+const calculateAge = (birthDate: string | null | undefined): number => {
+  if (!birthDate) return 0
+  const today = new Date()
+  const birth = new Date(birthDate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age
+}
+
 // Computed
 const filteredStudents = computed(() => {
   let students = studentsStore.allStudents.value
@@ -123,17 +149,51 @@ const filteredStudents = computed(() => {
     students = studentsStore.activeStudents.value
   }
 
-  if (!searchTerm.value) {
-    return students
+  // Apply search filter
+  if (searchTerm.value) {
+    const search = searchTerm.value.toLowerCase()
+    students = students.filter(
+      (student) =>
+        student.firstName.toLowerCase().includes(search) ||
+        student.lastName.toLowerCase().includes(search) ||
+        student.id.toLowerCase().includes(search)
+    )
   }
 
-  const search = searchTerm.value.toLowerCase()
-  return students.filter(
-    (student) =>
-      student.firstName.toLowerCase().includes(search) ||
-      student.lastName.toLowerCase().includes(search) ||
-      student.id.toLowerCase().includes(search)
-  )
+  // Apply gender filter
+  if (genderFilter.value) {
+    students = students.filter((student) => student.gender === genderFilter.value)
+  }
+
+  // Apply class filter
+  if (classFilter.value && studentsInSelectedClass.value.length > 0) {
+    students = students.filter((student) =>
+      studentsInSelectedClass.value.includes(student.id)
+    )
+  }
+
+  // Apply age range filter
+  if (ageRangeFilter.value) {
+    students = students.filter((student) => {
+      const age = calculateAge(student.birthDate)
+      if (!age) return false
+
+      switch (ageRangeFilter.value) {
+        case '6-8':
+          return age >= 6 && age <= 8
+        case '9-11':
+          return age >= 9 && age <= 11
+        case '12-14':
+          return age >= 12 && age <= 14
+        case '15+':
+          return age >= 15
+        default:
+          return true
+      }
+    })
+  }
+
+  return students
 })
 
 
@@ -234,6 +294,29 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   }
 }
 
+const clearFilters = () => {
+  genderFilter.value = ''
+  classFilter.value = ''
+  ageRangeFilter.value = ''
+  studentsInSelectedClass.value = []
+}
+
+// Watch for class filter changes and load students for selected class
+watch(classFilter, async (newClassId) => {
+  if (newClassId) {
+    try {
+      const students = await studentsStore.getStudentsForClass(newClassId)
+      studentsInSelectedClass.value = students.map(s => s.id)
+      console.log(`📋 Loaded ${studentsInSelectedClass.value.length} students for class ${newClassId}`)
+    } catch (error) {
+      console.error('Error loading students for class:', error)
+      studentsInSelectedClass.value = []
+    }
+  } else {
+    studentsInSelectedClass.value = []
+  }
+})
+
 </script>
 
 <style scoped>
@@ -304,6 +387,13 @@ const handleDeleteStudentConfirmed = async (student: Student) => {
   line-height: 1.5;
   max-width: 400px;
   margin: 0;
+}
+
+.students-with-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
 }
 
 @media (max-width: 768px) {

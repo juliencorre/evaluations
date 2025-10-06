@@ -466,12 +466,14 @@ export const supabaseEvaluationClassesService = {
             first_name,
             last_name,
             display_name,
+            gender,
+            birth_date,
             created_at,
             updated_at
           )
         `)
         .in('class_id', classIds)
-        .order('students(last_name)')
+        .order('students(first_name)')
 
       if (error) {
         console.error('❌ [SupabaseEvaluationClasses] Erreur lors de la récupération des élèves:', error)
@@ -490,6 +492,8 @@ export const supabaseEvaluationClassesService = {
               firstName: student.first_name,
               lastName: student.last_name,
               displayName: student.display_name,
+              gender: student.gender || null,
+              birthDate: student.birth_date || null,
               createdAt: student.created_at,
               updatedAt: student.updated_at
             })

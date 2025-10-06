@@ -18,7 +18,9 @@ export class SupabaseStudentsService {
       id: supabaseStudent.id,
       firstName: supabaseStudent.first_name,
       lastName: supabaseStudent.last_name,
-      displayName: supabaseStudent.display_name
+      displayName: supabaseStudent.display_name,
+      gender: supabaseStudent.gender || null,
+      birthDate: supabaseStudent.birth_date || null
     }
   }
 
@@ -37,7 +39,6 @@ export class SupabaseStudentsService {
       const { data, error } = await supabase
         .from('students')
         .select('*')
-        .order('last_name', { ascending: true })
         .order('first_name', { ascending: true })
 
       if (error) {
@@ -82,14 +83,21 @@ export class SupabaseStudentsService {
   /**
    * Crée un nouvel élève dans Supabase
    */
-  async createStudent(firstName: string, lastName: string): Promise<Student> {
+  async createStudent(
+    firstName: string,
+    lastName: string,
+    gender?: 'M' | 'F' | 'Autre' | null,
+    birthDate?: string | null
+  ): Promise<Student> {
     try {
       const displayName = this.generateDisplayName(firstName, lastName)
 
       const newStudent: SupabaseStudentInsert = {
         first_name: firstName,
         last_name: lastName,
-        display_name: displayName
+        display_name: displayName,
+        gender: gender || null,
+        birth_date: birthDate || null
       }
 
       const { data, error } = await supabase
@@ -117,7 +125,12 @@ export class SupabaseStudentsService {
   /**
    * Met à jour un élève existant
    */
-  async updateStudent(id: string, updates: { firstName?: string; lastName?: string }): Promise<Student | null> {
+  async updateStudent(id: string, updates: {
+    firstName?: string
+    lastName?: string
+    gender?: 'M' | 'F' | 'Autre' | null
+    birthDate?: string | null
+  }): Promise<Student | null> {
     try {
       const updateData: SupabaseStudentUpdate = {}
 
@@ -127,6 +140,14 @@ export class SupabaseStudentsService {
 
       if (updates.lastName !== undefined) {
         updateData.last_name = updates.lastName
+      }
+
+      if (updates.gender !== undefined) {
+        updateData.gender = updates.gender
+      }
+
+      if (updates.birthDate !== undefined) {
+        updateData.birth_date = updates.birthDate
       }
 
       // Si le nom ou prénom change, régénérer le displayName
@@ -196,7 +217,6 @@ export class SupabaseStudentsService {
         .from('students')
         .select('*')
         .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,display_name.ilike.%${searchTerm}%`)
-        .order('last_name', { ascending: true })
         .order('first_name', { ascending: true })
 
       if (error) {

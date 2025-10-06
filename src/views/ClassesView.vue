@@ -57,11 +57,15 @@
           v-for="classItem in filteredClasses"
           :key="classItem.id"
           class="class-card"
-          :class="{ 'active': classItem.id === classStore.selectedClassId }"
           @click="navigateToClassDetail(classItem)"
         >
           <div class="class-header">
-            <h3 class="class-name">{{ classItem.name }}</h3>
+            <div class="class-title-row">
+              <h3 class="class-name">{{ classItem.name }}</h3>
+              <span v-if="classItem.schoolYear" class="school-year-chip">
+                {{ classItem.schoolYear }}
+              </span>
+            </div>
             <div class="class-nav-indicator">
               <span class="material-symbols-outlined">chevron_right</span>
             </div>
@@ -71,11 +75,7 @@
             {{ classItem.description }}
           </p>
 
-          <div class="class-meta">
-            <span v-if="classItem.school_year" class="meta-item school-year">
-              <span class="material-symbols-outlined">calendar_month</span>
-              {{ classItem.school_year }}
-            </span>
+          <div v-if="classItem.level || classItem.subject" class="class-meta">
             <span v-if="classItem.level" class="meta-item">
               <span class="material-symbols-outlined">grade</span>
               {{ classItem.level }}
@@ -488,18 +488,43 @@ const handleClassJoined = async (classData: Class) => {
   margin-bottom: 12px;
 }
 
+.class-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  margin-right: 12px;
+}
+
 .class-name {
   font-size: 18px;
   font-weight: 600;
   color: var(--md-sys-color-on-surface);
   margin: 0;
   line-height: 1.3;
-  flex: 1;
-  margin-right: 12px;
 }
 
 .class-card.active .class-name {
   color: var(--md-sys-color-on-primary-container);
+}
+
+.school-year-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 12px;
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.class-card.active .school-year-chip {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
 .class-nav-indicator {
@@ -552,20 +577,9 @@ const handleClassJoined = async (classData: Class) => {
   border-radius: 8px;
 }
 
-.meta-item.school-year {
-  background: var(--md-sys-color-tertiary-container);
-  color: var(--md-sys-color-on-tertiary-container);
-  font-weight: 600;
-}
-
 .class-card.active .meta-item {
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
-}
-
-.class-card.active .meta-item.school-year {
-  background: var(--md-sys-color-secondary);
-  color: var(--md-sys-color-on-secondary);
 }
 
 .meta-item .material-symbols-outlined {

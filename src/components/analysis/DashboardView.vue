@@ -774,9 +774,23 @@ const loadFilteredData = async () => {
             evaluation_id: evaluation.id,
             include_details: true
           })
-          const hasMatchingYear = evalClassesData.some(ec =>
+
+          // Check by school_year_id first (primary approach)
+          let hasMatchingYear = evalClassesData.some(ec =>
             filters.value.yearIds.includes(ec.school_year_id || '')
           )
+
+          // Fallback: check by class.schoolYear name if no match found
+          if (!hasMatchingYear) {
+            const selectedYearNames = availableYears.value
+              .filter(y => filters.value.yearIds.includes(y.id))
+              .map(y => y.name)
+
+            hasMatchingYear = evalClassesData.some(ec =>
+              ec.class?.schoolYear && selectedYearNames.includes(ec.class.schoolYear)
+            )
+          }
+
           if (!hasMatchingYear) continue
         }
 
@@ -802,16 +816,26 @@ const loadFilteredData = async () => {
 
 onMounted(async () => {
   try {
-    // Load initial data
-    await classStore.loadClasses()
-    await schoolYearStore.ensureLoaded()
+    console.log('📊 [DashboardView] Starting initialization')
+
+    // Load initial data in parallel
+    await Promise.all([
+      classStore.loadClasses(),
+      schoolYearStore.ensureLoaded(),
+      studentsStore.refreshFromSupabase(),
+      evaluationStore.loadEvaluations()  // CRITICAL: Load evaluations first
+    ])
+
+    console.log('📊 [DashboardView] Stores loaded, evaluations count:', evaluationStore.allEvaluations.value.length)
 
     // Load result types
     resultTypes.value = await resultTypesService.getResultTypes()
     console.log('📊 [DashboardView] Result types loaded:', resultTypes.value.length)
 
-    // Load all evaluation results
+    // Load all evaluation results (depends on evaluations being loaded)
     await loadFilteredData()
+
+    console.log('📊 [DashboardView] Initialization complete')
   } catch (error) {
     console.error('Error loading dashboard data:', error)
   }

@@ -48,7 +48,12 @@ export const useStudentsStore = () => {
   }
 
   // Actions
-  const addStudent = async (studentData: { firstName: string; lastName: string }) => {
+  const addStudent = async (studentData: {
+    firstName: string
+    lastName: string
+    gender?: 'M' | 'F' | 'Autre' | null
+    birthDate?: string | null
+  }) => {
     // Si Supabase est désactivé, utiliser directement le local
     if (!useSupabase.value) {
       const newId = `STU${String(students.value.length + 1).padStart(3, '0')}`
@@ -66,7 +71,9 @@ export const useStudentsStore = () => {
     try {
       const newStudent = await supabaseStudentsService.createStudent(
         studentData.firstName,
-        studentData.lastName
+        studentData.lastName,
+        studentData.gender,
+        studentData.birthDate
       )
       students.value.push(newStudent)
       return newStudent
@@ -87,7 +94,12 @@ export const useStudentsStore = () => {
     }
   }
 
-  const updateStudent = async (studentId: string, updates: { firstName?: string; lastName?: string }) => {
+  const updateStudent = async (studentId: string, updates: {
+    firstName?: string
+    lastName?: string
+    gender?: 'M' | 'F' | 'Autre' | null
+    birthDate?: string | null
+  }) => {
     // Si Supabase est désactivé, utiliser directement le local
     if (!useSupabase.value) {
       const index = students.value.findIndex((s) => s.id === studentId)

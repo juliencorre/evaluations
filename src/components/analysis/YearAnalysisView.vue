@@ -395,11 +395,29 @@ const loadYearData = async () => {
 
     // Load evaluations and results for each year
     for (const year of yearsToLoad) {
-      // Get evaluation_classes for this year
-      const evaluationClasses = await supabaseEvaluationClassesService.getEvaluationClasses({
+      // Try primary approach: Get evaluation_classes by school_year_id
+      let evaluationClasses = await supabaseEvaluationClassesService.getEvaluationClasses({
         school_year_id: year.id,
         include_details: true
       })
+
+      // Fallback approach: If no results found with school_year_id,
+      // try to find evaluation_classes by matching the class's school_year field
+      if (evaluationClasses.length === 0) {
+        console.log(`⚠️ [YearAnalysisView] No evaluation_classes found with school_year_id for ${year.name}, trying fallback approach`)
+
+        // Get ALL evaluation_classes with details
+        const allEvaluationClasses = await supabaseEvaluationClassesService.getEvaluationClasses({
+          include_details: true
+        })
+
+        // Filter by class.schoolYear matching the year name
+        evaluationClasses = allEvaluationClasses.filter(ec => {
+          return ec.class?.schoolYear === year.name
+        })
+
+        console.log(`✅ [YearAnalysisView] Fallback approach found ${evaluationClasses.length} evaluation_classes for ${year.name}`)
+      }
 
       // Filter by classes if needed
       const filteredEvaluationClasses = hasClassFilter

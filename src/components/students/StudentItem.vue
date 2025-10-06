@@ -1,7 +1,7 @@
 <template>
   <div class="student-item" role="listitem">
     <div class="student-content">
-      <div class="student-avatar" aria-hidden="true">
+      <div class="student-avatar" :class="avatarClass" aria-hidden="true">
         <span class="material-symbols-outlined">person</span>
       </div>
       <div class="student-details">
@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Student } from '@/types/evaluation'
 
 interface Props {
@@ -38,8 +39,22 @@ interface Emits {
   (e: 'delete', student: Student): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<Emits>()
+
+// Compute avatar class based on gender
+const avatarClass = computed(() => {
+  if (!props.student.gender) {
+    return 'avatar-neutral'
+  }
+  if (props.student.gender === 'M') {
+    return 'avatar-male'
+  }
+  if (props.student.gender === 'F') {
+    return 'avatar-female'
+  }
+  return 'avatar-neutral'
+})
 </script>
 
 <style scoped>
@@ -92,15 +107,40 @@ defineEmits<Emits>()
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--md-sys-color-primary-container, #eaddff);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.student-avatar .material-symbols-outlined {
-  color: var(--md-sys-color-on-primary-container, #21005d);
+/* Neutral (no gender or other) - Grey */
+.student-avatar.avatar-neutral {
+  background: #e0e0e0;
+}
+
+.student-avatar.avatar-neutral .material-symbols-outlined {
+  color: #616161;
+  font-size: 24px;
+}
+
+/* Male - Blue */
+.student-avatar.avatar-male {
+  background: #bbdefb;
+}
+
+.student-avatar.avatar-male .material-symbols-outlined {
+  color: #1565c0;
+  font-size: 24px;
+}
+
+/* Female - Green */
+.student-avatar.avatar-female {
+  background: #c8e6c9;
+}
+
+.student-avatar.avatar-female .material-symbols-outlined {
+  color: #2e7d32;
   font-size: 24px;
 }
 

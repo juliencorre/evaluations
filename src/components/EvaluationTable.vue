@@ -1,5 +1,132 @@
 <template>
   <div class="evaluation-wrapper">
+    <!-- Filters Panel -->
+    <div class="filters-panel" :class="{ 'collapsed': !filtersExpanded }">
+      <div class="filters-header" @click="toggleFilters">
+        <div class="filters-title">
+          <span class="material-symbols-outlined">filter_list</span>
+          <span>Filtres</span>
+          <span v-if="activeFiltersCount > 0" class="filters-count">{{ activeFiltersCount }}</span>
+        </div>
+        <button class="toggle-button" :aria-label="filtersExpanded ? 'Masquer les filtres' : 'Afficher les filtres'">
+          <span class="material-symbols-outlined">{{ filtersExpanded ? 'expand_less' : 'expand_more' }}</span>
+        </button>
+      </div>
+
+      <div v-show="filtersExpanded" class="filters-content">
+        <!-- Genre Filter -->
+        <div class="filter-group">
+          <label class="filter-label">Genre des élèves</label>
+          <div class="filter-chips">
+            <button
+              class="filter-chip"
+              :class="{ 'active': genderFilter === 'all' }"
+              @click="genderFilter = 'all'"
+            >
+              <span class="material-symbols-outlined">person</span>
+              <span>Tous</span>
+            </button>
+            <button
+              class="filter-chip chip-male"
+              :class="{ 'active': genderFilter === 'M' }"
+              @click="genderFilter = 'M'"
+            >
+              <span class="material-symbols-outlined">male</span>
+              <span>Garçons</span>
+            </button>
+            <button
+              class="filter-chip chip-female"
+              :class="{ 'active': genderFilter === 'F' }"
+              @click="genderFilter = 'F'"
+            >
+              <span class="material-symbols-outlined">female</span>
+              <span>Filles</span>
+            </button>
+            <button
+              class="filter-chip chip-neutral"
+              :class="{ 'active': genderFilter === 'unspecified' }"
+              @click="genderFilter = 'unspecified'"
+            >
+              <span class="material-symbols-outlined">help</span>
+              <span>Non spécifié</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Domain Filter -->
+        <div class="filter-group">
+          <label class="filter-label">Domaines</label>
+          <div class="filter-chips">
+            <button
+              class="filter-chip"
+              :class="{ 'active': selectedDomains.length === 0 }"
+              @click="clearDomainFilter"
+            >
+              <span class="material-symbols-outlined">select_all</span>
+              <span>Tous</span>
+            </button>
+            <button
+              v-for="domain in availableDomains"
+              :key="domain.id"
+              class="filter-chip"
+              :class="{ 'active': selectedDomains.includes(domain.id) }"
+              @click="toggleDomain(domain.id)"
+            >
+              <span>{{ domain.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Field Filter -->
+        <div class="filter-group">
+          <label class="filter-label">Champs</label>
+          <div class="filter-chips">
+            <button
+              class="filter-chip"
+              :class="{ 'active': selectedFields.length === 0 }"
+              @click="clearFieldFilter"
+            >
+              <span class="material-symbols-outlined">select_all</span>
+              <span>Tous</span>
+            </button>
+            <button
+              v-for="field in availableFields"
+              :key="field.id"
+              class="filter-chip"
+              :class="{ 'active': selectedFields.includes(field.id) }"
+              @click="toggleField(field.id)"
+            >
+              <span>{{ field.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Competency Filter -->
+        <div class="filter-group">
+          <label class="filter-label">Compétences</label>
+          <div class="filter-chips">
+            <button
+              class="filter-chip"
+              :class="{ 'active': selectedCompetencies.length === 0 }"
+              @click="clearCompetencyFilter"
+            >
+              <span class="material-symbols-outlined">select_all</span>
+              <span>Toutes</span>
+            </button>
+            <button
+              v-for="competency in availableCompetencies"
+              :key="competency.id"
+              class="filter-chip"
+              :class="{ 'active': selectedCompetencies.includes(competency.id) }"
+              @click="toggleCompetency(competency.id)"
+            >
+              <span>{{ competency.name }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Navigation controls -->
     <div class="table-navigation">
       <div class="nav-controls">
@@ -54,9 +181,10 @@
                 </div>
               </th>
               <th
-                v-for="student in students"
+                v-for="student in filteredStudents"
                 :key="student.id"
                 class="student-header"
+                :class="getStudentHeaderClass(student)"
                 :title="`${student.firstName} ${student.lastName}`"
               >
                 <div class="student-name">
@@ -97,7 +225,7 @@
 
               <!-- Student result cells -->
               <td
-                v-for="student in students"
+                v-for="student in filteredStudents"
                 :key="`${node.id}-${student.id}`"
                 :ref="(el) => setCellRef(el, node.id, student.id)"
                 class="result-cell"
@@ -167,6 +295,13 @@ const props = defineProps<Props>()
 
 const competencyTree = ref<TreeNode[]>([])
 
+// Filters state
+const filtersExpanded = ref(true)
+const genderFilter = ref<'all' | 'M' | 'F' | 'unspecified'>('all')
+const selectedDomains = ref<string[]>([])
+const selectedFields = ref<string[]>([])
+const selectedCompetencies = ref<string[]>([])
+
 // Inline editing state
 const editingCell = ref<{ competencyId: string; studentId: string } | null>(null)
 const editingValue = ref<string>('')
@@ -186,6 +321,105 @@ const tableContainer = ref<HTMLElement>()
 const scrollPosition = ref(0)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
+
+// Filtered students based on gender filter
+const filteredStudents = computed(() => {
+  if (genderFilter.value === 'all') {
+    return props.students
+  }
+
+  if (genderFilter.value === 'unspecified') {
+    return props.students.filter(student => !student.gender || student.gender === 'Autre')
+  }
+
+  return props.students.filter(student => student.gender === genderFilter.value)
+})
+
+// Available domains from framework
+const availableDomains = computed(() => {
+  return props.framework.domains || []
+})
+
+// Available fields (from all domains)
+const availableFields = computed(() => {
+  const fields: any[] = []
+  props.framework.domains?.forEach(domain => {
+    if (domain.fields) {
+      fields.push(...domain.fields)
+    }
+  })
+  return fields
+})
+
+// Available competencies (from all fields)
+const availableCompetencies = computed(() => {
+  const competencies: any[] = []
+  props.framework.domains?.forEach(domain => {
+    domain.fields?.forEach(field => {
+      if (field.competencies) {
+        competencies.push(...field.competencies)
+      }
+    })
+  })
+  return competencies
+})
+
+// Active filters count
+const activeFiltersCount = computed(() => {
+  let count = 0
+  if (genderFilter.value !== 'all') count++
+  if (selectedDomains.value.length > 0) count++
+  if (selectedFields.value.length > 0) count++
+  if (selectedCompetencies.value.length > 0) count++
+  return count
+})
+
+// Toggle filters panel
+function toggleFilters() {
+  filtersExpanded.value = !filtersExpanded.value
+}
+
+// Domain filter functions
+function toggleDomain(domainId: string) {
+  const index = selectedDomains.value.indexOf(domainId)
+  if (index > -1) {
+    selectedDomains.value.splice(index, 1)
+  } else {
+    selectedDomains.value.push(domainId)
+  }
+}
+
+function clearDomainFilter() {
+  selectedDomains.value = []
+}
+
+// Field filter functions
+function toggleField(fieldId: string) {
+  const index = selectedFields.value.indexOf(fieldId)
+  if (index > -1) {
+    selectedFields.value.splice(index, 1)
+  } else {
+    selectedFields.value.push(fieldId)
+  }
+}
+
+function clearFieldFilter() {
+  selectedFields.value = []
+}
+
+// Competency filter functions
+function toggleCompetency(competencyId: string) {
+  const index = selectedCompetencies.value.indexOf(competencyId)
+  if (index > -1) {
+    selectedCompetencies.value.splice(index, 1)
+  } else {
+    selectedCompetencies.value.push(competencyId)
+  }
+}
+
+function clearCompetencyFilter() {
+  selectedCompetencies.value = []
+}
 
 // Initialize the tree
 competencyTree.value = buildCompetencyTree(props.framework)
@@ -255,9 +489,43 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-// Computed for tree without filtering
+// Computed for tree with filtering
 const filteredTree = computed(() => {
-  return competencyTree.value
+  // If no filters are applied, return the whole tree
+  if (selectedDomains.value.length === 0 &&
+      selectedFields.value.length === 0 &&
+      selectedCompetencies.value.length === 0) {
+    return competencyTree.value
+  }
+
+  // Filter the tree based on hierarchyData since the tree is flat
+  return competencyTree.value.filter(node => {
+    // Check domain filter - match by domain name in hierarchyData
+    if (selectedDomains.value.length > 0) {
+      const domainMatch = availableDomains.value.find(d =>
+        selectedDomains.value.includes(d.id) && d.name === node.hierarchyData?.domain
+      )
+      if (!domainMatch) return false
+    }
+
+    // Check field filter - match by field name in hierarchyData
+    if (selectedFields.value.length > 0) {
+      const fieldMatch = availableFields.value.find(f =>
+        selectedFields.value.includes(f.id) && f.name === node.hierarchyData?.field
+      )
+      if (!fieldMatch) return false
+    }
+
+    // Check competency filter - match by competency name in hierarchyData
+    if (selectedCompetencies.value.length > 0) {
+      const competencyMatch = availableCompetencies.value.find(c =>
+        selectedCompetencies.value.includes(c.id) && c.name === node.hierarchyData?.competency
+      )
+      if (!competencyMatch) return false
+    }
+
+    return true
+  })
 })
 
 // Computed for flattened visible nodes
@@ -267,6 +535,20 @@ const visibleNodes = computed(() => {
 
 
 // Column visibility functions removed (columns are now always visible)
+
+// Get student header class based on gender
+function getStudentHeaderClass(student: Student): string {
+  if (!student.gender) {
+    return 'student-header-neutral'
+  }
+  if (student.gender === 'M') {
+    return 'student-header-male'
+  }
+  if (student.gender === 'F') {
+    return 'student-header-female'
+  }
+  return 'student-header-neutral'
+}
 
 function getStudentResult(competencyId: string, studentId: string): EvaluationResult | undefined {
   // Try to get from the store first, fallback to props for compatibility
@@ -525,6 +807,169 @@ function cancelEditing() {
   height: 100vh;
 }
 
+/* Filters Panel Styles */
+.filters-panel {
+  background: var(--md-sys-color-surface-container-low, #f7f2fa);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #c4c6d0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.filters-panel.collapsed .filters-content {
+  display: none;
+}
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.filters-header:hover {
+  background: var(--md-sys-color-surface-container, #ece6f0);
+}
+
+.filters-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--md-sys-typescale-title-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-medium-size, 16px);
+  font-weight: var(--md-sys-typescale-title-medium-weight, 500);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+}
+
+.filters-title .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--md-sys-color-primary, #6750a4);
+}
+
+.filters-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #ffffff);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-button:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+}
+
+.toggle-button .material-symbols-outlined {
+  font-size: 24px;
+}
+
+.filters-content {
+  padding: 0 16px 16px 16px;
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-label {
+  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-medium-size, 14px);
+  font-weight: var(--md-sys-typescale-body-medium-weight, 500);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  height: 36px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-radius: 18px;
+  background: var(--md-sys-color-surface, #ffffff);
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  font-family: var(--md-sys-typescale-label-large-font, 'Roboto');
+  font-size: var(--md-sys-typescale-label-large-size, 14px);
+  font-weight: var(--md-sys-typescale-label-large-weight, 500);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.filter-chip .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.filter-chip:hover {
+  background: var(--md-sys-color-surface-container-high, #ece6f0);
+  border-color: var(--md-sys-color-on-surface, #1d1b20);
+}
+
+.filter-chip.active {
+  background: var(--md-sys-color-secondary-container, #e8def8);
+  border-color: var(--md-sys-color-secondary, #625b71);
+  color: var(--md-sys-color-on-secondary-container, #1d192b);
+}
+
+.filter-chip.chip-male.active {
+  background: #bbdefb;
+  border-color: #1565c0;
+  color: #1565c0;
+}
+
+.filter-chip.chip-female.active {
+  background: #c8e6c9;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.filter-chip.chip-neutral.active {
+  background: #e0e0e0;
+  border-color: #616161;
+  color: #616161;
+}
+
 /* Table navigation styles */
 .table-navigation {
   background: var(--md-sys-color-surface-container);
@@ -707,6 +1152,31 @@ function cancelEditing() {
   min-width: 60px;
   text-align: center;
   color: var(--md-sys-color-on-surface);
+}
+
+/* Student header colors based on gender */
+.student-header.student-header-neutral {
+  background: #e0e0e0 !important;
+}
+
+.student-header.student-header-neutral .student-display-name {
+  color: #616161;
+}
+
+.student-header.student-header-male {
+  background: #bbdefb !important;
+}
+
+.student-header.student-header-male .student-display-name {
+  color: #1565c0;
+}
+
+.student-header.student-header-female {
+  background: #c8e6c9 !important;
+}
+
+.student-header.student-header-female .student-display-name {
+  color: #2e7d32;
 }
 
 .student-name {

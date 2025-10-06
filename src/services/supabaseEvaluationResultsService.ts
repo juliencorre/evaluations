@@ -361,6 +361,58 @@ export class SupabaseEvaluationResultsService {
   }
 
   /**
+   * Supprime tous les résultats d'un élève pour les évaluations d'une classe spécifique
+   */
+  async deleteStudentResultsForClass(studentId: string, classId: string): Promise<number> {
+    console.log('🗑️ [SupabaseResult] Suppression des résultats de l\'élève pour la classe:', {
+      studentId,
+      classId
+    })
+
+    try {
+      // First, get all evaluation IDs for this class
+      const { data: evaluationClasses, error: evalClassError } = await supabase
+        .from('evaluation_classes')
+        .select('evaluation_id')
+        .eq('class_id', classId)
+
+      if (evalClassError) {
+        console.error('❌ [SupabaseResult] Erreur récupération évaluations de la classe:', evalClassError)
+        throw evalClassError
+      }
+
+      const evaluationIds = (evaluationClasses || []).map(ec => ec.evaluation_id)
+
+      if (evaluationIds.length === 0) {
+        console.log('ℹ️ [SupabaseResult] Aucune évaluation trouvée pour cette classe')
+        return 0
+      }
+
+      console.log(`📋 [SupabaseResult] ${evaluationIds.length} évaluation(s) trouvée(s) pour la classe`)
+
+      // Delete all results for this student in these evaluations
+      const { error, count } = await supabase
+        .from('evaluation_results')
+        .delete({ count: 'exact' })
+        .eq('student_id', studentId)
+        .in('evaluation_id', evaluationIds)
+
+      if (error) {
+        console.error('❌ [SupabaseResult] Erreur suppression résultats:', error)
+        throw error
+      }
+
+      const deletedCount = count || 0
+      console.log(`✅ [SupabaseResult] ${deletedCount} résultat(s) supprimé(s) avec succès`)
+      return deletedCount
+
+    } catch (error) {
+      console.error('💥 [SupabaseResult] Erreur lors de la suppression des résultats:', error)
+      throw error
+    }
+  }
+
+  /**
    * Sauvegarde en lot de plusieurs résultats
    */
   async bulkSaveResults(

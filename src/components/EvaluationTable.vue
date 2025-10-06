@@ -296,7 +296,7 @@ const props = defineProps<Props>()
 const competencyTree = ref<TreeNode[]>([])
 
 // Filters state
-const filtersExpanded = ref(true)
+const filtersExpanded = ref(false)
 const genderFilter = ref<'all' | 'M' | 'F' | 'unspecified'>('all')
 const selectedDomains = ref<string[]>([])
 const selectedFields = ref<string[]>([])

@@ -166,6 +166,7 @@ import { useStudentsStore } from '@/stores/studentsStore'
 import { useClassStore } from '@/stores/classStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useLogout } from '@/composables/useLogout'
+import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import type { Student } from '@/types/evaluation'
 
@@ -322,6 +323,16 @@ const handleRemoveStudent = async (student: Student) => {
       throw new Error('Aucune année scolaire sélectionnée')
     }
 
+    console.log(`🗑️ Retrait de l'élève ${student.firstName} ${student.lastName} de la classe`)
+
+    // 1. Delete all evaluation results for this student in this class
+    const deletedCount = await supabaseEvaluationResultsService.deleteStudentResultsForClass(
+      student.id,
+      classId.value
+    )
+    console.log(`✅ ${deletedCount} résultat(s) d'évaluation supprimé(s)`)
+
+    // 2. Unenroll student from class
     await studentsStore.unenrollStudentFromClass(
       student.id,
       classId.value,
@@ -329,7 +340,7 @@ const handleRemoveStudent = async (student: Student) => {
       currentSchoolYear.id
     )
 
-    // Reload enrolled students
+    // 3. Reload enrolled students
     await loadEnrolledStudents()
 
     console.log(`✅ Élève ${student.firstName} ${student.lastName} retiré de la classe`)

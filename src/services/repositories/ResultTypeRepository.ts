@@ -5,8 +5,8 @@
 
 import { BaseRepository } from './BaseRepository'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
-import type { Json } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
+import type { Json } from '@/types/database.types'
 import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/result.types'
 import type { CreateResultTypeDTO, UpdateResultTypeDTO } from '@/types/dtos'
 

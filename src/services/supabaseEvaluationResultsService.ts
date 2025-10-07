@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { supabase } from '@/lib/supabase'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 import type { Evaluation, EvaluationResult, EvaluationValue, EvaluationLevel } from '@/types/evaluation'
 
 type SupabaseEvaluation = Database['public']['Tables']['evaluations']['Row']

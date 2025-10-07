@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { supabase } from '@/lib/supabase'
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 
 export interface SchoolYear {
   id: string

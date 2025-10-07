@@ -5,7 +5,7 @@
 
 import { BaseRepository } from './BaseRepository'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 import type { Domain, Field, Competency, SpecificCompetency, CompetencyFramework } from '@/types/competency.types'
 import type {
   CreateDomainDTO,
@@ -21,7 +21,6 @@ import type {
 type SupabaseDomain = Database['public']['Tables']['domains']['Row']
 type SupabaseField = Database['public']['Tables']['fields']['Row']
 type SupabaseCompetency = Database['public']['Tables']['competencies']['Row']
-type SupabaseSpecificCompetency = Database['public']['Tables']['specific_competencies']['Row']
 type SupabaseFramework = Database['public']['Tables']['competency_frameworks']['Row']
 
 export class CompetencyRepository extends BaseRepository {
@@ -352,7 +351,7 @@ export class CompetencyRepository extends BaseRepository {
           competency_id: dto.competencyId,
           name: dto.name,
           description: dto.description,
-          result_type_config_id: dto.resultTypeConfigId,
+          result_type_config_id: dto.resultTypeConfigId || '',
           order_index: count || 0
         })
         .select()
@@ -421,7 +420,7 @@ export class CompetencyRepository extends BaseRepository {
     return {
       id: row.id,
       name: row.name,
-      version: row.version,
+      version: row.version || '1.0',
       domains: []
     }
   }

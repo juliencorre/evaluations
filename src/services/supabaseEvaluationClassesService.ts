@@ -2,7 +2,7 @@
 import { supabase } from '@/lib/supabase'
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Class } from '@/types/evaluation'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 
 export interface EvaluationClass {
   id: string

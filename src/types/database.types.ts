@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      classes: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          school_year: string
+          level: string | null
+          subject: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          school_year?: string
+          level?: string | null
+          subject?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          school_year?: string
+          level?: string | null
+          subject?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       competencies: {
         Row: {
           created_at: string | null
@@ -328,28 +364,61 @@ export type Database = {
       }
       students: {
         Row: {
-          created_at: string | null
-          display_name: string
-          first_name: string
           id: string
+          first_name: string
           last_name: string
-          updated_at: string | null
+          display_name: string
+          gender: 'M' | 'F' | 'Autre' | null
+          birth_date: string | null
+          class_id: string | null
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          display_name: string
-          first_name: string
           id?: string
+          first_name: string
           last_name: string
-          updated_at?: string | null
+          display_name: string
+          gender?: 'M' | 'F' | 'Autre' | null
+          birth_date?: string | null
+          class_id?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          display_name?: string
-          first_name?: string
           id?: string
+          first_name?: string
           last_name?: string
-          updated_at?: string | null
+          display_name?: string
+          gender?: 'M' | 'F' | 'Autre' | null
+          birth_date?: string | null
+          class_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_classes: {
+        Row: {
+          id: string
+          user_id: string
+          class_id: string
+          role: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          class_id: string
+          role?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          class_id?: string
+          role?: string
+          created_at?: string
         }
         Relationships: []
       }
@@ -366,6 +435,35 @@ export type Database = {
           allowed: boolean
           message: string
         }
+      }
+      get_searchable_classes: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          name: string
+          description: string | null
+          school_year: string
+          level: string | null
+          subject: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      get_class_members: {
+        Args: {
+          p_class_id: string
+        }
+        Returns: {
+          id: string
+          class_id: string
+          user_id: string
+          role: 'teacher' | 'owner' | 'assistant'
+          email: string
+          full_name: string
+          created_at: string
+          updated_at: string
+        }[]
       }
     }
     Enums: {

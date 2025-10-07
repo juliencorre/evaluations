@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { ResultTypeConfig, ResultTypeConfigValue } from '@/types/evaluation'
-import type { Json } from '@/types/supabase'
+import type { Json } from '@/types/database.types'
 
 export class SupabaseResultTypesService {
   private validatePivotValues(values: ResultTypeConfigValue[]) {

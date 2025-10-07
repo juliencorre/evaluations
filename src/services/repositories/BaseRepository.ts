@@ -9,7 +9,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 
 export abstract class BaseRepository {
   protected readonly supabase: SupabaseClient<Database>

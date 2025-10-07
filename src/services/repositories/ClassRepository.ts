@@ -1,14 +1,18 @@
-// @ts-nocheck
 /**
  * Class Repository
  * Phase 4.3: Services Layer - Repository Pattern
  */
 
 import { BaseRepository } from './BaseRepository'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database.types'
 import type { Class, ClassTeacher } from '@/types/student.types'
 import type { CreateClassDTO, UpdateClassDTO, AddUserToClassDTO } from '@/types/dtos'
 
 export class ClassRepository extends BaseRepository {
+  constructor(supabase: SupabaseClient<Database>) {
+    super(supabase, 'Class')
+  }
   /**
    * Map database row to domain model
    */
@@ -272,7 +276,7 @@ export class ClassRepository extends BaseRepository {
         id: teacher.id,
         classId: teacher.class_id,
         userId: teacher.user_id,
-        role: teacher.role,
+        role: teacher.role as 'teacher' | 'owner' | 'assistant',
         email: 'Email non disponible',
         fullName: 'Nom non disponible',
         createdAt: teacher.created_at,

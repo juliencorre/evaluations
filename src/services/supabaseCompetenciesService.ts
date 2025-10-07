@@ -1,7 +1,7 @@
  
 // @ts-nocheck
 import { supabase } from '@/lib/supabase'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 import type { Domain, Field, Competency, SpecificCompetency, CompetencyFramework } from '@/types/evaluation'
 
 // Types Supabase pour faciliter l'utilisation

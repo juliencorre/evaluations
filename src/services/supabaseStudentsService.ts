@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 import type { Student } from '../types/evaluation'
-import type { Database } from '../types/supabase'
+import type { Database } from '../types/database.types'
 
 type SupabaseStudent = Database['public']['Tables']['students']['Row']
 type SupabaseStudentInsert = Database['public']['Tables']['students']['Insert']

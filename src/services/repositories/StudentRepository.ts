@@ -5,7 +5,7 @@
 
 import { BaseRepository } from './BaseRepository'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import type { Database } from '@/types/database.types'
 import type { Student } from '@/types/student.types'
 import type { CreateStudentDTO, UpdateStudentDTO, BulkImportStudentDTO } from '@/types/dtos'
 

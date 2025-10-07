@@ -17,7 +17,8 @@
       "Bash(timeout 5 npx claude-flow@alpha mcp start)",
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run lint)"
     ],
     "deny": []
   }

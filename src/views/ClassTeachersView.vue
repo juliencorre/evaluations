@@ -41,8 +41,8 @@
             <button
               v-if="teacher.role !== 'owner'"
               class="action-btn delete-btn"
-              @click="handleRemoveTeacher(teacher)"
               aria-label="Retirer l'enseignant"
+              @click="handleRemoveTeacher(teacher)"
             >
               <span class="material-symbols-outlined">person_remove</span>
             </button>

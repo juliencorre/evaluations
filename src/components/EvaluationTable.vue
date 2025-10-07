@@ -342,7 +342,7 @@ const availableDomains = computed(() => {
 
 // Available fields (from all domains)
 const availableFields = computed(() => {
-  const fields: any[] = []
+  const fields: Array<{ id: string; name: string }> = []
   props.framework.domains?.forEach(domain => {
     if (domain.fields) {
       fields.push(...domain.fields)
@@ -353,7 +353,7 @@ const availableFields = computed(() => {
 
 // Available competencies (from all fields)
 const availableCompetencies = computed(() => {
-  const competencies: any[] = []
+  const competencies: Array<{ id: string; name: string }> = []
   props.framework.domains?.forEach(domain => {
     domain.fields?.forEach(field => {
       if (field.competencies) {

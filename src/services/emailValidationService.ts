@@ -18,7 +18,7 @@ export const emailValidationService = {
       const normalizedEmail = email.toLowerCase().trim()
 
       // Appeler la fonction RPC Supabase
-      const { data, error } = await (supabase as any).rpc('validate_email_registration', {
+      const { data, error } = await supabase.rpc('validate_email_registration', {
         email_to_validate: normalizedEmail
       })
 

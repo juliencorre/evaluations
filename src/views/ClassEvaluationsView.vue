@@ -119,7 +119,7 @@ const props = defineProps<{
 
 const router = useRouter()
 const competenciesStore = useCompetencyFrameworkStore()
-const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
+const { framework, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
 const schoolYearStore = useSchoolYearStore()
@@ -127,12 +127,24 @@ const classStore = useClassStore()
 
 // State
 const isLoading = ref(true)
+interface EvaluationItem {
+  id: string
+  name: string
+  description?: string
+  created_at: string
+}
+
+interface ClassData {
+  id: string
+  name: string
+}
+
 const isScrolled = ref(false)
 const showModal = ref(false)
 const isEditMode = ref(false)
 const isSaving = ref(false)
-const evaluations = ref<any[]>([])
-const classData = ref<any>(null)
+const evaluations = ref<EvaluationItem[]>([])
+const classData = ref<ClassData | null>(null)
 
 // Form data
 const currentEvaluationForm = ref({
@@ -219,7 +231,7 @@ const closeModal = () => {
   isEditMode.value = false
 }
 
-const saveEvaluation = async (evaluationData: any) => {
+const saveEvaluation = async (evaluationData: { name: string; description: string; frameworkId: string }) => {
   isSaving.value = true
   try {
     // Create evaluation with this class
@@ -248,7 +260,7 @@ const saveEvaluation = async (evaluationData: any) => {
   }
 }
 
-const handleMenuItemClick = (menuItem: any) => {
+const handleMenuItemClick = (menuItem: { id: string }) => {
   if (menuItem.id === 'add') {
     openAddModal()
   }

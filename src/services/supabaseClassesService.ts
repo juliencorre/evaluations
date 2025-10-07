@@ -357,7 +357,7 @@ export class SupabaseClassesService {
             createdAt: teacher.created_at,
             updatedAt: teacher.created_at
           }
-        } catch (error) {
+        } catch {
           // Fallback if RPC fails for this user
           console.warn('⚠️ Using fallback for teacher', teacher.user_id)
           return {

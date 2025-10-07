@@ -30,10 +30,10 @@
       <!-- Students List with Filter Banner -->
       <div v-else class="students-with-filters">
         <StudentFilterBanner
-          :classes="classStore.classes"
           v-model:gender-filter="genderFilter"
           v-model:class-filter="classFilter"
           v-model:age-range-filter="ageRangeFilter"
+          :classes="classStore.classes"
           @clear-filters="clearFilters"
         />
         <StudentsList

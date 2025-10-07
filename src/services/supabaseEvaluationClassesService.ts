@@ -442,7 +442,14 @@ export const supabaseEvaluationClassesService = {
   async getStudentsForEvaluation(
     evaluation_id: string,
     school_year_id?: string
-  ): Promise<any[]> {
+  ): Promise<Array<{
+    id: string
+    firstName: string
+    lastName: string
+    displayName: string
+    gender?: string | null
+    birthDate?: string | null
+  }>> {
     console.log(`👥 [SupabaseEvaluationClasses] Récupération des élèves pour l'évaluation ${evaluation_id}`)
 
     try {
@@ -483,7 +490,16 @@ export const supabaseEvaluationClassesService = {
       // Extraire et dédupliquer les élèves (un élève peut être dans plusieurs classes)
       const studentsMap = new Map()
 
-      data?.forEach((item: any) => {
+      data?.forEach((item: {
+        students: {
+          id: string
+          first_name: string
+          last_name: string
+          display_name: string
+          gender?: string | null
+          birth_date?: string | null
+        }
+      }) => {
         if (item.students) {
           const student = item.students
           if (!studentsMap.has(student.id)) {

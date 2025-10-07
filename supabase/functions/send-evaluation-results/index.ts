@@ -19,7 +19,7 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { evaluationId, evaluationName, evaluationDescription, recipients, message, pdfData, fileName } = await req.json() as EmailData
+    const { evaluationName, evaluationDescription, recipients, message, pdfData, fileName } = await req.json() as EmailData
 
     // Validate required fields
     if (!recipients || recipients.length === 0) {
@@ -119,11 +119,8 @@ serve(async (req) => {
       </html>
     `
 
-    // Convert base64 PDF data to buffer
-    const pdfBuffer = Uint8Array.from(atob(pdfData), c => c.charCodeAt(0))
-
     // Send email using Resend API
-    const resendResponse = await fetch('https://api.resend.com/emails', {
+    const resendResponse = await globalThis.fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,

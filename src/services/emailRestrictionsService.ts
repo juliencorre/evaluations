@@ -28,7 +28,7 @@ export const emailRestrictionsService = {
   async getEmailRestrictions(): Promise<EmailRestriction[]> {
     try {
       const { data, error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .select('*')
         .order('created_at', { ascending: false })
 
@@ -50,7 +50,7 @@ export const emailRestrictionsService = {
   async getActiveEmailRestrictions(): Promise<EmailRestriction[]> {
     try {
       const { data, error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -81,7 +81,7 @@ export const emailRestrictionsService = {
       }
 
       const { data, error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .insert([normalizedData])
         .select()
         .single()
@@ -120,7 +120,7 @@ export const emailRestrictionsService = {
       }
 
       const { data, error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .update(normalizedUpdates)
         .eq('id', id)
         .select()
@@ -144,7 +144,7 @@ export const emailRestrictionsService = {
   async toggleEmailRestriction(id: string, isActive: boolean): Promise<EmailRestriction> {
     try {
       const { data, error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .update({ is_active: isActive })
         .eq('id', id)
         .select()
@@ -168,7 +168,7 @@ export const emailRestrictionsService = {
   async deleteEmailRestriction(id: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .delete()
         .eq('id', id)
 
@@ -223,7 +223,7 @@ export const emailRestrictionsService = {
       }))
 
       const { data, error } = await supabase
-        .from('email_restrictions' as any)
+        .from('email_restrictions')
         .insert(normalizedRestrictions)
         .select()
 

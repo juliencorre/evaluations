@@ -107,14 +107,13 @@ import { shareResultsService } from '@/services/shareResultsService'
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 
 // Stores
-import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { useCompetencyFrameworkStore } from '@/stores/competencyFrameworkStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useLogout } from '@/composables/useLogout'
 
-const studentsStore = useStudentsStore()
 const competenciesStore = useCompetencyFrameworkStore()
-const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
+const { framework, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
 const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
@@ -123,7 +122,15 @@ const schoolYearStore = useSchoolYearStore()
 
 // State
 const isLoading = ref(true)
-const evaluationStudents = ref<any[]>([])
+interface EvaluationStudent {
+  id: string
+  firstName: string
+  lastName: string
+  displayName: string
+  gender?: string | null
+}
+
+const evaluationStudents = ref<EvaluationStudent[]>([])
 const isScrolled = ref(false)
 const isMobileView = ref(false)
 const showDeleteDialog = ref(false)
@@ -284,7 +291,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '',
-        schoolYearFilter: schoolYearFilter.displayText.value
+        schoolYearFilter: schoolYearStore.selectedSchoolYear?.name || 'Toutes les années'
       },
       students: evaluationStudents.value.map(student => ({
         id: student.id,
@@ -392,7 +399,7 @@ const exportEvaluationResults = () => {
         description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '', // Class name would need to be resolved from classId
-        schoolYearFilter: schoolYearFilter.displayText.value
+        schoolYearFilter: schoolYearStore.selectedSchoolYear?.name || 'Toutes les années'
       },
       students: evaluationStudents.value.map(student => ({
         id: student.id,

@@ -5,8 +5,8 @@
       <button
         v-if="hasActiveFilters"
         class="reset-filters-button"
-        @click="resetFilters"
         title="Réinitialiser tous les filtres"
+        @click="resetFilters"
       >
         <svg viewBox="0 0 24 24" fill="currentColor">
           <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />

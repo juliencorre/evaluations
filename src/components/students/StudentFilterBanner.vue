@@ -3,9 +3,9 @@
     <!-- Toggle Button -->
     <button
       class="filter-toggle"
-      @click="isExpanded = !isExpanded"
       :aria-expanded="isExpanded"
       aria-label="Afficher/masquer les filtres"
+      @click="isExpanded = !isExpanded"
     >
       <span class="material-symbols-outlined">filter_list</span>
       <span class="filter-toggle-text">Filtres</span>

@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
+import type { HTMLCanvasElement } from '@vue/runtime-dom'
 import {
   Chart,
   CategoryScale,
@@ -43,9 +44,17 @@ interface SchoolYear {
   color: string
 }
 
+interface ChartDataset {
+  label: string
+  data: number[]
+  borderColor: string
+  backgroundColor: string
+  tension: number
+}
+
 interface ChartData {
   labels: string[]
-  datasets: any[]
+  datasets: ChartDataset[]
 }
 
 interface Props {
@@ -109,7 +118,7 @@ const createChart = () => {
           padding: 12,
           cornerRadius: 8,
           callbacks: {
-            label: function(context: any) {
+            label: function(context: { dataset: { label?: string }; parsed: { y: number } }) {
               const label = context.dataset.label || ''
               const value = context.parsed.y
               return `${label}: ${value.toFixed(2)}/10`
@@ -127,7 +136,7 @@ const createChart = () => {
               size: 11,
               family: "'Roboto', sans-serif"
             },
-            callback: function(value: any) {
+            callback: function(value: number | string) {
               return value + '/10'
             }
           },

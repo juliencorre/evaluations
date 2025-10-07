@@ -131,7 +131,14 @@ const isScrolled = ref(false)
 const showModal = ref(false)
 const isEditMode = ref(false)
 const isSaving = ref(false)
-const classEvaluations = ref<any[]>([])
+interface ClassEvaluation {
+  id: string
+  name: string
+  description?: string
+  created_at: string
+}
+
+const classEvaluations = ref<ClassEvaluation[]>([])
 
 // Filter evaluations by selected class if applicable
 const allEvaluations = computed(() => {
@@ -219,9 +226,6 @@ const handleBack = () => {
   }
 }
 
-const navigateToWelcome = () => {
-  router.push('/welcome')
-}
 
 const handleUserMenuClick = () => {
   console.log('User menu clicked')

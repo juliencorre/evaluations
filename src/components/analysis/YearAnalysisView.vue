@@ -161,8 +161,16 @@ const yearChartData = computed(() => {
     return { labels: [], datasets: [] }
   }
 
+  interface ChartDataset {
+    label: string
+    data: number[]
+    borderColor: string
+    backgroundColor: string
+    tension: number
+  }
+
   const labels: string[] = []
-  const datasets: any[] = []
+  const datasets: ChartDataset[] = []
 
   // Build labels based on metric type
   if (selectedMetricType.value === 'domains') {
@@ -186,7 +194,7 @@ const yearChartData = computed(() => {
   }
 
   // Build datasets only for years that have data
-  schoolYears.value.forEach((year, yearIndex) => {
+  schoolYears.value.forEach((year) => {
     // Only include years that have results loaded
     if (!yearResults.value.has(year.id)) {
       console.log(`⚠️ [YearAnalysisView] Skipping year ${year.name} - no results loaded`)
@@ -278,15 +286,23 @@ const calculateDomainAverage = (results: EvaluationResult[], domainId: string): 
   return sum / relevantResults.length
 }
 
+interface FieldType {
+  id: string
+  name: string
+  competencies: Array<{
+    specificCompetencies: Array<{ id: string }>
+  }>
+}
+
 const calculateFieldAverage = (results: EvaluationResult[], fieldId: string): number => {
   const framework = frameworkStore.framework.value
   if (!framework) return 0
 
-  let field: any = null
+  let field: FieldType | null = null
   for (const domain of framework.domains) {
     const foundField = domain.fields.find(f => f.id === fieldId)
     if (foundField) {
-      field = foundField
+      field = foundField as FieldType
       break
     }
   }
@@ -295,8 +311,8 @@ const calculateFieldAverage = (results: EvaluationResult[], fieldId: string): nu
 
   // Get all specific competency IDs in this field
   const specificCompetencyIds: string[] = []
-  field.competencies.forEach((comp: any) => {
-    comp.specificCompetencies.forEach((specific: any) => {
+  field.competencies.forEach((comp) => {
+    comp.specificCompetencies.forEach((specific) => {
       specificCompetencyIds.push(specific.id)
     })
   })

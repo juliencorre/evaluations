@@ -16,6 +16,44 @@ export interface ShareResultsResponse {
   emailsSent?: number
 }
 
+interface Student {
+  id: string
+  firstName: string
+  lastName: string
+  fullName: string
+}
+
+interface CompetencyResult {
+  result: number | null
+  studentName?: string
+}
+
+interface Competency {
+  name: string
+  domain: string
+  field: string
+  results: CompetencyResult[]
+}
+
+interface EvaluationSummary {
+  totalStudents: number
+  totalCompetencies: number
+}
+
+interface EvaluationDataPDF {
+  evaluation: {
+    name: string
+    description: string
+    date: string
+    className: string
+    schoolYearFilter: string
+  }
+  students: Student[]
+  competencies: Competency[]
+  results: unknown[]
+  summary: EvaluationSummary
+}
+
 /**
  * Service pour partager les résultats d'évaluation par email avec PDF
  */
@@ -23,7 +61,7 @@ export const shareResultsService = {
   /**
    * Génère un PDF des résultats d'évaluation
    */
-  async generateResultsPDF(evaluationData: any): Promise<string> {
+  async generateResultsPDF(evaluationData: EvaluationDataPDF): Promise<string> {
     try {
       const { jsPDF } = await import('jspdf')
 
@@ -93,7 +131,7 @@ export const shareResultsService = {
       // Section des élèves (si disponibles)
       if (evaluationData.students && evaluationData.students.length > 0) {
         addText('Liste des élèves', 16, 'bold', 10)
-        evaluationData.students.forEach((student: any, index: number) => {
+        evaluationData.students.forEach((student, index) => {
           addText(`${index + 1}. ${student.fullName}`, 11, 'normal', 5)
         })
         currentY += 10
@@ -105,8 +143,8 @@ export const shareResultsService = {
         addText('Compétences évaluées', 16, 'bold', 10)
 
         // Regrouper les compétences par domaine
-        const competenciesByDomain: { [key: string]: any[] } = {}
-        evaluationData.competencies.forEach((comp: any) => {
+        const competenciesByDomain: Record<string, Competency[]> = {}
+        evaluationData.competencies.forEach((comp) => {
           if (!competenciesByDomain[comp.domain]) {
             competenciesByDomain[comp.domain] = []
           }
@@ -117,7 +155,7 @@ export const shareResultsService = {
         Object.entries(competenciesByDomain).forEach(([domain, competencies]) => {
           addText(domain, 14, 'bold', 8)
 
-          competencies.forEach((comp: any) => {
+          competencies.forEach((comp) => {
             addText(`• ${comp.name} (${comp.field})`, 11, 'normal', 5)
           })
 
@@ -127,18 +165,18 @@ export const shareResultsService = {
 
       // Section résultats (si disponibles)
       if (evaluationData.competencies && evaluationData.competencies.length > 0 &&
-          evaluationData.competencies.some((comp: any) =>
-            comp.results && comp.results.some((result: any) => result.result !== null)
+          evaluationData.competencies.some((comp) =>
+            comp.results && comp.results.some((result) => result.result !== null)
           )) {
         addLine()
         addText('Résultats détaillés', 16, 'bold', 10)
 
-        evaluationData.competencies.forEach((comp: any) => {
+        evaluationData.competencies.forEach((comp) => {
           if (comp.results && comp.results.length > 0) {
-            const hasResults = comp.results.some((result: any) => result.result !== null)
+            const hasResults = comp.results.some((result) => result.result !== null)
             if (hasResults) {
               addText(`${comp.name}`, 12, 'bold', 5)
-              comp.results.forEach((result: any) => {
+              comp.results.forEach((result) => {
                 if (result.result !== null) {
                   addText(`  ${result.studentName}: ${result.result}`, 10, 'normal', 4)
                 }
@@ -249,7 +287,7 @@ export const shareResultsService = {
    * Fonction principale pour partager les résultats
    */
   async shareEvaluationResults(
-    evaluationData: any,
+    evaluationData: EvaluationDataPDF,
     recipients: string[],
     message: string
   ): Promise<ShareResultsResponse> {

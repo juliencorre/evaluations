@@ -70,7 +70,7 @@ export class SupabaseCompetenciesService {
       throw new Error('Framework not found')
     }
 
-    return this.mapSupabaseFrameworkToLocal(data as any)
+    return this.mapSupabaseFrameworkToLocal(data)
   }
 
   /**
@@ -781,6 +781,20 @@ export class SupabaseCompetenciesService {
       name: supabaseFramework.name,
       version: supabaseFramework.version,
       domains: [] // Sera rempli par getAllDomains()
+    }
+  }
+
+  /**
+   * Transforme un framework Supabase avec ses relations nested en objet CompetencyFramework complet
+   */
+  private static mapSupabaseFrameworkToLocal(data: any): CompetencyFramework {
+    return {
+      id: data.id,
+      name: data.name,
+      version: data.version,
+      domains: (data.domains || [])
+        .sort((a: any, b: any) => a.order_index - b.order_index)
+        .map((domain: any) => this.transformDomainWithChildren(domain))
     }
   }
 

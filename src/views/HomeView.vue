@@ -212,16 +212,7 @@ onMounted(async () => {
   handleScroll()
   checkMobileView()
 
-  // Load competencies framework from database
-  await refreshFromSupabase('')
-
-  if (!framework || !framework.value) {
-    console.error('❌ [HomeView] Failed to load framework')
-    isLoading.value = false
-    return
-  }
-
-  // Load evaluations from database
+  // Load evaluations from database first to get the frameworkId
   await loadEvaluations()
 
   // Ensure school years are loaded
@@ -234,6 +225,17 @@ onMounted(async () => {
     if (evaluation) {
       console.log('📋 [HomeView] Loading evaluation:', evaluation.name)
       setCurrentEvaluation(evaluation)
+
+      // Load competencies framework from database using the evaluation's frameworkId
+      if (evaluation.frameworkId) {
+        await refreshFromSupabase(evaluation.frameworkId)
+      }
+
+      if (!framework || !framework.value) {
+        console.error('❌ [HomeView] Failed to load framework')
+        isLoading.value = false
+        return
+      }
 
       // Load students for this evaluation
       const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
+import { nextTick } from 'vue'
 import ClassResultsView from '@/views/ClassResultsView.vue'
 
 // Mock router
@@ -120,11 +121,22 @@ describe('Fonctions d\'export PDF', () => {
         stubs: {
           CenterAppBar: { template: '<div />' },
           AnalysisTabs: { template: '<div><slot /></div>' },
-          DashboardView: { template: '<div class="competencies-card">Mock Chart</div>' },
+          DashboardView: { template: '<div />' },
           StudentAnalysisView: { template: '<div />' }
         }
       }
     })
+
+    await nextTick()
+
+    // Manually create the DOM element that the export function looks for
+    const chartElement = document.createElement('div')
+    chartElement.className = 'competencies-card'
+    chartElement.style.width = '800px'
+    chartElement.style.height = '600px'
+    Object.defineProperty(chartElement, 'scrollWidth', { value: 800, writable: false })
+    Object.defineProperty(chartElement, 'scrollHeight', { value: 600, writable: false })
+    document.body.appendChild(chartElement)
 
     await wrapper.vm.exportStudentChart()
 
@@ -157,10 +169,28 @@ describe('Fonctions d\'export PDF', () => {
           CenterAppBar: { template: '<div />' },
           AnalysisTabs: { template: '<div><slot /></div>' },
           DashboardView: { template: '<div />' },
-          StudentAnalysisView: { template: '<div><div class="chart-container">Chart 1</div><div class="chart-container">Chart 2</div></div>' }
+          StudentAnalysisView: { template: '<div />' }
         }
       }
     })
+
+    await nextTick()
+
+    // Manually create the DOM elements that the export function looks for
+    const firstChart = document.createElement('div')
+    firstChart.className = 'chart-container'
+    firstChart.style.width = '800px'
+    firstChart.style.height = '600px'
+    Object.defineProperty(firstChart, 'scrollWidth', { value: 800, writable: false })
+    Object.defineProperty(firstChart, 'scrollHeight', { value: 600, writable: false })
+    const secondChart = document.createElement('div')
+    secondChart.className = 'chart-container'
+    secondChart.style.width = '800px'
+    secondChart.style.height = '600px'
+    Object.defineProperty(secondChart, 'scrollWidth', { value: 800, writable: false })
+    Object.defineProperty(secondChart, 'scrollHeight', { value: 600, writable: false })
+    document.body.appendChild(firstChart)
+    document.body.appendChild(secondChart)
 
     await wrapper.vm.exportAllStudents()
 

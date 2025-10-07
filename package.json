@@ -21,6 +21,7 @@
     "validate": "node scripts/deploy-validator-agent.js --quick --fix"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.2.8",
     "@supabase/supabase-js": "^2.57.4",
     "chart.js": "^4.5.0",
     "html2canvas": "^1.4.1",
@@ -43,6 +44,7 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
     "eslint": "^9.16.0",
     "eslint-plugin-vue": "^9.31.0",
     "jsdom": "^25.0.1",

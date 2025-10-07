@@ -46,7 +46,8 @@
       "Bash(npm cache clean:*)",
       "Bash(xargs:*)",
       "Bash(del \"e2e\\offline.spec.ts\")",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": []
   }

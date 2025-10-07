@@ -5,6 +5,10 @@ import App from './App.vue'
 import { router, preloadCriticalRoutes } from './router'
 // Import Tailwind CSS with Material Design tokens
 import './styles/main.css'
+// Import Roboto font locally (no external CDN)
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
 
 // Create pinia store
 const pinia = createPinia()

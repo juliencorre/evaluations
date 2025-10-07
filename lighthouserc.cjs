@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: 'VITE_SUPABASE_URL=https://dummy.supabase.co VITE_SUPABASE_ANON_KEY=dummy_key npm run preview -- --port 4173',
+      startServerCommand: 'npx cross-env VITE_SUPABASE_URL=https://dummy.supabase.co VITE_SUPABASE_ANON_KEY=dummy_key npm run preview -- --port 4173',
       startServerReadyPattern: 'Local:',
       url: ['http://localhost:4173/'],
       numberOfRuns: 1,

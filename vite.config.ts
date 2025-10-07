@@ -11,6 +11,8 @@ export default defineConfig({
   build: {
     target: 'esnext',
     minify: 'terser',
+    cssCodeSplit: true,
+    cssMinify: true,
     terserOptions: {
       compress: {
         drop_console: true,
@@ -20,14 +22,32 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router'],
+          vendor: ['vue', 'vue-router', 'pinia'],
           supabase: ['@supabase/supabase-js'],
+          charts: ['chart.js'],
+          pdf: ['jspdf', 'html2canvas'],
           views: [
             'src/views/CompetenciesView.vue',
             'src/views/AnalysisView.vue',
             'src/views/StudentsView.vue'
           ]
-        }
+        },
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name?.split('.')
+          const extType = info?.[info.length - 1]
+          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name ?? '')) {
+            return 'assets/images/[name]-[hash][extname]'
+          }
+          if (/\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name ?? '')) {
+            return 'assets/fonts/[name]-[hash][extname]'
+          }
+          if (extType === 'css') {
+            return 'assets/css/[name]-[hash][extname]'
+          }
+          return 'assets/[name]-[hash][extname]'
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js'
       }
     },
     chunkSizeWarningLimit: 1000

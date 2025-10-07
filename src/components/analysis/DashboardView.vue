@@ -1,32 +1,63 @@
 <template>
-  <div class="charts-section">
-    <!-- Class Average Chart -->
-    <section class="charts-section">
-      <ChartCard class="white-card">
-        <template #title>
-          <div class="chart-header">
-            <div class="chart-title-with-selector">
-              <h3 class="class-title">Moyenne de la classe</h3>
-            </div>
-            <div class="metric-type-selector">
-              <div class="metric-type-buttons">
-                <button
-                  v-for="type in metricTypes"
-                  :key="type.value"
-                  class="metric-type-button"
-                  :class="{ active: selectedMetricType === type.value }"
-                  @click="selectedMetricType = type.value"
-                >
-                  {{ type.label }}
-                </button>
-              </div>
+  <div class="dashboard-container">
+    <!-- Main Card: Évaluation des compétences de la classe -->
+    <ChartCard class="competencies-card">
+      <template #title>
+        <div class="main-card-header">
+          <h2 class="main-card-title">Évaluation des compétences de la classe</h2>
+        </div>
+      </template>
+
+      <!-- Radar Charts Section -->
+      <div class="radar-charts-grid">
+        <!-- Domain Radar Chart -->
+        <div class="radar-chart-section">
+          <h3 class="section-title">Radar par domaine</h3>
+          <div class="chart-container">
+            <DomainRadarChart
+              :chart-data="getDomainRadarData()"
+              :evaluation-periods="evaluationPeriods"
+            />
+          </div>
+        </div>
+
+        <!-- Fields Radar Chart -->
+        <div class="radar-chart-section">
+          <h3 class="section-title">Radar par champ</h3>
+          <div class="chart-container">
+            <DomainRadarChart
+              :chart-data="getFieldRadarData()"
+              :evaluation-periods="evaluationPeriods"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider"></div>
+
+      <!-- Detailed Analysis Section -->
+      <div class="detailed-analysis-section">
+        <div class="analysis-header">
+          <h3 class="section-title">Analyse détaillée</h3>
+          <div class="metric-type-selector">
+            <div class="metric-type-buttons">
+              <button
+                v-for="type in metricTypes"
+                :key="type.value"
+                class="metric-type-button"
+                :class="{ active: selectedMetricType === type.value }"
+                @click="selectedMetricType = type.value"
+              >
+                {{ type.label }}
+              </button>
             </div>
           </div>
-        </template>
+        </div>
 
         <div class="chart-container">
-          <ClassAverageChart
-            :chart-data="getClassData()"
+          <DetailedAnalysisChart
+            :chart-data="getDetailedAnalysisData()"
             :evaluation-periods="evaluationPeriods"
           />
         </div>
@@ -34,7 +65,7 @@
         <div class="chart-actions">
           <button
             class="export-button chart-export"
-            title="Exporter les moyennes de classe en PDF"
+            title="Exporter l'évaluation de la classe en PDF"
             @click="exportClassChart"
           >
             <svg class="export-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -47,7 +78,7 @@
           </button>
           <button
             class="share-button chart-share"
-            title="Partager les moyennes de classe par email"
+            title="Partager l'évaluation de la classe par email"
             @click="shareClassChart"
           >
             <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -58,8 +89,8 @@
             Partager
           </button>
         </div>
-      </ChartCard>
-    </section>
+      </div>
+    </ChartCard>
 
     <!-- Share Results Dialog -->
     <ShareResultsDialog
@@ -82,7 +113,8 @@ import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationR
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
 
-import ClassAverageChart from '@/components/analysis/ClassAverageChart.vue'
+import DomainRadarChart from '@/components/analysis/DomainRadarChart.vue'
+import DetailedAnalysisChart from '@/components/analysis/DetailedAnalysisChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
 import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
 
@@ -166,76 +198,100 @@ const exportClassChart = async () => {
     const { jsPDF } = await import('jspdf')
     const html2canvas = (await import('html2canvas')).default
 
-    console.log('Exporting class chart')
+    console.log('Exporting class competencies card')
 
-    // Capture le graphique
-    const chartElement = document.querySelector('.chart-container')
-    if (!chartElement) {
-      window.alert('Impossible de trouver le graphique à exporter')
+    // Capture toute la card "Évaluation des compétences"
+    const cardElement = document.querySelector('.competencies-card')
+    if (!cardElement) {
+      window.alert('Impossible de trouver la carte d\'évaluation à exporter')
       return
     }
 
     // Générer le canvas avec options optimisées pour PDF
-    const canvas = await html2canvas(chartElement as HTMLElement, {
+    const canvas = await html2canvas(cardElement as HTMLElement, {
       backgroundColor: '#ffffff',
       scale: 2,
       useCORS: true,
       logging: false,
-      windowWidth: chartElement.scrollWidth,
-      windowHeight: chartElement.scrollHeight,
-      width: chartElement.scrollWidth,
-      height: chartElement.scrollHeight
+      windowWidth: cardElement.scrollWidth,
+      windowHeight: cardElement.scrollHeight,
+      width: cardElement.scrollWidth,
+      height: cardElement.scrollHeight
     })
 
-    // Créer le PDF
+    // Créer le PDF avec format A4
     const pdf = new jsPDF({
-      orientation: 'landscape',
+      orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
     })
 
-    // Dimensions du PDF avec marges réduites
+    // Dimensions du PDF
     const pageWidth = pdf.internal.pageSize.getWidth()
     const pageHeight = pdf.internal.pageSize.getHeight()
-    const margin = 15
+    const margin = 10
     const maxWidth = pageWidth - (margin * 2)
-    const maxHeight = pageHeight - 60 // Espace pour titre et infos en haut
 
-    // Calculer les dimensions optimales en gardant le ratio
+    // Calculer les dimensions de l'image
     let imgWidth = maxWidth
     let imgHeight = (canvas.height * imgWidth) / canvas.width
 
-    // Si le graphique est trop haut, ajuster
-    if (imgHeight > maxHeight) {
-      imgHeight = maxHeight
-      imgWidth = (canvas.width * imgHeight) / canvas.height
+    // Si l'image est trop haute pour une seule page, l'ajuster
+    const maxHeightPerPage = pageHeight - (margin * 2)
+
+    const imgData = canvas.toDataURL('image/png')
+
+    if (imgHeight <= maxHeightPerPage) {
+      // L'image tient sur une seule page
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight)
+    } else {
+      // L'image nécessite plusieurs pages
+      let remainingHeight = imgHeight
+      let sourceY = 0
+      let pageNumber = 0
+
+      while (remainingHeight > 0) {
+        if (pageNumber > 0) {
+          pdf.addPage()
+        }
+
+        const heightForThisPage = Math.min(remainingHeight, maxHeightPerPage)
+        const sourceHeight = (heightForThisPage / imgHeight) * canvas.height
+
+        // Créer un canvas temporaire pour cette section
+        const tempCanvas = document.createElement('canvas')
+        tempCanvas.width = canvas.width
+        tempCanvas.height = sourceHeight
+        const tempCtx = tempCanvas.getContext('2d')
+
+        if (tempCtx) {
+          tempCtx.drawImage(
+            canvas,
+            0, sourceY,
+            canvas.width, sourceHeight,
+            0, 0,
+            canvas.width, sourceHeight
+          )
+
+          const tempImgData = tempCanvas.toDataURL('image/png')
+          pdf.addImage(tempImgData, 'PNG', margin, margin, imgWidth, heightForThisPage)
+        }
+
+        sourceY += sourceHeight
+        remainingHeight -= heightForThisPage
+        pageNumber++
+      }
     }
 
-    // Centrer l'image si nécessaire
-    const xPosition = margin + (maxWidth - imgWidth) / 2
-
-    // Ajouter le titre
-    pdf.setFontSize(16)
-    pdf.text('Moyennes de la classe', margin, 20)
-
-    // Ajouter la date
-    pdf.setFontSize(10)
-    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 30)
-
-    // Ajouter le type de métrique
-    const metricTypeLabel = metricTypes.value.find(type => type.value === selectedMetricType.value)?.label || ''
-    pdf.text(`Type d'analyse: ${metricTypeLabel}`, margin, 40)
-
-    // Ajouter l'image du graphique
-    const imgData = canvas.toDataURL('image/png')
-    pdf.addImage(imgData, 'PNG', xPosition, 50, imgWidth, imgHeight)
-
     // Télécharger le PDF
-    pdf.save(`moyennes-classe-${selectedMetricType.value}-${new Date().toISOString().split('T')[0]}.pdf`)
+    const fileName = `evaluation-classe-${new Date().toISOString().split('T')[0]}.pdf`
+    pdf.save(fileName)
+
+    console.log('✅ PDF exported successfully:', fileName)
 
   } catch (error) {
-    console.error('Erreur lors de l\'export:', error)
-    window.alert('Erreur lors de l\'export du graphique')
+    console.error('❌ Erreur lors de l\'export:', error)
+    window.alert('Erreur lors de l\'export de l\'évaluation')
   }
 }
 
@@ -377,10 +433,129 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
   }
 }
 
-// Class data calculation
-const getClassData = () => {
-  console.log('📊 [getClassData] Starting class average calculation')
-  return calculateClassAveragesByLevel(selectedMetricType.value)
+// Get domain radar data
+const getDomainRadarData = () => {
+  console.log('📊 [getDomainRadarData] Getting domain radar data for class')
+  const data = calculateClassAveragesByLevel('domains')
+
+  // Transform to match DomainRadarChart expected format
+  // DomainRadarChart expects: { name: string, evaluations: [{score: number}] }[]
+  if (!data || data.length === 0) return []
+
+  // Get all unique domain names
+  const allDomains = new Map<string, { name: string, evaluations: {score: number}[] }>()
+
+  data.forEach(evaluationData => {
+    evaluationData.data.forEach(item => {
+      if (!allDomains.has(item.name)) {
+        allDomains.set(item.name, {
+          name: item.name,
+          evaluations: []
+        })
+      }
+    })
+  })
+
+  // Fill in evaluation scores for each domain
+  data.forEach(evaluationData => {
+    const evaluationIndex = data.indexOf(evaluationData)
+
+    allDomains.forEach((domain, domainName) => {
+      const domainData = evaluationData.data.find(d => d.name === domainName)
+      // Ensure we have the right number of evaluation slots
+      while (domain.evaluations.length <= evaluationIndex) {
+        domain.evaluations.push({ score: 0 })
+      }
+      domain.evaluations[evaluationIndex] = {
+        score: domainData ? domainData.value : 0
+      }
+    })
+  })
+
+  return Array.from(allDomains.values())
+}
+
+// Get field radar data
+const getFieldRadarData = () => {
+  console.log('📊 [getFieldRadarData] Getting field radar data for class')
+  const data = calculateClassAveragesByLevel('fields')
+
+  // Transform to match DomainRadarChart expected format
+  if (!data || data.length === 0) return []
+
+  // Get all unique field names
+  const allFields = new Map<string, { name: string, evaluations: {score: number}[] }>()
+
+  data.forEach(evaluationData => {
+    evaluationData.data.forEach(item => {
+      if (!allFields.has(item.name)) {
+        allFields.set(item.name, {
+          name: item.name,
+          evaluations: []
+        })
+      }
+    })
+  })
+
+  // Fill in evaluation scores for each field
+  data.forEach(evaluationData => {
+    const evaluationIndex = data.indexOf(evaluationData)
+
+    allFields.forEach((field, fieldName) => {
+      const fieldData = evaluationData.data.find(d => d.name === fieldName)
+      // Ensure we have the right number of evaluation slots
+      while (field.evaluations.length <= evaluationIndex) {
+        field.evaluations.push({ score: 0 })
+      }
+      field.evaluations[evaluationIndex] = {
+        score: fieldData ? fieldData.value : 0
+      }
+    })
+  })
+
+  return Array.from(allFields.values())
+}
+
+// Get detailed analysis data based on selected metric type
+const getDetailedAnalysisData = () => {
+  console.log('📊 [getDetailedAnalysisData] Getting detailed analysis data:', selectedMetricType.value)
+  const data = calculateClassAveragesByLevel(selectedMetricType.value)
+
+  // Transform the data format for DetailedAnalysisChart
+  // The chart expects: { name: string, evaluations: [{score: number}] }[]
+  if (!data || data.length === 0) return []
+
+  // Get all unique level names (domains/fields/competencies)
+  const allLevels = new Map<string, { name: string, evaluations: {score: number}[] }>()
+
+  data.forEach(evaluationData => {
+    evaluationData.data.forEach(item => {
+      if (!allLevels.has(item.name)) {
+        allLevels.set(item.name, {
+          name: item.name,
+          evaluations: []
+        })
+      }
+    })
+  })
+
+  // Fill in evaluation scores for each level
+  data.forEach(evaluationData => {
+    const evaluationIndex = data.indexOf(evaluationData)
+
+    allLevels.forEach((level, levelName) => {
+      const levelData = evaluationData.data.find(d => d.name === levelName)
+      // Ensure we have the right number of evaluation slots
+      while (level.evaluations.length <= evaluationIndex) {
+        level.evaluations.push({ score: 0 })
+      }
+      level.evaluations[evaluationIndex] = {
+        score: levelData ? levelData.value : 0
+      }
+    })
+  })
+
+  return Array.from(allLevels.values())
 }
 
 // Load all data on mount without class filtering
@@ -848,42 +1023,86 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.charts-section {
+.dashboard-container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
+  width: 100%;
 }
 
-/* White card background */
-.white-card {
+/* Main card styling */
+.competencies-card {
   background: var(--md-sys-color-surface-container-low, #ffffff) !important;
   border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
 }
 
-/* Chart header organization */
-.chart-header {
+.main-card-header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
 }
 
-.chart-title-with-selector {
-  display: flex;
-  align-items: center;
-}
-
-.class-title {
+.main-card-title {
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 500;
-  line-height: 1.75rem;
+  line-height: 2rem;
   color: var(--md-sys-color-on-surface, #1c1b1f);
   margin: 0;
 }
 
+/* Radar charts grid - vertical layout */
+.radar-charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.radar-chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  margin: 0;
+}
+
+.chart-container {
+  min-height: 400px;
+}
+
+/* Section divider */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--md-sys-color-outline-variant, #c4c7c5);
+  margin: 32px 0;
+}
+
+/* Detailed analysis section */
+.detailed-analysis-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analysis-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .metric-type-selector {
-  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .metric-type-buttons {
@@ -915,24 +1134,22 @@ onMounted(async () => {
   border-color: var(--md-sys-color-primary, #6750a4);
 }
 
-.chart-container {
-  min-height: 400px;
-}
-
+/* Chart actions */
 .chart-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
   padding: 16px 0 0;
   border-top: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);
   margin-top: 16px;
+  flex-wrap: wrap;
 }
 
-.chart-export {
+.chart-export,
+.chart-share {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--md-sys-color-primary, #6750a4);
-  color: var(--md-sys-color-on-primary, #ffffff);
   border: none;
   border-radius: 8px;
   padding: 12px 16px;
@@ -945,6 +1162,11 @@ onMounted(async () => {
   box-shadow:
     0px 1px 3px 1px rgba(0, 0, 0, 0.15),
     0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.chart-export {
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #ffffff);
 }
 
 .chart-export:hover {
@@ -955,45 +1177,9 @@ onMounted(async () => {
     0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
-.chart-export:active {
-  background: var(--md-sys-color-primary, #6750a4);
-  color: var(--md-sys-color-on-primary, #ffffff);
-  box-shadow:
-    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-}
-
-.export-icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* Chart actions */
-.chart-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* Share button styles */
 .chart-share {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   background: var(--md-sys-color-secondary, #625b71);
   color: var(--md-sys-color-on-secondary, #ffffff);
-  border: none;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-  white-space: nowrap;
-  box-shadow:
-    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
 .chart-share:hover {
@@ -1004,27 +1190,40 @@ onMounted(async () => {
     0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
-.chart-share:active {
-  background: var(--md-sys-color-secondary, #625b71);
-  color: var(--md-sys-color-on-secondary, #ffffff);
-  box-shadow:
-    0px 1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-}
-
+.export-icon,
 .share-icon {
   width: 16px;
   height: 16px;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .chart-header {
-    gap: 12px;
+@media (max-width: 1024px) {
+  .main-card-title {
+    font-size: 1.375rem;
   }
 
-  .class-title {
-    font-size: 1.1rem;
+  .radar-charts-grid {
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-card-title {
+    font-size: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .radar-charts-grid {
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .section-divider {
+    margin: 24px 0;
   }
 
   .metric-type-buttons {
@@ -1039,20 +1238,35 @@ onMounted(async () => {
   .chart-actions {
     padding: 12px 0 0;
     margin-top: 12px;
+    gap: 8px;
   }
 
-  .chart-export {
-    padding: 10px 14px;
-    font-size: 0.8rem;
-  }
-
+  .chart-export,
   .chart-share {
     padding: 10px 14px;
     font-size: 0.8rem;
   }
+}
+
+@media (max-width: 480px) {
+  .main-card-title {
+    font-size: 1.125rem;
+  }
+
+  .radar-charts-grid {
+    gap: 16px;
+    margin-bottom: 16px;
+  }
 
   .chart-actions {
-    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chart-export,
+  .chart-share {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

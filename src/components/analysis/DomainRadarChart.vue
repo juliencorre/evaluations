@@ -102,7 +102,7 @@ const createChart = () => {
     options: {
       responsive: true,
       maintainAspectRatio: true,
-      aspectRatio: 1.5,
+      aspectRatio: 2,
       animation: {
         duration: 750,
         easing: 'easeInOutQuart'
@@ -291,7 +291,7 @@ onBeforeUnmount(() => {
 .radar-chart-container {
   position: relative;
   width: 100%;
-  height: 450px;
+  height: 550px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,21 +307,21 @@ canvas {
 
 @media (max-width: 1024px) {
   .radar-chart-container {
-    height: 400px;
+    height: 500px;
     padding: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .radar-chart-container {
-    height: 350px;
+    height: 450px;
     padding: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .radar-chart-container {
-    height: 300px;
+    height: 400px;
     padding: 8px;
   }
 }

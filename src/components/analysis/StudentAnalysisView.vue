@@ -1,97 +1,75 @@
 <template>
-  <div class="charts-section">
-    <!-- Student Selector -->
-    <section class="charts-section">
-      <ChartCard class="white-card">
-        <template #title>
-          <div class="chart-header">
-            <div class="chart-title-with-selector">
-              <select
-                v-model="selectedStudent"
-                class="student-select-in-title"
-                @change="updateStudent"
+  <div class="student-analysis-container">
+    <!-- Student Selector (outside card) -->
+    <div class="student-selector-wrapper">
+      <label for="student-select" class="selector-label">Sélectionner un élève</label>
+      <select
+        id="student-select"
+        v-model="selectedStudent"
+        class="student-select"
+        @change="updateStudent"
+      >
+        <option value="">Choisir un élève...</option>
+        <option v-for="student in students" :key="student.id" :value="student.id">
+          {{ student.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Main Card: Evaluation des compétences -->
+    <ChartCard v-if="selectedStudent" class="competencies-card">
+      <template #title>
+        <div class="main-card-header">
+          <h2 class="main-card-title">Évaluation des compétences</h2>
+        </div>
+      </template>
+
+      <!-- Radar Charts Section -->
+      <div class="radar-charts-grid">
+        <!-- Domain Radar Chart -->
+        <div class="radar-chart-section">
+          <h3 class="section-title">Radar par domaine</h3>
+          <div class="chart-container">
+            <DomainRadarChart
+              :chart-data="getDomainRadarData()"
+              :evaluation-periods="evaluationPeriods"
+            />
+          </div>
+        </div>
+
+        <!-- Fields Radar Chart -->
+        <div class="radar-chart-section">
+          <h3 class="section-title">Radar par champ</h3>
+          <div class="chart-container">
+            <DomainRadarChart
+              :chart-data="getFieldRadarData()"
+              :evaluation-periods="evaluationPeriods"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider"></div>
+
+      <!-- Detailed Analysis Section -->
+      <div class="detailed-analysis-section">
+        <div class="analysis-header">
+          <h3 class="section-title">Analyse détaillée</h3>
+          <div class="metric-type-selector">
+            <div class="metric-type-buttons">
+              <button
+                v-for="type in metricTypes"
+                :key="type.value"
+                class="metric-type-button"
+                :class="{ active: selectedMetricType === type.value }"
+                @click="selectedMetricType = type.value"
               >
-                <option value="">Choisir un élève...</option>
-                <option v-for="student in students" :key="student.id" :value="student.id">
-                  {{ student.name }}
-                </option>
-              </select>
+                {{ type.label }}
+              </button>
             </div>
           </div>
-        </template>
-
-        <div v-if="!selectedStudent" class="chart-container">
-          <EmptyState
-            title="Sélectionnez un élève"
-            description="Choisissez un élève dans la liste pour voir ses résultats d'évaluation"
-          />
         </div>
-      </ChartCard>
-    </section>
-
-    <!-- Domain Radar Chart -->
-    <section v-if="selectedStudent" class="charts-section">
-      <ChartCard class="white-card">
-        <template #title>
-          <div class="chart-header">
-            <div class="chart-title-text">
-              Radar des notes par domaine
-            </div>
-          </div>
-        </template>
-
-        <div class="chart-container">
-          <DomainRadarChart
-            :chart-data="getDomainRadarData()"
-            :evaluation-periods="evaluationPeriods"
-          />
-        </div>
-      </ChartCard>
-    </section>
-
-    <!-- Fields Radar Chart -->
-    <section v-if="selectedStudent" class="charts-section">
-      <ChartCard class="white-card">
-        <template #title>
-          <div class="chart-header">
-            <div class="chart-title-text">
-              Radar des notes par champ
-            </div>
-          </div>
-        </template>
-
-        <div class="chart-container">
-          <DomainRadarChart
-            :chart-data="getFieldRadarData()"
-            :evaluation-periods="evaluationPeriods"
-          />
-        </div>
-      </ChartCard>
-    </section>
-
-    <!-- Student Analysis Chart with Metric Type Selector -->
-    <section v-if="selectedStudent" class="charts-section">
-      <ChartCard class="white-card">
-        <template #title>
-          <div class="chart-header">
-            <div class="chart-title-text">
-              Analyse détaillée
-            </div>
-            <div class="metric-type-selector">
-              <div class="metric-type-buttons">
-                <button
-                  v-for="type in metricTypes"
-                  :key="type.value"
-                  class="metric-type-button"
-                  :class="{ active: selectedMetricType === type.value }"
-                  @click="selectedMetricType = type.value"
-                >
-                  {{ type.label }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </template>
 
         <div class="chart-container">
           <StudentChart
@@ -127,8 +105,16 @@
             Partager
           </button>
         </div>
-      </ChartCard>
-    </section>
+      </div>
+    </ChartCard>
+
+    <!-- Empty State when no student selected -->
+    <div v-else class="empty-state-card">
+      <EmptyState
+        title="Sélectionnez un élève"
+        description="Choisissez un élève dans la liste ci-dessus pour voir ses résultats d'évaluation"
+      />
+    </div>
 
     <!-- Share Results Dialog -->
     <ShareResultsDialog
@@ -137,7 +123,6 @@
       @close="showShareDialog = false"
       @send-email="handleSendEmail"
     />
-
   </div>
 </template>
 
@@ -1259,6 +1244,130 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 </script>
 
 <style scoped>
+/* Main Container */
+.student-analysis-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0;
+}
+
+/* Student Selector (outside card) */
+.student-selector-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selector-label {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  letter-spacing: 0.1px;
+}
+
+.student-select {
+  padding: 12px 16px;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  background-color: var(--md-sys-color-surface-container, #f3edf7);
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  max-width: 400px;
+}
+
+.student-select:hover {
+  background-color: var(--md-sys-color-surface-container-high, #ece6f0);
+  border-color: var(--md-sys-color-primary, #6750a4);
+}
+
+.student-select:focus {
+  outline: none;
+  border-color: var(--md-sys-color-primary, #6750a4);
+  box-shadow: 0 0 0 2px rgba(103, 80, 164, 0.1);
+}
+
+/* Main Competencies Card */
+.competencies-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.main-card-header {
+  margin-bottom: 24px;
+}
+
+.main-card-title {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  margin: 0;
+}
+
+/* Radar Charts Grid */
+.radar-charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.radar-chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Section Title */
+.section-title {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  margin: 0;
+}
+
+/* Section Divider */
+.section-divider {
+  height: 1px;
+  background-color: var(--md-sys-color-outline-variant, #c4c7c5);
+  margin: 32px 0;
+}
+
+/* Detailed Analysis Section */
+.detailed-analysis-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Empty State Card */
+.empty-state-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
 /* Page Content */
 .charts-section {
   display: flex;

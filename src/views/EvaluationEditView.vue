@@ -156,17 +156,17 @@ const loadFormData = async () => {
   try {
     // Load frameworks from competency service
     const { supabaseCompetenciesService } = await import('@/services/supabaseCompetenciesService')
-    const allFrameworks = await supabaseCompetenciesService.getAllFrameworks()
-    frameworks.value = allFrameworks.map(fw => ({
-      id: fw.id,
-      name: fw.name,
-      version: fw.version
-    }))
+    const framework = await supabaseCompetenciesService.getOrCreateDefaultFramework()
+    frameworks.value = [{
+      id: framework.id,
+      name: framework.name,
+      version: framework.version
+    }]
 
     // Load classes from class service
     const { supabaseClassesService } = await import('@/services/supabaseClassesService')
-    const allClasses = await supabaseClassesService.getAllClasses()
-    classes.value = allClasses.map(cls => ({
+    const allClasses = await supabaseClassesService.getClasses()
+    classes.value = allClasses.map((cls: { id: string; name: string }) => ({
       id: cls.id,
       name: cls.name
     }))

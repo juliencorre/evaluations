@@ -6,26 +6,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
-import {
-  Chart,
-  BarController,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend,
-  type ChartConfiguration
-} from 'chart.js'
-
-// Register Chart.js components
-Chart.register(
-  BarController,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend
-)
+import { Chart, type ChartConfiguration } from '@/lib/chartSetup'
 
 interface EvaluationResult {
   score: number

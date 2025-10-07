@@ -1,8 +1,9 @@
 import type { ChartOptions } from 'chart.js'
+import { MD_CHART_FONTS, MD_CHART_COLORS } from '@/lib/chartSetup'
 
 /**
  * Composable pour la configuration des graphiques Chart.js
- * Fournit des configurations par défaut cohérentes
+ * Fournit des configurations par défaut cohérentes avec Material Design
  */
 export function useChartConfig() {
   /**
@@ -14,14 +15,39 @@ export function useChartConfig() {
     plugins: {
       legend: {
         display: true,
-        position: 'top' as const
+        position: 'top' as const,
+        labels: {
+          font: {
+            family: MD_CHART_FONTS.family,
+            size: MD_CHART_FONTS.label.size,
+            weight: MD_CHART_FONTS.label.weight,
+          },
+          padding: 12,
+          usePointStyle: true,
+        },
       },
       tooltip: {
         enabled: true,
         mode: 'index' as const,
-        intersect: false
-      }
-    }
+        intersect: false,
+        backgroundColor: 'rgba(29, 27, 32, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: MD_CHART_COLORS.primary,
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+        titleFont: {
+          family: MD_CHART_FONTS.family,
+          size: MD_CHART_FONTS.label.size,
+          weight: MD_CHART_FONTS.title.weight,
+        },
+        bodyFont: {
+          family: MD_CHART_FONTS.family,
+          size: MD_CHART_FONTS.body.size,
+        },
+      },
+    },
   }
 
   /**

@@ -6,36 +6,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
-import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  LineController,
-  BarElement,
-  BarController,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  type ChartConfiguration
-} from 'chart.js'
-
-// Register Chart.js components
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  LineController,
-  BarElement,
-  BarController,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-)
+import { Chart, type ChartConfiguration } from '@/lib/chartSetup'
 
 interface SchoolYear {
   id: string

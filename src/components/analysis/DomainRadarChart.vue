@@ -6,28 +6,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
-import {
-  Chart,
-  RadarController,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-  type ChartConfiguration
-} from 'chart.js'
-
-// Register Chart.js components
-Chart.register(
-  RadarController,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-)
+import { Chart, type ChartConfiguration } from '@/lib/chartSetup'
 
 interface EvaluationScore {
   score: number

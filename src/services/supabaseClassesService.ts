@@ -9,21 +9,18 @@ type UserClass = Database['public']['Tables']['user_classes']['Row']
 
 export class SupabaseClassesService {
   /**
-   * Get all active classes
+   * Get all active classes (for search/discovery)
+   * Uses a special function that bypasses RLS to allow users to discover classes
    */
   async getClasses(): Promise<Class[]> {
     try {
+      // Use the get_searchable_classes() function which bypasses RLS
       const { data, error } = await supabase
-        .from('classes')
-        .select('*')
-        .eq('active', true)
-        .order('school_year', { ascending: false })
-        .order('level')
-        .order('name')
+        .rpc('get_searchable_classes')
 
       if (error) throw error
 
-      return (data || []).map(cls => ({
+      return (data || []).map((cls: any) => ({
         id: cls.id,
         name: cls.name,
         description: cls.description ?? undefined,

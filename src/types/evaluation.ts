@@ -1,129 +1,38 @@
-export interface Student {
-  id: string
-  firstName: string
-  lastName: string
-  displayName: string
-  gender?: 'M' | 'F' | 'Autre' | string | null
-  birthDate?: string | null  // Format ISO date string (YYYY-MM-DD)
-}
+/**
+ * Evaluation Types Barrel Export
+ *
+ * Phase 4.2: Type Organization
+ * This file now serves as a barrel export for backward compatibility.
+ * Types have been split into focused modules for better organization.
+ *
+ * @see student.types.ts - Student, Class, ClassTeacher
+ * @see result.types.ts - Result types and configurations
+ * @see competency.types.ts - Competency framework hierarchy
+ * @see evaluation.types.ts - Evaluation entity
+ */
 
-export interface Class {
-  id: string
-  name: string
-  description?: string
-  schoolYear: string
-  level?: string
-  subject?: string
-  active: boolean
-  createdAt: string
-  updatedAt: string
-}
+// Re-export student types
+export type { Student, Class, ClassTeacher } from './student.types'
 
-export interface ClassTeacher {
-  id: string
-  classId: string
-  userId: string
-  role: 'teacher' | 'owner' | 'assistant'
-  email?: string
-  fullName?: string
-  createdAt: string
-  updatedAt: string
-}
+// Re-export result types
+export type {
+  ResultType,
+  ResultTypeConfigValue,
+  ResultTypeConfig,
+  EvaluationLevel,
+  EvaluationValue,
+  EvaluationResult
+} from './result.types'
 
-export type ResultType = 'scale' | 'boolean' | 'custom' | 'numeric'
+// Re-export competency types
+export type {
+  SpecificCompetency,
+  Competency,
+  Field,
+  Domain,
+  CompetencyFramework,
+  TreeNode
+} from './competency.types'
 
-export interface ResultTypeConfigValue {
-  label: string
-  value: string
-  pivot_value: number | null  // Value on 0-10 scale for cross-type analysis, null for N/A
-  isFixed?: boolean  // For N/A values that cannot be deleted
-}
-
-export interface ResultTypeConfig {
-  id: string
-  name: string
-  type: ResultType
-  config: {
-    values: ResultTypeConfigValue[]
-    // Numeric type specific configuration
-    minValue?: number
-    maxValue?: number
-  }
-}
-
-export interface SpecificCompetency {
-  id: string
-  name: string
-  description: string
-  resultTypeConfigId?: string
-  resultTypeConfig?: ResultTypeConfig
-}
-
-export interface Competency {
-  id: string
-  name: string
-  description: string
-  specificCompetencies: SpecificCompetency[]
-}
-
-export interface Field {
-  id: string
-  name: string
-  description: string
-  competencies: Competency[]
-}
-
-export interface Domain {
-  id: string
-  name: string
-  description: string
-  fields: Field[]
-}
-
-export interface CompetencyFramework {
-  id: string
-  name: string
-  version: string
-  domains: Domain[]
-}
-
-export type EvaluationLevel = 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
-export type EvaluationValue = string // Now supports any string value based on result type
-
-export interface EvaluationResult {
-  studentId: string
-  competencyId: string
-  specificCompetencyId?: string
-  resultTypeConfigId?: string
-  level?: EvaluationLevel // Deprecated, kept for backward compatibility
-  value?: EvaluationValue // New field supporting different result types
-  comment?: string
-  evaluatedAt: string
-}
-
-export interface Evaluation {
-  id: string
-  name: string
-  description: string
-  classId: string
-  frameworkId: string
-  createdAt: string
-  results: EvaluationResult[]
-}
-
-export interface TreeNode {
-  id: string
-  name: string
-  type: 'domain' | 'field' | 'competency' | 'specificCompetency'
-  level: number
-  parentId?: string
-  isExpanded?: boolean
-  children?: TreeNode[]
-  originalItem: Domain | Field | Competency | SpecificCompetency
-  hierarchyData?: {
-    domain: string
-    field: string
-    competency: string
-    specificCompetency: string
-  }
-}
+// Re-export evaluation types
+export type { Evaluation } from './evaluation.types'

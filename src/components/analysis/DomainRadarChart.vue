@@ -51,7 +51,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const chartCanvas = ref<HTMLCanvasElement | null>(null)
+const chartCanvas = ref<InstanceType<typeof HTMLCanvasElement> | null>(null)
 let chartInstance: Chart | null = null
 
 const createChart = () => {

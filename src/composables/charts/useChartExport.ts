@@ -41,7 +41,9 @@ export function useChartExport() {
         throw new Error('Failed to create blob from canvas')
       }
 
+       
       await navigator.clipboard.write([
+        // eslint-disable-next-line no-undef
         new ClipboardItem({ 'image/png': blob })
       ])
 

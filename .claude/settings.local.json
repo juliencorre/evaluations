@@ -45,7 +45,8 @@
       "Bash(if exist package-lock.json del package-lock.json)",
       "Bash(npm cache clean:*)",
       "Bash(xargs:*)",
-      "Bash(del \"e2e\\offline.spec.ts\")"
+      "Bash(del \"e2e\\offline.spec.ts\")",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

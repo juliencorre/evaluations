@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+/* eslint-env node */
+ 
+
 /**
  * Script de migration automatique pour le refactoring des stores Pinia
  *

@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'click', event: MouseEvent): void
+  (e: 'click', event: Event): void
   (e: 'remove'): void
 }>()
 
@@ -53,7 +53,7 @@ const chipClasses = computed(() => [
   }
 ])
 
-const handleClick = (event: MouseEvent) => {
+const handleClick = (event: Event) => {
   if (!props.disabled) {
     emit('click', event)
   }

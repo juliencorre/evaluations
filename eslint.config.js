@@ -10,6 +10,7 @@ export default [
       'dist/**',
       'node_modules/**',
       'public/**',
+      'scripts/**',
       '*.config.js',
       '*.config.ts',
       'generate-icons.js',

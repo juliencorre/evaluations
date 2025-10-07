@@ -252,7 +252,7 @@ export class ClassRepository extends BaseRepository {
         createdAt: member.created_at,
         updatedAt: member.created_at
       }))
-    } catch (error) {
+    } catch {
       // Fallback to alternative method
       return this.getTeachersAlternative(classId)
     }

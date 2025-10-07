@@ -37,10 +37,11 @@ export function useLocalStorage<T>(key: string, defaultValue: T): Ref<T> {
   }, { deep: true })
 
   // Écouter les changements depuis d'autres onglets
-  const handleStorageChange = (e: StorageEvent) => {
-    if (e.key === key && e.newValue !== null) {
+  const handleStorageChange = (e: Event) => {
+    const storageEvent = e as { key: string | null; newValue: string | null }
+    if (storageEvent.key === key && storageEvent.newValue !== null) {
       try {
-        storedValue.value = JSON.parse(e.newValue)
+        storedValue.value = JSON.parse(storageEvent.newValue)
       } catch (error) {
         console.warn(`Error parsing localStorage change for key "${key}":`, error)
       }

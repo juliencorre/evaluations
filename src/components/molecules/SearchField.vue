@@ -14,8 +14,8 @@
         <button
           type="button"
           class="search-clear"
-          @click="handleClear"
           aria-label="Clear search"
+          @click="handleClear"
         >
           ×
         </button>

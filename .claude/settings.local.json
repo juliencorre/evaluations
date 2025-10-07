@@ -44,7 +44,8 @@
       "Bash(if exist node_modules rmdir /s /q node_modules)",
       "Bash(if exist package-lock.json del package-lock.json)",
       "Bash(npm cache clean:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(del \"e2e\\offline.spec.ts\")"
     ],
     "deny": []
   }

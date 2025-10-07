@@ -6,8 +6,8 @@
       v-if="removable"
       type="button"
       class="chip-remove"
-      @click.stop="handleRemove"
       aria-label="Remove"
+      @click.stop="handleRemove"
     >
       ×
     </button>

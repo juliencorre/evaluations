@@ -107,10 +107,6 @@ describe('Fonctions d\'export PDF', () => {
   })
 
   it('exporte le graphique individuel en PDF', async () => {
-    const chartElement = document.createElement('div')
-    chartElement.className = 'competencies-card'
-    document.body.appendChild(chartElement)
-
     const wrapper = mount(ClassResultsView, {
       props: {
         id: 'test-class-id'
@@ -124,7 +120,7 @@ describe('Fonctions d\'export PDF', () => {
         stubs: {
           CenterAppBar: { template: '<div />' },
           AnalysisTabs: { template: '<div><slot /></div>' },
-          DashboardView: { template: '<div />' },
+          DashboardView: { template: '<div class="competencies-card">Mock Chart</div>' },
           StudentAnalysisView: { template: '<div />' }
         }
       }
@@ -147,12 +143,6 @@ describe('Fonctions d\'export PDF', () => {
   })
 
   it('exporte tous les graphiques élèves en PDF multi-pages', async () => {
-    const firstChart = document.createElement('div')
-    firstChart.className = 'chart-container'
-    const secondChart = document.createElement('div')
-    secondChart.className = 'chart-container'
-    document.body.append(firstChart, secondChart)
-
     const wrapper = mount(ClassResultsView, {
       props: {
         id: 'test-class-id'
@@ -167,7 +157,7 @@ describe('Fonctions d\'export PDF', () => {
           CenterAppBar: { template: '<div />' },
           AnalysisTabs: { template: '<div><slot /></div>' },
           DashboardView: { template: '<div />' },
-          StudentAnalysisView: { template: '<div />' }
+          StudentAnalysisView: { template: '<div><div class="chart-container">Chart 1</div><div class="chart-container">Chart 2</div></div>' }
         }
       }
     })

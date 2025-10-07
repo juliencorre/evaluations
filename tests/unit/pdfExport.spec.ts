@@ -43,11 +43,17 @@ const mockJsPDF = vi.fn(() => {
   return instance
 })
 
-const mockHtml2Canvas = vi.fn(async () => ({
-  width: 800,
-  height: 600,
-  toDataURL: vi.fn(() => 'data:image/png;base64,mock')
-}))
+const mockHtml2Canvas = vi.fn(async () => {
+  const mockCanvas = {
+    width: 800,
+    height: 600,
+    toDataURL: vi.fn(() => 'data:image/png;base64,mock'),
+    getContext: vi.fn(() => ({
+      drawImage: vi.fn()
+    }))
+  }
+  return mockCanvas
+})
 
 vi.mock('jspdf', () => ({ jsPDF: mockJsPDF }))
 vi.mock('html2canvas', () => ({ default: mockHtml2Canvas }))
@@ -78,6 +84,21 @@ describe('Fonctions d\'export PDF', () => {
     mockPdfInstances.length = 0
     document.body.innerHTML = ''
     alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+
+    // Mock document.createElement for canvas
+    const originalCreateElement = document.createElement.bind(document)
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      if (tagName === 'canvas') {
+        return {
+          width: 0,
+          height: 0,
+          getContext: vi.fn(() => ({
+            drawImage: vi.fn()
+          }))
+        } as unknown as HTMLCanvasElement
+      }
+      return originalCreateElement(tagName)
+    })
   })
 
   afterEach(() => {

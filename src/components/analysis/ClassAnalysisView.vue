@@ -456,7 +456,7 @@ watch(() => props.classId, () => {
 }
 
 .white-card {
-  background: white;
+  background: var(--md-sys-color-surface);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

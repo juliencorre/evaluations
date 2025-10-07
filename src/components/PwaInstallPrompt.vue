@@ -58,8 +58,8 @@ const dismiss = () => {
   bottom: 20px;
   left: 20px;
   right: 20px;
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 20px;

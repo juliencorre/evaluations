@@ -30,7 +30,7 @@ withDefaults(defineProps<Props>(), {
 
 <style scoped>
 .print-layout {
-  background: white;
+  background: var(--md-sys-color-surface);
   color: black;
 }
 

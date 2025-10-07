@@ -1236,7 +1236,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 
 /* Main Competencies Card */
 .competencies-card {
-  background: white;
+  background: var(--md-sys-color-surface);
   border-radius: 16px;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -1301,7 +1301,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 
 /* Empty State Card */
 .empty-state-card {
-  background: white;
+  background: var(--md-sys-color-surface);
   border-radius: 16px;
   padding: 48px 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);

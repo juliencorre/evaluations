@@ -1,14 +1,10 @@
 /**
  * Main CSS Entry Point
  * Imports all styles in correct order
+ * IMPORTANT: @import must come before @tailwind directives
  */
 
-/* Tailwind Base */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Material Design Tokens */
+/* Material Design Tokens - MUST BE FIRST */
 @import './tokens/colors.css';
 @import './tokens/spacing.css';
 @import './tokens/typography.css';
@@ -24,3 +20,8 @@
 
 /* Custom Utilities */
 @import './utilities/custom-utilities.css';
+
+/* Tailwind - MUST BE LAST */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

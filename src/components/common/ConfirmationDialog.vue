@@ -71,7 +71,7 @@ defineEmits<Emits>()
 
 /* Dialog Container */
 .dialog-container {
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
   border-radius: 28px;
   min-width: 280px;
   max-width: 400px;

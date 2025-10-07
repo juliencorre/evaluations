@@ -480,6 +480,7 @@ export const supabaseEvaluationClassesService = {
           )
         `)
         .in('class_id', classIds)
+        .eq('status', 'active')
         .order('students(first_name)')
 
       if (error) {

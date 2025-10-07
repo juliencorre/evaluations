@@ -184,10 +184,14 @@ onUnmounted(() => {
 .select-dropdown {
   max-height: 280px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .options-container {
+  max-height: 280px;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--md-sys-color-outline-variant) transparent;
 }

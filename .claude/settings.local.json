@@ -30,7 +30,10 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(done)",
       "Bash(git checkout:*)",
-      "Bash(npm run predeploy:*)"
+      "Bash(npm run predeploy:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }

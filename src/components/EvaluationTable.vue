@@ -820,7 +820,8 @@ function cancelEditing() {
 .evaluation-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 80px); /* 64px AppBar + 16px padding */
+  max-height: calc(100vh - 80px);
 }
 
 /* Filters Panel Styles */
@@ -1347,6 +1348,12 @@ function cancelEditing() {
 
 /* Inline editing styles */
 .edit-mode {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -1368,16 +1375,6 @@ function cancelEditing() {
 .result-select:focus {
   border-color: var(--app-table-search-focus-border);
   box-shadow: 0 0 0 0.2rem var(--app-focus-ring);
-}
-
-/* Edit mode styles */
-.edit-mode {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 100;
 }
 
 /* Responsive design */

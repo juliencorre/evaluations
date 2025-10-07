@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import type { Student, CompetencyFramework, Domain } from '@/types/evaluation'
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0))
@@ -51,6 +52,7 @@ vi.mock('@/services/supabaseCompetenciesService', () => ({
 
 describe('useStudentsStore', () => {
   beforeEach(async () => {
+    setActivePinia(createPinia())
     vi.resetModules()
     vi.clearAllMocks()
 
@@ -86,7 +88,7 @@ describe('useStudentsStore', () => {
     const newStudent = await store.addStudent({ firstName: 'Bruno', lastName: 'Dupont' })
 
     expect(newStudent).toMatchObject({ id: 'stu-2', firstName: 'Bruno', lastName: 'Dupont' })
-    expect(store.allStudents.value).toContainEqual(newStudent)
+    expect(store.allStudents).toContainEqual(newStudent)
   })
 
   it('met à jour un élève existant et rafraîchit le displayName', async () => {
@@ -121,6 +123,7 @@ describe('useStudentsStore', () => {
 
 describe('useCompetencyFrameworkStore', () => {
   beforeEach(async () => {
+    setActivePinia(createPinia())
     vi.resetModules()
     vi.clearAllMocks()
 
@@ -157,8 +160,8 @@ describe('useCompetencyFrameworkStore', () => {
     await store.refreshFromSupabase()
     await flushPromises()
 
-    const framework = store.framework.value
-    const fieldId = framework.domains[0].fields[0].id
+    const framework = store.framework
+    const fieldId = framework?.domains[0].fields[0].id
 
     const newCompetency = store.addCompetency(fieldId, {
       name: 'Comprendre un texte',

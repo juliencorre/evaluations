@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import type { Evaluation } from '@/types/evaluation'
 
 const mockSupabaseEvaluationsService = {
@@ -24,6 +25,7 @@ const sampleEvaluation = {
 
 describe('useEvaluationStore', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.resetModules()
     vi.clearAllMocks()
   })
@@ -36,8 +38,8 @@ describe('useEvaluationStore', () => {
 
     await store.loadEvaluations()
 
-    expect(store.allEvaluations.value).toHaveLength(1)
-    expect(store.currentEvaluation.value.id).toBe(sampleEvaluation.id)
+    expect(store.allEvaluations).toHaveLength(1)
+    expect(store.currentEvaluation?.id).toBe(sampleEvaluation.id)
   })
 
   it('ajoute une évaluation et la définit comme évaluation courante', async () => {
@@ -54,8 +56,8 @@ describe('useEvaluationStore', () => {
     })
 
     expect(created).toEqual(sampleEvaluation)
-    expect(store.allEvaluations.value.find(evaluation => evaluation.id === sampleEvaluation.id)).toBeDefined()
-    expect(store.currentEvaluation.value.id).toBe(sampleEvaluation.id)
+    expect(store.allEvaluations.find(evaluation => evaluation.id === sampleEvaluation.id)).toBeDefined()
+    expect(store.currentEvaluation?.id).toBe(sampleEvaluation.id)
   })
 
   it('met à jour une évaluation existante et synchronise le store', async () => {
@@ -77,8 +79,8 @@ describe('useEvaluationStore', () => {
     const result = await store.updateEvaluation(sampleEvaluation.id, { name: updatedEvaluation.name })
 
     expect(result).toEqual(updatedEvaluation)
-    expect(store.allEvaluations.value[0].name).toBe('Évaluation mise à jour')
-    expect(store.currentEvaluation.value.name).toBe('Évaluation mise à jour')
+    expect(store.allEvaluations[0].name).toBe('Évaluation mise à jour')
+    expect(store.currentEvaluation?.name).toBe('Évaluation mise à jour')
   })
 
   it('supprime une évaluation et met à jour la sélection courante', async () => {
@@ -98,8 +100,8 @@ describe('useEvaluationStore', () => {
     const success = await store.deleteEvaluation(sampleEvaluation.id)
 
     expect(success).toBe(true)
-    expect(store.allEvaluations.value.find(evaluation => evaluation.id === sampleEvaluation.id)).toBeUndefined()
+    expect(store.allEvaluations.find(evaluation => evaluation.id === sampleEvaluation.id)).toBeUndefined()
     // After deleting the only evaluation, currentEvaluation should be null
-    expect(store.currentEvaluation.value).toBeNull()
+    expect(store.currentEvaluation).toBeNull()
   })
 })

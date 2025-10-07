@@ -261,7 +261,7 @@ const loadClassData = async () => {
     const teachers = await classStore.getClassTeachers(props.id)
     console.log('👥 Teachers loaded:', teachers)
     // Filtrer les utilisateurs admin du comptage
-    const nonAdminTeachers = teachers.filter(teacher => teacher.role !== 'admin')
+    const nonAdminTeachers = teachers.filter((teacher: { role: string }) => teacher.role !== 'admin')
     teacherCount.value = nonAdminTeachers.length
   } catch (error) {
     console.error('Error loading class data:', error)

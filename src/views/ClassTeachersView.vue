@@ -180,8 +180,8 @@ const pageTitle = computed(() => {
 })
 
 const filteredTeachers = computed(() => {
-  // Exclure les utilisateurs admin de la liste
-  const nonAdminTeachers = teachers.value.filter(teacher => teacher.role !== 'admin')
+  // Exclure les utilisateurs admin de la liste (admin n'est pas un rôle valide dans user_classes)
+  const nonAdminTeachers = teachers.value
 
   if (!searchQuery.value.trim()) {
     return nonAdminTeachers

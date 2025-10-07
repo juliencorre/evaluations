@@ -3,7 +3,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import { router, preloadCriticalRoutes } from './router'
-import './style.css'
+// Import Tailwind CSS with Material Design tokens
+import './styles/main.css'
 
 // Create pinia store
 const pinia = createPinia()

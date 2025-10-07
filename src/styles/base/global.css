@@ -1,0 +1,193 @@
+/**
+ * Global Base Styles
+ * Application-wide styles and Material Design defaults
+ */
+
+html {
+  font-family: var(--md-sys-typescale-font-family);
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  font-size: var(--md-sys-typescale-body-medium-font-size);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+  font-weight: var(--md-sys-typescale-body-medium-font-weight);
+  letter-spacing: var(--md-sys-typescale-body-medium-letter-spacing);
+  min-height: 100vh;
+}
+
+/* Headings */
+h1 {
+  font-size: var(--md-sys-typescale-headline-large-font-size);
+  line-height: var(--md-sys-typescale-headline-large-line-height);
+  font-weight: var(--md-sys-typescale-headline-large-font-weight);
+  letter-spacing: var(--md-sys-typescale-headline-large-letter-spacing);
+}
+
+h2 {
+  font-size: var(--md-sys-typescale-headline-medium-font-size);
+  line-height: var(--md-sys-typescale-headline-medium-line-height);
+  font-weight: var(--md-sys-typescale-headline-medium-font-weight);
+  letter-spacing: var(--md-sys-typescale-headline-medium-letter-spacing);
+}
+
+h3 {
+  font-size: var(--md-sys-typescale-headline-small-font-size);
+  line-height: var(--md-sys-typescale-headline-small-line-height);
+  font-weight: var(--md-sys-typescale-headline-small-font-weight);
+  letter-spacing: var(--md-sys-typescale-headline-small-letter-spacing);
+}
+
+h4 {
+  font-size: var(--md-sys-typescale-title-large-font-size);
+  line-height: var(--md-sys-typescale-title-large-line-height);
+  font-weight: var(--md-sys-typescale-title-large-font-weight);
+  letter-spacing: var(--md-sys-typescale-title-large-letter-spacing);
+}
+
+h5 {
+  font-size: var(--md-sys-typescale-title-medium-font-size);
+  line-height: var(--md-sys-typescale-title-medium-line-height);
+  font-weight: var(--md-sys-typescale-title-medium-font-weight);
+  letter-spacing: var(--md-sys-typescale-title-medium-letter-spacing);
+}
+
+h6 {
+  font-size: var(--md-sys-typescale-title-small-font-size);
+  line-height: var(--md-sys-typescale-title-small-line-height);
+  font-weight: var(--md-sys-typescale-title-small-font-weight);
+  letter-spacing: var(--md-sys-typescale-title-small-letter-spacing);
+}
+
+/* Links */
+a {
+  color: var(--md-sys-color-primary);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--md-sys-color-primary-container);
+}
+
+a:focus-visible {
+  outline: var(--md-sys-focus-ring-width) solid var(--md-sys-focus-ring-color);
+  outline-offset: var(--md-sys-focus-ring-offset);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+/* Code */
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--md-sys-typescale-font-family-monospace);
+  font-size: 0.875em;
+}
+
+code {
+  padding: 0.125rem 0.25rem;
+  background-color: var(--md-sys-color-surface-variant);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+pre {
+  padding: var(--md-sys-spacing-4);
+  background-color: var(--md-sys-color-surface-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  overflow-x: auto;
+}
+
+pre code {
+  padding: 0;
+  background-color: transparent;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* Focus visible (for keyboard navigation) */
+:focus-visible {
+  outline: var(--md-sys-focus-ring-width) solid var(--md-sys-focus-ring-color);
+  outline-offset: var(--md-sys-focus-ring-offset);
+}
+
+/* Scrollbar styling (webkit browsers) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--md-sys-color-surface-variant);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-on-surface-variant);
+}
+
+/* Print styles */
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+
+  pre {
+    white-space: pre-wrap !important;
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}

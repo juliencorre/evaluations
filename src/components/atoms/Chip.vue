@@ -19,7 +19,7 @@ import { computed } from 'vue'
 
 interface Props {
   variant?: 'filled' | 'outlined' | 'elevated'
-  color?: 'primary' | 'secondary' | 'error' | 'success' | 'warning'
+  color?: 'primary' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'neutral'
   size?: 'small' | 'medium'
   icon?: string
   removable?: boolean

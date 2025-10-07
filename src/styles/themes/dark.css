@@ -1,0 +1,91 @@
+/**
+ * Dark Theme
+ * Material Design 3 Dark Color Scheme
+ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Primary */
+  --md-sys-color-primary: #90caf9;
+  --md-sys-color-on-primary: #0d47a1;
+  --md-sys-color-primary-container: #1565c0;
+  --md-sys-color-on-primary-container: #e3f2fd;
+
+  /* Secondary */
+  --md-sys-color-secondary: #ce93d8;
+  --md-sys-color-on-secondary: #4a148c;
+  --md-sys-color-secondary-container: #6a1b9a;
+  --md-sys-color-on-secondary-container: #f3e5f5;
+
+  /* Tertiary */
+  --md-sys-color-tertiary: #80cbc4;
+  --md-sys-color-on-tertiary: #004d40;
+  --md-sys-color-tertiary-container: #00695c;
+  --md-sys-color-on-tertiary-container: #e0f2f1;
+
+  /* Error */
+  --md-sys-color-error: #ef5350;
+  --md-sys-color-on-error: #b71c1c;
+  --md-sys-color-error-container: #c62828;
+  --md-sys-color-on-error-container: #ffebee;
+
+  /* Surface */
+  --md-sys-color-surface: #1d1d1d;
+  --md-sys-color-on-surface: #e8e8e8;
+  --md-sys-color-surface-variant: #2d2d2d;
+  --md-sys-color-on-surface-variant: #b3b3b3;
+
+  /* Background */
+  --md-sys-color-background: #121212;
+  --md-sys-color-on-background: #e8e8e8;
+
+  /* Outline */
+  --md-sys-color-outline: #4d4d4d;
+  --md-sys-color-outline-variant: #3d3d3d;
+
+  /* Surface Containers */
+  --md-sys-color-surface-container: #262626;
+  --md-sys-color-surface-container-low: #1d1d1d;
+  --md-sys-color-surface-container-high: #2d2d2d;
+  --md-sys-color-surface-container-highest: #363636;
+
+  /* Inverse */
+  --md-sys-color-inverse-surface: #e8e8e8;
+  --md-sys-color-inverse-on-surface: #1d1d1d;
+  --md-sys-color-inverse-primary: #2196f3;
+
+  /* Success */
+  --md-sys-color-success: #66bb6a;
+  --md-sys-color-on-success: #1b5e20;
+  --md-sys-color-success-container: #2e7d32;
+  --md-sys-color-on-success-container: #e8f5e9;
+
+  /* Warning */
+  --md-sys-color-warning: #ff9800;
+  --md-sys-color-on-warning: #bf360c;
+  --md-sys-color-warning-container: #e64a19;
+  --md-sys-color-on-warning-container: #fff3e0;
+
+  /* Info */
+  --md-sys-color-info: #4fc3f7;
+  --md-sys-color-on-info: #01579b;
+  --md-sys-color-info-container: #0277bd;
+  --md-sys-color-on-info-container: #e1f5fe;
+}
+
+/* Dark theme adjustments for better readability */
+[data-theme="dark"] {
+  /* Increase elevation shadows opacity for dark mode */
+  --md-sys-elevation-1:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 1px 3px 1px rgba(0, 0, 0, 0.3);
+
+  --md-sys-elevation-2:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 6px 2px rgba(0, 0, 0, 0.3);
+
+  --md-sys-elevation-3:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    0 4px 8px 3px rgba(0, 0, 0, 0.3);
+}

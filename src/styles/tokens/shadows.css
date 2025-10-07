@@ -1,0 +1,49 @@
+/**
+ * Material Design 3 Elevation/Shadow Tokens
+ * Based on Material 3 elevation system
+ */
+
+:root {
+  /* Elevation Levels */
+  --md-sys-elevation-0: none;
+
+  --md-sys-elevation-1:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 1px 3px 1px rgba(0, 0, 0, 0.15);
+
+  --md-sys-elevation-2:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 2px 6px 2px rgba(0, 0, 0, 0.15);
+
+  --md-sys-elevation-3:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 4px 8px 3px rgba(0, 0, 0, 0.15);
+
+  --md-sys-elevation-4:
+    0 2px 3px rgba(0, 0, 0, 0.3),
+    0 6px 10px 4px rgba(0, 0, 0, 0.15);
+
+  --md-sys-elevation-5:
+    0 4px 4px rgba(0, 0, 0, 0.3),
+    0 8px 12px 6px rgba(0, 0, 0, 0.15);
+
+  /* Component-specific elevations */
+  --md-sys-elevation-card: var(--md-sys-elevation-1);
+  --md-sys-elevation-card-hover: var(--md-sys-elevation-2);
+  --md-sys-elevation-button: var(--md-sys-elevation-0);
+  --md-sys-elevation-button-hover: var(--md-sys-elevation-1);
+  --md-sys-elevation-dialog: var(--md-sys-elevation-3);
+  --md-sys-elevation-navigation: var(--md-sys-elevation-2);
+  --md-sys-elevation-fab: var(--md-sys-elevation-3);
+  --md-sys-elevation-fab-hover: var(--md-sys-elevation-4);
+
+  /* Focus Ring */
+  --md-sys-focus-ring-width: 2px;
+  --md-sys-focus-ring-offset: 2px;
+  --md-sys-focus-ring-color: var(--md-sys-color-primary);
+
+  /* Border Widths */
+  --md-sys-border-width-thin: 1px;
+  --md-sys-border-width-medium: 2px;
+  --md-sys-border-width-thick: 3px;
+}

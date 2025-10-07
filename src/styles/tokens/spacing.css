@@ -1,0 +1,47 @@
+/**
+ * Material Design 3 Spacing Tokens
+ * Based on 4px grid system
+ */
+
+:root {
+  /* Base Spacing Scale */
+  --md-sys-spacing-0: 0;
+  --md-sys-spacing-1: 0.25rem;  /* 4px */
+  --md-sys-spacing-2: 0.5rem;   /* 8px */
+  --md-sys-spacing-3: 0.75rem;  /* 12px */
+  --md-sys-spacing-4: 1rem;     /* 16px */
+  --md-sys-spacing-5: 1.25rem;  /* 20px */
+  --md-sys-spacing-6: 1.5rem;   /* 24px */
+  --md-sys-spacing-7: 1.75rem;  /* 28px */
+  --md-sys-spacing-8: 2rem;     /* 32px */
+  --md-sys-spacing-10: 2.5rem;  /* 40px */
+  --md-sys-spacing-12: 3rem;    /* 48px */
+  --md-sys-spacing-16: 4rem;    /* 64px */
+  --md-sys-spacing-20: 5rem;    /* 80px */
+  --md-sys-spacing-24: 6rem;    /* 96px */
+
+  /* Component Spacing */
+  --md-sys-spacing-component-padding: var(--md-sys-spacing-4);
+  --md-sys-spacing-component-gap: var(--md-sys-spacing-3);
+
+  /* Layout Spacing */
+  --md-sys-spacing-page-padding: var(--md-sys-spacing-6);
+  --md-sys-spacing-section-gap: var(--md-sys-spacing-8);
+  --md-sys-spacing-container-max-width: 1400px;
+
+  /* Border Radius */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 0.25rem;   /* 4px */
+  --md-sys-shape-corner-small: 0.5rem;          /* 8px */
+  --md-sys-shape-corner-medium: 0.75rem;        /* 12px */
+  --md-sys-shape-corner-large: 1rem;            /* 16px */
+  --md-sys-shape-corner-extra-large: 1.75rem;   /* 28px */
+  --md-sys-shape-corner-full: 9999px;
+
+  /* Component-specific radii */
+  --md-sys-shape-button: var(--md-sys-shape-corner-large);
+  --md-sys-shape-card: var(--md-sys-shape-corner-medium);
+  --md-sys-shape-chip: var(--md-sys-shape-corner-small);
+  --md-sys-shape-dialog: var(--md-sys-shape-corner-extra-large);
+  --md-sys-shape-input: var(--md-sys-shape-corner-extra-small);
+}

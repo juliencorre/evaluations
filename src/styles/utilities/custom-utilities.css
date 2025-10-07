@@ -1,0 +1,211 @@
+/**
+ * Custom Tailwind Utilities
+ * Material Design specific utility classes
+ */
+
+@layer utilities {
+  /* Material Design Elevation Utilities */
+  .md-elevation-0 {
+    box-shadow: var(--md-sys-elevation-0);
+  }
+
+  .md-elevation-1 {
+    box-shadow: var(--md-sys-elevation-1);
+  }
+
+  .md-elevation-2 {
+    box-shadow: var(--md-sys-elevation-2);
+  }
+
+  .md-elevation-3 {
+    box-shadow: var(--md-sys-elevation-3);
+  }
+
+  .md-elevation-4 {
+    box-shadow: var(--md-sys-elevation-4);
+  }
+
+  .md-elevation-5 {
+    box-shadow: var(--md-sys-elevation-5);
+  }
+
+  /* State Layer Utilities */
+  .md-state-layer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .md-state-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+
+  .md-state-layer:hover::before {
+    opacity: 0.08;
+  }
+
+  .md-state-layer:focus::before {
+    opacity: 0.12;
+  }
+
+  .md-state-layer:active::before {
+    opacity: 0.16;
+  }
+
+  /* Focus Ring Utilities */
+  .md-focus-ring {
+    outline: var(--md-sys-focus-ring-width) solid var(--md-sys-focus-ring-color);
+    outline-offset: var(--md-sys-focus-ring-offset);
+  }
+
+  .md-focus-ring-inset {
+    outline: var(--md-sys-focus-ring-width) solid var(--md-sys-focus-ring-color);
+    outline-offset: calc(-1 * var(--md-sys-focus-ring-offset));
+  }
+
+  /* Surface Utilities */
+  .md-surface {
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+  }
+
+  .md-surface-variant {
+    background-color: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  .md-surface-container {
+    background-color: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+  }
+
+  /* Container Utilities */
+  .md-container {
+    max-width: var(--md-sys-spacing-container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--md-sys-spacing-page-padding);
+    padding-right: var(--md-sys-spacing-page-padding);
+  }
+
+  /* Scrollbar Utilities */
+  .md-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--md-sys-color-outline) var(--md-sys-color-surface-variant);
+  }
+
+  .md-scrollbar::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  .md-scrollbar::-webkit-scrollbar-track {
+    background: var(--md-sys-color-surface-variant);
+  }
+
+  .md-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline);
+    border-radius: var(--md-sys-shape-corner-full);
+  }
+
+  .md-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--md-sys-color-on-surface-variant);
+  }
+
+  /* Hide scrollbar */
+  .md-scrollbar-hidden {
+    scrollbar-width: none;
+  }
+
+  .md-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Truncate text utilities */
+  .md-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .md-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Grid utilities for Material Design */
+  .md-grid {
+    display: grid;
+    gap: var(--md-sys-spacing-component-gap);
+  }
+
+  .md-grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  /* Flex utilities for Material Design */
+  .md-flex {
+    display: flex;
+    gap: var(--md-sys-spacing-component-gap);
+  }
+
+  .md-flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Ripple effect */
+  @keyframes md-ripple {
+    0% {
+      transform: scale(0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  .md-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .md-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .md-ripple:active::after {
+    animation: md-ripple 0.6s ease-out;
+  }
+
+  /* Print utilities */
+  @media print {
+    .md-print-hidden {
+      display: none !important;
+    }
+
+    .md-print-visible {
+      display: block !important;
+    }
+  }
+}

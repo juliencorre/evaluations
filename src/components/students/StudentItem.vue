@@ -66,10 +66,15 @@ const avatarClass = computed(() => {
   padding: 16px 20px;
   min-height: 72px;
   background: var(--md-sys-color-surface, #ffffff);
-  border-bottom: 1px solid var(--md-sys-color-outline, #79747E);
-  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  border: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+  border-radius: 16px;
+  transition:
+    background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
   overflow: hidden;
   cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .student-item::before {
@@ -79,6 +84,7 @@ const avatarClass = computed(() => {
   background: transparent;
   transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
   pointer-events: none;
+  border-radius: inherit;
 }
 
 .student-item:hover::before {
@@ -87,10 +93,6 @@ const avatarClass = computed(() => {
 
 .student-item:focus-within::before {
   background: rgba(103, 80, 164, 0.12);
-}
-
-.student-item:last-child {
-  border-bottom: none;
 }
 
 .student-content {
@@ -249,6 +251,19 @@ const avatarClass = computed(() => {
 
 .delete-action:focus::before {
   background: rgba(186, 26, 26, 0.12);
+}
+
+@media (max-width: 960px) {
+  .student-item {
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid var(--md-sys-color-outline, #79747E);
+    box-shadow: none;
+  }
+
+  .student-item:last-child {
+    border-bottom: none;
+  }
 }
 
 /* Responsive */

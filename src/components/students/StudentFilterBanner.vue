@@ -173,7 +173,8 @@ watch(() => props.ageRangeFilter, (newVal) => {
 .filter-banner {
   background: var(--md-sys-color-surface-variant);
   border-radius: 12px;
-  margin-bottom: 16px;
+  margin: 0 auto 16px;
+  width: min(100%, clamp(36rem, 80vw, 70rem));
   overflow: hidden;
 }
 

@@ -39,11 +39,14 @@ defineEmits<Emits>()
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: min(100%, clamp(36rem, 80vw, 70rem));
+  margin: 0 auto;
 }
 
 .students-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  gap: 16px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -59,9 +62,15 @@ defineEmits<Emits>()
   margin-top: 24px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
+  .students-list-container {
+    width: 100%;
+  }
+
   .students-list {
-    /* Liste sans marges sur mobile */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
 }
 </style>

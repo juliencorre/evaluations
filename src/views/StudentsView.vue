@@ -15,7 +15,7 @@
       <h1 class="visually-hidden">Gestion des élèves</h1>
 
       <!-- No Students State -->
-      <div v-if="studentsStore.allStudents.value.length === 0" class="empty-state">
+      <div v-if="studentsStore.allStudents.length === 0" class="empty-state">
         <div class="empty-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
@@ -117,7 +117,7 @@ onMounted(async () => {
     }
 
     // Load students from Supabase if not already loaded
-    if (studentsStore.allStudents.value.length === 0) {
+    if (studentsStore.allStudents.length === 0) {
       await studentsStore.refreshFromSupabase()
     }
   } catch (error) {
@@ -140,13 +140,13 @@ const calculateAge = (birthDate: string | null | undefined): number => {
 
 // Computed
 const filteredStudents = computed(() => {
-  let students = studentsStore.allStudents.value
+  let students = studentsStore.allStudents
 
   // Filter by selected class if any
   if (classStore.selectedClassId) {
     // TODO: This would ideally filter students enrolled in the selected class
     // For now, we show all students until the class-specific filtering is implemented
-    students = studentsStore.activeStudents.value
+    students = studentsStore.activeStudents
   }
 
   // Apply search filter

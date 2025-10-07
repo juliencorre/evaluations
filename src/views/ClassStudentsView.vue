@@ -195,7 +195,7 @@ const classData = computed(() => classStore.getClassById(classId.value))
 const enrolledStudents = ref<Student[]>([])
 const availableStudents = computed(() => {
   const enrolledIds = new Set(enrolledStudents.value.map(s => s.id))
-  return studentsStore.allStudents.value.filter(student => !enrolledIds.has(student.id))
+  return studentsStore.allStudents.filter(student => !enrolledIds.has(student.id))
 })
 
 const filteredAvailableStudents = computed(() => {
@@ -226,7 +226,7 @@ const loadData = async () => {
     }
 
     // Load all students if needed
-    if (studentsStore.allStudents.value.length === 0) {
+    if (studentsStore.allStudents.length === 0) {
       await studentsStore.refreshFromSupabase()
     }
 
@@ -289,7 +289,7 @@ const handleAddSelectedStudents = async () => {
 
     // Add each selected student to the class
     for (const studentId of selectedStudents.value) {
-      const student = studentsStore.allStudents.value.find(s => s.id === studentId)
+      const student = studentsStore.allStudents.find(s => s.id === studentId)
       const studentName = student ? `${student.firstName} ${student.lastName}` : studentId
       console.log(`➕ Enrolling student ${studentName}...`)
       await studentsStore.enrollStudentInClass(

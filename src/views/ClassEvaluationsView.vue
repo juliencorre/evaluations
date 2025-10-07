@@ -150,7 +150,7 @@ const classData = ref<ClassData | null>(null)
 const currentEvaluationForm = ref({
   name: '',
   description: '',
-  frameworkId: framework.value.id,
+  frameworkId: framework.id,
   classIds: [props.id]
 })
 
@@ -222,7 +222,7 @@ const openAddModal = () => {
   currentEvaluationForm.value = {
     name: '',
     description: '',
-    frameworkId: framework.value.id,
+    frameworkId: framework.id,
     classIds: [props.id]
   }
   showModal.value = true

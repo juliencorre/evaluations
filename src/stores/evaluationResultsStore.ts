@@ -36,7 +36,7 @@ export const useEvaluationResultsStore = () => {
     if (!currentEvaluation.value) return null
 
     const totalResults = results.value.length
-    const valueCounts = results.value.reduce((acc, result) => {
+    const valueCounts = results.value.reduce((acc: Record<string, number>, result: EvaluationResult) => {
       // Use value if available (new system), fallback to level (old system)
       const resultValue = result.value || result.level || 'N/A'
       acc[resultValue] = (acc[resultValue] || 0) + 1
@@ -48,7 +48,7 @@ export const useEvaluationResultsStore = () => {
       valueCounts,
       levelCounts: valueCounts, // Keep for backward compatibility
       lastUpdated: results.value.length > 0
-        ? Math.max(...results.value.map(r => new Date(r.evaluatedAt).getTime()))
+        ? Math.max(...results.value.map((r: EvaluationResult) => new Date(r.evaluatedAt).getTime()))
         : null
     }
   })
@@ -68,7 +68,7 @@ export const useEvaluationResultsStore = () => {
       if (useSupabase.value && evaluationData.frameworkId === 'framework-fr-primary') {
         console.log('🔄 [EvaluationResultsStore] Récupération de l\'ID réel du framework depuis Supabase')
         const frameworkStore = useCompetencyFrameworkStore()
-        const realFrameworkId = frameworkStore.framework.value.id
+        const realFrameworkId = frameworkStore.framework.id
 
         if (realFrameworkId && realFrameworkId !== 'temp') {
           processedEvaluationData.frameworkId = realFrameworkId

@@ -38,7 +38,8 @@
       "Bash(findstr:*)",
       "Bash(git push:*)",
       "Bash(git rm:*)",
-      "Bash(del \"src\\data\\staticData.ts\")"
+      "Bash(del \"src\\data\\staticData.ts\")",
+      "Bash(find:*)"
     ],
     "deny": []
   }

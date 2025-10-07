@@ -130,8 +130,8 @@ const { framework } = useCompetencyFrameworkStore()
 
 // Available framework (for now, just one)
 const availableFramework = computed(() => ({
-  id: framework.value.id,
-  name: framework.value.name,
+  id: framework.id,
+  name: framework.name,
   description: 'Framework de compétences par défaut pour l\'évaluation des élèves'
 }))
 
@@ -139,8 +139,8 @@ const availableFramework = computed(() => ({
 const localFormData = ref<EvaluationFormData>({ ...props.modelValue })
 
 // Ensure frameworkId is set when component initializes
-if (!localFormData.value.frameworkId && framework.value.id !== 'temp') {
-  localFormData.value.frameworkId = framework.value.id
+if (!localFormData.value.frameworkId && framework.id !== 'temp') {
+  localFormData.value.frameworkId = framework.id
 }
 
 // Ensure classIds is initialized

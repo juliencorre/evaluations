@@ -72,7 +72,7 @@
           :key="level"
           class="level-count"
         >
-          <span :class="`level-badge level-${level.toLowerCase()}`">{{ level }}</span>
+          <span :class="`level-badge level-${String(level).toLowerCase()}`">{{ level }}</span>
           <span class="count">{{ count }}</span>
         </div>
       </div>
@@ -96,14 +96,14 @@ const stats = computed(() => {
 })
 
 const statusClass = computed(() => {
-  if (evaluationStore.isLoading.value) return 'loading'
+  if (evaluationStore.isLoading) return 'loading'
   if (evaluationStore.error.value) return 'error'
   if (evaluationStore.hasResults.value) return 'success'
   return 'idle'
 })
 
 const statusText = computed(() => {
-  if (evaluationStore.isLoading.value) return 'Chargement...'
+  if (evaluationStore.isLoading) return 'Chargement...'
   if (evaluationStore.error.value) return 'Erreur'
   if (evaluationStore.hasResults.value) return 'Données sauvées'
   return 'Aucune donnée'

@@ -99,7 +99,7 @@ const classStudents = ref<Student[]>([])
 
 // Students list - filter by classId if provided
 const students = computed(() => {
-  const studentsList = props.classId ? classStudents.value : studentsStore.allStudents.value
+  const studentsList = props.classId ? classStudents.value : studentsStore.allStudents
   return studentsList.map(student => ({
     id: student.id,
     name: `${student.firstName} ${student.lastName}`
@@ -133,7 +133,7 @@ const getResultTypeConfigId = (specificCompetencyId?: string): string | undefine
   if (!specificCompetencyId) return undefined
 
   const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
 
   for (const domain of framework.domains) {
     for (const field of domain.fields) {
@@ -167,7 +167,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   }
 
   const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
 
   // Map to store aggregated data by level
   const levelMap = new Map<string, {
@@ -203,7 +203,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
 
     const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
-        evaluationStore.allEvaluations.value.find(evaluation_item =>
+        evaluationStore.allEvaluations.find(evaluation_item =>
           new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime()
         )?.id :
         evaluationResultsStore.evaluation.value?.id || 'current')
@@ -384,7 +384,7 @@ const loadData = async () => {
           include_details: true
         })
         const studentIds = studentClasses.map((sc: { student_id: string }) => sc.student_id)
-        classStudents.value = studentsStore.allStudents.value.filter(s => studentIds.includes(s.id))
+        classStudents.value = studentsStore.allStudents.filter(s => studentIds.includes(s.id))
         console.log('✅ Class students loaded:', classStudents.value.length)
       } catch (error) {
         console.error('❌ Error loading class students:', error)
@@ -397,7 +397,7 @@ const loadData = async () => {
           include_details: true
         })
         const evaluationIds = evaluationClasses.map((ec: { evaluation_id: string }) => ec.evaluation_id)
-        filteredEvaluations.value = evaluationStore.allEvaluations.value
+        filteredEvaluations.value = evaluationStore.allEvaluations
           .filter(e => evaluationIds.includes(e.id))
           .map(e => ({ id: e.id, name: e.name }))
         console.log('✅ Class evaluations loaded:', filteredEvaluations.value.length)
@@ -406,7 +406,7 @@ const loadData = async () => {
       }
     } else {
       // No class filter - use all evaluations
-      filteredEvaluations.value = evaluationStore.allEvaluations.value.map(e => ({ id: e.id, name: e.name }))
+      filteredEvaluations.value = evaluationStore.allEvaluations.map(e => ({ id: e.id, name: e.name }))
       console.log('✅ All evaluations loaded:', filteredEvaluations.value.length)
     }
 

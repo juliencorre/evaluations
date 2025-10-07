@@ -110,10 +110,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useClassStore } from '@/stores/classStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import {
+  useStudentsStore,
+  useCompetencyFrameworkStore,
+  useEvaluationStore,
+  useClassStore,
+  useSchoolYearStore
+} from '@/stores'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
@@ -311,10 +314,10 @@ const showShareDialog = ref(false)
 const shareEvaluationInfo = computed(() => ({
   name: 'Analyse des moyennes de classe',
   description: `Analyse des moyennes de classe par ${metricTypes.value.find(type => type.value === selectedMetricType.value)?.label || 'domaines'}`,
-  studentsCount: studentsStore.allStudents.value.length,
-  competenciesCount: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) => 
-    total + domain.fields.reduce((fieldTotal, field) => 
-      fieldTotal + field.competencies.reduce((compTotal, comp) => 
+  studentsCount: studentsStore.allStudents.length,
+  competenciesCount: frameworkStore.framework.domains.reduce((total, domain) =>
+    total + domain.fields.reduce((fieldTotal, field) =>
+      fieldTotal + field.competencies.reduce((compTotal, comp) =>
         compTotal + comp.specificCompetencies.length, 0), 0), 0)
 }))
 
@@ -403,7 +406,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         className: '',
         schoolYearFilter: ''
       },
-      students: studentsStore.allStudents.value.map(student => ({
+      students: studentsStore.allStudents.map(student => ({
         id: student.id,
         firstName: student.firstName || '',
         lastName: student.lastName || '',
@@ -411,8 +414,8 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
       })),
       results: [],
       summary: {
-        totalStudents: studentsStore.allStudents.value.length,
-        totalCompetencies: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) =>
+        totalStudents: studentsStore.allStudents.length,
+        totalCompetencies: useCompetencyFrameworkStore().framework.domains.reduce((total, domain) =>
           total + domain.fields.reduce((fieldTotal, field) =>
             fieldTotal + field.competencies.reduce((compTotal, comp) =>
               compTotal + comp.specificCompetencies.length, 0), 0), 0),
@@ -446,7 +449,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 // Get domain radar data
 const getDomainRadarData = computed(() => {
   // Don't calculate if still loading or framework not ready
-  if (isLoading.value || !frameworkStore.framework.value || !frameworkStore.framework.value.domains) {
+  if (isLoading.value || !frameworkStore.framework || !frameworkStore.framework.domains) {
     return []
   }
 
@@ -497,7 +500,7 @@ const getDomainRadarData = computed(() => {
 // Get field radar data
 const getFieldRadarData = computed(() => {
   // Don't calculate if still loading or framework not ready
-  if (isLoading.value || !frameworkStore.framework.value || !frameworkStore.framework.value.domains) {
+  if (isLoading.value || !frameworkStore.framework || !frameworkStore.framework.domains) {
     return []
   }
 
@@ -587,7 +590,7 @@ const getResultTypeConfigId = (specificCompetencyId?: string): string | undefine
   if (!specificCompetencyId) return undefined
 
   const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
 
   for (const domain of framework.domains) {
     for (const field of domain.fields) {
@@ -604,7 +607,7 @@ const getResultTypeConfigId = (specificCompetencyId?: string): string | undefine
 
 const getDomainIdFromSpecificCompetencyId = (specificCompetencyId: string): string | undefined => {
   const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
 
   for (const domain of framework.domains) {
     for (const field of domain.fields) {
@@ -621,7 +624,7 @@ const getDomainIdFromSpecificCompetencyId = (specificCompetencyId: string): stri
 
 const getFieldIdFromSpecificCompetencyId = (specificCompetencyId: string): string | undefined => {
   const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
 
   for (const domain of framework.domains) {
     for (const field of domain.fields) {
@@ -638,7 +641,7 @@ const getFieldIdFromSpecificCompetencyId = (specificCompetencyId: string): strin
 
 const getCompetencyIdFromSpecificCompetencyId = (specificCompetencyId: string): string | undefined => {
   const frameworkStore = useCompetencyFrameworkStore()
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
 
   for (const domain of framework.domains) {
     for (const field of domain.fields) {
@@ -697,7 +700,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   const resultsByEvaluation = results.reduce((acc, result) => {
     const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
-        evaluationStore.allEvaluations.value.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+        evaluationStore.allEvaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
         'current')
 
     const safeEvaluationId = evaluationId || 'unknown'
@@ -710,7 +713,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
 
   const calculateByMetricType = (allResults: EvaluationResult[]) => {
     const frameworkStore = useCompetencyFrameworkStore()
-    const framework = frameworkStore.framework.value
+    const framework = frameworkStore.framework
 
     switch (metricType) {
       case 'domains': {
@@ -936,7 +939,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
 // Load filtered data based on selected classes and years
 const loadFilteredData = async () => {
   try {
-    const allEvaluations = evaluationStore.allEvaluations.value
+    const allEvaluations = evaluationStore.allEvaluations
     const allResults: EvaluationResult[] = []
     const loadedEvaluations: Array<{ id: string; name: string }> = []
 
@@ -1031,7 +1034,7 @@ onMounted(async () => {
     await loadFilteredData()
 
     // Verify framework is loaded before allowing render
-    if (!frameworkStore.framework.value || !frameworkStore.framework.value.domains) {
+    if (!frameworkStore.framework || !frameworkStore.framework.domains) {
       throw new Error('Framework not loaded properly')
     }
   } catch (error) {

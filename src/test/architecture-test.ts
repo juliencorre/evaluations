@@ -50,12 +50,12 @@ export async function testNewArchitecture() {
     const studentsStore = useStudentsStore()
 
     await studentsStore.refreshFromSupabase()
-    console.log('✅ Étudiants chargés:', studentsStore.allStudents.value.length)
-    console.log('👥 Étudiants actifs:', studentsStore.activeStudents.value.length)
+    console.log('✅ Étudiants chargés:', studentsStore.allStudents.length)
+    console.log('👥 Étudiants actifs:', studentsStore.activeStudents.length)
 
     // Test de relation classe-étudiant (si données disponibles)
-    if (studentsStore.allStudents.value.length > 0 && classStore.classes.length > 0) {
-      const firstStudent = studentsStore.allStudents.value[0]
+    if (studentsStore.allStudents.length > 0 && classStore.classes.length > 0) {
+      const firstStudent = studentsStore.allStudents[0]
       const firstClass = classStore.classes[0]
 
       try {
@@ -89,7 +89,7 @@ export async function testNewArchitecture() {
       success: true,
       schoolYears: schoolYearStore.schoolYears.length,
       classes: classStore.classes.length,
-      students: studentsStore.allStudents.value.length,
+      students: studentsStore.allStudents.length,
       currentYear: currentYear?.name
     }
 

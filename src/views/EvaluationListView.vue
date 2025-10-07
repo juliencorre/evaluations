@@ -116,7 +116,7 @@ import { computed } from 'vue'
 
 const router = useRouter()
 const competenciesStore = useCompetencyFrameworkStore()
-const { framework, isCompetenciesLoading, refreshFromSupabase } = competenciesStore
+const { framework, isLoading: isCompetenciesLoading, refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
 const { loadEvaluations } = evaluationStore
@@ -147,7 +147,7 @@ const allEvaluations = computed(() => {
     return classEvaluations.value
   } else {
     // Show all evaluations
-    return evaluationStore.allEvaluations.value
+    return evaluationStore.allEvaluations
   }
 })
 
@@ -163,7 +163,7 @@ const pageTitle = computed(() => {
 const currentEvaluationForm = ref({
   name: '',
   description: '',
-  frameworkId: framework.value.id,
+  frameworkId: framework.id,
   classIds: [] as string[]
 })
 
@@ -244,7 +244,7 @@ const openAddModal = () => {
   currentEvaluationForm.value = {
     name: '',
     description: '',
-    frameworkId: framework.value.id,
+    frameworkId: framework.id,
     classIds: []
   }
   showModal.value = true
@@ -260,7 +260,7 @@ const resetForm = () => {
   currentEvaluationForm.value = {
     name: '',
     description: '',
-    frameworkId: framework.value.id,
+    frameworkId: framework.id,
     classIds: []
   }
 }
@@ -289,7 +289,7 @@ const saveEvaluation = async (formData: { name: string; description: string; fra
   try {
     // Add new evaluation with classes
     // Ensure we have a valid framework ID
-    const validFrameworkId = framework.value.id !== 'temp' ? framework.value.id : null
+    const validFrameworkId = framework.id !== 'temp' ? framework.id : null
     if (!validFrameworkId) {
       throw new Error('Framework non chargé. Veuillez rafraîchir la page.')
     }

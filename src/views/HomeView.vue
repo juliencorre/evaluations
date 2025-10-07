@@ -186,7 +186,7 @@ const handleResize = () => {
 
 // Share evaluation info for dialog
 const shareEvaluationInfo = computed(() => {
-  if (!currentEvaluation.value || !framework.value?.domains || !evaluationStudents.value) {
+  if (!currentEvaluation || !framework.value?.domains || !evaluationStudents.value) {
     return null
   }
 
@@ -199,8 +199,8 @@ const shareEvaluationInfo = computed(() => {
     , 0)
 
   return {
-    name: currentEvaluation.value.name || 'Évaluation sans nom',
-    description: currentEvaluation.value.description,
+    name: currentEvaluation.name || 'Évaluation sans nom',
+    description: currentEvaluation.description,
     studentsCount: evaluationStudents.value.length,
     competenciesCount
   }
@@ -296,9 +296,9 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
     // Prepare data for sharing (reuse export data structure)
     const exportData = {
       evaluation: {
-        id: currentEvaluation.value?.id || 'unknown',
-        name: currentEvaluation.value?.name || 'Évaluation sans nom',
-        description: currentEvaluation.value?.description || '',
+        id: currentEvaluation?.id || 'unknown',
+        name: currentEvaluation?.name || 'Évaluation sans nom',
+        description: currentEvaluation?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '',
         schoolYearFilter: schoolYearStore.currentSchoolYear?.value?.name || 'Toutes les années'
@@ -405,9 +405,9 @@ const exportEvaluationResults = () => {
     // Prepare data for export with safety checks
     const exportData = {
       evaluation: {
-        id: currentEvaluation.value?.id || 'unknown',
-        name: currentEvaluation.value?.name || 'Évaluation sans nom',
-        description: currentEvaluation.value?.description || '',
+        id: currentEvaluation?.id || 'unknown',
+        name: currentEvaluation?.name || 'Évaluation sans nom',
+        description: currentEvaluation?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '', // Class name would need to be resolved from classId
         schoolYearFilter: schoolYearStore.currentSchoolYear?.value?.name || 'Toutes les années'
@@ -462,7 +462,7 @@ const exportEvaluationResults = () => {
     const csvContent = generateCSV(exportData)
 
     // Download file
-    const fileName = `evaluation_${(currentEvaluation.value?.name || 'evaluation').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`
+    const fileName = `evaluation_${(currentEvaluation?.name || 'evaluation').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`
     downloadCSV(csvContent, fileName)
 
     console.log('✅ Export completed successfully')

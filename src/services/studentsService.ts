@@ -29,7 +29,7 @@ export class StudentsService {
    * Récupère tous les élèves du store
    */
   getAllStudents(): Student[] {
-    return this.studentsStore.allStudents.value
+    return this.studentsStore.allStudents
   }
 
   /**

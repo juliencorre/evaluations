@@ -156,7 +156,7 @@ const schoolYears = computed(() => {
 
 // Get chart data based on selected metric type
 const yearChartData = computed(() => {
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
   if (!framework) {
     return { labels: [], datasets: [] }
   }
@@ -248,7 +248,7 @@ const yearChartData = computed(() => {
 
 // Calculate averages
 const calculateDomainAverage = (results: EvaluationResult[], domainId: string): number => {
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
   if (!framework) return 0
 
   const domain = framework.domains.find(d => d.id === domainId)
@@ -293,7 +293,7 @@ interface FieldType {
 }
 
 const calculateFieldAverage = (results: EvaluationResult[], fieldId: string): number => {
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
   if (!framework) return 0
 
   let field: FieldType | null = null
@@ -332,7 +332,7 @@ const calculateFieldAverage = (results: EvaluationResult[], fieldId: string): nu
 }
 
 const calculateCompetencyAverage = (results: EvaluationResult[], competencyIdParam: string): number => {
-  const framework = frameworkStore.framework.value
+  const framework = frameworkStore.framework
   if (!framework) return 0
 
   // Find the competency and get its specific competency IDs

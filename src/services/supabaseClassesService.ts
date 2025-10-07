@@ -305,69 +305,30 @@ export class SupabaseClassesService {
   }
 
   /**
-   * Get teachers for a specific class (using existing user_classes table)
+   * Get teachers for a specific class (using RPC function to bypass RLS)
    */
   async getClassTeachers(classId: string) {
     try {
       console.log('📚 Fetching teachers for class:', classId)
 
-      // First get the user_classes data
-      const { data: userClassesData, error: userClassesError } = await supabase
-        .from('user_classes')
-        .select(`
-          id,
-          class_id,
-          user_id,
-          role,
-          created_at
-        `)
-        .eq('class_id', classId)
-        .order('role')
-        .order('created_at')
+      // Use the RPC function that bypasses RLS and returns all member data including emails
+      const { data: classMembersData, error: classMembersError } = await supabase
+        .rpc('get_class_members', { p_class_id: classId })
 
-      console.log('📊 User classes result:', { userClassesData, userClassesError })
+      console.log('📊 Class members result:', { classMembersData, classMembersError })
 
-      if (userClassesError) throw userClassesError
+      if (classMembersError) throw classMembersError
 
-      // Now fetch user details for each user_id
-      const teachers = await Promise.all((userClassesData || []).map(async (teacher) => {
-        try {
-          // Get user metadata from auth.users via RPC or direct query
-          const { data: userData, error: userError } = await supabase
-            .rpc('get_user_email', { user_uuid: teacher.user_id })
-            .single()
-
-          if (userError) {
-            console.warn('⚠️ Could not fetch user data for', teacher.user_id, ':', userError)
-            throw userError
-          }
-
-          console.log('👤 User data for', teacher.user_id, ':', { userData })
-
-          return {
-            id: teacher.id,
-            classId: teacher.class_id,
-            userId: teacher.user_id,
-            role: teacher.role,
-            email: userData?.email || 'Email non disponible',
-            fullName: userData?.raw_user_meta_data?.full_name || userData?.raw_user_meta_data?.name || 'Nom non disponible',
-            createdAt: teacher.created_at,
-            updatedAt: teacher.created_at
-          }
-        } catch {
-          // Fallback if RPC fails for this user
-          console.warn('⚠️ Using fallback for teacher', teacher.user_id)
-          return {
-            id: teacher.id,
-            classId: teacher.class_id,
-            userId: teacher.user_id,
-            role: teacher.role,
-            email: 'Email non disponible',
-            fullName: 'Nom non disponible',
-            createdAt: teacher.created_at,
-            updatedAt: teacher.created_at
-          }
-        }
+      // Transform the data to match the expected format
+      const teachers = (classMembersData || []).map((member: any) => ({
+        id: member.id,
+        classId: member.class_id,
+        userId: member.user_id,
+        role: member.role,
+        email: member.user_email || 'Email non disponible',
+        fullName: member.user_full_name || 'Nom non disponible',
+        createdAt: member.created_at,
+        updatedAt: member.created_at
       }))
 
       console.log('👥 Mapped teachers with user data:', teachers)

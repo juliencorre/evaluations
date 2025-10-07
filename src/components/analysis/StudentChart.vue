@@ -107,11 +107,12 @@ defineProps<Props>()
 }
 
 .bar-info {
+  flex: 0 0 200px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 200px;
-  margin-top: 8px;
+  align-items: flex-end;
+  text-align: right;
+  padding-top: 8px;
 }
 
 .bar-label {
@@ -119,25 +120,28 @@ defineProps<Props>()
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--md-sys-color-on-surface, #1c1b1f);
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .bar-group {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .bar-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  height: 24px;
 }
 
 .bar-container {
   flex: 1;
   height: 20px;
-  background: var(--md-sys-color-surface-variant, #f0f0f0);
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -147,23 +151,25 @@ defineProps<Props>()
   height: 100%;
   border-radius: 10px;
   transition: width 0.3s ease;
+  min-width: 4px;
 }
 
 .bar-value {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 0.75rem;
+  flex: 0 0 60px;
+  font-family: 'Roboto Mono', 'Roboto', monospace;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--md-sys-color-on-surface-variant, #49454f);
-  min-width: 40px;
   text-align: right;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-  .bar-info {
-    min-width: 150px;
+  .chart-legend {
+    flex-wrap: wrap;
+    gap: 12px;
   }
-}
 
-@media (max-width: 480px) {
   .bar-item {
     flex-direction: column;
     align-items: stretch;
@@ -171,17 +177,15 @@ defineProps<Props>()
   }
 
   .bar-info {
-    min-width: unset;
-    margin-top: 0;
+    flex: none;
+    align-items: flex-start;
+    text-align: left;
+    padding-top: 0;
   }
 
-  .bar-group {
-    order: 1;
-  }
-
-  .chart-legend {
-    flex-wrap: wrap;
-    gap: 16px;
+  .bar-value {
+    flex: 0 0 auto;
+    text-align: left;
   }
 }
 </style>

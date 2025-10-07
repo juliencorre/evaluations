@@ -45,7 +45,7 @@
               <span class="material-symbols-outlined">people</span>
             </div>
             <div class="action-content">
-              <h3 class="action-title">Gérer les élèves</h3>
+              <h3 class="action-title">Elèves</h3>
               <p class="action-description">
                 {{ studentCount }} élève{{ studentCount > 1 ? 's' : '' }} inscrit{{ studentCount > 1 ? 's' : '' }}
                 <span v-if="classStatistics.transferred > 0">
@@ -74,9 +74,22 @@
               <span class="material-symbols-outlined">school</span>
             </div>
             <div class="action-content">
-              <h3 class="action-title">Gérer les enseignant(e)s</h3>
+              <h3 class="action-title">Enseignant(e)s</h3>
               <p class="action-description">
                 {{ teacherCount }} enseignant{{ teacherCount > 1 ? 's' : '' }} avec accès à cette classe
+              </p>
+            </div>
+            <span class="material-symbols-outlined">chevron_right</span>
+          </div>
+
+          <div class="action-card" @click="navigateToResults">
+            <div class="action-icon">
+              <span class="material-symbols-outlined">analytics</span>
+            </div>
+            <div class="action-content">
+              <h3 class="action-title">Résultats</h3>
+              <p class="action-description">
+                Consulter les analyses et graphiques de la classe
               </p>
             </div>
             <span class="material-symbols-outlined">chevron_right</span>
@@ -263,6 +276,10 @@ const navigateToEvaluations = () => {
 
 const navigateToTeachers = () => {
   router.push(`/classes/${props.id}/teachers`)
+}
+
+const navigateToResults = () => {
+  router.push(`/classes/${props.id}/resultats`)
 }
 
 // FAB Menu handler

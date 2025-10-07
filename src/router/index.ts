@@ -134,6 +134,17 @@ const router = createRouter({
       }
     },
     {
+      path: '/classes/:id/resultats',
+      name: ROUTE_NAMES.CLASS_RESULTS,
+      component: () => import(/* webpackChunkName: "class-results" */ '../views/ClassResultsView.vue'),
+      props: true,
+      meta: {
+        title: 'Résultats de la classe',
+        description: 'Analyses et graphiques des résultats de la classe',
+        requiresAuth: true
+      }
+    },
+    {
       path: '/students',
       name: ROUTE_NAMES.STUDENTS,
       component: () => import(/* webpackChunkName: "students" */ '../views/StudentsView.vue'),

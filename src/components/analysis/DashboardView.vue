@@ -1,13 +1,5 @@
 <template>
   <div class="charts-section">
-    <!-- Filters -->
-    <AnalysisFilters
-      v-model="filters"
-      :available-classes="availableClasses"
-      :available-years="availableYears"
-      @apply="loadFilteredData"
-    />
-
     <!-- Class Average Chart -->
     <section class="charts-section">
       <ChartCard class="white-card">
@@ -93,7 +85,14 @@ import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
 import ClassAverageChart from '@/components/analysis/ClassAverageChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
 import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
-import AnalysisFilters from '@/components/analysis/AnalysisFilters.vue'
+
+interface Props {
+  classId?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  classId: undefined
+})
 
 // Use stores
 const studentsStore = useStudentsStore()
@@ -104,20 +103,13 @@ const schoolYearStore = useSchoolYearStore()
 // Services
 const resultTypesService = new SupabaseResultTypesService()
 
-// Filters state
+// Filters state - initialize with classId if provided
 const filters = ref({
-  classIds: [] as string[],
+  classIds: props.classId ? [props.classId] : [] as string[],
   yearIds: [] as string[]
 })
 
-// Available data for filters
-const availableClasses = computed(() => {
-  return (classStore.classes || []).map(c => ({
-    id: c.id,
-    name: c.name
-  }))
-})
-
+// Available years (used internally for filtering logic)
 const availableYears = computed(() => {
   return (schoolYearStore.schoolYears?.value || []).map(y => ({
     id: y.id,
@@ -132,8 +124,8 @@ const resultTypes = ref<ResultTypeConfig[]>([])
 // All results from all evaluations for analysis
 const allEvaluationResults = ref<EvaluationResult[]>([])
 
-// Results filtered by class
-// const classEvaluationResults = ref<EvaluationResult[]>([])
+// Filtered evaluations (only those with results loaded)
+const filteredEvaluations = ref<Array<{ id: string; name: string }>>([])
 
 // Selected metric type
 const selectedMetricType = ref('domains')
@@ -160,7 +152,7 @@ const colorPalette = [
 ]
 
 const evaluationPeriods = computed(() => {
-  return evaluationStore.allEvaluations.value.map((evaluation, index) => ({
+  return filteredEvaluations.value.map((evaluation, index) => ({
     id: evaluation.id,
     name: evaluation.name,
     color: colorPalette[index % colorPalette.length]
@@ -499,9 +491,9 @@ const getScoreFromValue = (value: string, resultTypeConfigId?: string): number |
 const calculateClassAveragesByLevel = (metricType: string) => {
   console.log('📊 [calculateClassAveragesByLevel] Starting calculation:', { metricType })
 
-  // Use all results without class filtering
+  // Use filtered results and evaluations
   const results = allEvaluationResults.value
-  const evaluations = evaluationStore.allEvaluations.value
+  const evaluations = filteredEvaluations.value
   const students = studentsStore.allStudents.value
 
   if (!Array.isArray(results) || results.length === 0 || evaluations.length === 0 || students.length === 0) {
@@ -512,7 +504,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   const resultsByEvaluation = results.reduce((acc, result) => {
     const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
-        evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+        evaluationStore.allEvaluations.value.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
         'current')
 
     const safeEvaluationId = evaluationId || 'unknown'
@@ -755,6 +747,7 @@ const loadFilteredData = async () => {
 
     const allEvaluations = evaluationStore.allEvaluations.value
     const allResults: EvaluationResult[] = []
+    const loadedEvaluations: Array<{ id: string; name: string }> = []
 
     // If no filters selected, load all data
     const hasClassFilter = filters.value.classIds.length > 0
@@ -810,6 +803,7 @@ const loadFilteredData = async () => {
           evaluationId: evaluation.id
         }))
         allResults.push(...resultsWithEvaluationId)
+        loadedEvaluations.push({ id: evaluation.id, name: evaluation.name })
         console.log('📊 [DashboardView] Loaded', resultsWithEvaluationId.length, 'results for', evaluation.name)
       } catch (error) {
         console.error('📊 [DashboardView] Error loading results for evaluation', evaluation.name, ':', error)
@@ -817,7 +811,9 @@ const loadFilteredData = async () => {
     }
 
     allEvaluationResults.value = allResults
+    filteredEvaluations.value = loadedEvaluations
     console.log('📊 [DashboardView] Filtered evaluation results loaded:', allResults.length)
+    console.log('📊 [DashboardView] Filtered evaluations:', loadedEvaluations.map(e => e.name).join(', '))
   } catch (error) {
     console.error('Error loading filtered dashboard data:', error)
   }

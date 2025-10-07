@@ -241,8 +241,17 @@
                     v-if="canShowResult(node) && isEditing(node.id, student.id)"
                     class="edit-mode"
                   >
-                    <!-- Use selector for all types including numeric (they now have predefined values with N/A) -->
+                    <!-- Numeric input for numeric result types -->
+                    <InlineNumericInput
+                      v-if="isNumericResultType(node)"
+                      :initial-value="editingValue"
+                      :trigger-element="currentTriggerElement || undefined"
+                      @save="(value) => selectValue(value, node.id, student.id)"
+                      @close="stopEditing"
+                    />
+                    <!-- Selector for other result types -->
                     <InlineResultSelector
+                      v-else
                       :options="getResultValues(node)"
                       :selected-value="editingValue"
                       :trigger-element="currentTriggerElement || undefined"
@@ -284,6 +293,7 @@ import { buildCompetencyTree, flattenTree, getCompetencyResult } from '@/utils/c
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { supabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import InlineResultSelector from '@/components/evaluation/InlineResultSelector.vue'
+import InlineNumericInput from '@/components/evaluation/InlineNumericInput.vue'
 
 interface Props {
   evaluation: Evaluation
@@ -624,6 +634,12 @@ function getResultTypeConfig(node: TreeNode): ResultTypeConfig | null {
   }
 
   return resultTypesMap.value.get(specificComp.resultTypeConfigId) || null
+}
+
+// Check if a competency uses a numeric result type
+function isNumericResultType(node: TreeNode): boolean {
+  const config = getResultTypeConfig(node)
+  return config?.type === 'numeric' || false
 }
 
 // Get result values based on the competency's result type

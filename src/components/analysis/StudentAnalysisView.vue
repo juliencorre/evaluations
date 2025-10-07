@@ -1,6 +1,6 @@
 <template>
   <div class="charts-section">
-    <!-- Student Analysis Chart -->
+    <!-- Student Selector -->
     <section class="charts-section">
       <ChartCard class="white-card">
         <template #title>
@@ -16,6 +16,66 @@
                   {{ student.name }}
                 </option>
               </select>
+            </div>
+          </div>
+        </template>
+
+        <div v-if="!selectedStudent" class="chart-container">
+          <EmptyState
+            title="Sélectionnez un élève"
+            description="Choisissez un élève dans la liste pour voir ses résultats d'évaluation"
+          />
+        </div>
+      </ChartCard>
+    </section>
+
+    <!-- Domain Radar Chart -->
+    <section v-if="selectedStudent" class="charts-section">
+      <ChartCard class="white-card">
+        <template #title>
+          <div class="chart-header">
+            <div class="chart-title-text">
+              Radar des notes par domaine
+            </div>
+          </div>
+        </template>
+
+        <div class="chart-container">
+          <DomainRadarChart
+            :chart-data="getDomainRadarData()"
+            :evaluation-periods="evaluationPeriods"
+          />
+        </div>
+      </ChartCard>
+    </section>
+
+    <!-- Fields Radar Chart -->
+    <section v-if="selectedStudent" class="charts-section">
+      <ChartCard class="white-card">
+        <template #title>
+          <div class="chart-header">
+            <div class="chart-title-text">
+              Radar des notes par champ
+            </div>
+          </div>
+        </template>
+
+        <div class="chart-container">
+          <DomainRadarChart
+            :chart-data="getFieldRadarData()"
+            :evaluation-periods="evaluationPeriods"
+          />
+        </div>
+      </ChartCard>
+    </section>
+
+    <!-- Student Analysis Chart with Metric Type Selector -->
+    <section v-if="selectedStudent" class="charts-section">
+      <ChartCard class="white-card">
+        <template #title>
+          <div class="chart-header">
+            <div class="chart-title-text">
+              Analyse détaillée
             </div>
             <div class="metric-type-selector">
               <div class="metric-type-buttons">
@@ -33,14 +93,14 @@
           </div>
         </template>
 
-        <div v-if="selectedStudent" class="chart-container">
+        <div class="chart-container">
           <StudentChart
             :chart-data="getStudentData()"
             :evaluation-periods="evaluationPeriods"
           />
         </div>
 
-        <div v-if="selectedStudent" class="chart-actions">
+        <div class="chart-actions">
           <button
             class="export-button chart-export"
             title="Exporter les résultats de l'élève en PDF"
@@ -67,12 +127,6 @@
             Partager
           </button>
         </div>
-        <div v-else class="chart-container">
-          <EmptyState
-            title="Sélectionnez un élève"
-            description="Choisissez un élève dans la liste pour voir ses résultats d'évaluation"
-          />
-        </div>
       </ChartCard>
     </section>
 
@@ -94,12 +148,23 @@ import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
-import type { EvaluationResult, ResultTypeConfig } from '@/types/evaluation'
+import { supabaseStudentClassesService } from '@/services/supabaseStudentClassesService'
+import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
+import type { EvaluationResult, ResultTypeConfig, Student } from '@/types/evaluation'
 
 import StudentChart from '@/components/analysis/StudentChart.vue'
+import DomainRadarChart from '@/components/analysis/DomainRadarChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import ShareResultsDialog from '@/components/common/ShareResultsDialog.vue'
+
+interface Props {
+  classId?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  classId: undefined
+})
 
 interface Emits {
   (e: 'export-student-chart'): void
@@ -122,13 +187,22 @@ const resultTypes = ref<ResultTypeConfig[]>([])
 // All results from all evaluations for analysis
 const allEvaluationResults = ref<EvaluationResult[]>([])
 
+// Filtered evaluations (only those with results loaded)
+const filteredEvaluations = ref<Array<{ id: string; name: string }>>([])
+
 // Student analysis data
 const selectedStudent = ref('')
 const selectedMetricType = ref('domains')
 
-// Students list
+// Students list for the class (if classId is provided)
+const classStudents = ref<Student[]>([])
+
+// Students list - filter by classId if provided
 const students = computed(() => {
-  return studentsStore.allStudents.value.map(student => ({
+  // If classId is provided, use class-specific students
+  const studentsList = props.classId ? classStudents.value : studentsStore.allStudents.value
+
+  return studentsList.map(student => ({
     id: student.id,
     name: `${student.firstName} ${student.lastName}`
   }))
@@ -138,7 +212,8 @@ const students = computed(() => {
 const metricTypes = ref([
   { value: 'domains', label: 'Domaines' },
   { value: 'fields', label: 'Champs' },
-  { value: 'competencies', label: 'Compétences' }
+  { value: 'competencies', label: 'Compétences' },
+  { value: 'specific-competencies', label: 'Sous-compétences' }
 ])
 
 // Evaluation periods - generate colors for evaluations
@@ -156,7 +231,7 @@ const colorPalette = [
 ]
 
 const evaluationPeriods = computed(() => {
-  return evaluationStore.allEvaluations.value.map((evaluation, index) => ({
+  return filteredEvaluations.value.map((evaluation, index) => ({
     id: evaluation.id,
     name: evaluation.name,
     color: colorPalette[index % colorPalette.length]
@@ -211,6 +286,24 @@ const getCompetencyNameById = (competencyId: string): string => {
     }
   }
   return `Compétence ${competencyId.slice(-8)}`
+}
+
+// Helper function to get specific competency name by ID
+const getSpecificCompetencyNameById = (specificCompetencyId: string): string => {
+  const frameworkStore = useCompetencyFrameworkStore()
+  const framework = frameworkStore.framework.value
+
+  for (const domain of framework.domains) {
+    for (const field of domain.fields) {
+      for (const competency of field.competencies) {
+        const specificComp = competency.specificCompetencies.find(sc => sc.id === specificCompetencyId)
+        if (specificComp) {
+          return specificComp.name
+        }
+      }
+    }
+  }
+  return `Sous-compétence ${specificCompetencyId.slice(-8)}`
 }
 
 // Helper function to get domain ID from specific competency ID
@@ -377,11 +470,12 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
   console.log('📊 [calculateAveragesByLevel] Starting calculation:', { studentId, metricType })
 
   const results = allEvaluationResults.value
-  const evaluations = evaluationStore.allEvaluations.value
+  // Use filteredEvaluations to only show evaluations from the current class
+  const evaluations = filteredEvaluations.value
 
   console.log('📊 [calculateAveragesByLevel] Data sources:', {
     totalResults: results?.length || 0,
-    totalEvaluations: evaluations?.length || 0
+    filteredEvaluationsCount: evaluations?.length || 0
   })
 
   if (!Array.isArray(results) || results.length === 0 || evaluations.length === 0) {
@@ -422,7 +516,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
     // Use the evaluationId we added to each result, fallback to old logic if not available
     const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
-        evaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+        evaluationStore.allEvaluations.value.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
         evaluationResultsStore.evaluation.value?.id || 'current')
 
     const safeEvaluationId = evaluationId || 'unknown'
@@ -489,7 +583,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const evalDomainResults = domainResults.filter(result => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
-                  evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationStore.allEvaluations.value.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
@@ -578,7 +672,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const evalFieldResults = fieldResults.filter(result => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
-                  evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationStore.allEvaluations.value.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
@@ -663,7 +757,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
             const evalCompetencyResults = competencyResults.filter(result => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
-                  evaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationStore.allEvaluations.value.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
                   evaluationResultsStore.evaluation.value?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
@@ -698,6 +792,94 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
           return {
             id: competency.id, // Add unique competency ID
             name: competency.name,
+            evaluations: evaluationScores
+          }
+        })
+      }
+
+      case 'specific-competencies': {
+        console.log('📊 [specific-competencies] Starting specific competency calculation')
+
+        // Get ALL specific competencies from framework
+        const allSpecificCompetencies = framework.domains?.flatMap(domain =>
+          domain.fields?.flatMap(field =>
+            field.competencies?.flatMap(competency =>
+              competency.specificCompetencies || []
+            ) || []
+          ) || []
+        ) || []
+
+        console.log('📊 [specific-competencies] Found specific competencies:', allSpecificCompetencies.length)
+
+        // Group results by specific competency ID
+        const specificCompetencyGroups = allResults.reduce((acc, result) => {
+          const specificCompetencyId = result.specificCompetencyId || result.competencyId || ''
+          console.log('📊 [specific-competencies] Processing result with specificCompetencyId:', specificCompetencyId)
+
+          if (specificCompetencyId) {
+            if (!acc[specificCompetencyId]) {
+              acc[specificCompetencyId] = []
+            }
+            acc[specificCompetencyId].push(result)
+          }
+          return acc
+        }, {} as Record<string, EvaluationResult[]>)
+
+        console.log('📊 [specific-competencies] Specific competency groups:',
+          Object.entries(specificCompetencyGroups).map(([specificCompId, results]) => ({
+            specificCompetencyId: specificCompId,
+            specificCompetencyName: getSpecificCompetencyNameById(specificCompId),
+            resultCount: results.length
+          }))
+        )
+
+        // Include ALL specific competencies, even those without results
+        return allSpecificCompetencies.map(specificCompetency => {
+          const specificCompResults = specificCompetencyGroups[specificCompetency.id] || []
+
+          // Get parent competency for display name
+          const competencyId = getCompetencyIdFromSpecificCompetencyId(specificCompetency.id)
+          const competencyName = competencyId ? getCompetencyNameById(competencyId) : 'Compétence inconnue'
+          const displayName = `${competencyName} - ${specificCompetency.name}`
+
+          console.log(`📊 [specific-competencies] Processing: ${displayName} (${specificCompResults.length} results)`)
+
+          const evaluationScores = evaluations.map(evaluation => {
+            const evalSpecificResults = specificCompResults.filter(result => {
+              const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
+                (result.evaluatedAt ?
+                  evaluationStore.allEvaluations.value.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
+                  evaluationResultsStore.evaluation.value?.id || 'current')
+              return resultEvaluationId === evaluation.id
+            })
+
+            console.log(`📊 [specific-competencies] ${displayName} - ${evaluation.name}: ${evalSpecificResults.length} results`)
+
+            if (evalSpecificResults.length === 0) return { score: 0 }
+
+            const scores = evalSpecificResults.map(result => {
+              const resultTypeConfigId = getResultTypeConfigId(specificCompetency.id)
+              const score = result.value ? getScoreFromValue(result.value, resultTypeConfigId) : null
+              return score
+            }).filter(score => score !== null) as number[]
+
+            // Calculate average score (no averaging needed since it's the actual score)
+            const averageScore = scores.length > 0
+              ? Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) / 10
+              : 0
+
+            console.log(`📊 [specific-competencies] ${displayName} - ${evaluation.name} score:`, {
+              scores: scores.map(s => s.toFixed(2)),
+              validScoresCount: scores.length,
+              averageScore: averageScore.toFixed(1)
+            })
+
+            return { score: averageScore }
+          })
+
+          return {
+            id: specificCompetency.id,
+            name: displayName,
             evaluations: evaluationScores
           }
         })
@@ -817,6 +999,58 @@ const updateStudent = () => {
   // La mise à jour se fait automatiquement via v-model
 }
 
+// Get domain data for radar chart
+const getDomainRadarData = () => {
+  if (!selectedStudent.value) {
+    console.log('📊 [getDomainRadarData] No student selected')
+    return []
+  }
+
+  console.log('📊 [getDomainRadarData] Getting domain data for student:', selectedStudent.value)
+
+  try {
+    // Always use 'domains' metric type for radar chart
+    const domainData = calculateAveragesByLevel(selectedStudent.value, 'domains')
+
+    if (domainData.length > 0) {
+      console.log('📊 [getDomainRadarData] Domain data:', domainData)
+      return domainData
+    }
+
+    console.log('📊 [getDomainRadarData] No domain data found')
+    return []
+  } catch (error) {
+    console.error('❌ [getDomainRadarData] Error getting domain data:', error)
+    return []
+  }
+}
+
+// Get field data for radar chart
+const getFieldRadarData = () => {
+  if (!selectedStudent.value) {
+    console.log('📊 [getFieldRadarData] No student selected')
+    return []
+  }
+
+  console.log('📊 [getFieldRadarData] Getting field data for student:', selectedStudent.value)
+
+  try {
+    // Use 'fields' metric type for radar chart
+    const fieldData = calculateAveragesByLevel(selectedStudent.value, 'fields')
+
+    if (fieldData.length > 0) {
+      console.log('📊 [getFieldRadarData] Field data:', fieldData)
+      return fieldData
+    }
+
+    console.log('📊 [getFieldRadarData] No field data found')
+    return []
+  } catch (error) {
+    console.error('❌ [getFieldRadarData] Error getting field data:', error)
+    return []
+  }
+}
+
 // Initialize data on component mount
 onMounted(async () => {
   try {
@@ -824,20 +1058,40 @@ onMounted(async () => {
       await studentsStore.refreshFromSupabase()
     }
 
+    // If classId is provided, load students for that specific class
+    if (props.classId) {
+      classStudents.value = await supabaseStudentClassesService.getStudentsForClass(props.classId)
+    }
+
     await evaluationStore.loadEvaluations()
 
     resultTypes.value = await resultTypesService.getResultTypes()
 
-    // Load results from ALL evaluations for analysis
-    if (evaluationStore.allEvaluations.value.length > 0) {
-      console.log('📊 [StudentAnalysisView] Loading results from all evaluations:', evaluationStore.allEvaluations.value.length)
+    // Load results from evaluations (filtered by class if classId is provided)
+    const allEvaluations = evaluationStore.allEvaluations.value
 
-      // Load results from all evaluations and aggregate them
+    if (allEvaluations.length > 0) {
+      console.log('📊 [StudentAnalysisView] Loading results from evaluations:', allEvaluations.length)
+
+      // Load results from evaluations and aggregate them
       const allResults: EvaluationResult[] = []
+      const loadedEvaluations: Array<{ id: string; name: string }> = []
 
-      for (const evaluation of evaluationStore.allEvaluations.value) {
-        console.log('📊 [StudentAnalysisView] Loading results for evaluation:', evaluation.name)
+      for (const evaluation of allEvaluations) {
         try {
+          // If classId is provided, check if this evaluation belongs to the class
+          if (props.classId) {
+            const evaluationClasses = await supabaseEvaluationClassesService.getClassesForEvaluation(evaluation.id)
+            const evaluationClassIds = evaluationClasses.map(ec => ec.id)
+
+            // Skip this evaluation if it doesn't belong to the current class
+            if (!evaluationClassIds.includes(props.classId)) {
+              console.log('📊 [StudentAnalysisView] Skipping evaluation (not in class):', evaluation.name)
+              continue
+            }
+          }
+
+          console.log('📊 [StudentAnalysisView] Loading results for evaluation:', evaluation.name)
           const evaluationResults = await supabaseEvaluationResultsService.getAllResults(evaluation.id)
           console.log('📊 [StudentAnalysisView] Loaded', evaluationResults.length, 'results for', evaluation.name)
 
@@ -848,13 +1102,16 @@ onMounted(async () => {
           }))
 
           allResults.push(...resultsWithEvaluationId)
+          loadedEvaluations.push({ id: evaluation.id, name: evaluation.name })
         } catch (error) {
           console.error('❌ [StudentAnalysisView] Error loading results for', evaluation.name, ':', error)
         }
       }
 
       allEvaluationResults.value = allResults
+      filteredEvaluations.value = loadedEvaluations
       console.log('📊 [StudentAnalysisView] Total results loaded:', allResults.length)
+      console.log('📊 [StudentAnalysisView] Filtered evaluations:', loadedEvaluations.map(e => e.name).join(', '))
 
       // Still initialize the store with the first evaluation for compatibility
       const firstEvaluation = evaluationStore.allEvaluations.value[0]
@@ -1021,6 +1278,13 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
   flex-direction: column;
   gap: 16px;
   width: 100%;
+}
+
+.chart-title-text {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
 }
 
 .metric-type-selector {

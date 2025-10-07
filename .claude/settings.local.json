@@ -23,7 +23,12 @@
       "Bash(move:*)",
       "Bash(npm run test:unit:run:*)",
       "Bash(git --version)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(timeout:*)",
+      "Bash(/dev/null)",
+      "Bash(for file in src/components/analysis/*.vue)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)"
     ],
     "deny": []
   }

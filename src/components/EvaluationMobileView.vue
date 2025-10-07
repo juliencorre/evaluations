@@ -164,8 +164,10 @@ const isValidNumericValue = computed(() => {
 
 // Save button validation
 const canSaveResult = computed(() => {
-  if (!editingValue.value) return false
+  // Check if value is empty (but allow 0 for numeric types)
+  if (editingValue.value === '' || editingValue.value === null || editingValue.value === undefined) return false
 
+  // For numeric types, use specific numeric validation
   if (editingCompetency.value && isNumericResultType(editingCompetency.value)) {
     return isValidNumericValue.value
   }
@@ -236,7 +238,7 @@ function selectValue(value: string) {
 }
 
 async function saveResult() {
-  if (!editingCompetency.value || !selectedStudentId.value || !editingValue.value) return
+  if (!editingCompetency.value || !selectedStudentId.value || editingValue.value === '' || editingValue.value === null || editingValue.value === undefined) return
 
   try {
     const savedResult = await evaluationStore.saveResult(

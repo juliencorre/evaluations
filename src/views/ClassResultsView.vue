@@ -79,72 +79,100 @@ const exportStudentChart = async () => {
     const { jsPDF } = await import('jspdf')
     const html2canvas = (await import('html2canvas')).default
 
-    console.log('Exporting student chart')
+    console.log('Exporting student chart - capturing entire competencies card')
 
-    // Capture le graphique de l'élève
-    const chartElement = document.querySelector('.chart-container')
-    if (!chartElement) {
-      window.alert('Impossible de trouver le graphique à exporter')
+    // Capture toute la card "Évaluation des compétences"
+    const cardElement = document.querySelector('.competencies-card')
+    if (!cardElement) {
+      window.alert('Impossible de trouver la carte d\'évaluation à exporter')
       return
     }
 
     // Générer le canvas avec options optimisées pour PDF
-    const canvas = await html2canvas(chartElement as HTMLElement, {
+    const canvas = await html2canvas(cardElement as HTMLElement, {
       backgroundColor: '#ffffff',
       scale: 2,
       useCORS: true,
       logging: false,
-      windowWidth: chartElement.scrollWidth,
-      windowHeight: chartElement.scrollHeight,
-      width: chartElement.scrollWidth,
-      height: chartElement.scrollHeight
+      windowWidth: cardElement.scrollWidth,
+      windowHeight: cardElement.scrollHeight,
+      width: cardElement.scrollWidth,
+      height: cardElement.scrollHeight
     })
 
-    // Créer le PDF
+    // Créer le PDF avec format A4
     const pdf = new jsPDF({
-      orientation: 'landscape',
+      orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
     })
 
-    // Dimensions du PDF avec marges réduites
+    // Dimensions du PDF
     const pageWidth = pdf.internal.pageSize.getWidth()
     const pageHeight = pdf.internal.pageSize.getHeight()
-    const margin = 15
+    const margin = 10
     const maxWidth = pageWidth - (margin * 2)
-    const maxHeight = pageHeight - 50 // Espace pour titre et date
 
-    // Calculer les dimensions optimales en gardant le ratio
+    // Calculer les dimensions de l'image
     let imgWidth = maxWidth
     let imgHeight = (canvas.height * imgWidth) / canvas.width
 
-    // Si le graphique est trop haut, ajuster
-    if (imgHeight > maxHeight) {
-      imgHeight = maxHeight
-      imgWidth = (canvas.width * imgHeight) / canvas.height
+    // Si l'image est trop haute pour une seule page, l'ajuster
+    const maxHeightPerPage = pageHeight - (margin * 2)
+
+    const imgData = canvas.toDataURL('image/png')
+
+    if (imgHeight <= maxHeightPerPage) {
+      // L'image tient sur une seule page
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight)
+    } else {
+      // L'image nécessite plusieurs pages
+      let remainingHeight = imgHeight
+      let sourceY = 0
+      let pageNumber = 0
+
+      while (remainingHeight > 0) {
+        if (pageNumber > 0) {
+          pdf.addPage()
+        }
+
+        const heightForThisPage = Math.min(remainingHeight, maxHeightPerPage)
+        const sourceHeight = (heightForThisPage / imgHeight) * canvas.height
+
+        // Créer un canvas temporaire pour cette section
+        const tempCanvas = document.createElement('canvas')
+        tempCanvas.width = canvas.width
+        tempCanvas.height = sourceHeight
+        const tempCtx = tempCanvas.getContext('2d')
+
+        if (tempCtx) {
+          tempCtx.drawImage(
+            canvas,
+            0, sourceY,
+            canvas.width, sourceHeight,
+            0, 0,
+            canvas.width, sourceHeight
+          )
+
+          const tempImgData = tempCanvas.toDataURL('image/png')
+          pdf.addImage(tempImgData, 'PNG', margin, margin, imgWidth, heightForThisPage)
+        }
+
+        sourceY += sourceHeight
+        remainingHeight -= heightForThisPage
+        pageNumber++
+      }
     }
 
-    // Centrer l'image si nécessaire
-    const xPosition = margin + (maxWidth - imgWidth) / 2
-
-    // Ajouter le titre
-    pdf.setFontSize(16)
-    pdf.text(`Résultats - ${currentClass.value?.name || 'Classe'}`, margin, 20)
-
-    // Ajouter la date
-    pdf.setFontSize(10)
-    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 30)
-
-    // Ajouter l'image du graphique
-    const imgData = canvas.toDataURL('image/png')
-    pdf.addImage(imgData, 'PNG', xPosition, 40, imgWidth, imgHeight)
-
     // Télécharger le PDF
-    pdf.save(`resultats-eleve-${currentClass.value?.name || 'classe'}-${new Date().toISOString().split('T')[0]}.pdf`)
+    const fileName = `evaluation-competences-${currentClass.value?.name || 'classe'}-${new Date().toISOString().split('T')[0]}.pdf`
+    pdf.save(fileName)
+
+    console.log('✅ PDF exported successfully:', fileName)
 
   } catch (error) {
-    console.error('Erreur lors de l\'export:', error)
-    window.alert('Erreur lors de l\'export du graphique')
+    console.error('❌ Erreur lors de l\'export:', error)
+    window.alert('Erreur lors de l\'export de l\'évaluation')
   }
 }
 

@@ -13,8 +13,7 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
-      <!-- Dashboard View (always shown) -->
-      <DashboardView />
+      <p>Page d'analyse en cours de développement</p>
     </main>
 
   </div>
@@ -26,7 +25,6 @@ import { useRouter } from 'vue-router'
 
 // Components
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
-import DashboardView from '@/components/analysis/DashboardView.vue'
 import { useLogout } from '@/composables/useLogout'
 
 // State

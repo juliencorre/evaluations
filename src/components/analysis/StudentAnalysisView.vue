@@ -20,7 +20,9 @@
     <ChartCard v-if="selectedStudent" class="competencies-card">
       <template #title>
         <div class="main-card-header">
-          <h2 class="main-card-title">Évaluation des compétences</h2>
+          <h2 class="main-card-title">
+            Évaluation des compétences de {{ students.find(s => s.id === selectedStudent)?.name || 'l\'élève' }}
+          </h2>
         </div>
       </template>
 
@@ -72,7 +74,7 @@
         </div>
 
         <div class="chart-container">
-          <StudentChart
+          <DetailedAnalysisChart
             :chart-data="getStudentData()"
             :evaluation-periods="evaluationPeriods"
           />
@@ -137,7 +139,7 @@ import { supabaseStudentClassesService } from '@/services/supabaseStudentClasses
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 import type { EvaluationResult, ResultTypeConfig, Student } from '@/types/evaluation'
 
-import StudentChart from '@/components/analysis/StudentChart.vue'
+import DetailedAnalysisChart from '@/components/analysis/DetailedAnalysisChart.vue'
 import DomainRadarChart from '@/components/analysis/DomainRadarChart.vue'
 import ChartCard from '@/components/analysis/ChartCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'

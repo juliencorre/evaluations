@@ -8,7 +8,10 @@
             <div class="chart-title-text">Radar des notes par domaine</div>
           </div>
         </template>
-        <div v-if="getDomainRadarData().length === 0" class="chart-container">
+        <div v-if="isDataLoading" class="chart-container">
+          <div class="loading-state">Chargement des données...</div>
+        </div>
+        <div v-else-if="domainRadarData.length === 0" class="chart-container">
           <EmptyState
             title="Aucune donnée disponible"
             description="Aucune évaluation n'a été réalisée pour cette classe"
@@ -16,7 +19,7 @@
         </div>
         <div v-else class="chart-container">
           <DomainRadarChart
-            :chart-data="getDomainRadarData()"
+            :chart-data="domainRadarData"
             :evaluation-periods="evaluationPeriods"
           />
         </div>
@@ -31,7 +34,10 @@
             <div class="chart-title-text">Radar des notes par champ</div>
           </div>
         </template>
-        <div v-if="getFieldRadarData().length === 0" class="chart-container">
+        <div v-if="isDataLoading" class="chart-container">
+          <div class="loading-state">Chargement des données...</div>
+        </div>
+        <div v-else-if="fieldRadarData.length === 0" class="chart-container">
           <EmptyState
             title="Aucune donnée disponible"
             description="Aucune évaluation n'a été réalisée pour cette classe"
@@ -39,7 +45,7 @@
         </div>
         <div v-else class="chart-container">
           <DomainRadarChart
-            :chart-data="getFieldRadarData()"
+            :chart-data="fieldRadarData"
             :evaluation-periods="evaluationPeriods"
           />
         </div>
@@ -49,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
@@ -313,107 +319,126 @@ const calculateClassAveragesByLevel = (metricType: string) => {
   return chartData
 }
 
-// Get domain data for radar chart
-const getDomainRadarData = () => {
-  console.log('📊 [getDomainRadarData] Getting domain data for class')
+// Data loading state
+const isDataLoading = ref(true)
+
+// Get domain data for radar chart - computed for reactivity
+const domainRadarData = computed(() => {
+  console.log('📊 [domainRadarData] Computing domain data for class')
 
   try {
     const domainData = calculateClassAveragesByLevel('domains')
 
     if (domainData.length > 0) {
-      console.log('📊 [getDomainRadarData] Domain data:', domainData)
+      console.log('📊 [domainRadarData] Domain data:', domainData)
       return domainData
     }
 
-    console.log('📊 [getDomainRadarData] No domain data found')
+    console.log('📊 [domainRadarData] No domain data found')
     return []
   } catch (error) {
-    console.error('❌ [getDomainRadarData] Error getting domain data:', error)
+    console.error('❌ [domainRadarData] Error getting domain data:', error)
     return []
   }
-}
+})
 
-// Get field data for radar chart
-const getFieldRadarData = () => {
-  console.log('📊 [getFieldRadarData] Getting field data for class')
+// Get field data for radar chart - computed for reactivity
+const fieldRadarData = computed(() => {
+  console.log('📊 [fieldRadarData] Computing field data for class')
 
   try {
     const fieldData = calculateClassAveragesByLevel('fields')
 
     if (fieldData.length > 0) {
-      console.log('📊 [getFieldRadarData] Field data:', fieldData)
+      console.log('📊 [fieldRadarData] Field data:', fieldData)
       return fieldData
     }
 
-    console.log('📊 [getFieldRadarData] No field data found')
+    console.log('📊 [fieldRadarData] No field data found')
     return []
   } catch (error) {
-    console.error('❌ [getFieldRadarData] Error getting field data:', error)
+    console.error('❌ [fieldRadarData] Error getting field data:', error)
     return []
+  }
+})
+
+// Load data function - can be called on mount and when props change
+const loadData = async () => {
+  console.log('📊 [ClassAnalysisView] Loading data with classId:', props.classId)
+  isDataLoading.value = true
+
+  try {
+    // Load result types
+    try {
+      resultTypes.value = await resultTypesService.getResultTypes()
+      console.log('✅ Result types loaded:', resultTypes.value.length)
+    } catch (error) {
+      console.error('❌ Error loading result types:', error)
+    }
+
+    // Load students for the class if classId is provided
+    if (props.classId) {
+      try {
+        const studentClasses = await supabaseStudentClassesService.getStudentClasses({
+          class_id: props.classId,
+          include_details: true
+        })
+        const studentIds = studentClasses.map((sc: { student_id: string }) => sc.student_id)
+        classStudents.value = studentsStore.allStudents.value.filter(s => studentIds.includes(s.id))
+        console.log('✅ Class students loaded:', classStudents.value.length)
+      } catch (error) {
+        console.error('❌ Error loading class students:', error)
+      }
+
+      // Load evaluations for the class
+      try {
+        const evaluationClasses = await supabaseEvaluationClassesService.getEvaluationClasses({
+          class_id: props.classId,
+          include_details: true
+        })
+        const evaluationIds = evaluationClasses.map((ec: { evaluation_id: string }) => ec.evaluation_id)
+        filteredEvaluations.value = evaluationStore.allEvaluations.value
+          .filter(e => evaluationIds.includes(e.id))
+          .map(e => ({ id: e.id, name: e.name }))
+        console.log('✅ Class evaluations loaded:', filteredEvaluations.value.length)
+      } catch (error) {
+        console.error('❌ Error loading class evaluations:', error)
+      }
+    } else {
+      // No class filter - use all evaluations
+      filteredEvaluations.value = evaluationStore.allEvaluations.value.map(e => ({ id: e.id, name: e.name }))
+      console.log('✅ All evaluations loaded:', filteredEvaluations.value.length)
+    }
+
+    // Load all evaluation results
+    try {
+      const evaluationIds = filteredEvaluations.value.map(e => e.id)
+      const allResults: EvaluationResult[] = []
+
+      for (const evaluationId of evaluationIds) {
+        const results = await supabaseEvaluationResultsService.getAllResults(evaluationId)
+        allResults.push(...results)
+      }
+
+      allEvaluationResults.value = allResults
+      console.log('✅ All evaluation results loaded:', allEvaluationResults.value.length)
+    } catch (error) {
+      console.error('❌ Error loading evaluation results:', error)
+    }
+  } finally {
+    isDataLoading.value = false
   }
 }
 
 // Load data on mount
-onMounted(async () => {
-  console.log('📊 [ClassAnalysisView] Component mounted with classId:', props.classId)
+onMounted(() => {
+  loadData()
+})
 
-  // Load result types
-  try {
-    resultTypes.value = await resultTypesService.getResultTypes()
-    console.log('✅ Result types loaded:', resultTypes.value.length)
-  } catch (error) {
-    console.error('❌ Error loading result types:', error)
-  }
-
-  // Load students for the class if classId is provided
-  if (props.classId) {
-    try {
-      const studentClasses = await supabaseStudentClassesService.getStudentClasses({
-        class_id: props.classId,
-        include_details: true
-      })
-      const studentIds = studentClasses.map((sc: { student_id: string }) => sc.student_id)
-      classStudents.value = studentsStore.allStudents.value.filter(s => studentIds.includes(s.id))
-      console.log('✅ Class students loaded:', classStudents.value.length)
-    } catch (error) {
-      console.error('❌ Error loading class students:', error)
-    }
-
-    // Load evaluations for the class
-    try {
-      const evaluationClasses = await supabaseEvaluationClassesService.getEvaluationClasses({
-        class_id: props.classId,
-        include_details: true
-      })
-      const evaluationIds = evaluationClasses.map((ec: { evaluation_id: string }) => ec.evaluation_id)
-      filteredEvaluations.value = evaluationStore.allEvaluations.value
-        .filter(e => evaluationIds.includes(e.id))
-        .map(e => ({ id: e.id, name: e.name }))
-      console.log('✅ Class evaluations loaded:', filteredEvaluations.value.length)
-    } catch (error) {
-      console.error('❌ Error loading class evaluations:', error)
-    }
-  } else {
-    // No class filter - use all evaluations
-    filteredEvaluations.value = evaluationStore.allEvaluations.value.map(e => ({ id: e.id, name: e.name }))
-    console.log('✅ All evaluations loaded:', filteredEvaluations.value.length)
-  }
-
-  // Load all evaluation results
-  try {
-    const evaluationIds = filteredEvaluations.value.map(e => e.id)
-    const allResults: EvaluationResult[] = []
-
-    for (const evaluationId of evaluationIds) {
-      const results = await supabaseEvaluationResultsService.getAllResults(evaluationId)
-      allResults.push(...results)
-    }
-
-    allEvaluationResults.value = allResults
-    console.log('✅ All evaluation results loaded:', allEvaluationResults.value.length)
-  } catch (error) {
-    console.error('❌ Error loading evaluation results:', error)
-  }
+// Watch for classId changes and reload data
+watch(() => props.classId, () => {
+  console.log('📊 [ClassAnalysisView] ClassId changed, reloading data')
+  loadData()
 })
 </script>
 
@@ -456,6 +481,13 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.loading-state {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  text-align: center;
 }
 
 /* Responsive Design */

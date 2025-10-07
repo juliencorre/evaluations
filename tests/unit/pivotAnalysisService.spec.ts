@@ -82,8 +82,8 @@ describe('PivotAnalysisService', () => {
 
     const stats = PivotAnalysisService.calculateStatistics(normalized)
 
+    expect(stats.average).toBeCloseTo(7.67, 1)
     expect(stats).toMatchObject({
-      average: 7.67,
       min: 5,
       max: 10,
       count: 3

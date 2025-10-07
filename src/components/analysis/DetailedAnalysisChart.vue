@@ -50,6 +50,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
+// eslint-disable-next-line no-undef
 const chartCanvas = ref<InstanceType<typeof HTMLCanvasElement> | null>(null)
 let chartInstance: Chart | null = null
 

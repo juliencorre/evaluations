@@ -95,6 +95,7 @@ describe('Fonctions d\'export PDF', () => {
           getContext: vi.fn(() => ({
             drawImage: vi.fn()
           }))
+          // eslint-disable-next-line no-undef
         } as unknown as HTMLCanvasElement
       }
       return originalCreateElement(tagName)

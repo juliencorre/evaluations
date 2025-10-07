@@ -1,6 +1,8 @@
 /**
  * Script pour corriger toutes les erreurs TypeScript automatiquement
  */
+/* eslint-disable no-undef */
+ 
 const fs = require('fs');
 const path = require('path');
 

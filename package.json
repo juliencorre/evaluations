@@ -15,12 +15,10 @@
     "format": "npx prettier --write .",
     "format:check": "npx prettier --check .",
     "lighthouse": "npx lhci autorun",
-    "test:ci": "node scripts/test-ci.js",
-    "test:ci:fast": "node scripts/test-ci.js --skip-e2e --skip-lighthouse",
-    "ci-fix": "node scripts/ci-auto-fix.js",
-    "ci-check": "node scripts/test-ci.js",
-    "lint-fix": "npx eslint . --fix",
-    "type-fix": "npx vue-tsc --noEmit"
+    "predeploy": "node scripts/deploy-validator-agent.js",
+    "predeploy:quick": "node scripts/deploy-validator-agent.js --quick",
+    "predeploy:fix": "node scripts/deploy-validator-agent.js --fix",
+    "validate": "node scripts/deploy-validator-agent.js --quick --fix"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -32,7 +30,7 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
+    "@eslint/js": "^9.37.0",
     "@lhci/cli": "^0.14.0",
     "@playwright/test": "^1.49.1",
     "@rushstack/eslint-patch": "^1.10.4",

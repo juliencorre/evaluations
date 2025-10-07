@@ -21,7 +21,9 @@
       "Bash(npm run lint)",
       "Bash(npm run test:unit:*)",
       "Bash(move:*)",
-      "Bash(npm run test:unit:run:*)"
+      "Bash(npm run test:unit:run:*)",
+      "Bash(git --version)",
+      "Bash(test:*)"
     ],
     "deny": []
   }

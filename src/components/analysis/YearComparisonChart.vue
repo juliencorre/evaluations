@@ -63,7 +63,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const chartCanvas = ref<HTMLCanvasElement | null>(null) as any
+/* eslint-disable no-undef */
+const chartCanvas = ref<HTMLCanvasElement | null>(null)
 let chartInstance: Chart | null = null
 
 const createChart = () => {

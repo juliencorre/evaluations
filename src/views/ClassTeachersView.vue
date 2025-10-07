@@ -3,11 +3,11 @@
     <!-- Search App Bar with Back Button -->
     <SearchAppBar
       :search-value="searchQuery"
-      @update:search-value="searchQuery = $event"
       :title="pageTitle"
       :is-scrolled="isScrolled"
       :show-back-button="true"
       placeholder="Rechercher un enseignant..."
+      @update:search-value="searchQuery = $event"
       @back="handleBack"
       @logout="handleLogout"
     />

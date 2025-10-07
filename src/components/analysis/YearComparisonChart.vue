@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
-import type { HTMLCanvasElement } from '@vue/runtime-dom'
 import {
   Chart,
   CategoryScale,
@@ -64,7 +63,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const chartCanvas = ref<HTMLCanvasElement | null>(null)
+const chartCanvas = ref<HTMLCanvasElement | null>(null) as any
 let chartInstance: Chart | null = null
 
 const createChart = () => {

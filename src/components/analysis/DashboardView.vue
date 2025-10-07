@@ -341,13 +341,22 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         id: 'class-analysis',
         name: 'Analyse des moyennes de classe',
         description: `Analyse des moyennes de classe par ${metricTypeLabel}`,
-        date: new Date().toLocaleDateString('fr-FR')
+        date: new Date().toLocaleDateString('fr-FR'),
+        className: '',
+        schoolYearFilter: ''
       },
+      students: studentsStore.allStudents.value.map(student => ({
+        id: student.id,
+        firstName: student.firstName || '',
+        lastName: student.lastName || '',
+        fullName: `${student.firstName || ''} ${student.lastName || ''}`.trim()
+      })),
+      results: [],
       summary: {
         totalStudents: studentsStore.allStudents.value.length,
-        totalCompetencies: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) => 
-          total + domain.fields.reduce((fieldTotal, field) => 
-            fieldTotal + field.competencies.reduce((compTotal, comp) => 
+        totalCompetencies: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) =>
+          total + domain.fields.reduce((fieldTotal, field) =>
+            fieldTotal + field.competencies.reduce((compTotal, comp) =>
               compTotal + comp.specificCompetencies.length, 0), 0), 0),
         exportDate: new Date().toISOString()
       },

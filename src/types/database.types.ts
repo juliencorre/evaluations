@@ -358,7 +358,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      validate_email_registration: {
+        Args: {
+          email_to_validate: string
+        }
+        Returns: {
+          allowed: boolean
+          message: string
+        }
+      }
     }
     Enums: {
       result_type: "scale" | "boolean" | "custom" | "numeric"

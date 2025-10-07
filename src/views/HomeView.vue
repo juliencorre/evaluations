@@ -4,7 +4,7 @@
 
     <!-- Center-aligned App Bar -->
     <CenterAppBar
-      v-if="!isLoading && framework.domains.length > 0"
+      v-if="!isLoading && framework && framework.domains.length > 0"
       :title="currentEvaluation?.name || 'Évaluation'"
       :is-scrolled="isScrolled"
       :show-search="false"
@@ -21,7 +21,7 @@
 
     <!-- Desktop Evaluation Table -->
     <EvaluationTable
-      v-else-if="framework.domains.length > 0 && !isMobileView && currentEvaluation"
+      v-else-if="framework && framework.domains.length > 0 && !isMobileView && currentEvaluation"
       :evaluation="currentEvaluation"
       :students="evaluationStudents"
       :framework="framework"
@@ -29,7 +29,7 @@
 
     <!-- Mobile Evaluation View -->
     <EvaluationMobileView
-      v-else-if="framework.domains.length > 0 && isMobileView && currentEvaluation"
+      v-else-if="framework && framework.domains.length > 0 && isMobileView && currentEvaluation"
       :evaluation="currentEvaluation"
       :students="evaluationStudents"
       :framework="framework"
@@ -42,7 +42,7 @@
 
     <!-- Menu FAB pour les actions d'évaluation -->
     <MenuFAB
-      v-if="!isLoading && framework.domains.length > 0"
+      v-if="!isLoading && framework && framework.domains.length > 0"
       :menu-items="fabMenuItems"
       @menu-item-click="handleMenuItemClick"
       @edit="openEditEvaluation"
@@ -111,12 +111,14 @@ import { useCompetencyFrameworkStore } from '@/stores/competencyFrameworkStore'
 import { useEvaluationStore } from '@/stores/evaluationStore'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
 import { useLogout } from '@/composables/useLogout'
+import { storeToRefs } from 'pinia'
 
 const competenciesStore = useCompetencyFrameworkStore()
-const { framework, refreshFromSupabase } = competenciesStore
+const { framework } = storeToRefs(competenciesStore)
+const { refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
-const { currentEvaluation, setCurrentEvaluation, getEvaluationById, loadEvaluations } = evaluationStore
+const { setCurrentEvaluation, getEvaluationById, loadEvaluations, currentEvaluation } = evaluationStore
 
 const schoolYearStore = useSchoolYearStore()
 
@@ -184,16 +186,16 @@ const handleResize = () => {
 
 // Share evaluation info for dialog
 const shareEvaluationInfo = computed(() => {
-  if (!currentEvaluation.value || !framework.value.domains || !evaluationStudents.value) {
+  if (!currentEvaluation.value || !framework.value?.domains || !evaluationStudents.value) {
     return null
   }
 
   const competenciesCount = framework.value.domains
-    .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
-    .reduce((sum, domain) =>
+    .filter((domain: any) => domain && domain.fields && Array.isArray(domain.fields))
+    .reduce((sum: number, domain: any) =>
       sum + domain.fields
-        .filter(field => field && field.competencies && Array.isArray(field.competencies))
-        .reduce((fieldSum, field) => fieldSum + field.competencies.length, 0)
+        .filter((field: any) => field && field.competencies && Array.isArray(field.competencies))
+        .reduce((fieldSum: number, field: any) => fieldSum + field.competencies.length, 0)
     , 0)
 
   return {
@@ -211,7 +213,13 @@ onMounted(async () => {
   checkMobileView()
 
   // Load competencies framework from database
-  await refreshFromSupabase()
+  await refreshFromSupabase('')
+
+  if (!framework || !framework.value) {
+    console.error('❌ [HomeView] Failed to load framework')
+    isLoading.value = false
+    return
+  }
 
   // Load evaluations from database
   await loadEvaluations()
@@ -273,7 +281,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 
   try {
     // Prepare evaluation data for sharing (similar to export)
-    if (!framework.value.domains || framework.value.domains.length === 0) {
+    if (!framework.value?.domains || framework.value.domains.length === 0) {
       alert('Aucune compétence à partager. Veuillez vérifier que des compétences sont définies pour cette évaluation.')
       return
     }
@@ -291,7 +299,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '',
-        schoolYearFilter: schoolYearStore.selectedSchoolYear?.name || 'Toutes les années'
+        schoolYearFilter: schoolYearStore.currentSchoolYear?.value?.name || 'Toutes les années'
       },
       students: evaluationStudents.value.map(student => ({
         id: student.id,
@@ -299,13 +307,14 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         lastName: student.lastName || '',
         fullName: `${student.firstName || ''} ${student.lastName || ''}`.trim()
       })),
-      competencies: framework.value.domains
-        .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
-        .flatMap(domain =>
+      results: [],
+      competencies: (framework.value?.domains || [])
+        .filter((domain: any) => domain && domain.fields && Array.isArray(domain.fields))
+        .flatMap((domain: any) =>
           domain.fields
-            .filter(field => field && field.competencies && Array.isArray(field.competencies))
-            .flatMap(field =>
-              field.competencies.map(competency => ({
+            .filter((field: any) => field && field.competencies && Array.isArray(field.competencies))
+            .flatMap((field: any) =>
+              field.competencies.map((competency: any) => ({
                 id: competency.id,
                 name: competency.name || 'Compétence sans nom',
                 domain: domain.name || 'Domaine sans nom',
@@ -320,12 +329,12 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         ),
       summary: {
         totalStudents: evaluationStudents.value.length,
-        totalCompetencies: framework.value.domains
-          .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
-          .reduce((sum, domain) =>
+        totalCompetencies: (framework.value?.domains || [])
+          .filter((domain: any) => domain && domain.fields && Array.isArray(domain.fields))
+          .reduce((sum: number, domain: any) =>
             sum + domain.fields
-              .filter(field => field && field.competencies && Array.isArray(field.competencies))
-              .reduce((fieldSum, field) => fieldSum + field.competencies.length, 0)
+              .filter((field: any) => field && field.competencies && Array.isArray(field.competencies))
+              .reduce((fieldSum: number, field: any) => fieldSum + field.competencies.length, 0)
           , 0),
         exportDate: new Date().toISOString()
       }
@@ -378,10 +387,10 @@ const exportEvaluationResults = () => {
   try {
     // Debug framework structure
     console.log('Framework structure:', framework.value)
-    console.log('Domains:', framework.value.domains)
+    console.log('Domains:', framework.value?.domains)
 
     // Check if we have the necessary data
-    if (!framework.value.domains || framework.value.domains.length === 0) {
+    if (!framework.value?.domains || framework.value.domains.length === 0) {
       alert('Aucune compétence à exporter. Veuillez vérifier que des compétences sont définies pour cette évaluation.')
       return
     }
@@ -399,7 +408,7 @@ const exportEvaluationResults = () => {
         description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '', // Class name would need to be resolved from classId
-        schoolYearFilter: schoolYearStore.selectedSchoolYear?.name || 'Toutes les années'
+        schoolYearFilter: schoolYearStore.currentSchoolYear?.value?.name || 'Toutes les années'
       },
       students: evaluationStudents.value.map(student => ({
         id: student.id,
@@ -407,13 +416,14 @@ const exportEvaluationResults = () => {
         lastName: student.lastName || '',
         fullName: `${student.firstName || ''} ${student.lastName || ''}`.trim()
       })),
-      competencies: framework.value.domains
-        .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
-        .flatMap(domain =>
+      results: [],
+      competencies: (framework.value?.domains || [])
+        .filter((domain: any) => domain && domain.fields && Array.isArray(domain.fields))
+        .flatMap((domain: any) =>
           domain.fields
-            .filter(field => field && field.competencies && Array.isArray(field.competencies))
-            .flatMap(field =>
-              field.competencies.map(competency => ({
+            .filter((field: any) => field && field.competencies && Array.isArray(field.competencies))
+            .flatMap((field: any) =>
+              field.competencies.map((competency: any) => ({
                 id: competency.id,
                 name: competency.name || 'Compétence sans nom',
                 domain: domain.name || 'Domaine sans nom',
@@ -428,12 +438,12 @@ const exportEvaluationResults = () => {
         ),
       summary: {
         totalStudents: evaluationStudents.value.length,
-        totalCompetencies: framework.value.domains
-          .filter(domain => domain && domain.fields && Array.isArray(domain.fields))
-          .reduce((sum, domain) =>
+        totalCompetencies: (framework.value?.domains || [])
+          .filter((domain: any) => domain && domain.fields && Array.isArray(domain.fields))
+          .reduce((sum: number, domain: any) =>
             sum + domain.fields
-              .filter(field => field && field.competencies && Array.isArray(field.competencies))
-              .reduce((fieldSum, field) => fieldSum + field.competencies.length, 0)
+              .filter((field: any) => field && field.competencies && Array.isArray(field.competencies))
+              .reduce((fieldSum: number, field: any) => fieldSum + field.competencies.length, 0)
           , 0),
         exportDate: new Date().toISOString()
       }
@@ -583,11 +593,13 @@ const confirmDeleteEvaluation = () => {
 }
 
 // Debug logs
-console.log('🏠 [HomeView] Initialisation avec framework:', {
-  domains: framework.value.domains.length,
-  frameworkName: framework.value.name,
-  isLoading: isLoading.value
-})
+if (framework.value) {
+  console.log('🏠 [HomeView] Initialisation avec framework:', {
+    domains: framework.value.domains?.length || 0,
+    frameworkName: framework.value.name || 'N/A',
+    isLoading: isLoading.value
+  })
+}
 </script>
 
 <style scoped>

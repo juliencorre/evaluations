@@ -252,7 +252,7 @@ const handleSaveStudent = async (student: Student) => {
       await studentsStore.updateStudent(student.id, {
         firstName: student.firstName,
         lastName: student.lastName,
-        gender: student.gender,
+        gender: (student.gender === 'M' || student.gender === 'F' || student.gender === 'Autre') ? student.gender : null,
         birthDate: student.birthDate
       })
     } else {
@@ -261,7 +261,7 @@ const handleSaveStudent = async (student: Student) => {
       const newStudent = await studentsStore.addStudent({
         firstName: student.firstName,
         lastName: student.lastName,
-        gender: student.gender,
+        gender: (student.gender === 'M' || student.gender === 'F' || student.gender === 'Autre') ? student.gender : null,
         birthDate: student.birthDate
       })
 

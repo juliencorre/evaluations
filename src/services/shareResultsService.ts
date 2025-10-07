@@ -300,7 +300,7 @@ export const shareResultsService = {
       const fileName = `evaluation_${evaluationData.evaluation.name.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`
       
       const shareData: ShareResultsData = {
-        evaluationId: evaluationData.evaluation.id,
+        evaluationId: (evaluationData.evaluation as { id?: string }).id || 'unknown',
         evaluationName: evaluationData.evaluation.name,
         evaluationDescription: evaluationData.evaluation.description,
         recipients,

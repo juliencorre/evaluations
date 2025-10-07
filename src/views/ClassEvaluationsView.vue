@@ -131,7 +131,7 @@ interface EvaluationItem {
   id: string
   name: string
   description?: string
-  created_at: string
+  createdAt: string
 }
 
 interface ClassData {
@@ -168,15 +168,17 @@ onMounted(async () => {
 
   // Load class data
   await classStore.loadClasses()
-  classData.value = classStore.classes.find(c => c.id === props.id)
+  classData.value = classStore.classes.find(c => c.id === props.id) || null
 
   // Load evaluations for this class
   await schoolYearStore.ensureLoaded()
   const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
-  evaluations.value = await supabaseEvaluationsService.getEvaluationsByClass(
+  const dbEvaluations = await supabaseEvaluationsService.getEvaluationsByClass(
     props.id,
     currentSchoolYearId
   )
+  // Map to EvaluationItem format (created_at instead of createdAt)
+  evaluations.value = dbEvaluations
 
   isLoading.value = false
 })
@@ -239,17 +241,19 @@ const saveEvaluation = async (evaluationData: { name: string; description: strin
       {
         name: evaluationData.name,
         description: evaluationData.description,
-        frameworkId: evaluationData.frameworkId
+        frameworkId: evaluationData.frameworkId,
+        classId: props.id
       },
       [props.id],
       schoolYearStore.currentSchoolYear.value?.id
     )
 
     // Reload evaluations
-    evaluations.value = await supabaseEvaluationsService.getEvaluationsByClass(
+    const dbEvaluations = await supabaseEvaluationsService.getEvaluationsByClass(
       props.id,
       schoolYearStore.currentSchoolYear.value?.id
     )
+    evaluations.value = dbEvaluations
 
     closeModal()
   } catch (error) {
@@ -260,8 +264,8 @@ const saveEvaluation = async (evaluationData: { name: string; description: strin
   }
 }
 
-const handleMenuItemClick = (menuItem: { id: string }) => {
-  if (menuItem.id === 'add') {
+const handleMenuItemClick = (menuItem: { id?: string; key?: string }) => {
+  if (menuItem.id === 'add' || menuItem.key === 'add') {
     openAddModal()
   }
 }
@@ -269,8 +273,10 @@ const handleMenuItemClick = (menuItem: { id: string }) => {
 const fabMenuItems = ref([
   {
     id: 'add',
+    key: 'add',
     label: 'Nouvelle évaluation',
-    icon: 'add'
+    icon: 'add',
+    ariaLabel: 'Créer une nouvelle évaluation'
   }
 ])
 </script>

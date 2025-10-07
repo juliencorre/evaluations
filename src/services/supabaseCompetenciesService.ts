@@ -35,6 +35,45 @@ export class SupabaseCompetenciesService {
   // =================== FRAMEWORK ===================
 
   /**
+   * Récupère un framework par son ID
+   */
+  static async getFramework(frameworkId: string): Promise<CompetencyFramework> {
+    console.log('🔍 [Framework] Récupération du framework:', frameworkId)
+
+    const { data, error } = await supabase
+      .from('competency_frameworks')
+      .select(`
+        *,
+        domains:domains(
+          *,
+          fields:fields(
+            *,
+            competencies:competencies(
+              *,
+              specific_competencies:specific_competencies(
+                *,
+                result_type_configs:result_type_configs(*)
+              )
+            )
+          )
+        )
+      `)
+      .eq('id', frameworkId)
+      .single()
+
+    if (error) {
+      console.error('❌ [Framework] Erreur lors de la récupération:', error)
+      throw error
+    }
+
+    if (!data) {
+      throw new Error('Framework not found')
+    }
+
+    return this.mapSupabaseFrameworkToLocal(data as any)
+  }
+
+  /**
    * Récupère le framework par défaut ou le crée s'il n'existe pas
    */
   static async getOrCreateDefaultFramework(): Promise<CompetencyFramework> {

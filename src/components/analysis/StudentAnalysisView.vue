@@ -950,18 +950,28 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
     pdf.addImage(imgData, 'PNG', margin, 50, imgWidth, imgHeight)
 
     // Préparer les données pour le service de partage
+    const studentInfo = students.value.find(s => s.id === selectedStudent.value)
     const evaluationData = {
       evaluation: {
         id: 'student-analysis',
         name: `Analyse individuelle - ${selectedStudentName}`,
         description: `Analyse individuelle de l'élève ${selectedStudentName} par ${metricTypeLabel}`,
-        date: new Date().toLocaleDateString('fr-FR')
+        date: new Date().toLocaleDateString('fr-FR'),
+        className: '',
+        schoolYearFilter: ''
       },
+      students: studentInfo ? [{
+        id: selectedStudent.value,
+        firstName: studentInfo.name.split(' ')[0] || '',
+        lastName: studentInfo.name.split(' ').slice(1).join(' ') || '',
+        fullName: studentInfo.name
+      }] : [],
+      results: [],
       summary: {
         totalStudents: 1,
-        totalCompetencies: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) => 
-          total + domain.fields.reduce((fieldTotal, field) => 
-            fieldTotal + field.competencies.reduce((compTotal, comp) => 
+        totalCompetencies: useCompetencyFrameworkStore().framework.value.domains.reduce((total, domain) =>
+          total + domain.fields.reduce((fieldTotal, field) =>
+            fieldTotal + field.competencies.reduce((compTotal, comp) =>
               compTotal + comp.specificCompetencies.length, 0), 0), 0),
         exportDate: new Date().toISOString()
       },

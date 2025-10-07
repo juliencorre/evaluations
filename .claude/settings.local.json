@@ -19,7 +19,9 @@
       "Bash(npm run dev:*)",
       "Bash(npm install:*)",
       "Bash(npm run lint)",
-      "Bash(npm run test:unit:*)"
+      "Bash(npm run test:unit:*)",
+      "Bash(move:*)",
+      "Bash(npm run test:unit:run:*)"
     ],
     "deny": []
   }

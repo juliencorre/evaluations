@@ -2,7 +2,8 @@
   <div class="teachers-page">
     <!-- Search App Bar with Back Button -->
     <SearchAppBar
-      v-model:search-query="searchQuery"
+      :search-value="searchQuery"
+      @update:search-value="searchQuery = $event"
       :title="pageTitle"
       :is-scrolled="isScrolled"
       :show-back-button="true"

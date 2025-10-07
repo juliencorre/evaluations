@@ -352,18 +352,19 @@ export const useClassStore = defineStore('classes', () => {
 
     async addTeacherToClass(classId: string, email: string, role: string = 'teacher') {
       try {
-        // First, find the user by email
-        const { data: userData, error: userError } = await supabase
-          .from('auth.users')
-          .select('id')
-          .eq('email', email)
-          .single()
+        // First, find the user by email using auth admin API
+        const { data: { users }, error: userError } = await supabase.auth.admin.listUsers()
 
-        if (userError || !userData) {
+        if (userError) {
+          throw new Error('Erreur lors de la récupération des utilisateurs')
+        }
+
+        const user = users?.find(u => u.email === email)
+        if (!user) {
           throw new Error('Utilisateur non trouvé avec cet email')
         }
 
-        return await supabaseClassesService.addUserToClass(userData.id, classId, role)
+        return await supabaseClassesService.addUserToClass(user.id, classId, role)
       } catch (err) {
         console.error('Error adding teacher to class:', err)
         throw err

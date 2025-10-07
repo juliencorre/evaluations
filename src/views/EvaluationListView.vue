@@ -135,7 +135,7 @@ interface ClassEvaluation {
   id: string
   name: string
   description?: string
-  created_at: string
+  createdAt: string
 }
 
 const classEvaluations = ref<ClassEvaluation[]>([])
@@ -184,10 +184,11 @@ onMounted(async () => {
     // Load evaluations for the selected class only
     await schoolYearStore.ensureLoaded()
     const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
-    classEvaluations.value = await supabaseEvaluationsService.getEvaluationsByClass(
+    const dbEvaluations = await supabaseEvaluationsService.getEvaluationsByClass(
       classStore.selectedClassId,
       currentSchoolYearId
     )
+    classEvaluations.value = dbEvaluations
   } else {
     // Load all evaluations
     await loadEvaluations()

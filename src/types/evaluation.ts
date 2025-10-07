@@ -3,7 +3,7 @@ export interface Student {
   firstName: string
   lastName: string
   displayName: string
-  gender?: 'M' | 'F' | 'Autre' | null
+  gender?: 'M' | 'F' | 'Autre' | string | null
   birthDate?: string | null  // Format ISO date string (YYYY-MM-DD)
 }
 
@@ -94,6 +94,7 @@ export interface EvaluationResult {
   studentId: string
   competencyId: string
   specificCompetencyId?: string
+  resultTypeConfigId?: string
   level?: EvaluationLevel // Deprecated, kept for backward compatibility
   value?: EvaluationValue // New field supporting different result types
   comment?: string
@@ -104,6 +105,7 @@ export interface Evaluation {
   id: string
   name: string
   description: string
+  classId: string
   frameworkId: string
   createdAt: string
   results: EvaluationResult[]

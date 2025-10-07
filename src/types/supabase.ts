@@ -17,6 +17,8 @@ export type Database = {
           first_name: string
           last_name: string
           display_name: string
+          gender: 'M' | 'F' | 'Autre' | null
+          birth_date: string | null
           class_id: string | null
           created_at: string
           updated_at: string
@@ -26,6 +28,8 @@ export type Database = {
           first_name: string
           last_name: string
           display_name: string
+          gender?: 'M' | 'F' | 'Autre' | null
+          birth_date?: string | null
           class_id?: string | null
           created_at?: string
           updated_at?: string
@@ -35,6 +39,8 @@ export type Database = {
           first_name?: string
           last_name?: string
           display_name?: string
+          gender?: 'M' | 'F' | 'Autre' | null
+          birth_date?: string | null
           class_id?: string | null
           created_at?: string
           updated_at?: string
@@ -338,7 +344,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      validate_email_registration: {
+        Args: {
+          email_to_validate: string
+        }
+        Returns: {
+          allowed: boolean
+          message: string
+        }
+      }
     }
     Enums: {
       result_type: ResultType

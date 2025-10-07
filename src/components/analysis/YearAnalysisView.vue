@@ -235,12 +235,10 @@ const yearChartData = computed(() => {
       data: data,
       backgroundColor: year.color + 'CC', // 80% opacity for bars
       borderColor: year.color,
-      borderWidth: 1,
       borderRadius: 4,
       hoverBackgroundColor: year.color,
-      hoverBorderColor: year.color,
-      hoverBorderWidth: 2
-    })
+      hoverBorderColor: year.color
+    } as any)
   })
 
   console.log('📊 [YearAnalysisView] Chart data generated:', { labels: labels.length, datasets: datasets.length })
@@ -278,7 +276,7 @@ const calculateDomainAverage = (results: EvaluationResult[], domainId: string): 
   }
 
   const sum = relevantResults.reduce((acc, result) => {
-    const effectiveId = result.specificCompetencyId || result.competencyId
+    const effectiveId = result.specificCompetencyId || result.competencyId || ''
     const value = convertToPivotValue(result.value || '', effectiveId, result.resultTypeConfigId)
     return acc + value
   }, 0)
@@ -325,7 +323,7 @@ const calculateFieldAverage = (results: EvaluationResult[], fieldId: string): nu
   if (relevantResults.length === 0) return 0
 
   const sum = relevantResults.reduce((acc, result) => {
-    const effectiveId = result.specificCompetencyId || result.competencyId
+    const effectiveId = result.specificCompetencyId || result.competencyId || ''
     const value = convertToPivotValue(result.value || '', effectiveId, result.resultTypeConfigId)
     return acc + value
   }, 0)
@@ -333,7 +331,7 @@ const calculateFieldAverage = (results: EvaluationResult[], fieldId: string): nu
   return sum / relevantResults.length
 }
 
-const calculateCompetencyAverage = (results: EvaluationResult[], competencyId: string): number => {
+const calculateCompetencyAverage = (results: EvaluationResult[], competencyIdParam: string): number => {
   const framework = frameworkStore.framework.value
   if (!framework) return 0
 
@@ -342,7 +340,7 @@ const calculateCompetencyAverage = (results: EvaluationResult[], competencyId: s
 
   for (const domain of framework.domains) {
     for (const field of domain.fields) {
-      const comp = field.competencies.find(c => c.id === competencyId)
+      const comp = field.competencies.find(c => c.id === competencyIdParam)
       if (comp) {
         specificCompetencyIds = comp.specificCompetencies.map(sc => sc.id)
         break
@@ -353,13 +351,13 @@ const calculateCompetencyAverage = (results: EvaluationResult[], competencyId: s
 
   const relevantResults = results.filter(r => {
     const effectiveId = r.specificCompetencyId || r.competencyId
-    return specificCompetencyIds.includes(effectiveId) || r.competencyId === competencyId
+    return specificCompetencyIds.includes(effectiveId) || r.competencyId === competencyIdParam
   })
 
   if (relevantResults.length === 0) return 0
 
   const sum = relevantResults.reduce((acc, result) => {
-    const effectiveId = result.specificCompetencyId || result.competencyId
+    const effectiveId = result.specificCompetencyId || result.competencyId || ''
     const value = convertToPivotValue(result.value || '', effectiveId, result.resultTypeConfigId)
     return acc + value
   }, 0)
@@ -368,7 +366,7 @@ const calculateCompetencyAverage = (results: EvaluationResult[], competencyId: s
 }
 
 // Convert result value to pivot value (0-10 scale)
-const convertToPivotValue = (value: string, competencyId: string, resultTypeConfigId?: string): number => {
+const convertToPivotValue = (value: string, _unusedCompetencyId: string, resultTypeConfigId?: string): number => {
   if (!value || value === 'N/A' || value === 'Non évalué') return 0
 
   // Use the result type from the loaded result types

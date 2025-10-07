@@ -15,7 +15,7 @@
           <h3 class="section-title">Radar par domaine</h3>
           <div class="chart-container">
             <DomainRadarChart
-              :chart-data="getDomainRadarData()"
+              :chart-data="getDomainRadarData"
               :evaluation-periods="evaluationPeriods"
             />
           </div>
@@ -26,7 +26,7 @@
           <h3 class="section-title">Radar par champ</h3>
           <div class="chart-container">
             <DomainRadarChart
-              :chart-data="getFieldRadarData()"
+              :chart-data="getFieldRadarData"
               :evaluation-periods="evaluationPeriods"
             />
           </div>
@@ -57,7 +57,7 @@
 
         <div class="chart-container">
           <DetailedAnalysisChart
-            :chart-data="getDetailedAnalysisData()"
+            :chart-data="getDetailedAnalysisData"
             :evaluation-periods="evaluationPeriods"
           />
         </div>
@@ -434,13 +434,17 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 }
 
 // Get domain radar data
-const getDomainRadarData = () => {
-  console.log('📊 [getDomainRadarData] Getting domain radar data for class')
+const getDomainRadarData = computed(() => {
   const data = calculateClassAveragesByLevel('domains')
 
   // Transform to match DomainRadarChart expected format
   // DomainRadarChart expects: { name: string, evaluations: [{score: number}] }[]
-  if (!data || data.length === 0) return []
+  if (!data || data.length === 0) {
+    console.log('⚠️ [getDomainRadarData] No data available')
+    return []
+  }
+
+  console.log('📊 [getDomainRadarData] Processing data:', data.length, 'evaluations')
 
   // Get all unique domain names
   const allDomains = new Map<string, { name: string, evaluations: {score: number}[] }>()
@@ -473,11 +477,10 @@ const getDomainRadarData = () => {
   })
 
   return Array.from(allDomains.values())
-}
+})
 
 // Get field radar data
-const getFieldRadarData = () => {
-  console.log('📊 [getFieldRadarData] Getting field radar data for class')
+const getFieldRadarData = computed(() => {
   const data = calculateClassAveragesByLevel('fields')
 
   // Transform to match DomainRadarChart expected format
@@ -514,11 +517,10 @@ const getFieldRadarData = () => {
   })
 
   return Array.from(allFields.values())
-}
+})
 
 // Get detailed analysis data based on selected metric type
-const getDetailedAnalysisData = () => {
-  console.log('📊 [getDetailedAnalysisData] Getting detailed analysis data:', selectedMetricType.value)
+const getDetailedAnalysisData = computed(() => {
   const data = calculateClassAveragesByLevel(selectedMetricType.value)
 
   // Transform the data format for DetailedAnalysisChart
@@ -556,7 +558,7 @@ const getDetailedAnalysisData = () => {
   })
 
   return Array.from(allLevels.values())
-}
+})
 
 // Load all data on mount without class filtering
 
@@ -664,15 +666,11 @@ const getScoreFromValue = (value: string, resultTypeConfigId?: string): number |
 
 // Function to calculate class averages by level (domains, fields, competencies) across all students
 const calculateClassAveragesByLevel = (metricType: string) => {
-  console.log('📊 [calculateClassAveragesByLevel] Starting calculation:', { metricType })
-
   // Use filtered results and evaluations
   const results = allEvaluationResults.value
   const evaluations = filteredEvaluations.value
-  const students = studentsStore.allStudents.value
 
-  if (!Array.isArray(results) || results.length === 0 || evaluations.length === 0 || students.length === 0) {
-    console.log('📊 [calculateClassAveragesByLevel] No data available')
+  if (!Array.isArray(results) || results.length === 0 || evaluations.length === 0) {
     return []
   }
 
@@ -918,8 +916,6 @@ const calculateClassAveragesByLevel = (metricType: string) => {
 // Load filtered data based on selected classes and years
 const loadFilteredData = async () => {
   try {
-    console.log('📊 [DashboardView] Loading filtered data:', filters.value)
-
     const allEvaluations = evaluationStore.allEvaluations.value
     const allResults: EvaluationResult[] = []
     const loadedEvaluations: Array<{ id: string; name: string }> = []
@@ -938,6 +934,7 @@ const loadFilteredData = async () => {
 
         // Skip if filters are active and this evaluation doesn't match
         if (hasClassFilter) {
+          // evaluationClasses is Class[], so we use the id directly
           const evaluationClassIds = evaluationClasses.map(ec => ec.id)
           const hasMatchingClass = filters.value.classIds.some(classId =>
             evaluationClassIds.includes(classId)
@@ -973,13 +970,17 @@ const loadFilteredData = async () => {
 
         // Load results for this evaluation
         const fullEvaluation = await supabaseEvaluationResultsService.getOrCreateEvaluation(evaluation)
+
         const resultsWithEvaluationId = fullEvaluation.results.map(result => ({
           ...result,
           evaluationId: evaluation.id
         }))
+
+        // Note: No need to filter by students since the evaluation is already filtered by class
+        // All students in an evaluation belong to the associated class(es)
+        // Include evaluation even if it has no results (will show as 0 in charts)
         allResults.push(...resultsWithEvaluationId)
         loadedEvaluations.push({ id: evaluation.id, name: evaluation.name })
-        console.log('📊 [DashboardView] Loaded', resultsWithEvaluationId.length, 'results for', evaluation.name)
       } catch (error) {
         console.error('📊 [DashboardView] Error loading results for evaluation', evaluation.name, ':', error)
       }
@@ -987,8 +988,6 @@ const loadFilteredData = async () => {
 
     allEvaluationResults.value = allResults
     filteredEvaluations.value = loadedEvaluations
-    console.log('📊 [DashboardView] Filtered evaluation results loaded:', allResults.length)
-    console.log('📊 [DashboardView] Filtered evaluations:', loadedEvaluations.map(e => e.name).join(', '))
   } catch (error) {
     console.error('Error loading filtered dashboard data:', error)
   }
@@ -996,26 +995,19 @@ const loadFilteredData = async () => {
 
 onMounted(async () => {
   try {
-    console.log('📊 [DashboardView] Starting initialization')
-
     // Load initial data in parallel
     await Promise.all([
       classStore.loadClasses(),
       schoolYearStore.ensureLoaded(),
       studentsStore.refreshFromSupabase(),
-      evaluationStore.loadEvaluations()  // CRITICAL: Load evaluations first
+      evaluationStore.loadEvaluations()
     ])
-
-    console.log('📊 [DashboardView] Stores loaded, evaluations count:', evaluationStore.allEvaluations.value.length)
 
     // Load result types
     resultTypes.value = await resultTypesService.getResultTypes()
-    console.log('📊 [DashboardView] Result types loaded:', resultTypes.value.length)
 
     // Load all evaluation results (depends on evaluations being loaded)
     await loadFilteredData()
-
-    console.log('📊 [DashboardView] Initialization complete')
   } catch (error) {
     console.error('Error loading dashboard data:', error)
   }

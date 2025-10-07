@@ -180,12 +180,15 @@ const pageTitle = computed(() => {
 })
 
 const filteredTeachers = computed(() => {
+  // Exclure les utilisateurs admin de la liste
+  const nonAdminTeachers = teachers.value.filter(teacher => teacher.role !== 'admin')
+
   if (!searchQuery.value.trim()) {
-    return teachers.value
+    return nonAdminTeachers
   }
 
   const query = searchQuery.value.toLowerCase()
-  return teachers.value.filter(teacher => {
+  return nonAdminTeachers.filter(teacher => {
     return (
       teacher.email?.toLowerCase().includes(query) ||
       teacher.fullName?.toLowerCase().includes(query)

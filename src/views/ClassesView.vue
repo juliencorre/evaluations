@@ -244,9 +244,10 @@ const loadClassStatistics = async () => {
       const evaluations = await classStore.getEvaluationsForClass(classItem.id)
       const evaluationCount = evaluations.length
 
-      // Get teacher count
+      // Get teacher count (exclure les admin)
       const teachers = await classStore.getClassTeachers(classItem.id)
-      const teacherCount = teachers.length
+      const nonAdminTeachers = teachers.filter(teacher => teacher.role !== 'admin')
+      const teacherCount = nonAdminTeachers.length
 
       classStats.value[classItem.id] = {
         studentCount,

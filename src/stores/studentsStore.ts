@@ -1,6 +1,5 @@
 import { ref, computed } from 'vue'
 import type { Student, CompetencyFramework, SpecificCompetency } from '@/types/evaluation'
-import { STUDENTS } from '@/data/staticData'
 import { supabaseStudentsService } from '@/services/supabaseStudentsService'
 import { supabaseStudentClassesService } from '@/services/supabaseStudentClassesService'
 import { useSchoolYearStore } from '@/stores/schoolYearStore'
@@ -14,7 +13,7 @@ const useSupabase = ref(true) // Flag pour activer/désactiver Supabase
 // Charger les élèves depuis Supabase au démarrage
 const loadStudentsFromSupabase = async () => {
   if (!useSupabase.value) {
-    students.value = [...STUDENTS]
+    console.warn('Supabase is disabled, no students loaded')
     return
   }
 
@@ -25,10 +24,10 @@ const loadStudentsFromSupabase = async () => {
     const supabaseStudents = await supabaseStudentsService.getAllStudents()
     students.value = supabaseStudents
   } catch (err) {
-    console.error('Erreur lors du chargement depuis Supabase, utilisation des données locales:', err)
-    error.value = 'Impossible de charger les élèves depuis Supabase, utilisation des données locales'
-    students.value = [...STUDENTS]
+    console.error('Error loading students from Supabase:', err)
+    error.value = 'Impossible de charger les élèves depuis la base de données. Veuillez vérifier votre connexion.'
     useSupabase.value = false // Désactiver Supabase en cas d'erreur
+    throw err // Propagate error instead of silently using fallback data
   } finally {
     isLoading.value = false
   }
@@ -67,7 +66,7 @@ export const useStudentsStore = () => {
       return newStudent
     }
 
-    // Essayer Supabase
+    // Create student in Supabase
     try {
       const newStudent = await supabaseStudentsService.createStudent(
         studentData.firstName,
@@ -78,19 +77,9 @@ export const useStudentsStore = () => {
       students.value.push(newStudent)
       return newStudent
     } catch (err) {
-      console.error('Erreur lors de l\'ajout dans Supabase, basculement local:', err)
-      useSupabase.value = false // Désactiver Supabase pour les prochaines fois
-
-      // Fallback: création locale
-      const newId = `STU${String(students.value.length + 1).padStart(3, '0')}`
-      const newStudent: Student = {
-        id: newId,
-        firstName: studentData.firstName,
-        lastName: studentData.lastName,
-        displayName: generateDisplayName(studentData.firstName, studentData.lastName)
-      }
-      students.value.push(newStudent)
-      return newStudent
+      console.error('Error creating student in Supabase:', err)
+      useSupabase.value = false
+      throw new Error('Impossible de créer l\'élève. Veuillez vérifier votre connexion.')
     }
   }
 
@@ -133,27 +122,9 @@ export const useStudentsStore = () => {
       }
       return null
     } catch (err) {
-      console.error('Erreur lors de la mise à jour dans Supabase, basculement local:', err)
-      useSupabase.value = false // Désactiver Supabase pour les prochaines fois
-
-      // Fallback: mise à jour locale
-      const index = students.value.findIndex((s) => s.id === studentId)
-      if (index !== -1) {
-        const updatedStudent = {
-          ...students.value[index],
-          ...updates
-        }
-        // Regenerate displayName if firstName or lastName changed
-        if (updates.firstName || updates.lastName) {
-          updatedStudent.displayName = generateDisplayName(
-            updatedStudent.firstName,
-            updatedStudent.lastName
-          )
-        }
-        students.value[index] = updatedStudent
-        return updatedStudent
-      }
-      return null
+      console.error('Error updating student in Supabase:', err)
+      useSupabase.value = false
+      throw new Error('Impossible de mettre à jour l\'élève. Veuillez vérifier votre connexion.')
     }
   }
 
@@ -167,18 +138,15 @@ export const useStudentsStore = () => {
       return studentToDelete
     }
 
-    // Essayer Supabase
+    // Delete student in Supabase
     try {
       await supabaseStudentsService.deleteStudent(studentId)
       students.value = students.value.filter((s) => s.id !== studentId)
       return studentToDelete
     } catch (err) {
-      console.error('Erreur lors de la suppression dans Supabase, basculement local:', err)
-      useSupabase.value = false // Désactiver Supabase pour les prochaines fois
-
-      // Fallback: suppression locale
-      students.value = students.value.filter((s) => s.id !== studentId)
-      return studentToDelete
+      console.error('Error deleting student in Supabase:', err)
+      useSupabase.value = false
+      throw new Error('Impossible de supprimer l\'élève. Veuillez vérifier votre connexion.')
     }
   }
 
@@ -187,32 +155,10 @@ export const useStudentsStore = () => {
   }
 
   const resetStudents = async () => {
-    students.value = [...STUDENTS]
-
-    // Optionnel: réinitialiser aussi dans Supabase
-    if (useSupabase.value) {
-      try {
-        // D'abord supprimer tous les élèves existants
-        const existingStudents = await supabaseStudentsService.getAllStudents()
-        for (const student of existingStudents) {
-          await supabaseStudentsService.deleteStudent(student.id)
-        }
-
-        // Puis importer les élèves par défaut
-        await supabaseStudentsService.bulkImportStudents(
-          STUDENTS.map(s => ({
-            firstName: s.firstName,
-            lastName: s.lastName
-          }))
-        )
-
-        // Recharger depuis Supabase
-        await loadStudentsFromSupabase()
-      } catch (err) {
-        console.error('Erreur lors de la réinitialisation dans Supabase:', err)
-        error.value = 'Erreur lors de la réinitialisation des élèves'
-      }
-    }
+    // Clear all students - no default data to reset to
+    students.value = []
+    error.value = null
+    console.log('All students cleared. Please reload from Supabase if needed.')
   }
 
   const refreshFromSupabase = async () => {

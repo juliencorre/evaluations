@@ -147,17 +147,33 @@ const formData = ref({
   classId: ''
 })
 
-// Mock data - à remplacer par de vraies données
-const frameworks = ref([
-  { id: '1', name: 'Socle commun', version: '2016' },
-  { id: '2', name: 'Référentiel personnalisé', version: '1.0' }
-])
+// Data loaded from Supabase
+const frameworks = ref<Array<{ id: string; name: string; version?: string }>>([])
+const classes = ref<Array<{ id: string; name: string }>>([])
 
-const classes = ref([
-  { id: '1', name: 'CM1-CM2' },
-  { id: '2', name: '6ème A' },
-  { id: '3', name: '5ème B' }
-])
+// Load frameworks and classes from Supabase
+const loadFormData = async () => {
+  try {
+    // Load frameworks from competency service
+    const { supabaseCompetenciesService } = await import('@/services/supabaseCompetenciesService')
+    const allFrameworks = await supabaseCompetenciesService.getAllFrameworks()
+    frameworks.value = allFrameworks.map(fw => ({
+      id: fw.id,
+      name: fw.name,
+      version: fw.version
+    }))
+
+    // Load classes from class service
+    const { supabaseClassesService } = await import('@/services/supabaseClassesService')
+    const allClasses = await supabaseClassesService.getAllClasses()
+    classes.value = allClasses.map(cls => ({
+      id: cls.id,
+      name: cls.name
+    }))
+  } catch (error) {
+    console.error('Error loading form data:', error)
+  }
+}
 
 // Computed
 const pageTitle = computed(() => {
@@ -250,9 +266,10 @@ const saveEvaluation = async () => {
 }
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
+  await loadFormData()
   loadEvaluationData()
 })
 

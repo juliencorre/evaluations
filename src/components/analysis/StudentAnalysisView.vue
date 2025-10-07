@@ -894,56 +894,6 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
   return finalResult
 }
 
-// Temporary fallback with static data if no real data is available
-const fallbackStudentData = {
-  student1: {
-    domains: [
-      { name: 'Français', evaluations: [{ score: 2.8 }, { score: 3.1 }, { score: 3.2 }] },
-      { name: 'Mathématiques', evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }] },
-      { name: 'Histoire-Géographie', evaluations: [{ score: 3.2 }, { score: 3.4 }, { score: 3.5 }] },
-      { name: 'Sciences', evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }] },
-      { name: 'Arts', evaluations: [{ score: 3.5 }, { score: 3.7 }, { score: 3.8 }] }
-    ],
-    fields: [
-      { name: 'Lecture', evaluations: [{ score: 2.9 }, { score: 3.0 }, { score: 3.1 }] },
-      { name: 'Écriture', evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }] },
-      { name: 'Calcul', evaluations: [{ score: 2.4 }, { score: 2.6 }, { score: 2.7 }] },
-      { name: 'Géométrie', evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }] },
-      { name: 'Mesures', evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }] }
-    ],
-    competencies: [
-      { name: 'Comprendre un texte', evaluations: [{ score: 2.7 }, { score: 2.9 }, { score: 3.0 }] },
-      { name: 'Rédiger un paragraphe', evaluations: [{ score: 2.9 }, { score: 3.1 }, { score: 3.2 }] },
-      { name: 'Résoudre un problème', evaluations: [{ score: 2.3 }, { score: 2.5 }, { score: 2.6 }] },
-      { name: 'Calculer mentalement', evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }] },
-      { name: "Se repérer dans l'espace", evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }] }
-    ]
-  },
-  student2: {
-    domains: [
-      { name: 'Français', evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }] },
-      { name: 'Mathématiques', evaluations: [{ score: 2.8 }, { score: 3.0 }, { score: 3.1 }] },
-      { name: 'Histoire-Géographie', evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }] },
-      { name: 'Sciences', evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }] },
-      { name: 'Arts', evaluations: [{ score: 2.9 }, { score: 3.1 }, { score: 3.2 }] }
-    ],
-    fields: [
-      { name: 'Lecture', evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }] },
-      { name: 'Écriture', evaluations: [{ score: 2.4 }, { score: 2.6 }, { score: 2.7 }] },
-      { name: 'Calcul', evaluations: [{ score: 2.9 }, { score: 3.1 }, { score: 3.2 }] },
-      { name: 'Géométrie', evaluations: [{ score: 2.7 }, { score: 2.9 }, { score: 3.0 }] },
-      { name: 'Mesures', evaluations: [{ score: 2.8 }, { score: 3.0 }, { score: 3.1 }] }
-    ],
-    competencies: [
-      { name: 'Comprendre un texte', evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }] },
-      { name: 'Rédiger un paragraphe', evaluations: [{ score: 2.5 }, { score: 2.7 }, { score: 2.8 }] },
-      { name: 'Résoudre un problème', evaluations: [{ score: 2.8 }, { score: 3.0 }, { score: 3.1 }] },
-      { name: 'Calculer mentalement', evaluations: [{ score: 3.0 }, { score: 3.2 }, { score: 3.3 }] },
-      { name: "Se repérer dans l'espace", evaluations: [{ score: 2.6 }, { score: 2.8 }, { score: 2.9 }] }
-    ]
-  }
-}
-
 // Student analysis helper functions
 
 const getStudentData = () => {
@@ -965,16 +915,7 @@ const getStudentData = () => {
       return dynamicData
     }
 
-    console.log('📊 [getStudentData] No dynamic data found, trying fallback data')
-    const fallbackData = fallbackStudentData?.[selectedStudent.value as keyof typeof fallbackStudentData]
-
-    if (fallbackData) {
-      const result = (fallbackData as Record<string, Array<{ name: string; evaluations: Array<{ score: number }> }>>)[selectedMetricType.value] || []
-      console.log('📊 [getStudentData] Using fallback data:', result.length, 'items for metric type:', selectedMetricType.value)
-      return result
-    }
-
-    console.log('📊 [getStudentData] No fallback data available')
+    console.log('📊 [getStudentData] No data found for student')
     return []
   } catch (error) {
     console.error('❌ [getStudentData] Error getting student data:', error)

@@ -1,7 +1,13 @@
 <template>
   <div class="dashboard-container">
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Chargement des données d'analyse...</p>
+    </div>
+
     <!-- Main Card: Évaluation des compétences de la classe -->
-    <ChartCard class="competencies-card">
+    <ChartCard v-else class="competencies-card">
       <template #title>
         <div class="main-card-header">
           <h2 class="main-card-title">Évaluation des compétences de la classe</h2>
@@ -131,6 +137,7 @@ const studentsStore = useStudentsStore()
 const evaluationStore = useEvaluationStore()
 const classStore = useClassStore()
 const schoolYearStore = useSchoolYearStore()
+const frameworkStore = useCompetencyFrameworkStore()
 
 // Services
 const resultTypesService = new SupabaseResultTypesService()
@@ -149,6 +156,9 @@ const availableYears = computed(() => {
     is_current: y.is_current
   }))
 })
+
+// Loading state
+const isLoading = ref(true)
 
 // Result types configuration
 const resultTypes = ref<ResultTypeConfig[]>([])
@@ -435,6 +445,11 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
 
 // Get domain radar data
 const getDomainRadarData = computed(() => {
+  // Don't calculate if still loading or framework not ready
+  if (isLoading.value || !frameworkStore.framework.value || !frameworkStore.framework.value.domains) {
+    return []
+  }
+
   const data = calculateClassAveragesByLevel('domains')
 
   // Transform to match DomainRadarChart expected format
@@ -481,6 +496,11 @@ const getDomainRadarData = computed(() => {
 
 // Get field radar data
 const getFieldRadarData = computed(() => {
+  // Don't calculate if still loading or framework not ready
+  if (isLoading.value || !frameworkStore.framework.value || !frameworkStore.framework.value.domains) {
+    return []
+  }
+
   const data = calculateClassAveragesByLevel('fields')
 
   // Transform to match DomainRadarChart expected format
@@ -1000,7 +1020,8 @@ onMounted(async () => {
       classStore.loadClasses(),
       schoolYearStore.ensureLoaded(),
       studentsStore.refreshFromSupabase(),
-      evaluationStore.loadEvaluations()
+      evaluationStore.loadEvaluations(),
+      frameworkStore.refreshFromSupabase() // Load competency framework
     ])
 
     // Load result types
@@ -1008,8 +1029,16 @@ onMounted(async () => {
 
     // Load all evaluation results (depends on evaluations being loaded)
     await loadFilteredData()
+
+    // Verify framework is loaded before allowing render
+    if (!frameworkStore.framework.value || !frameworkStore.framework.value.domains) {
+      throw new Error('Framework not loaded properly')
+    }
   } catch (error) {
     console.error('Error loading dashboard data:', error)
+  } finally {
+    // Set loading to false once all data is loaded
+    isLoading.value = false
   }
 })
 </script>
@@ -1020,6 +1049,37 @@ onMounted(async () => {
   flex-direction: column;
   gap: 24px;
   width: 100%;
+}
+
+/* Loading state */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--md-sys-color-surface-variant, #e7e0ec);
+  border-top: 4px solid var(--md-sys-color-primary, #6750a4);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  margin: 0;
 }
 
 /* Main card styling */

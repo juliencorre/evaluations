@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
 import ClassResultsView from '@/views/ClassResultsView.vue'
+
+// Mock router
+const mockRouter = {
+  push: vi.fn(),
+  currentRoute: { value: { path: '/test' } }
+}
 
 interface MockJsPdfInstance {
   internal: {
@@ -87,6 +94,11 @@ describe('Fonctions d\'export PDF', () => {
         id: 'test-class-id'
       },
       global: {
+        plugins: [createPinia()],
+        mocks: {
+          $router: mockRouter,
+          $route: mockRouter.currentRoute.value
+        },
         stubs: {
           CenterAppBar: { template: '<div />' },
           AnalysisTabs: { template: '<div><slot /></div>' },
@@ -121,6 +133,11 @@ describe('Fonctions d\'export PDF', () => {
         id: 'test-class-id'
       },
       global: {
+        plugins: [createPinia()],
+        mocks: {
+          $router: mockRouter,
+          $route: mockRouter.currentRoute.value
+        },
         stubs: {
           CenterAppBar: { template: '<div />' },
           AnalysisTabs: { template: '<div><slot /></div>' },

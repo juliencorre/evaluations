@@ -120,27 +120,29 @@ const createChart = () => {
           suggestedMax: 10,
           angleLines: {
             display: true,
-            color: 'var(--md-sys-color-outline-variant, #c4c7c5)',
-            lineWidth: 1
+            color: 'rgba(0, 0, 0, 0.15)',
+            lineWidth: 1.5
           },
           ticks: {
             stepSize: 2,
-            backdropColor: 'transparent',
+            backdropColor: 'rgba(255, 255, 255, 0.9)',
+            backdropPadding: 4,
             font: {
               family: "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-              size: 11,
-              weight: 400
+              size: 13,
+              weight: 600
             },
-            color: 'var(--md-sys-color-on-surface-variant, #49454f)',
-            showLabelBackdrop: false,
+            color: '#1c1b1f',
+            showLabelBackdrop: true,
+            z: 10,
             callback: (value) => {
               return value.toString()
             }
           },
           grid: {
-            color: 'var(--md-sys-color-outline-variant, #c4c7c5)',
+            color: 'rgba(0, 0, 0, 0.2)',
             circular: true,
-            lineWidth: 1
+            lineWidth: 1.5
           },
           pointLabels: {
             font: {

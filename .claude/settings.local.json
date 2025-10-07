@@ -33,7 +33,10 @@
       "Bash(npm run predeploy:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

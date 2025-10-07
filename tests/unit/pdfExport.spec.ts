@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AnalysisView from '@/views/AnalysisView.vue'
+import ClassResultsView from '@/views/ClassResultsView.vue'
 
 interface MockJsPdfInstance {
   internal: {
@@ -79,10 +79,13 @@ describe('Fonctions d\'export PDF', () => {
 
   it('exporte le graphique individuel en PDF', async () => {
     const chartElement = document.createElement('div')
-    chartElement.className = 'chart-container'
+    chartElement.className = 'competencies-card'
     document.body.appendChild(chartElement)
 
-    const wrapper = mount(AnalysisView, {
+    const wrapper = mount(ClassResultsView, {
+      props: {
+        id: 'test-class-id'
+      },
       global: {
         stubs: {
           CenterAppBar: { template: '<div />' },
@@ -113,7 +116,10 @@ describe('Fonctions d\'export PDF', () => {
     secondChart.className = 'chart-container'
     document.body.append(firstChart, secondChart)
 
-    const wrapper = mount(AnalysisView, {
+    const wrapper = mount(ClassResultsView, {
+      props: {
+        id: 'test-class-id'
+      },
       global: {
         stubs: {
           CenterAppBar: { template: '<div />' },

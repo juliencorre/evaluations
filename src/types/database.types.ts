@@ -287,6 +287,96 @@ export type Database = {
           },
         ]
       }
+      school_years: {
+        Row: {
+          id: string
+          name: string
+          start_date: string
+          end_date: string
+          is_current: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          start_date: string
+          end_date: string
+          is_current?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          start_date?: string
+          end_date?: string
+          is_current?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_classes: {
+        Row: {
+          id: string
+          student_id: string
+          class_id: string
+          school_year_id: string
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          class_id: string
+          school_year_id: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          class_id?: string
+          school_year_id?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_restrictions: {
+        Row: {
+          id: string
+          rule_type: 'email' | 'domain'
+          value: string
+          description: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          rule_type: 'email' | 'domain'
+          value: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          rule_type?: 'email' | 'domain'
+          value?: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       result_type_configs: {
         Row: {
           config: Json

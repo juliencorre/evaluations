@@ -74,10 +74,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useClassStore } from '@/stores/classStore'
-import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { useSchoolYearStore } from '@/stores'
+import { useEvaluationStore } from '@/stores'
+import { useClassStore } from '@/stores'
+import { useCompetencyFrameworkStore } from '@/stores'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
@@ -111,7 +111,7 @@ const availableClasses = computed(() => {
 })
 
 const availableYears = computed(() => {
-  return (schoolYearStore.schoolYears?.value || []).map(y => ({
+  return (schoolYearStore.schoolYears || []).map(y => ({
     id: y.id,
     name: y.name,
     is_current: y.is_current
@@ -147,7 +147,7 @@ const colorPalette = [
 
 // School years with colors
 const schoolYears = computed(() => {
-  return schoolYearStore.schoolYears.value.map((year, index) => ({
+  return schoolYearStore.schoolYears.map((year, index) => ({
     id: year.id,
     name: year.name,
     color: colorPalette[index % colorPalette.length]

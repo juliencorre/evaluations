@@ -1,13 +1,16 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { Evaluation, Class } from '@/types/evaluation'
-import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsService'
-import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
+import { serviceContainer } from '@/services/ServiceContainer'
+
 
 /**
  * Store Pinia pour la gestion des évaluations
  * Gère les évaluations et leurs relations avec les classes
  */
+const evaluationRepository = serviceContainer.evaluations
+const evaluationClassRepository = serviceContainer.evaluationClasses
+
 export const useEvaluationsStore = defineStore('evaluations', () => {
   // ==================== STATE ====================
   const evaluations = ref<Evaluation[]>([])
@@ -46,7 +49,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
     error.value = null
 
     try {
-      const data = await supabaseEvaluationsService.getEvaluations()
+      const data = await evaluationRepository.findAll()
       evaluations.value = data
 
       // Définir la première évaluation comme courante si aucune n'est définie
@@ -67,7 +70,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
    */
   async function addEvaluation(evaluation: Omit<Evaluation, 'id' | 'createdAt' | 'results'>) {
     try {
-      const newEvaluation = await supabaseEvaluationsService.createEvaluation(evaluation)
+      const newEvaluation = await evaluationRepository.create(evaluation)
       if (newEvaluation) {
         evaluations.value.push(newEvaluation)
         currentEvaluation.value = newEvaluation
@@ -86,7 +89,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
    */
   async function updateEvaluation(id: string, updates: Partial<Evaluation>) {
     try {
-      const updatedEvaluation = await supabaseEvaluationsService.updateEvaluation(id, updates)
+      const updatedEvaluation = await evaluationRepository.update(id, updates)
       if (updatedEvaluation) {
         const index = evaluations.value.findIndex((evaluation) => evaluation.id === id)
         if (index !== -1) {
@@ -112,7 +115,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
    */
   async function deleteEvaluation(id: string) {
     try {
-      const success = await supabaseEvaluationsService.deleteEvaluation(id)
+      const success = await evaluationRepository.delete(id)
       if (success) {
         const index = evaluations.value.findIndex((evaluation) => evaluation.id === id)
         if (index !== -1) {
@@ -163,7 +166,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
     schoolYearId?: string
   ): Promise<Class[]> {
     try {
-      return await supabaseEvaluationClassesService.getClassesForEvaluation(
+      return await evaluationClassRepository.getClassesForEvaluation(
         evaluationId,
         schoolYearId
       )
@@ -181,7 +184,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
    */
   async function getEvaluationsForClass(classId: string, schoolYearId?: string) {
     try {
-      return await supabaseEvaluationClassesService.getEvaluationsForClass(classId, schoolYearId)
+      return await evaluationClassRepository.getEvaluationsForClass(classId, schoolYearId)
     } catch (err) {
       console.error(
         '[EvaluationsStore] Erreur lors de la récupération des évaluations pour la classe:',
@@ -206,18 +209,18 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
       }
 
       if (classIds.length === 1) {
-        const result = await supabaseEvaluationClassesService.addClassToEvaluation({
-          evaluation_id: evaluationId,
-          class_id: classIds[0],
-          school_year_id: schoolYearId
+        const result = await evaluationClassRepository.addClassToEvaluation({
+          evaluationId,
+          classId: classIds[0],
+          schoolYearId
         })
         return [result]
       } else {
-        return await supabaseEvaluationClassesService.addClassesToEvaluation(
+        return await evaluationClassRepository.addClassesToEvaluation({
           evaluationId,
           classIds,
           schoolYearId
-        )
+        })
       }
     } catch (err) {
       console.error(
@@ -237,7 +240,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
     schoolYearId?: string
   ) {
     try {
-      return await supabaseEvaluationClassesService.removeClassFromEvaluation(
+      return await evaluationClassRepository.removeClassFromEvaluation(
         evaluationId,
         classId,
         schoolYearId
@@ -258,11 +261,11 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
     schoolYearId?: string
   ) {
     try {
-      return await supabaseEvaluationClassesService.updateEvaluationClasses(
+      return await evaluationClassRepository.updateEvaluationClasses({
         evaluationId,
         classIds,
         schoolYearId
-      )
+      })
     } catch (err) {
       console.error(
         '[EvaluationsStore] Erreur lors de la mise à jour des classes de l\'évaluation:',
@@ -282,7 +285,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
   ) {
     try {
       // Créer l'évaluation d'abord
-      const newEvaluation = await supabaseEvaluationsService.createEvaluation(evaluation)
+      const newEvaluation = await evaluationRepository.create(evaluation)
       if (!newEvaluation) {
         throw new Error('Échec de la création de l\'évaluation')
       }
@@ -311,7 +314,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
    */
   async function getEvaluationStatistics(evaluationId: string, schoolYearId?: string) {
     try {
-      return await supabaseEvaluationClassesService.getEvaluationStatistics(
+      return await evaluationClassRepository.getEvaluationStatistics(
         evaluationId,
         schoolYearId
       )

@@ -127,7 +127,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore } from '@/stores'
 import type { Class } from '@/types/evaluation'
 
 // Store

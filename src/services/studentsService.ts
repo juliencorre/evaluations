@@ -1,5 +1,5 @@
 import type { Student } from '@/types/evaluation'
-import { useStudentsStore } from '@/stores/studentsStore'
+import { useStudentsStore } from '@/stores'
 
 // Interface pour la communication avec le service worker
 export interface StudentsServiceMessage {

@@ -161,7 +161,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSettingsStore } from '@/stores/settingsStore'
+import { useSettingsStore } from '@/stores'
 import SettingsSection from '@/components/settings/SettingsSection.vue'
 import SettingsSwitch from '@/components/settings/SettingsSwitch.vue'
 import { useAuthStore } from '@/stores/authStore'
@@ -170,8 +170,8 @@ const router = useRouter()
 const { showConsoleLogos, setShowConsoleLogos, isDarkThemeEnabled, setThemePreference } = useSettingsStore()
 const authStore = useAuthStore()
 
-const isConsoleLogoEnabled = computed(() => showConsoleLogos.value)
-const isDarkModeEnabled = computed(() => isDarkThemeEnabled.value)
+const isConsoleLogoEnabled = computed(() => showConsoleLogos)
+const isDarkModeEnabled = computed(() => isDarkThemeEnabled)
 
 const darkModeModel = computed({
   get: () => isDarkModeEnabled.value,
@@ -198,9 +198,9 @@ const isUpdatingProfile = ref(false)
 const isUpdatingPassword = ref(false)
 const isResendingVerification = ref(false)
 
-const displayName = computed(() => authStore.displayName.value)
-const userEmail = computed(() => authStore.userEmail.value)
-const isEmailVerified = computed(() => authStore.isEmailVerified.value)
+const displayName = computed(() => authStore.displayName)
+const userEmail = computed(() => authStore.userEmail)
+const isEmailVerified = computed(() => authStore.isEmailVerified)
 
 watch(displayName, (value) => {
   profileForm.fullName = value

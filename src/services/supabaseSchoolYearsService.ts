@@ -1,4 +1,9 @@
 // @ts-nocheck
+/**
+ * @deprecated This service is deprecated. Use serviceContainer.schoolYears instead.
+ * Migration: import { serviceContainer } from '@/services/ServiceContainer'
+ * Then use: serviceContainer.schoolYears.methodName()
+ */
 import { supabase } from '@/lib/supabase'
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Database } from '@/types/database.types'

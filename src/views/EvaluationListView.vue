@@ -106,10 +106,10 @@ import MenuFAB from '@/components/common/MenuFAB.vue'
 import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
 
 // Stores
-import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useClassStore } from '@/stores/classStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { useCompetencyFrameworkStore } from '@/stores'
+import { useEvaluationStore } from '@/stores'
+import { useClassStore } from '@/stores'
+import { useSchoolYearStore } from '@/stores'
 import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsService'
 import { computed } from 'vue'
 // import type { Evaluation } from '@/types/evaluation'
@@ -183,7 +183,7 @@ onMounted(async () => {
   if (classStore.selectedClassId) {
     // Load evaluations for the selected class only
     await schoolYearStore.ensureLoaded()
-    const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
+    const currentSchoolYearId = schoolYearStore.currentSchoolYear?.id
     const dbEvaluations = await supabaseEvaluationsService.getEvaluationsByClass(
       classStore.selectedClassId,
       currentSchoolYearId

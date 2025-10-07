@@ -1,6 +1,6 @@
 /**
- * DTOs Barrel Export
- * Phase 4.3: Services Layer - Repository Pattern
+ * Data Transfer Objects (DTOs) Barrel Export
+ * Centralized export for all DTOs used in the application
  */
 
 // Student DTOs
@@ -40,3 +40,9 @@ export type {
   CreateResultTypeDTO,
   UpdateResultTypeDTO
 } from './result-type.dto'
+
+// School Year DTOs (added)
+export type {
+  CreateSchoolYearDTO,
+  UpdateSchoolYearDTO
+} from './schoolYear.dtos'

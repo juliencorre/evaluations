@@ -151,7 +151,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import FullscreenDialog from '@/components/common/FullscreenDialog.vue'
-import { supabaseClassesService } from '@/services/supabaseClassesService'
+import { serviceContainer } from '@/services/ServiceContainer'
 import { useAuthStore, isAuthenticated } from '@/stores/authStore'
 import type { Class } from '@/types/evaluation'
 
@@ -196,7 +196,7 @@ const loadAvailableClasses = async () => {
     isLoading.value = true
 
     // Load all classes (not just user's classes)
-    const allClasses = await supabaseClassesService.getClasses()
+    const allClasses = await serviceContainer.classes.findAll()
 
     // TODO: Filter out classes the user is already in
     // For now, show all classes
@@ -223,7 +223,7 @@ const handleJoinClass = async () => {
     await authStore.ensureInitialized()
 
     // Get the current user ID
-    const currentUserId = authStore.user.value?.id
+    const currentUserId = authStore.user?.id
 
     if (!currentUserId) {
       console.error('No current user ID found')
@@ -235,11 +235,11 @@ const handleJoinClass = async () => {
     console.log(`Attempting to join class ${selectedClass.value.name} with user ID: ${currentUserId}`)
 
     // Add user to the selected class
-    await supabaseClassesService.addUserToClass(
-      currentUserId,
-      selectedClass.value.id,
-      'teacher' // Default role when joining a class
-    )
+    await serviceContainer.classes.addUser({
+      userId: currentUserId,
+      classId: selectedClass.value.id,
+      role: 'teacher' // Default role when joining a class
+    })
 
     console.log(`✅ Utilisateur associé à la classe: ${selectedClass.value.name}`)
 

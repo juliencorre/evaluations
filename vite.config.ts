@@ -6,12 +6,15 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   server: {
     port: 5173,
-    strictPort: false
+    strictPort: false,
+    hmr: {
+      overlay: true
+    }
   },
   build: {
     target: 'esnext',
     minify: 'terser',
-    cssCodeSplit: true,
+    cssCodeSplit: false, // Disable CSS code splitting to inline critical CSS
     cssMinify: true,
     terserOptions: {
       compress: {

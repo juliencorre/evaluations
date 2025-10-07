@@ -1,7 +1,7 @@
 import { ref } from 'vue'
-import { useClassStore } from '@/stores/classStore'
-import { useStudentsStore } from '@/stores/studentsStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useClassStore } from '@/stores'
+import { useStudentsStore } from '@/stores'
+import { useEvaluationStore } from '@/stores'
 
 /**
  * Composable pour gérer le soft delete des entités

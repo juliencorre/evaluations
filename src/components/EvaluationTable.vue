@@ -466,7 +466,7 @@ onMounted(async () => {
     classId: props.evaluation.classId,
     createdAt: props.evaluation.createdAt
   })
-  console.log('✅ [EvaluationTable] Evaluation initialized, results count:', evaluationStore.results.value?.length || 0)
+  console.log('✅ [EvaluationTable] Evaluation initialized, results count:', evaluationStore.results?.length || 0)
 
   // Load result types
   resultTypes.value = await supabaseResultTypesService.getResultTypes()

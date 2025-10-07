@@ -1,12 +1,14 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { CompetencyFramework, SpecificCompetency } from '@/types/evaluation'
-import { supabaseCompetenciesService } from '@/services/supabaseCompetenciesService'
+import { serviceContainer } from '@/services/ServiceContainer'
 
 /**
  * Store Pinia pour la gestion du framework de compétences
  * Gère les domaines, champs, compétences et sous-compétences
  */
+const competencyRepository = serviceContainer.competencies
+
 export const useCompetencyFrameworkStore = defineStore('competencyFramework', () => {
   // ==================== STATE ====================
   const framework = ref<CompetencyFramework>({
@@ -33,17 +35,20 @@ export const useCompetencyFrameworkStore = defineStore('competencyFramework', ()
       isLoading.value = true
       error.value = null
 
-      const [frameworkData, domains] = await Promise.all([
-        supabaseCompetenciesService.getOrCreateDefaultFramework(),
-        supabaseCompetenciesService.getAllDomains()
-      ])
+      console.log('[CompetencyFrameworkStore] Chargement du framework...')
+      const frameworkData = await competencyRepository.getOrCreateDefaultFramework()
+      console.log('[CompetencyFrameworkStore] Framework:', frameworkData)
+
+      const domains = await competencyRepository.findAllDomains()
+      console.log('[CompetencyFrameworkStore] Domaines chargés:', domains?.length || 0)
 
       framework.value = {
         id: frameworkData.id,
         name: frameworkData.name,
         version: frameworkData.version,
-        domains
+        domains: domains || []
       }
+      console.log('[CompetencyFrameworkStore] Framework final:', framework.value)
     } catch (err) {
       console.error('[CompetencyFrameworkStore] Erreur chargement Supabase:', err)
       error.value = 'Impossible de charger le framework de compétences'
@@ -257,7 +262,7 @@ export const useCompetencyFrameworkStore = defineStore('competencyFramework', ()
   ) {
     try {
       // Sauvegarder en base via Supabase
-      const updatedSpecificCompetency = await supabaseCompetenciesService.updateSpecificCompetency(
+      const updatedSpecificCompetency = await competencyRepository.updateSpecificCompetency(
         specificCompetencyId,
         updates
       )

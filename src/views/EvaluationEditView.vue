@@ -116,7 +116,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
-import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useEvaluationStore } from '@/stores'
 import type { Evaluation } from '@/types/evaluation'
 import { useLogout } from '@/composables/useLogout'
 

@@ -1,0 +1,14 @@
+# Netlify SPA redirect - serve index.html for all routes except assets
+/*    /index.html   200
+
+# Prevent redirect for assets
+/assets/*  200
+/*.js  200
+/*.css  200
+/*.json  200
+/*.png  200
+/*.jpg  200
+/*.svg  200
+/*.ico  200
+/*.woff2  200
+/customServiceWorker.js  200

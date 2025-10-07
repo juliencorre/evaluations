@@ -94,7 +94,7 @@ console.log('SearchAppBar showBackButton:', props.showBackButton)
 
 const authStore = useAuthStore()
 const shouldDisplayUserMenu = computed(
-  () => isAuthenticated.value && !authStore.isInitializing.value
+  () => isAuthenticated.value && !authStore.isInitializing
 )
 </script>
 

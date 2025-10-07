@@ -4,9 +4,8 @@ export interface EmailRestriction {
   id: string
   rule_type: 'email' | 'domain'
   value: string
-  description?: string
+  description: string | null
   is_active: boolean
-  created_by?: string
   created_at: string
   updated_at: string
 }
@@ -25,15 +24,26 @@ export const emailRestrictionsService = {
   /**
    * Récupère toutes les restrictions d'emails
    */
-  async getEmailRestrictions(): Promise<EmailRestriction[]> {
+  async getAllRestrictions(): Promise<EmailRestriction[]> {
     try {
-      // TODO: Implement email_restrictions table in Supabase
-      console.warn('email_restrictions table not yet implemented')
-      return []
+      const { data, error } = await supabase
+        .from('email_restrictions')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return data || []
     } catch (error) {
-      console.error('Erreur dans getEmailRestrictions:', error)
+      console.error('Erreur dans getAllRestrictions:', error)
       throw error
     }
+  },
+
+  /**
+   * Récupère toutes les restrictions d'emails (alias pour compatibilité)
+   */
+  async getEmailRestrictions(): Promise<EmailRestriction[]> {
+    return this.getAllRestrictions()
   },
 
   /**
@@ -41,9 +51,14 @@ export const emailRestrictionsService = {
    */
   async getActiveEmailRestrictions(): Promise<EmailRestriction[]> {
     try {
-      // TODO: Implement email_restrictions table in Supabase
-      console.warn('email_restrictions table not yet implemented')
-      return []
+      const { data, error } = await supabase
+        .from('email_restrictions')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return data || []
     } catch (error) {
       console.error('Erreur dans getActiveEmailRestrictions:', error)
       throw error
@@ -53,11 +68,21 @@ export const emailRestrictionsService = {
   /**
    * Crée une nouvelle restriction d'email
    */
-  async createEmailRestriction(_restrictionData: CreateEmailRestrictionData): Promise<EmailRestriction> {
+  async createEmailRestriction(restrictionData: CreateEmailRestrictionData): Promise<EmailRestriction> {
     try {
-      // TODO: Implement email_restrictions table in Supabase
-      console.warn('email_restrictions table not yet implemented')
-      throw new Error('Feature not implemented')
+      const { data, error } = await supabase
+        .from('email_restrictions')
+        .insert([{
+          rule_type: restrictionData.rule_type,
+          value: restrictionData.value.toLowerCase().trim(),
+          description: restrictionData.description?.trim() || null,
+          is_active: restrictionData.is_active ?? true
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
     } catch (error) {
       console.error('Erreur dans createEmailRestriction:', error)
       throw error
@@ -68,13 +93,19 @@ export const emailRestrictionsService = {
    * Met à jour une restriction d'email
    */
   async updateEmailRestriction(
-    _id: string,
-    _updates: Partial<CreateEmailRestrictionData>
+    id: string,
+    updates: Partial<CreateEmailRestrictionData>
   ): Promise<EmailRestriction> {
     try {
-      // TODO: Implement email_restrictions table in Supabase
-      console.warn('email_restrictions table not yet implemented')
-      throw new Error('Feature not implemented')
+      const { data, error } = await supabase
+        .from('email_restrictions')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
     } catch (error) {
       console.error('Erreur dans updateEmailRestriction:', error)
       throw error
@@ -84,11 +115,17 @@ export const emailRestrictionsService = {
   /**
    * Active/désactive une restriction d'email
    */
-  async toggleEmailRestriction(_id: string, _isActive: boolean): Promise<EmailRestriction> {
+  async toggleEmailRestriction(id: string, isActive: boolean): Promise<EmailRestriction> {
     try {
-      // TODO: Implement email_restrictions table in Supabase
-      console.warn('email_restrictions table not yet implemented')
-      throw new Error('Feature not implemented')
+      const { data, error } = await supabase
+        .from('email_restrictions')
+        .update({ is_active: isActive })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
     } catch (error) {
       console.error('Erreur dans toggleEmailRestriction:', error)
       throw error
@@ -98,11 +135,15 @@ export const emailRestrictionsService = {
   /**
    * Supprime une restriction d'email
    */
-  async deleteEmailRestriction(_id: string): Promise<boolean> {
+  async deleteEmailRestriction(id: string): Promise<boolean> {
     try {
-      // TODO: Implement email_restrictions table in Supabase
-      console.warn('email_restrictions table not yet implemented')
-      throw new Error('Feature not implemented')
+      const { error } = await supabase
+        .from('email_restrictions')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      return true
     } catch (error) {
       console.error('Erreur dans deleteEmailRestriction:', error)
       throw error

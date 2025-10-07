@@ -212,6 +212,34 @@ export class ClassRepository extends BaseRepository {
   }
 
   /**
+   * Add user to class by email
+   */
+  async addUserByEmail(dto: { email: string; classId: string; role: 'teacher' | 'owner' | 'assistant' }): Promise<any> {
+    try {
+      this.log('addUserByEmail', { email: dto.email, classId: dto.classId, role: dto.role })
+
+      // Find user by email using auth.admin
+      const { data: { users }, error: userError } = await this.supabase.auth.admin.listUsers()
+      if (userError) {
+        throw new Error('Erreur lors de la récupération des utilisateurs')
+      }
+
+      const user = users?.find(u => u.email === dto.email)
+      if (!user) {
+        throw new Error('Utilisateur non trouvé avec cet email')
+      }
+
+      return await this.addUser({
+        userId: user.id,
+        classId: dto.classId,
+        role: dto.role
+      })
+    } catch (error) {
+      this.handleError('addUserByEmail', error)
+    }
+  }
+
+  /**
    * Remove user from class
    */
   async removeUser(userId: string, classId: string): Promise<void> {

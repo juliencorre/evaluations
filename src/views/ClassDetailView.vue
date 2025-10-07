@@ -122,9 +122,9 @@ import { useRouter } from 'vue-router'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import ClassModal from '@/components/classes/ClassModal.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
-import { useClassStore } from '@/stores/classStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useClassStore } from '@/stores'
+import { useSchoolYearStore } from '@/stores'
+import { useEvaluationStore } from '@/stores'
 import { useLogout } from '@/composables/useLogout'
 
 interface ClassFormData {
@@ -169,7 +169,7 @@ const currentClass = computed(() => {
 })
 
 const currentSchoolYear = computed(() => {
-  return schoolYearStore.currentSchoolYear.value
+  return schoolYearStore.currentSchoolYear
 })
 
 // FAB Menu configuration
@@ -249,7 +249,13 @@ const loadClassData = async () => {
   try {
     // Load class statistics
     const stats = await classStore.getClassStatistics(props.id, currentSchoolYear.value?.id)
-    classStatistics.value = stats
+    classStatistics.value = {
+      total: stats.total || 0,
+      active: stats.active || 0,
+      transferred: stats.transferred || 0,
+      graduated: stats.graduated || 0,
+      dropped: stats.dropped || 0
+    }
     studentCount.value = stats.active
 
     // Load evaluation count using the new evaluation_classes system

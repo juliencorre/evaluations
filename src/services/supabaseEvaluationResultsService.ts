@@ -1,4 +1,9 @@
 // @ts-nocheck
+/**
+ * @deprecated This service is deprecated. Use serviceContainer.evaluationResults instead.
+ * Migration: import { serviceContainer } from '@/services/ServiceContainer'
+ * Then use: serviceContainer.evaluationResults.methodName()
+ */
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database.types'
 import type { Evaluation, EvaluationResult, EvaluationValue, EvaluationLevel } from '@/types/evaluation'

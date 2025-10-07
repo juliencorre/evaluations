@@ -32,8 +32,8 @@
         </button>
         <SchoolYearIcon
           v-if="showSchoolYearSelector"
-          :selected-year="schoolYearFilter.displayText.value"
-          :all-years-selected="schoolYearFilter.isFilteringAllYears.value"
+          :selected-year="schoolYearFilter.displayText"
+          :all-years-selected="schoolYearFilter.isFilteringAllYears"
           @click="showSchoolYearDialog = true"
         />
         <UserMenu
@@ -59,7 +59,7 @@ import UserMenu from './UserMenu.vue'
 import SchoolYearIcon from './SchoolYearIcon.vue'
 import SchoolYearSelectionDialog from './SchoolYearSelectionDialog.vue'
 import { useAuthStore, isAuthenticated } from '@/stores/authStore'
-import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
+import { useSchoolYearFilterStore } from '@/stores'
 
 interface Props {
   title: string
@@ -94,19 +94,19 @@ const showSchoolYearDialog = ref(false)
 
 // Stores
 const authStore = useAuthStore()
-const schoolYearFilter = getSchoolYearFilterStore()
+const schoolYearFilter = useSchoolYearFilterStore()
 
 // Computed
 const shouldDisplayUserMenu = computed(
-  () => props.showUserMenu && isAuthenticated.value && !authStore.isInitializing.value
+  () => props.showUserMenu && isAuthenticated.value && !authStore.isInitializing
 )
 
 // Methods
 const getInitialSelection = () => {
-  if (schoolYearFilter.isFilteringAllYears.value) {
+  if (schoolYearFilter.isFilteringAllYears) {
     return 'all'
   }
-  return schoolYearFilter.activeYearId.value
+  return schoolYearFilter.activeYearId
 }
 
 const handleSchoolYearSelection = (selection: { type: 'all' | 'single', yearId?: string, yearName?: string }) => {

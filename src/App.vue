@@ -11,7 +11,7 @@
 import { RouterView } from 'vue-router'
 import { onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore } from '@/stores'
 
 // Lazy load components that are not immediately visible
 const NavigationRail = defineAsyncComponent(() => import('./components/NavigationRail.vue'))

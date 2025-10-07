@@ -10,12 +10,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="theme-color" content="#ffffff" />
+    <style>
+      /* Critical CSS - Above the fold styles */
+      *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:currentColor}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:ui-sans-serif,system-ui,sans-serif}
+      body{margin:0;line-height:inherit}
+      #app{min-height:100vh;background:#fff}
+      .loading{display:flex;justify-content:center;align-items:center;min-height:100vh}
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="loading">
+        <div>Loading...</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
     <!-- Material Symbols - loaded async after page render (non-blocking) -->
-    <script>
+    <script type="module">
       // Load Material Symbols font asynchronously after page load
       if ('requestIdleCallback' in window) {
         requestIdleCallback(() => {

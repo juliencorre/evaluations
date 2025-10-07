@@ -56,12 +56,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useEvaluationStore } from '@/stores'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
-import { supabaseStudentClassesService } from '@/services/supabaseStudentClassesService'
+import { serviceContainer } from '@/services/ServiceContainer'
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 import type { EvaluationResult, ResultTypeConfig, Student } from '@/types/evaluation'
 
@@ -206,7 +206,7 @@ const calculateClassAveragesByLevel = (metricType: string) => {
         evaluationStore.allEvaluations.find(evaluation_item =>
           new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime()
         )?.id :
-        evaluationResultsStore.evaluation.value?.id || 'current')
+        evaluationResultsStore.evaluation?.id || 'current')
 
     const resultTypeConfigId = getResultTypeConfigId(result.specificCompetencyId)
     const resultTypeConfig = resultTypes.value.find(rt => rt.id === resultTypeConfigId)
@@ -379,11 +379,11 @@ const loadData = async () => {
     // Load students for the class if classId is provided
     if (props.classId) {
       try {
-        const studentClasses = await supabaseStudentClassesService.getStudentClasses({
-          class_id: props.classId,
-          include_details: true
+        const studentClasses = await serviceContainer.studentClasses.findRelations({
+          classId: props.classId,
+          includeDetails: true
         })
-        const studentIds = studentClasses.map((sc: { student_id: string }) => sc.student_id)
+        const studentIds = studentClasses.map((sc) => sc.student?.id || '')
         classStudents.value = studentsStore.allStudents.filter(s => studentIds.includes(s.id))
         console.log('✅ Class students loaded:', classStudents.value.length)
       } catch (error) {

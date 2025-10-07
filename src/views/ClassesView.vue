@@ -135,9 +135,8 @@ import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
 import ClassModal from '@/components/classes/ClassModal.vue'
 import SearchClassDialog from '@/components/classes/SearchClassDialog.vue'
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore, useSchoolYearFilterStore } from '@/stores'
 import { useLogout } from '@/composables/useLogout'
-import { getSchoolYearFilterStore } from '@/stores/schoolYearFilterStore'
 import type { Class } from '@/types/evaluation'
 
 interface ClassFormData {
@@ -154,7 +153,7 @@ const router = useRouter()
 
 // Stores
 const classStore = useClassStore()
-const schoolYearFilterStore = getSchoolYearFilterStore()
+const schoolYearFilterStore = useSchoolYearFilterStore()
 
 // State
 const searchTerm = ref('')
@@ -170,9 +169,9 @@ const filteredClasses = computed(() => {
   let classes = classStore.userClasses
 
   // Filtrer par année scolaire sélectionnée
-  if (!schoolYearFilterStore.isFilteringAllYears.value) {
+  if (!schoolYearFilterStore.isFilteringAllYears) {
     // Si une année spécifique est sélectionnée, filtrer les classes par cette année
-    const selectedYearName = schoolYearFilterStore.displayText.value
+    const selectedYearName = schoolYearFilterStore.displayText
     classes = classes.filter(classItem =>
       classItem.schoolYear === selectedYearName
     )

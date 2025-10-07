@@ -20,11 +20,16 @@
 
 import { supabase } from '@/lib/supabase'
 import {
+  AuthRepository,
   StudentRepository,
   ClassRepository,
   EvaluationRepository,
   CompetencyRepository,
-  ResultTypeRepository
+  ResultTypeRepository,
+  StudentClassRepository,
+  SchoolYearRepository,
+  EvaluationResultRepository,
+  EvaluationClassRepository
 } from './repositories'
 
 /**
@@ -35,19 +40,29 @@ class ServiceContainer {
   private static instance: ServiceContainer
 
   // Repository instances
+  public readonly auth: AuthRepository
   public readonly students: StudentRepository
   public readonly classes: ClassRepository
   public readonly evaluations: EvaluationRepository
   public readonly competencies: CompetencyRepository
   public readonly resultTypes: ResultTypeRepository
+  public readonly studentClasses: StudentClassRepository
+  public readonly schoolYears: SchoolYearRepository
+  public readonly evaluationResults: EvaluationResultRepository
+  public readonly evaluationClasses: EvaluationClassRepository
 
   private constructor() {
     // Initialize all repositories with Supabase client
+    this.auth = new AuthRepository(supabase)
     this.students = new StudentRepository(supabase)
     this.classes = new ClassRepository(supabase)
     this.evaluations = new EvaluationRepository(supabase)
     this.competencies = new CompetencyRepository(supabase)
     this.resultTypes = new ResultTypeRepository(supabase)
+    this.studentClasses = new StudentClassRepository(supabase)
+    this.schoolYears = new SchoolYearRepository(supabase)
+    this.evaluationResults = new EvaluationResultRepository(supabase)
+    this.evaluationClasses = new EvaluationClassRepository(supabase)
   }
 
   /**

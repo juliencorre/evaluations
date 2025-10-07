@@ -2,15 +2,25 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import type { Evaluation } from '@/types/evaluation'
 
-const mockSupabaseEvaluationsService = {
-  getEvaluations: vi.fn<[], Promise<Evaluation[]>>(),
-  createEvaluation: vi.fn<[], Promise<Evaluation | null>>(),
-  updateEvaluation: vi.fn<[], Promise<Evaluation | null>>(),
-  deleteEvaluation: vi.fn<[], Promise<boolean>>()
+const mockEvaluationRepository = {
+  findAll: vi.fn<[], Promise<Evaluation[]>>(),
+  create: vi.fn<[], Promise<Evaluation>>(),
+  update: vi.fn<[], Promise<Evaluation>>(),
+  delete: vi.fn<[], Promise<boolean>>()
 }
 
-vi.mock('@/services/supabaseEvaluationsService', () => ({
-  supabaseEvaluationsService: mockSupabaseEvaluationsService
+vi.mock('@/services/ServiceContainer', () => ({
+  serviceContainer: {
+    evaluations: mockEvaluationRepository,
+    evaluationClasses: {
+      findAll: vi.fn(() => Promise.resolve([])),
+      getClassesForEvaluation: vi.fn(() => Promise.resolve([]))
+    },
+    auth: {
+      getSession: vi.fn(() => Promise.resolve({ session: null, error: null })),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } }))
+    }
+  }
 }))
 
 const sampleEvaluation = {
@@ -31,10 +41,10 @@ describe('useEvaluationStore', () => {
   })
 
   it('charge les évaluations et définit la première comme évaluation courante', async () => {
-    mockSupabaseEvaluationsService.getEvaluations.mockResolvedValue([sampleEvaluation])
+    mockEvaluationRepository.findAll.mockResolvedValue([sampleEvaluation])
 
-    const { useEvaluationStore } = await import('@/stores/evaluationStore')
-    const store = useEvaluationStore()
+    const { useEvaluationsStore } = await import('@/stores/modules/evaluations.store')
+    const store = useEvaluationsStore()
 
     await store.loadEvaluations()
 
@@ -43,10 +53,10 @@ describe('useEvaluationStore', () => {
   })
 
   it('ajoute une évaluation et la définit comme évaluation courante', async () => {
-    mockSupabaseEvaluationsService.createEvaluation.mockResolvedValue(sampleEvaluation)
+    mockEvaluationRepository.create.mockResolvedValue(sampleEvaluation)
 
-    const { useEvaluationStore } = await import('@/stores/evaluationStore')
-    const store = useEvaluationStore()
+    const { useEvaluationsStore } = await import('@/stores/modules/evaluations.store')
+    const store = useEvaluationsStore()
 
     const created = await store.addEvaluation({
       name: sampleEvaluation.name,
@@ -63,11 +73,11 @@ describe('useEvaluationStore', () => {
   it('met à jour une évaluation existante et synchronise le store', async () => {
     const updatedEvaluation: Evaluation = { ...sampleEvaluation, name: 'Évaluation mise à jour' }
 
-    mockSupabaseEvaluationsService.createEvaluation.mockResolvedValue(sampleEvaluation)
-    mockSupabaseEvaluationsService.updateEvaluation.mockResolvedValue(updatedEvaluation)
+    mockEvaluationRepository.create.mockResolvedValue(sampleEvaluation)
+    mockEvaluationRepository.update.mockResolvedValue(updatedEvaluation)
 
-    const { useEvaluationStore } = await import('@/stores/evaluationStore')
-    const store = useEvaluationStore()
+    const { useEvaluationsStore } = await import('@/stores/modules/evaluations.store')
+    const store = useEvaluationsStore()
 
     await store.addEvaluation({
       name: sampleEvaluation.name,
@@ -84,11 +94,11 @@ describe('useEvaluationStore', () => {
   })
 
   it('supprime une évaluation et met à jour la sélection courante', async () => {
-    mockSupabaseEvaluationsService.createEvaluation.mockResolvedValue(sampleEvaluation)
-    mockSupabaseEvaluationsService.deleteEvaluation.mockResolvedValue(true)
+    mockEvaluationRepository.create.mockResolvedValue(sampleEvaluation)
+    mockEvaluationRepository.delete.mockResolvedValue(true)
 
-    const { useEvaluationStore } = await import('@/stores/evaluationStore')
-    const store = useEvaluationStore()
+    const { useEvaluationsStore } = await import('@/stores/modules/evaluations.store')
+    const store = useEvaluationsStore()
 
     await store.addEvaluation({
       name: sampleEvaluation.name,
@@ -97,9 +107,8 @@ describe('useEvaluationStore', () => {
       classId: sampleEvaluation.classId
     })
 
-    const success = await store.deleteEvaluation(sampleEvaluation.id)
+    await store.deleteEvaluation(sampleEvaluation.id)
 
-    expect(success).toBe(true)
     expect(store.allEvaluations.find(evaluation => evaluation.id === sampleEvaluation.id)).toBeUndefined()
     // After deleting the only evaluation, currentEvaluation should be null
     expect(store.currentEvaluation).toBeNull()

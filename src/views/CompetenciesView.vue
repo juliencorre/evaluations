@@ -61,7 +61,7 @@ import type {
   SpecificCompetency,
   ResultTypeConfig
 } from '@/types/evaluation'
-import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { useCompetencyFrameworkStore } from '@/stores'
 import { SupabaseCompetenciesService } from '@/services/supabaseCompetenciesService'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { useLogout } from '@/composables/useLogout'
@@ -81,7 +81,7 @@ const resultTypes = ref<ResultTypeConfig[]>([])
 
 // Framework state with real data from store
 const frameworkWithDragDrop = computed(() => ({
-  domains: competencyStore.framework.value.domains
+  domains: competencyStore.framework?.domains || []
 }))
 
 interface MenuFabItem {
@@ -370,6 +370,13 @@ const handleScroll = () => {
 
 onMounted(async () => {
   await competencyStore.refreshFromSupabase()
+
+  // Add a small delay to ensure reactivity has propagated
+  await new Promise(resolve => setTimeout(resolve, 100))
+
+  console.log('✅ Compétences chargées:', competencyStore.framework?.domains?.length || 0, 'domaines')
+  console.log('✅ Framework complet:', competencyStore.framework)
+  console.log('✅ Computed frameworkWithDragDrop:', frameworkWithDragDrop.value)
 
   // Load result types
   try {

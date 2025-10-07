@@ -8,6 +8,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database.types'
 import type { Evaluation } from '@/types/evaluation.types'
 import type { CreateEvaluationDTO, UpdateEvaluationDTO } from '@/types/dtos'
+import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsService'
 
 type EvaluationRow = Database['public']['Tables']['evaluations']['Row']
 type EvaluationInsert = Database['public']['Tables']['evaluations']['Insert']
@@ -80,18 +81,25 @@ export class EvaluationRepository extends BaseRepository {
    * Find evaluations by class ID
    * TODO: Implement when evaluation_classes table is added
    */
-  async findByClass(_classId: string, _schoolYearId?: string): Promise<Evaluation[]> {
-    // Temporary: return all evaluations
-    return this.findAll()
+  async findByClass(classId: string, schoolYearId?: string): Promise<Evaluation[]> {
+    try {
+      this.log('findByClass', { classId, schoolYearId })
+      return await supabaseEvaluationsService.getEvaluationsByClass(classId, schoolYearId)
+    } catch (error) {
+      this.handleError('findByClass', error)
+    }
   }
 
   /**
    * Find evaluations by multiple class IDs
-   * TODO: Implement when evaluation_classes table is added
    */
-  async findByClasses(_classIds: string[]): Promise<Evaluation[]> {
-    // Temporary: return all evaluations
-    return this.findAll()
+  async findByClasses(classIds: string[]): Promise<Evaluation[]> {
+    try {
+      this.log('findByClasses', { classIdsCount: classIds.length })
+      return await supabaseEvaluationsService.getEvaluationsByClasses(classIds)
+    } catch (error) {
+      this.handleError('findByClasses', error)
+    }
   }
 
   /**

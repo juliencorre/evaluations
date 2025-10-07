@@ -1,4 +1,13 @@
 // @ts-nocheck
+/**
+ * @deprecated This service is deprecated. Use serviceContainer.classes instead.
+ * This file will be removed in a future version.
+ *
+ * Migration guide:
+ * - Replace: import { supabaseClassesService } from '@/services/supabaseClassesService'
+ * - With: import { serviceContainer } from '@/services/ServiceContainer'
+ * - Then use: serviceContainer.classes.methodName()
+ */
 import type { Database } from '../types/database.types'
 import type { Class } from '@/types/evaluation'
 import { supabase } from '../lib/supabase'

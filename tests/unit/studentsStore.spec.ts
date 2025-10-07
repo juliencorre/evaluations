@@ -4,17 +4,6 @@ import type { Student, CompetencyFramework, Domain } from '@/types/evaluation'
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0))
 
-const mockStudents: Student[] = [
-  { id: 'stu-1', firstName: 'Alice', lastName: 'Martin', displayName: 'Alice M.' }
-]
-
-const mockSupabaseStudentsService = {
-  getAllStudents: vi.fn<[], Promise<Student[]>>(),
-  createStudent: vi.fn<[], Promise<Student>>(),
-  updateStudent: vi.fn<[], Promise<Student | null>>(),
-  deleteStudent: vi.fn<[], Promise<void>>()
-}
-
 const mockFramework: CompetencyFramework = {
   id: 'framework-1',
   name: 'Framework Test',
@@ -36,19 +25,34 @@ const mockFramework: CompetencyFramework = {
   ]
 }
 
-const mockSupabaseCompetenciesService = {
-  getOrCreateDefaultFramework: vi.fn<[], Promise<{ id: string; name: string; version: string }>>(),
-  getAllDomains: vi.fn<[], Promise<Domain[]>>(),
-  updateSpecificCompetency: vi.fn<[], Promise<null>>()
+const mockStudentRepository = {
+  findAll: vi.fn<[], Promise<Student[]>>(),
+  create: vi.fn<[], Promise<Student>>(),
+  update: vi.fn<[], Promise<Student>>(),
+  delete: vi.fn<[], Promise<void>>(),
+  findById: vi.fn<[], Promise<Student | null>>()
 }
 
-vi.mock('@/services/supabaseStudentsService', () => ({
-  supabaseStudentsService: mockSupabaseStudentsService
+const mockCompetencyRepository = {
+  getOrCreateDefaultFramework: vi.fn<[], Promise<{ id: string; name: string; version: string }>>(),
+  findAllDomains: vi.fn<[], Promise<Domain[]>>(),
+  updateCompetency: vi.fn<[], Promise<void>>()
+}
+
+vi.mock('@/services/ServiceContainer', () => ({
+  serviceContainer: {
+    students: mockStudentRepository,
+    competencies: mockCompetencyRepository,
+    auth: {
+      getSession: vi.fn(() => Promise.resolve({ session: null, error: null })),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } }))
+    }
+  }
 }))
 
-vi.mock('@/services/supabaseCompetenciesService', () => ({
-  supabaseCompetenciesService: mockSupabaseCompetenciesService
-}))
+const mockStudents: Student[] = [
+  { id: 'stu-1', firstName: 'Alice', lastName: 'Martin', displayName: 'Alice M.' }
+]
 
 describe('useStudentsStore', () => {
   beforeEach(async () => {
@@ -56,31 +60,35 @@ describe('useStudentsStore', () => {
     vi.resetModules()
     vi.clearAllMocks()
 
-    mockSupabaseStudentsService.getAllStudents.mockResolvedValue([...mockStudents])
-    mockSupabaseStudentsService.createStudent.mockImplementation(async (firstName: string, lastName: string) => ({
+    mockStudentRepository.findAll.mockResolvedValue([...mockStudents])
+    mockStudentRepository.create.mockImplementation(async (dto) => ({
       id: 'stu-2',
-      firstName,
-      lastName,
-      displayName: `${firstName} ${lastName.charAt(0)}.`
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      displayName: `${dto.firstName} ${dto.lastName.charAt(0)}.`
     }))
-    mockSupabaseStudentsService.updateStudent.mockImplementation(async (id: string, updates: Partial<Student>) => ({
-      ...mockStudents[0],
-      ...updates,
-      displayName: `${updates.firstName ?? mockStudents[0].firstName} ${(updates.lastName ?? mockStudents[0].lastName).charAt(0)}.`
+    mockStudentRepository.update.mockImplementation(async (id, dto) => ({
+      id,
+      firstName: dto.firstName ?? mockStudents[0].firstName,
+      lastName: dto.lastName ?? mockStudents[0].lastName,
+      displayName: `${dto.firstName ?? mockStudents[0].firstName} ${(dto.lastName ?? mockStudents[0].lastName).charAt(0)}.`
     }))
-    mockSupabaseStudentsService.deleteStudent.mockResolvedValue()
+    mockStudentRepository.findById.mockImplementation(async (id) =>
+      mockStudents.find(s => s.id === id) ?? null
+    )
+    mockStudentRepository.delete.mockResolvedValue()
 
-    mockSupabaseCompetenciesService.getOrCreateDefaultFramework.mockResolvedValue({
+    mockCompetencyRepository.getOrCreateDefaultFramework.mockResolvedValue({
       id: mockFramework.id,
       name: mockFramework.name,
       version: mockFramework.version
     })
-    mockSupabaseCompetenciesService.getAllDomains.mockResolvedValue(mockFramework.domains as Domain[])
-    mockSupabaseCompetenciesService.updateSpecificCompetency.mockResolvedValue(null)
+    mockCompetencyRepository.findAllDomains.mockResolvedValue(mockFramework.domains as Domain[])
+    mockCompetencyRepository.updateCompetency.mockResolvedValue(undefined)
   })
 
   it('ajoute un élève en utilisant le service Supabase', async () => {
-    const { useStudentsStore } = await import('@/stores/studentsStore')
+    const { useStudentsStore } = await import('@/stores/modules/students.store')
     const store = useStudentsStore()
 
     await flushPromises()
@@ -92,7 +100,7 @@ describe('useStudentsStore', () => {
   })
 
   it('met à jour un élève existant et rafraîchit le displayName', async () => {
-    const { useStudentsStore } = await import('@/stores/studentsStore')
+    const { useStudentsStore } = await import('@/stores/modules/students.store')
     const store = useStudentsStore()
 
     // Ensure students are loaded first
@@ -107,7 +115,7 @@ describe('useStudentsStore', () => {
   })
 
   it('supprime un élève et met à jour la liste', async () => {
-    const { useStudentsStore } = await import('@/stores/studentsStore')
+    const { useStudentsStore } = await import('@/stores/modules/students.store')
     const store = useStudentsStore()
 
     // Ensure students are loaded first
@@ -127,33 +135,19 @@ describe('useCompetencyFrameworkStore', () => {
     vi.resetModules()
     vi.clearAllMocks()
 
-    mockSupabaseStudentsService.getAllStudents.mockResolvedValue([...mockStudents])
-    mockSupabaseStudentsService.createStudent.mockImplementation(async (firstName: string, lastName: string) => ({
-      id: 'stu-2',
-      firstName,
-      lastName,
-      displayName: `${firstName} ${lastName.charAt(0)}.`
-    }))
-    mockSupabaseStudentsService.updateStudent.mockImplementation(async (id: string, updates: Partial<Student>) => ({
-      ...mockStudents[0],
-      ...updates,
-      displayName: `${updates.firstName ?? mockStudents[0].firstName} ${(updates.lastName ?? mockStudents[0].lastName).charAt(0)}.`
-    }))
-    mockSupabaseStudentsService.deleteStudent.mockResolvedValue()
-
-    mockSupabaseCompetenciesService.getOrCreateDefaultFramework.mockResolvedValue({
+    mockCompetencyRepository.getOrCreateDefaultFramework.mockResolvedValue({
       id: mockFramework.id,
       name: mockFramework.name,
       version: mockFramework.version
     })
-    mockSupabaseCompetenciesService.getAllDomains.mockResolvedValue(mockFramework.domains as Domain[])
-    mockSupabaseCompetenciesService.updateSpecificCompetency.mockResolvedValue(null)
+    mockCompetencyRepository.findAllDomains.mockResolvedValue(mockFramework.domains as Domain[])
+    mockCompetencyRepository.updateCompetency.mockResolvedValue(undefined)
   })
 
   it('crée, modifie et supprime une compétence', async () => {
     const dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(1234567890)
 
-    const { useCompetencyFrameworkStore } = await import('@/stores/studentsStore')
+    const { useCompetencyFrameworkStore } = await import('@/stores/modules/competencyFramework.store')
     const store = useCompetencyFrameworkStore()
 
     // Trigger the loading of framework data

@@ -153,7 +153,7 @@ const filters = ref({
 
 // Available years (used internally for filtering logic)
 const availableYears = computed(() => {
-  return (schoolYearStore.schoolYears?.value || []).map(y => ({
+  return (schoolYearStore.schoolYears || []).map(y => ({
     id: y.id,
     name: y.name,
     is_current: y.is_current

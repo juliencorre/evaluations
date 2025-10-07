@@ -100,7 +100,7 @@
 import { ref, computed, watch } from 'vue'
 import TextFieldOutlined from '@/components/TextFieldOutlined.vue'
 import ClassesSelector from './ClassesSelector.vue'
-import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { useCompetencyFrameworkStore } from '@/stores'
 
 interface EvaluationFormData {
   name: string

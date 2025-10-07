@@ -581,7 +581,7 @@ const signUpForm = reactive({
 
 const resetEmail = ref(getInitialEmail())
 
-const isInitializing = computed(() => authStore.isInitializing.value)
+const isInitializing = computed(() => authStore.isInitializing)
 const isFormDisabled = computed(() => isSubmitting.value || isInitializing.value)
 
 // Validation en temps réel (unused but kept for potential future use)
@@ -942,7 +942,7 @@ watch(() => route.query.email, (email) => {
   }
 })
 
-watch(() => authStore.lastError.value, (error) => {
+watch(() => authStore.lastError, (error) => {
   if (error) {
     if (isEmailVerificationRequired(error)) {
       needsEmailVerification.value = true
@@ -1082,11 +1082,11 @@ watch(() => authStore.lastError.value, (error) => {
 }
 
 .auth-card {
-  background: var(--md-sys-color-surface);
+  background: #ffffff;
   border-radius: 28px;
   padding: 40px 32px;
   box-shadow: var(--md-sys-elevation-level3);
-  border: 1px solid var(--md-sys-color-outline-variant);
+  border: 1px solid #dadce0;
   position: relative;
   overflow: hidden;
 }
@@ -1140,9 +1140,9 @@ watch(() => authStore.lastError.value, (error) => {
 .auth-subtitle {
   margin: 0;
   font-size: var(--md-sys-typescale-body-medium-size);
-  color: var(--md-sys-color-on-surface-variant);
+  color: #3d3846;
   line-height: 1.4;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* ===== NAVIGATION TABS ===== */
@@ -1449,8 +1449,8 @@ watch(() => authStore.lastError.value, (error) => {
 .link-button {
   background: none;
   border: none;
-  color: var(--md-sys-color-primary);
-  font-weight: 500;
+  color: #5232b8;
+  font-weight: 600;
   font-size: var(--md-sys-typescale-body-medium-size);
   cursor: pointer;
   padding: 8px 0;
@@ -1460,7 +1460,7 @@ watch(() => authStore.lastError.value, (error) => {
 
 .link-button:hover {
   text-decoration: underline;
-  color: color-mix(in srgb, var(--md-sys-color-primary) 80%, black);
+  color: #3e1fa0;
 }
 
 

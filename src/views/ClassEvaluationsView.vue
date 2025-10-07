@@ -106,10 +106,10 @@ import MenuFAB from '@/components/common/MenuFAB.vue'
 import EvaluationModals from '@/components/evaluations/EvaluationModals.vue'
 
 // Stores
-import { useCompetencyFrameworkStore } from '@/stores/studentsStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
-import { useClassStore } from '@/stores/classStore'
+import { useCompetencyFrameworkStore } from '@/stores'
+import { useEvaluationStore } from '@/stores'
+import { useSchoolYearStore } from '@/stores'
+import { useClassStore } from '@/stores'
 import { supabaseEvaluationsService } from '@/services/supabaseEvaluationsService'
 
 // Props
@@ -172,7 +172,7 @@ onMounted(async () => {
 
   // Load evaluations for this class
   await schoolYearStore.ensureLoaded()
-  const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
+  const currentSchoolYearId = schoolYearStore.currentSchoolYear?.id
   const dbEvaluations = await supabaseEvaluationsService.getEvaluationsByClass(
     props.id,
     currentSchoolYearId
@@ -245,13 +245,13 @@ const saveEvaluation = async (evaluationData: { name: string; description: strin
         classId: props.id
       },
       [props.id],
-      schoolYearStore.currentSchoolYear.value?.id
+      schoolYearStore.currentSchoolYear?.id
     )
 
     // Reload evaluations
     const dbEvaluations = await supabaseEvaluationsService.getEvaluationsByClass(
       props.id,
-      schoolYearStore.currentSchoolYear.value?.id
+      schoolYearStore.currentSchoolYear?.id
     )
     evaluations.value = dbEvaluations
 

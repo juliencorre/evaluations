@@ -1,6 +1,19 @@
-import { getShowConsoleLogosRef } from '@/stores/settingsStore'
+import { useSettingsStore } from '@/stores'
 
-const showConsoleLogos = getShowConsoleLogosRef()
+// Lazy initialization to avoid calling store before Pinia is ready
+let settingsStore: ReturnType<typeof useSettingsStore> | null = null
+
+const getShowConsoleLogosValue = (): boolean => {
+  if (!settingsStore) {
+    try {
+      settingsStore = useSettingsStore()
+    } catch {
+      // Fallback if Pinia is not ready yet
+      return true
+    }
+  }
+  return settingsStore.showConsoleLogos
+}
 
 type ConsoleMethod = 'log' | 'info' | 'debug' | 'warn' | 'error'
 
@@ -17,7 +30,9 @@ const originalConsoleMethods: ConsoleMethodMap = {
 const emojiPattern = /\p{Extended_Pictographic}+\s*/gu
 
 const sanitizeArguments = (args: unknown[]): unknown[] => {
-  if (showConsoleLogos.value) {
+  const showLogos = getShowConsoleLogosValue()
+
+  if (showLogos) {
     return args
   }
 

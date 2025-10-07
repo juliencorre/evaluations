@@ -69,10 +69,8 @@ import MenuFAB from '@/components/common/MenuFAB.vue'
 import StudentsList from '@/components/students/StudentsList.vue'
 import StudentModals from '@/components/students/StudentModals.vue'
 import StudentFilterBanner from '@/components/students/StudentFilterBanner.vue'
-import type { Student } from '../types/evaluation'
-import { useStudentsStore } from '../stores/studentsStore'
-import { useClassStore } from '@/stores/classStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import type { Student } from '@/types/evaluation'
+import { useStudentsStore, useClassStore, useSchoolYearStore } from '@/stores'
 import { useLogout } from '@/composables/useLogout'
 
 // Stores
@@ -153,7 +151,7 @@ const filteredStudents = computed(() => {
   if (searchTerm.value) {
     const search = searchTerm.value.toLowerCase()
     students = students.filter(
-      (student) =>
+      (student: Student) =>
         student.firstName.toLowerCase().includes(search) ||
         student.lastName.toLowerCase().includes(search) ||
         student.id.toLowerCase().includes(search)
@@ -162,19 +160,19 @@ const filteredStudents = computed(() => {
 
   // Apply gender filter
   if (genderFilter.value) {
-    students = students.filter((student) => student.gender === genderFilter.value)
+    students = students.filter((student: Student) => student.gender === genderFilter.value)
   }
 
   // Apply class filter
   if (classFilter.value && studentsInSelectedClass.value.length > 0) {
-    students = students.filter((student) =>
+    students = students.filter((student: Student) =>
       studentsInSelectedClass.value.includes(student.id)
     )
   }
 
   // Apply age range filter
   if (ageRangeFilter.value) {
-    students = students.filter((student) => {
+    students = students.filter((student: Student) => {
       const age = calculateAge(student.birthDate)
       if (!age) return false
 
@@ -306,7 +304,7 @@ watch(classFilter, async (newClassId) => {
   if (newClassId) {
     try {
       const students = await studentsStore.getStudentsForClass(newClassId)
-      studentsInSelectedClass.value = students.map(s => s.id)
+      studentsInSelectedClass.value = students.map((s: Student) => s.id)
       console.log(`📋 Loaded ${studentsInSelectedClass.value.length} students for class ${newClassId}`)
     } catch (error) {
       console.error('Error loading students for class:', error)

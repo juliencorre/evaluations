@@ -2,9 +2,9 @@
 // Test de la nouvelle architecture
 // Ce fichier peut être exécuté pour tester les nouveaux services
 
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
-import { useClassStore } from '@/stores/classStore'
-import { useStudentsStore } from '@/stores/studentsStore'
+import { useSchoolYearStore } from '@/stores'
+import { useClassStore } from '@/stores'
+import { useStudentsStore } from '@/stores'
 
 /**
  * Fonction de test pour la nouvelle architecture

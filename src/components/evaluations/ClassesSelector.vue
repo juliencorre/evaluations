@@ -101,7 +101,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore } from '@/stores'
 
 interface Props {
   modelValue: string[]

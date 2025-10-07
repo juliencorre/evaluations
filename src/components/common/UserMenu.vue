@@ -91,10 +91,10 @@ const userMenuRef = ref<HTMLElement>()
 const authStore = useAuthStore()
 const logoutError = ref<string | null>(null)
 
-const displayName = computed(() => authStore.displayName.value)
-const userEmail = computed(() => authStore.userEmail.value)
-const isEmailVerified = computed(() => authStore.isEmailVerified.value)
-const isLoading = computed(() => authStore.isInitializing.value)
+const displayName = computed(() => authStore.displayName)
+const userEmail = computed(() => authStore.userEmail)
+const isEmailVerified = computed(() => authStore.isEmailVerified)
+const isLoading = computed(() => authStore.isInitializing)
 const signedIn = computed(() => isAuthenticated.value)
 
 function toggleMenu() {

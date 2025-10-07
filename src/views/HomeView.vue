@@ -108,8 +108,8 @@ import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationC
 
 // Stores
 import { useCompetencyFrameworkStore } from '@/stores/competencyFrameworkStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { useEvaluationStore } from '@/stores'
+import { useSchoolYearStore } from '@/stores'
 import { useLogout } from '@/composables/useLogout'
 import { storeToRefs } from 'pinia'
 
@@ -228,7 +228,7 @@ onMounted(async () => {
 
       // Load competencies framework from database using the evaluation's frameworkId
       if (evaluation.frameworkId) {
-        await refreshFromSupabase(evaluation.frameworkId)
+        await refreshFromSupabase()
       }
 
       if (!framework || !framework.value) {
@@ -238,7 +238,7 @@ onMounted(async () => {
       }
 
       // Load students for this evaluation
-      const currentSchoolYearId = schoolYearStore.currentSchoolYear.value?.id
+      const currentSchoolYearId = schoolYearStore.currentSchoolYear?.id
       evaluationStudents.value = await supabaseEvaluationClassesService.getStudentsForEvaluation(
         evaluationId,
         currentSchoolYearId
@@ -301,7 +301,7 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
         description: currentEvaluation?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '',
-        schoolYearFilter: schoolYearStore.currentSchoolYear?.value?.name || 'Toutes les années'
+        schoolYearFilter: schoolYearStore.currentSchoolYear?.name || 'Toutes les années'
       },
       students: evaluationStudents.value.map(student => ({
         id: student.id,
@@ -410,7 +410,7 @@ const exportEvaluationResults = () => {
         description: currentEvaluation?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '', // Class name would need to be resolved from classId
-        schoolYearFilter: schoolYearStore.currentSchoolYear?.value?.name || 'Toutes les années'
+        schoolYearFilter: schoolYearStore.currentSchoolYear?.name || 'Toutes les années'
       },
       students: evaluationStudents.value.map(student => ({
         id: student.id,

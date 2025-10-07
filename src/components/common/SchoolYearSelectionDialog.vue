@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { useSchoolYearStore } from '@/stores'
 
 interface Props {
   visible: boolean
@@ -114,7 +114,7 @@ const isLoading = ref(false)
 // Computed
 const sortedSchoolYears = computed(() => {
   // Filtrer les éléments undefined pour éviter les erreurs de rendu
-  return schoolYearStore.sortedSchoolYears.value.filter(year => year != null)
+  return schoolYearStore.sortedSchoolYears.filter(year => year != null)
 })
 const hasValidSelection = computed(() => selectedValue.value !== null)
 

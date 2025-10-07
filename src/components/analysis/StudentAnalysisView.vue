@@ -130,12 +130,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores/studentsStore'
+import { useStudentsStore, useCompetencyFrameworkStore } from '@/stores'
 import { useEvaluationResultsStore } from '@/stores/evaluationResultsStore'
-import { useEvaluationStore } from '@/stores/evaluationStore'
+import { useEvaluationStore } from '@/stores'
 import { SupabaseResultTypesService } from '@/services/supabaseResultTypesService'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
-import { supabaseStudentClassesService } from '@/services/supabaseStudentClassesService'
+import { serviceContainer } from '@/services/ServiceContainer'
 import { supabaseEvaluationClassesService } from '@/services/supabaseEvaluationClassesService'
 import type { EvaluationResult, ResultTypeConfig, Student } from '@/types/evaluation'
 
@@ -504,7 +504,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
     const evaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
       (result.evaluatedAt ?
         evaluationStore.allEvaluations.find(evaluation => new Date(evaluation.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-        evaluationResultsStore.evaluation.value?.id || 'current')
+        evaluationResultsStore.evaluation?.id || 'current')
 
     const safeEvaluationId = evaluationId || 'unknown'
     if (!acc[safeEvaluationId]) {
@@ -571,7 +571,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluationStore.allEvaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                  evaluationResultsStore.evaluation.value?.id || 'current')
+                  evaluationResultsStore.evaluation?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -660,7 +660,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluationStore.allEvaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                  evaluationResultsStore.evaluation.value?.id || 'current')
+                  evaluationResultsStore.evaluation?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -745,7 +745,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluationStore.allEvaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                  evaluationResultsStore.evaluation.value?.id || 'current')
+                  evaluationResultsStore.evaluation?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -836,7 +836,7 @@ const calculateAveragesByLevel = (studentId: string, metricType: string) => {
               const resultEvaluationId = (result as EvaluationResult & { evaluationId?: string }).evaluationId ||
                 (result.evaluatedAt ?
                   evaluationStore.allEvaluations.find(evaluation_item => new Date(evaluation_item.createdAt).getTime() <= new Date(result.evaluatedAt || '').getTime())?.id :
-                  evaluationResultsStore.evaluation.value?.id || 'current')
+                  evaluationResultsStore.evaluation?.id || 'current')
               return resultEvaluationId === evaluation.id
             })
 
@@ -988,7 +988,7 @@ onMounted(async () => {
 
     // If classId is provided, load students for that specific class
     if (props.classId) {
-      classStudents.value = await supabaseStudentClassesService.getStudentsForClass(props.classId)
+      classStudents.value = await serviceContainer.studentClasses.getStudentsForClass(props.classId)
     }
 
     await evaluationStore.loadEvaluations()

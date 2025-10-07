@@ -162,9 +162,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStudentsStore } from '@/stores/studentsStore'
-import { useClassStore } from '@/stores/classStore'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { useStudentsStore } from '@/stores'
+import { useClassStore } from '@/stores'
+import { useSchoolYearStore } from '@/stores'
 import { useLogout } from '@/composables/useLogout'
 import { supabaseEvaluationResultsService } from '@/services/supabaseEvaluationResultsService'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
@@ -243,9 +243,9 @@ const loadEnrolledStudents = async () => {
   try {
     console.log('🔄 Loading enrolled students...')
     console.log('📋 Class ID:', classId.value)
-    console.log('📅 School Year ID:', schoolYearStore.currentSchoolYear.value?.id)
+    console.log('📅 School Year ID:', schoolYearStore.currentSchoolYear?.id)
 
-    if (!classId.value || !schoolYearStore.currentSchoolYear.value?.id) {
+    if (!classId.value || !schoolYearStore.currentSchoolYear?.id) {
       console.log('❌ Missing classId or schoolYearId')
       enrolledStudents.value = []
       return
@@ -253,7 +253,7 @@ const loadEnrolledStudents = async () => {
 
     const students = await studentsStore.getStudentsForClass(
       classId.value,
-      schoolYearStore.currentSchoolYear.value.id
+      schoolYearStore.currentSchoolYear.id
     )
     console.log('✅ Enrolled students loaded:', students)
     enrolledStudents.value = students
@@ -279,7 +279,7 @@ const handleAddSelectedStudents = async () => {
 
   isAdding.value = true
   try {
-    const currentSchoolYear = schoolYearStore.currentSchoolYear.value
+    const currentSchoolYear = schoolYearStore.currentSchoolYear
     if (!currentSchoolYear) {
       throw new Error('Aucune année scolaire sélectionnée')
     }
@@ -318,7 +318,7 @@ const handleRemoveStudent = async (student: Student) => {
 
   isRemoving.value = true
   try {
-    const currentSchoolYear = schoolYearStore.currentSchoolYear.value
+    const currentSchoolYear = schoolYearStore.currentSchoolYear
     if (!currentSchoolYear) {
       throw new Error('Aucune année scolaire sélectionnée')
     }

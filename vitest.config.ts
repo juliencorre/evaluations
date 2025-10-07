@@ -9,7 +9,29 @@ export default defineConfig({
     environment: 'jsdom',
     exclude: ['node_modules', 'dist', 'e2e/**'],
     coverage: {
-      reporter: ['text', 'json', 'html']
+      provider: 'v8',
+      reporter: ['text', 'text-summary', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        'e2e/**',
+        '**/*.spec.ts',
+        '**/*.test.ts',
+        '**/*.config.ts',
+        '**/types/**',
+        'src/main.ts',
+        'src/App.vue'
+      ],
+      include: [
+        'src/services/**/*.ts',
+        'src/stores/**/*.ts'
+      ],
+      all: true,
+      lines: 80,
+      functions: 80,
+      branches: 80,
+      statements: 80
     },
     env: {
       VITEST: 'true',

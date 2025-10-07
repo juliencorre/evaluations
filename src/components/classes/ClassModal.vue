@@ -152,7 +152,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import FullscreenDialog from '@/components/common/FullscreenDialog.vue'
 import { useSoftDelete } from '@/composables/useSoftDelete'
-import { useSchoolYearStore } from '@/stores/schoolYearStore'
+import { useSchoolYearStore } from '@/stores'
 import type { Class } from '@/types/evaluation'
 
 interface Props {
@@ -234,7 +234,7 @@ const isFormValid = computed(() => {
 })
 
 const availableSchoolYears = computed(() => {
-  return schoolYearStore.sortedSchoolYears.value || []
+  return schoolYearStore.sortedSchoolYears || []
 })
 
 // Watchers

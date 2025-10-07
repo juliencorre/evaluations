@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore } from '@/stores'
 
 const classStore = useClassStore()
 

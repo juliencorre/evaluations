@@ -1,25 +1,17 @@
 /**
- * Exports centralis√©s pour tous les stores Pinia
- * Facilite les imports et assure une architecture coh√©rente
- *
- * Usage recommand√©:
- * ```typescript
- * import { useStudentsStore, useEvaluationsStore } from '@/stores'
- * ```
+ * Exports centralisÈs pour tous les stores Pinia
+ * Facilite les imports et assure une architecture cohÈrente
  */
 
-// ==================== REFACTORED STORES (pattern defineStore) ====================
+export { useAuthStore, isAuthenticated } from './modules/auth.store'
 export { useStudentsStore } from './modules/students.store'
-export { useCompetencyFrameworkStore } from './modules/competencyFramework.store'
+export { useClassStore } from './modules/class.store'
+export { useEvaluationResultsStore } from './modules/evaluationResults.store'
 export { useEvaluationsStore } from './modules/evaluations.store'
+export { useCompetencyFrameworkStore } from './modules/competencyFramework.store'
+export { useSchoolYearStore } from './modules/schoolYear.store'
+export { useSchoolYearFilterStore } from './modules/schoolYearFilter.store'
+export { useSettingsStore, getShowConsoleLogosRef } from './modules/settings.store'
 
-// Alias pour compatibilit√© avec l'ancien nom
+// Aliases pour compatibilitÈ avec les anciens noms
 export { useEvaluationsStore as useEvaluationStore } from './modules/evaluations.store'
-
-// ==================== LEGACY STORES (√† migrer vers /modules) ====================
-export { useAuthStore } from './authStore'
-export { useClassStore } from './classStore'
-export { useEvaluationResultsStore } from './evaluationResultsStore'
-export { useSchoolYearStore } from './schoolYearStore'
-export { useSchoolYearFilterStore } from './schoolYearFilterStore'
-export { useSettingsStore } from './settingsStore'

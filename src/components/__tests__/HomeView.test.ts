@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
 import HomeView from '../../views/HomeView.vue'
 import type { CompetencyFramework } from '@/types/evaluation'
 
@@ -31,14 +32,14 @@ const mockCurrentEvaluation = ref({
 })
 
 // Mock the store functions
-vi.mock('@/stores/studentsStore', () => ({
+vi.mock('@/stores/modules/students.store', () => ({
   useStudentsStore: vi.fn(() => ({
     allStudents: mockAllStudents
   }))
 }))
 
 // Mock competency framework store
-vi.mock('@/stores/competencyFrameworkStore', () => ({
+vi.mock('@/stores/modules/competencyFramework.store', () => ({
   useCompetencyFrameworkStore: () => ({
     framework: mockFramework,
     isLoading: mockIsLoading,
@@ -47,8 +48,8 @@ vi.mock('@/stores/competencyFrameworkStore', () => ({
 }))
 
 // Mock evaluation store
-vi.mock('@/stores/evaluationStore', () => ({
-  useEvaluationStore: vi.fn(() => ({
+vi.mock('@/stores/modules/evaluations.store', () => ({
+  useEvaluationsStore: vi.fn(() => ({
     currentEvaluation: mockCurrentEvaluation,
     setCurrentEvaluation: vi.fn(),
     getEvaluationById: vi.fn(() => mockCurrentEvaluation.value),
@@ -57,7 +58,7 @@ vi.mock('@/stores/evaluationStore', () => ({
 }))
 
 // Mock school year store
-vi.mock('@/stores/schoolYearStore', () => ({
+vi.mock('@/stores/modules/schoolYear.store', () => ({
   useSchoolYearStore: vi.fn(() => ({
     currentSchoolYear: ref(null),
     ensureLoaded: vi.fn(() => Promise.resolve())
@@ -98,6 +99,9 @@ vi.mock('@/services/shareResultsService', () => ({
 
 describe('HomeView', () => {
   beforeEach(() => {
+    // Setup Pinia before each test
+    setActivePinia(createPinia())
+
     // Reset mocks before each test
     mockFramework.value = {
       id: 'test-framework',

@@ -44,7 +44,7 @@ import AnalysisTabs from '@/components/analysis/AnalysisTabs.vue'
 import DashboardView from '@/components/analysis/DashboardView.vue'
 import StudentAnalysisView from '@/components/analysis/StudentAnalysisView.vue'
 import { useLogout } from '@/composables/useLogout'
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore } from '@/stores'
 
 interface Props {
   id: string

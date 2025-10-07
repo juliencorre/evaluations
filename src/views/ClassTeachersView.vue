@@ -145,7 +145,7 @@ import SearchAppBar from '@/components/common/SearchAppBar.vue'
 import MenuFAB from '@/components/common/MenuFAB.vue'
 import FullscreenDialog from '@/components/common/FullscreenDialog.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
-import { useClassStore } from '@/stores/classStore'
+import { useClassStore } from '@/stores'
 import { useLogout } from '@/composables/useLogout'
 import type { ClassTeacher } from '@/types/evaluation'
 

@@ -10,7 +10,7 @@
           {{ sourceText }}
         </span>
         <button
-          v-if="evaluationStore.error.value"
+          v-if="evaluationStore.error"
           class="clear-error-btn"
           title="Effacer l'erreur"
           @click="evaluationStore.clearError"
@@ -20,8 +20,8 @@
       </div>
     </div>
 
-    <div v-if="evaluationStore.error.value" class="error-message">
-      {{ evaluationStore.error.value }}
+    <div v-if="evaluationStore.error" class="error-message">
+      {{ evaluationStore.error }}
     </div>
 
     <div v-if="stats" class="stats-grid">
@@ -42,7 +42,7 @@
     <div class="actions">
       <button
         class="action-btn refresh-btn"
-        :disabled="evaluationStore.isLoading.value"
+        :disabled="evaluationStore.isLoading"
         @click="refreshData"
       >
         🔄 Actualiser
@@ -57,18 +57,18 @@
 
       <button
         class="action-btn reset-btn"
-        :disabled="!evaluationStore.evaluation.value"
+        :disabled="!evaluationStore.evaluation"
         @click="resetEvaluation"
       >
         🔄 Réinitialiser
       </button>
     </div>
 
-    <div v-if="evaluationStore.evaluationStats.value" class="evaluation-stats">
+    <div v-if="evaluationStore.evaluationStats" class="evaluation-stats">
       <h5>Statistiques de l'évaluation courante</h5>
       <div class="level-distribution">
         <div
-          v-for="(count, level) in evaluationStore.evaluationStats.value.levelCounts"
+          v-for="(count, level) in evaluationStore.evaluationStats.levelCounts"
           :key="level"
           class="level-count"
         >
@@ -97,24 +97,24 @@ const stats = computed(() => {
 
 const statusClass = computed(() => {
   if (evaluationStore.isLoading) return 'loading'
-  if (evaluationStore.error.value) return 'error'
-  if (evaluationStore.hasResults.value) return 'success'
+  if (evaluationStore.error) return 'error'
+  if (evaluationStore.hasResults) return 'success'
   return 'idle'
 })
 
 const statusText = computed(() => {
   if (evaluationStore.isLoading) return 'Chargement...'
-  if (evaluationStore.error.value) return 'Erreur'
-  if (evaluationStore.hasResults.value) return 'Données sauvées'
+  if (evaluationStore.error) return 'Erreur'
+  if (evaluationStore.hasResults) return 'Données sauvées'
   return 'Aucune donnée'
 })
 
 const sourceClass = computed(() => {
-  return evaluationStore.useSupabase.value ? 'supabase' : 'local'
+  return evaluationStore.useSupabase ? 'supabase' : 'local'
 })
 
 const sourceText = computed(() => {
-  return evaluationStore.useSupabase.value ? 'Supabase' : 'Local'
+  return evaluationStore.useSupabase ? 'Supabase' : 'Local'
 })
 
 // Actions

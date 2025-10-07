@@ -150,7 +150,7 @@ const currentRouteName = computed<AppRouteName | undefined>(() => {
 })
 
 const authStore = useAuthStore()
-const shouldRenderNavigation = computed(() => !authStore.isInitializing.value && isAuthenticated.value)
+const shouldRenderNavigation = computed(() => !authStore.isInitializing && isAuthenticated.value)
 
 // Scroll-based navigation bar hiding state
 const isNavHidden = ref(false)

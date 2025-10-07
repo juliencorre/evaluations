@@ -208,7 +208,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import CenterAppBar from '@/components/common/CenterAppBar.vue'
 import { useLogout } from '@/composables/useLogout'
-import { supabase } from '@/lib/supabase'
+import { emailRestrictionsService } from '@/services/emailRestrictionsService'
 
 interface EmailRestriction {
   id: string
@@ -259,18 +259,10 @@ onUnmounted(() => {
 const loadRestrictions = async () => {
   isLoading.value = true
   try {
-    const { data, error } = await supabase
-      .from('email_restrictions')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('Erreur lors du chargement des restrictions:', error)
-    } else {
-      emailRestrictions.value = data || []
-    }
+    emailRestrictions.value = await emailRestrictionsService.getAllRestrictions()
   } catch (error) {
     console.error('Erreur lors du chargement des restrictions:', error)
+    emailRestrictions.value = []
   } finally {
     isLoading.value = false
   }
@@ -314,25 +306,17 @@ const closeAddModal = () => {
 const saveRule = async () => {
   isSaving.value = true
   try {
-    const { error } = await supabase
-      .from('email_restrictions')
-      .insert([{
-        rule_type: newRule.value.rule_type,
-        value: newRule.value.value.toLowerCase().trim(),
-        description: newRule.value.description.trim() || null,
-        is_active: true
-      }])
-
-    if (error) {
-      console.error('Erreur lors de la sauvegarde:', error)
-      alert('Erreur lors de la sauvegarde: ' + error.message)
-    } else {
-      await loadRestrictions()
-      closeAddModal()
-    }
+    await emailRestrictionsService.createEmailRestriction({
+      rule_type: newRule.value.rule_type,
+      value: newRule.value.value,
+      description: newRule.value.description,
+      is_active: true
+    })
+    await loadRestrictions()
+    closeAddModal()
   } catch (error) {
     console.error('Erreur lors de la sauvegarde:', error)
-    alert('Erreur lors de la sauvegarde')
+    alert('Erreur lors de la sauvegarde: ' + (error instanceof Error ? error.message : 'Erreur inconnue'))
   } finally {
     isSaving.value = false
   }
@@ -340,17 +324,8 @@ const saveRule = async () => {
 
 const toggleRule = async (rule: EmailRestriction) => {
   try {
-    const { error } = await supabase
-      .from('email_restrictions')
-      .update({ is_active: !rule.is_active })
-      .eq('id', rule.id)
-
-    if (error) {
-      console.error('Erreur lors de la mise à jour:', error)
-      alert('Erreur lors de la mise à jour')
-    } else {
-      await loadRestrictions()
-    }
+    await emailRestrictionsService.toggleEmailRestriction(rule.id, !rule.is_active)
+    await loadRestrictions()
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error)
     alert('Erreur lors de la mise à jour')
@@ -363,17 +338,8 @@ const deleteRule = async (rule: EmailRestriction) => {
   }
 
   try {
-    const { error } = await supabase
-      .from('email_restrictions')
-      .delete()
-      .eq('id', rule.id)
-
-    if (error) {
-      console.error('Erreur lors de la suppression:', error)
-      alert('Erreur lors de la suppression')
-    } else {
-      await loadRestrictions()
-    }
+    await emailRestrictionsService.deleteEmailRestriction(rule.id)
+    await loadRestrictions()
   } catch (error) {
     console.error('Erreur lors de la suppression:', error)
     alert('Erreur lors de la suppression')

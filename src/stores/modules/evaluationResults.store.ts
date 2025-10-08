@@ -47,6 +47,9 @@ export const useEvaluationResultsStore = defineStore('evaluationResults', () => 
   })
 
   const initializeEvaluation = async (evaluationData: EvaluationMetadata) => {
+    console.log('[EvaluationResultsStore] initializeEvaluation called with ID:', evaluationData.id)
+    console.log('[EvaluationResultsStore] Initializing new evaluation:', evaluationData.id)
+
     isLoading.value = true
     error.value = null
 
@@ -96,7 +99,7 @@ export const useEvaluationResultsStore = defineStore('evaluationResults', () => 
     comment?: string
   ): Promise<EvaluationResult | null> => {
     if (!currentEvaluation.value) {
-      error.value = 'Aucune évaluation active'
+      error.value = 'Aucune ï¿½valuation active'
       return null
     }
 
@@ -247,7 +250,7 @@ export const useEvaluationResultsStore = defineStore('evaluationResults', () => 
       return success
     } catch (err) {
       console.error('[EvaluationResultsStore] Reset failed:', err)
-      error.value = err instanceof Error ? err.message : 'Erreur lors de la réinitialisation'
+      error.value = err instanceof Error ? err.message : 'Erreur lors de la rï¿½initialisation'
       return false
     }
   }

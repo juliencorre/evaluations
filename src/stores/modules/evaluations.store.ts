@@ -82,6 +82,28 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
       throw err
     }
   }
+  /**
+   * Charger une évaluation spécifique par son ID
+   */
+  async function loadEvaluationById(id: string) {
+    const cached = evaluations.value.find((evaluation) => evaluation.id === id)
+    if (cached) {
+      return cached
+    }
+
+    try {
+      const evaluation = await evaluationRepository.findById(id)
+      if (evaluation) {
+        evaluations.value.push(evaluation)
+      }
+      return evaluation
+    } catch (err) {
+      console.error("[EvaluationsStore] Erreur lors du chargement de l'évaluation:", err)
+      error.value = "Impossible de charger l'évaluation demandée"
+      throw err
+    }
+  }
+
 
   /**
    * Mettre à jour une évaluation
@@ -339,6 +361,7 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
 
     // Basic actions
     loadEvaluations,
+    loadEvaluationById,
     addEvaluation,
     updateEvaluation,
     deleteEvaluation,

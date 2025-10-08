@@ -38,12 +38,11 @@ export class SupabaseEvaluationResultsService {
     console.log('🚀 [SupabaseEvaluation] Récupération/création évaluation:', evaluationData.id)
 
     try {
-      // Rechercher une évaluation existante par nom et framework_id
+      // Rechercher une évaluation existante par ID
       const { data: existingEvaluation, error: getError } = await supabase
         .from('evaluations')
         .select('*')
-        .eq('name', evaluationData.name)
-        .eq('framework_id', evaluationData.frameworkId)
+        .eq('id', evaluationData.id)
         .single() as { data: SupabaseEvaluation | null; error: unknown }
 
       if (!getError && existingEvaluation) {

@@ -49,6 +49,12 @@ describe('useEvaluationStore', () => {
     await store.loadEvaluations()
 
     expect(store.allEvaluations).toHaveLength(1)
+    // currentEvaluation should NOT be set automatically after loadEvaluations
+    // It must be set explicitly via setCurrentEvaluation
+    expect(store.currentEvaluation).toBeNull()
+
+    // Explicitly set the current evaluation
+    store.setCurrentEvaluation(sampleEvaluation)
     expect(store.currentEvaluation?.id).toBe(sampleEvaluation.id)
   })
 

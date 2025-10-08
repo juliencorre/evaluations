@@ -21,56 +21,69 @@
 
     <!-- Main Content -->
     <main v-else class="evaluations-content" role="main">
-      <!-- No Evaluations State -->
-      <div v-if="evaluations.length === 0" class="empty-state">
-        <div class="empty-state-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-          </svg>
+      <!-- Evaluations Section -->
+      <section class="evaluations-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            Évaluations de la classe
+            <span class="evaluations-count">({{ evaluations.length }})</span>
+          </h2>
         </div>
-        <h2 class="empty-state-title">Aucune évaluation</h2>
-        <p class="empty-state-description">
-          Créez votre première évaluation pour cette classe avec le bouton ci-dessous.
-        </p>
-      </div>
 
-      <!-- Evaluations List -->
-      <div v-else class="evaluations-container">
-        <ul class="md3-list" role="list">
-          <li
-            v-for="evaluation in evaluations"
-            :key="evaluation.id"
-            class="md3-list-item"
-            role="listitem"
-            @click="openEvaluation(evaluation.id)"
-          >
-            <div class="md3-list-item__leading">
-              <div class="evaluation-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                </svg>
-              </div>
-            </div>
+        <!-- No Evaluations State -->
+        <div v-if="evaluations.length === 0" class="empty-state">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">Aucune évaluation</h3>
+          <p class="empty-state-description">
+            Créez votre première évaluation pour cette classe avec le bouton ci-dessous.
+          </p>
+        </div>
 
-            <div class="md3-list-item__content">
-              <div class="md3-list-item__headline">{{ evaluation.name }}</div>
-              <div v-if="evaluation.description" class="md3-list-item__supporting-text">
-                {{ evaluation.description }}
-              </div>
-              <div v-else class="md3-list-item__supporting-text placeholder">
-                Aucune description
-              </div>
-            </div>
-
-            <div class="md3-list-item__trailing">
-              <div class="evaluation-date">{{ formatDate(evaluation.createdAt) }}</div>
-              <svg class="trailing-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+        <!-- Evaluations Grid -->
+        <div v-else class="evaluations-grid">
+        <div
+          v-for="evaluation in evaluations"
+          :key="evaluation.id"
+          class="evaluation-card"
+          @click="openEvaluation(evaluation.id)"
+        >
+          <div class="card-header">
+            <div class="evaluation-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
               </svg>
             </div>
-          </li>
-        </ul>
-      </div>
+            <div class="evaluation-info">
+              <h3 class="evaluation-name">{{ evaluation.name }}</h3>
+              <p v-if="evaluation.description" class="evaluation-description">
+                {{ evaluation.description }}
+              </p>
+              <p v-else class="evaluation-description placeholder">
+                Aucune description
+              </p>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="evaluation-meta">
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="meta-icon">
+                  <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                </svg>
+                Créé le {{ formatDate(evaluation.createdAt) }}
+              </span>
+            </div>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+            </svg>
+          </div>
+        </div>
+        </div>
+      </section>
 
     </main>
 
@@ -284,24 +297,57 @@ const fabMenuItems = ref([
 <style scoped>
 /* Base Page Layout */
 .evaluations-page {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background: var(--neuro-bg-base);
+  background: var(--md-sys-color-surface);
+  padding-top: 64px;
   padding-bottom: 90px;
 }
 
 .evaluations-content {
-  max-width: 840px;
+  flex: 1;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 16px 16px;
+  padding: 24px;
+  width: 100%;
 }
 
 /* Loading State */
 .loading-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
-  color: var(--neuro-text-secondary);
+  padding: 80px 32px;
+  text-align: center;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Section */
+.evaluations-section {
+  background: var(--md-sys-color-surface-container-low);
+  border-radius: var(--md-sys-shape-corner-large, 16px);
+  padding: 24px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-family: var(--md-sys-typescale-title-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-medium-size, 16px);
+  font-weight: var(--md-sys-typescale-title-medium-weight, 500);
+  line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+}
+
+.evaluations-count {
+  color: var(--md-sys-color-primary);
+  font-weight: 500;
 }
 
 /* Empty State */
@@ -310,16 +356,15 @@ const fabMenuItems = ref([
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
   text-align: center;
+  padding: 48px 32px;
 }
 
 .empty-state-icon {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 24px;
-  color: var(--neuro-text-tertiary);
-  opacity: 0.5;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  color: var(--md-sys-color-outline);
 }
 
 .empty-state-icon svg {
@@ -328,70 +373,70 @@ const fabMenuItems = ref([
 }
 
 .empty-state-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--neuro-text-primary);
-  margin: 0 0 12px 0;
+  font-family: var(--md-sys-typescale-title-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-medium-size, 16px);
+  font-weight: var(--md-sys-typescale-title-medium-weight, 500);
+  line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 8px 0;
 }
 
 .empty-state-description {
-  font-size: 16px;
-  color: var(--neuro-text-secondary);
+  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-medium-size, 14px);
+  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
+  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
+  color: var(--md-sys-color-on-surface-variant);
   margin: 0;
   max-width: 400px;
 }
 
-/* Evaluations Container */
-.evaluations-container {
-  background: var(--neuro-bg-base);
-  border-radius: var(--neuro-radius-large);
-  overflow: hidden;
+/* Evaluations Grid */
+.evaluations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
 }
 
-/* MD3 List */
-.md3-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.md3-list-item {
-  display: flex;
-  align-items: center;
-  padding: 16px;
+.evaluation-card {
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large, 16px);
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid var(--neuro-bg-dark);
-  background: var(--neuro-bg-base);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.md3-list-item:hover {
-  background: var(--neuro-bg-light);
-  box-shadow: var(--neuro-shadow-raised);
+.evaluation-card:hover {
+  background: var(--md-sys-color-surface-container);
+  border-color: var(--md-sys-color-outline);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
-.md3-list-item:active {
-  box-shadow: var(--neuro-shadow-inset);
+.evaluation-card:active {
+  transform: translateY(0);
 }
 
-.md3-list-item:last-child {
-  border-bottom: none;
-}
-
-.md3-list-item__leading {
-  margin-right: 16px;
+.card-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
 }
 
 .evaluation-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--neuro-accent-primary);
-  color: white;
-  border-radius: var(--neuro-radius-medium);
-  box-shadow: var(--neuro-shadow-raised);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
+  flex-shrink: 0;
 }
 
 .evaluation-icon svg {
@@ -399,62 +444,119 @@ const fabMenuItems = ref([
   height: 24px;
 }
 
-.md3-list-item__content {
+.evaluation-info {
   flex: 1;
   min-width: 0;
 }
 
-.md3-list-item__headline {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--neuro-text-primary);
-  margin-bottom: 4px;
-}
-
-.md3-list-item__supporting-text {
-  font-size: 14px;
-  color: var(--neuro-text-secondary);
+.evaluation-name {
+  font-family: var(--md-sys-typescale-title-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-title-medium-size, 16px);
+  font-weight: var(--md-sys-typescale-title-medium-weight, 500);
+  line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 8px 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-.md3-list-item__supporting-text.placeholder {
+.evaluation-description {
+  font-family: var(--md-sys-typescale-body-medium-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-medium-size, 14px);
+  font-weight: var(--md-sys-typescale-body-medium-weight, 400);
+  line-height: var(--md-sys-typescale-body-medium-line-height, 20px);
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.evaluation-description.placeholder {
   font-style: italic;
   opacity: 0.7;
 }
 
-.md3-list-item__trailing {
+.card-footer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-left: 16px;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
 }
 
-.evaluation-date {
-  font-size: 12px;
-  color: var(--neuro-text-tertiary);
-  white-space: nowrap;
+.evaluation-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.trailing-icon {
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--md-sys-typescale-body-small-font, 'Roboto');
+  font-size: var(--md-sys-typescale-body-small-size, 12px);
+  font-weight: var(--md-sys-typescale-body-small-weight, 400);
+  line-height: var(--md-sys-typescale-body-small-line-height, 16px);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.meta-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+.arrow-icon {
   width: 24px;
   height: 24px;
-  color: var(--neuro-text-tertiary);
+  color: var(--md-sys-color-on-surface-variant);
+  flex-shrink: 0;
 }
 
 /* Responsive Design */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .evaluations-content {
-    padding: 70px 8px 8px;
+    padding: 16px;
   }
 
-  .md3-list-item {
+  .evaluations-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .evaluation-card {
+    padding: 16px;
+  }
+
+  .card-header {
+    gap: 12px;
+  }
+
+  .evaluation-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .evaluation-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .evaluations-content {
     padding: 12px;
   }
 
-  .evaluation-date {
-    display: none;
+  .evaluation-card {
+    padding: 12px;
   }
 }
 

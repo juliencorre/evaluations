@@ -198,11 +198,17 @@ const handleLogout = async () => {
 }
 
 const goBack = () => {
-  const evaluationId = props.id || (route?.params?.id as string)
-  if (evaluationId) {
-    router.push(`/evaluation/${evaluationId}`)
+  // Redirect back to the class evaluations page if we have a classId
+  if (formData.value.classId) {
+    router.push(`/classes/${formData.value.classId}/evaluations`)
   } else {
-    router.push('/evaluations')
+    // Fallback to the evaluation detail page or general evaluations list
+    const evaluationId = props.id || (route?.params?.id as string)
+    if (evaluationId) {
+      router.push(`/evaluation/${evaluationId}`)
+    } else {
+      router.push('/evaluations')
+    }
   }
 }
 

@@ -22,6 +22,7 @@
     <!-- Desktop Evaluation Table -->
     <EvaluationTable
       v-else-if="framework && framework.domains.length > 0 && !isMobileView && currentEvaluation"
+      :key="currentEvaluation.id"
       :evaluation="currentEvaluation"
       :students="evaluationStudents"
       :framework="framework"
@@ -30,6 +31,7 @@
     <!-- Mobile Evaluation View -->
     <EvaluationMobileView
       v-else-if="framework && framework.domains.length > 0 && isMobileView && currentEvaluation"
+      :key="currentEvaluation.id"
       :evaluation="currentEvaluation"
       :students="evaluationStudents"
       :framework="framework"
@@ -71,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue'
+import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Define props for the evaluation ID
@@ -118,7 +120,8 @@ const { framework } = storeToRefs(competenciesStore)
 const { refreshFromSupabase } = competenciesStore
 
 const evaluationStore = useEvaluationStore()
-const { setCurrentEvaluation, getEvaluationById, loadEvaluations, currentEvaluation } = evaluationStore
+const { currentEvaluation } = storeToRefs(evaluationStore)
+const { setCurrentEvaluation, getEvaluationById, loadEvaluationById } = evaluationStore
 
 const schoolYearStore = useSchoolYearStore()
 
@@ -199,8 +202,8 @@ const shareEvaluationInfo = computed(() => {
     , 0)
 
   return {
-    name: currentEvaluation.name || 'Évaluation sans nom',
-    description: currentEvaluation.description,
+    name: currentEvaluation.value?.name || 'Évaluation sans nom',
+    description: currentEvaluation.value?.description,
     studentsCount: evaluationStudents.value.length,
     competenciesCount
   }
@@ -216,15 +219,18 @@ onMounted(async () => {
   const evaluationId = props.id || (route?.params?.id as string)
   console.log('📋 [HomeView] Loading evaluation with ID:', evaluationId)
 
-  // Load evaluations from database
-  await loadEvaluations()
-
   // Ensure school years are loaded
   await schoolYearStore.ensureLoaded()
 
   // Load the specific evaluation based on the route parameter
   if (evaluationId) {
-    const evaluation = getEvaluationById(evaluationId)
+    let evaluation = getEvaluationById(evaluationId)
+    if (!evaluation) {
+      const loadedEvaluation = await loadEvaluationById(evaluationId)
+      if (loadedEvaluation) {
+        evaluation = loadedEvaluation
+      }
+    }
     if (evaluation) {
       console.log('📋 [HomeView] Found evaluation:', evaluation.name, 'ID:', evaluation.id)
       setCurrentEvaluation(evaluation)
@@ -260,6 +266,37 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
+// Watch for route changes to reload evaluation
+watch(() => route.params.id, async (newId) => {
+  if (newId && typeof newId === 'string') {
+    console.log('📋 [HomeView] Route ID changed, loading evaluation:', newId)
+    isLoading.value = true
+
+    let evaluation = getEvaluationById(newId)
+    if (!evaluation) {
+      const loadedEvaluation = await loadEvaluationById(newId)
+      if (loadedEvaluation) {
+        evaluation = loadedEvaluation
+      }
+    }
+
+    if (evaluation) {
+      console.log('📋 [HomeView] Found evaluation:', evaluation.name, 'ID:', evaluation.id)
+      setCurrentEvaluation(evaluation)
+
+      // Load students for this evaluation
+      const currentSchoolYearId = schoolYearStore.currentSchoolYear?.id
+      evaluationStudents.value = await supabaseEvaluationClassesService.getStudentsForEvaluation(
+        newId,
+        currentSchoolYearId
+      )
+      console.log(`👥 [HomeView] Loaded ${evaluationStudents.value.length} students for evaluation`)
+    }
+
+    isLoading.value = false
+  }
+})
+
 // Event handlers
 
 const { logout } = useLogout()
@@ -269,7 +306,12 @@ const handleLogout = async () => {
 }
 
 const goBackToList = () => {
-  router.push('/evaluations')
+  // Redirect back to the class evaluations page if we have a classId
+  if (currentEvaluation.value?.classId) {
+    router.push(`/classes/${currentEvaluation.value.classId}/evaluations`)
+  } else {
+    router.push('/evaluations')
+  }
 }
 
 // Share dialog handlers
@@ -299,9 +341,9 @@ const handleSendEmail = async (data: { emails: string[]; message: string }) => {
     // Prepare data for sharing (reuse export data structure)
     const exportData = {
       evaluation: {
-        id: currentEvaluation?.id || 'unknown',
-        name: currentEvaluation?.name || 'Évaluation sans nom',
-        description: currentEvaluation?.description || '',
+        id: currentEvaluation.value?.id || 'unknown',
+        name: currentEvaluation.value?.name || 'Évaluation sans nom',
+        description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '',
         schoolYearFilter: schoolYearStore.currentSchoolYear?.name || 'Toutes les années'
@@ -408,9 +450,9 @@ const exportEvaluationResults = () => {
     // Prepare data for export with safety checks
     const exportData = {
       evaluation: {
-        id: currentEvaluation?.id || 'unknown',
-        name: currentEvaluation?.name || 'Évaluation sans nom',
-        description: currentEvaluation?.description || '',
+        id: currentEvaluation.value?.id || 'unknown',
+        name: currentEvaluation.value?.name || 'Évaluation sans nom',
+        description: currentEvaluation.value?.description || '',
         date: new Date().toLocaleDateString('fr-FR'),
         className: '', // Class name would need to be resolved from classId
         schoolYearFilter: schoolYearStore.currentSchoolYear?.name || 'Toutes les années'
@@ -465,7 +507,7 @@ const exportEvaluationResults = () => {
     const csvContent = generateCSV(exportData)
 
     // Download file
-    const fileName = `evaluation_${(currentEvaluation?.name || 'evaluation').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`
+    const fileName = `evaluation_${(currentEvaluation.value?.name || 'evaluation').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`
     downloadCSV(csvContent, fileName)
 
     console.log('✅ Export completed successfully')

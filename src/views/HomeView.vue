@@ -212,18 +212,21 @@ onMounted(async () => {
   handleScroll()
   checkMobileView()
 
-  // Load evaluations from database first to get the frameworkId
+  // Get the evaluation ID from route first
+  const evaluationId = props.id || (route?.params?.id as string)
+  console.log('📋 [HomeView] Loading evaluation with ID:', evaluationId)
+
+  // Load evaluations from database
   await loadEvaluations()
 
   // Ensure school years are loaded
   await schoolYearStore.ensureLoaded()
 
   // Load the specific evaluation based on the route parameter
-  const evaluationId = props.id || (route?.params?.id as string)
   if (evaluationId) {
     const evaluation = getEvaluationById(evaluationId)
     if (evaluation) {
-      console.log('📋 [HomeView] Loading evaluation:', evaluation.name)
+      console.log('📋 [HomeView] Found evaluation:', evaluation.name, 'ID:', evaluation.id)
       setCurrentEvaluation(evaluation)
 
       // Load competencies framework from database using the evaluation's frameworkId

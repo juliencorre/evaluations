@@ -52,10 +52,9 @@ export const useEvaluationsStore = defineStore('evaluations', () => {
       const data = await evaluationRepository.findAll()
       evaluations.value = data
 
-      // Définir la première évaluation comme courante si aucune n'est définie
-      if (data.length > 0 && !currentEvaluation.value) {
-        currentEvaluation.value = data[0]
-      }
+      // Ne PAS définir automatiquement une évaluation courante
+      // Cela doit être fait explicitement par le composant appelant
+      // Pour éviter de changer l'évaluation sélectionnée lors de la navigation
     } catch (err) {
       console.error('[EvaluationsStore] Erreur lors du chargement des évaluations:', err)
       error.value = 'Impossible de charger les évaluations'
